@@ -58,10 +58,10 @@
 <div id="menu" class="overlay">
   <div class="card">
     <h1>Shark <span>Game</span></h1>
-    <p>Collect pearls, chain combos, and don't get eaten.</p>
+    <p>You're a little fish in a big ocean. Eat fish food to earn coins — and don't get eaten by sharks!</p>
     <ul>
       <li><b>Move:</b> arrow keys / WASD, or drag with mouse or finger</li>
-      <li><b>Pearls</b> give points — grab them fast to build a combo (up to ×5)</li>
+      <li><b>Fish food</b> floats in from the right — each bite is 1 coin, golden flakes are 5. Eat fast to build a combo (up to ×5)</li>
       <li><b>Power-ups:</b> 🛡 shield · ⏱ slow-mo · 🧲 magnet</li>
       <li><b>Watch out</b> for red hunters that chase you and dashers that charge after a warning</li>
       <li><b>P</b> / Esc to pause · <b>M</b> to mute</li>
@@ -81,7 +81,7 @@
 <div id="over" class="overlay hidden">
   <div class="card">
     <h2>Chomp!</h2>
-    <p class="big">Score: <b id="finalScore">0</b></p>
+    <p class="big">Coins: <b id="finalScore">0</b></p>
     <p id="finalBest"></p>
     <p id="finalStats"></p>
     <button id="againBtn">Play again</button>
@@ -132,7 +132,7 @@
     o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + 0.02);
   }
   const sfx = {
-    pearl(combo) { tone(520 + combo * 90, 0.09, 'triangle', 0.12); },
+    eat(combo) { tone(520 + combo * 90, 0.09, 'triangle', 0.12); },
     gold() { tone(660, 0.08, 'triangle', 0.14); setTimeout(() => tone(990, 0.14, 'triangle', 0.14), 70); },
     power() { tone(300, 0.25, 'sawtooth', 0.07, 600); },
     hit() { tone(180, 0.35, 'square', 0.12, -120); },
@@ -172,23 +172,24 @@
 
   // ---------- game state ----------
   let state = 'menu';
-  let player, sharks, pearls, powerups, particles, floaters;
-  let score, lives, time, level, combo, comboTimer, spawnTimer, pearlTimer, powerTimer;
-  let slowT, magnetT, shieldOn, invulnT, shake, pearlsCollected, flash;
+  let player, sharks, food, powerups, particles, floaters;
+  let score, lives, time, level, combo, comboTimer, spawnTimer, foodTimer, powerTimer;
+  let slowT, magnetT, shieldOn, invulnT, shake, foodEaten, flash;
 
   function reset() {
     player = { x: W / 2, y: H / 2, vx: 0, vy: 0, r: 15, face: 1, tail: 0 };
-    sharks = []; pearls = []; powerups = []; particles = []; floaters = [];
+    sharks = []; food = []; powerups = []; particles = []; floaters = [];
     score = 0; lives = 3; time = 0; level = 1; combo = 0; comboTimer = 0;
-    spawnTimer = 1.5; pearlTimer = 0; powerTimer = 10;
-    slowT = 0; magnetT = 0; shieldOn = false; invulnT = 1.5; shake = 0; pearlsCollected = 0; flash = 0;
-    for (let i = 0; i < 5; i++) spawnPearl();
+    spawnTimer = 1.5; foodTimer = 0; powerTimer = 10;
+    slowT = 0; magnetT = 0; shieldOn = false; invulnT = 1.5; shake = 0; foodEaten = 0; flash = 0;
+    for (let i = 0; i < 4; i++) spawnFood(false, rand(W * 0.4, W - 20));
   }
 
-  function spawnPearl(gold = Math.random() < 0.08) {
-    pearls.push({
-      x: rand(40, W - 40), y: rand(TOP + 30, H - 60), r: gold ? 11 : 8, gold,
-      life: gold ? 6 : Infinity, t: rand(0, 6),
+  // fish food drifts in from the right and floats off to the left
+  function spawnFood(gold = Math.random() < 0.08, x = W + 20) {
+    food.push({
+      x, y: rand(TOP + 30, H - 60), r: gold ? 9 : 7, gold,
+      speed: (gold ? rand(150, 190) : rand(60, 110)) + level * 6, t: rand(0, 6), spin: rand(-2, 2),
     });
   }
 
@@ -267,8 +268,8 @@
       if (sharks.length < maxSharks) spawnShark();
       spawnTimer = Math.max(0.45, 2.4 - level * 0.22) * rand(0.7, 1.3);
     }
-    pearlTimer -= dt;
-    if (pearlTimer <= 0) { if (pearls.length < 7) spawnPearl(); pearlTimer = rand(0.8, 1.6); }
+    foodTimer -= dt;
+    if (foodTimer <= 0) { if (food.length < 10) spawnFood(); foodTimer = rand(0.5, 1.1); }
     powerTimer -= dt;
     if (powerTimer <= 0) { spawnPowerup(); powerTimer = rand(12, 18); }
 
@@ -316,10 +317,12 @@
     }
     sharks = sharks.filter(s => !s.dead);
 
-    // pearls
-    for (const pr of pearls) {
+    // fish food
+    for (const pr of food) {
       pr.t += dt;
-      if (pr.life !== Infinity) { pr.life -= dt; if (pr.life <= 0) pr.dead = true; }
+      pr.x -= pr.speed * dt;
+      pr.y += Math.sin(pr.t * 2) * 12 * dt;
+      if (pr.x < -20) pr.dead = true;
       if (magnetT > 0) {
         const dx = p.x - pr.x, dy = p.y - pr.y, d = Math.hypot(dx, dy);
         if (d < 260 && d > 1) { const f = 420 * dt; pr.x += (dx / d) * f; pr.y += (dy / d) * f; }
@@ -328,14 +331,14 @@
         pr.dead = true;
         combo = Math.min(combo + 1, 25); comboTimer = 2.2;
         const mult = 1 + Math.min(4, Math.floor(combo / 5));
-        const pts = (pr.gold ? 50 : 10) * mult;
-        score += pts; pearlsCollected++;
-        pr.gold ? sfx.gold() : sfx.pearl(Math.min(mult, 5));
-        burst(pr.x, pr.y, pr.gold ? '#ffd24a' : '#e8f7ff', pr.gold ? 18 : 8, 140);
-        floatText(pr.x, pr.y - 10, `+${pts}`, pr.gold ? '#ffd24a' : '#fff');
+        const pts = (pr.gold ? 5 : 1) * mult;
+        score += pts; foodEaten++;
+        pr.gold ? sfx.gold() : sfx.eat(Math.min(mult, 5));
+        burst(pr.x, pr.y, pr.gold ? '#ffd24a' : '#e8a060', pr.gold ? 18 : 8, 140);
+        floatText(pr.x, pr.y - 10, `+${pts} 🪙`, pr.gold ? '#ffd24a' : '#fff');
       }
     }
-    pearls = pearls.filter(x => !x.dead);
+    food = food.filter(x => !x.dead);
 
     // power-ups
     for (const u of powerups) {
@@ -359,9 +362,6 @@
     particles = particles.filter(x => x.life > 0);
     for (const f of floaters) { f.life -= dt; f.y -= 40 * dt; }
     floaters = floaters.filter(x => x.life > 0);
-
-    // survival points
-    score += dt * level;
   }
 
   function hitPlayer(s) {
@@ -516,15 +516,22 @@
     ctx.restore();
   }
 
-  function drawPearl(pr) {
-    const bob = Math.sin(pr.t * 3) * 3;
-    if (pr.life !== Infinity && pr.life < 2 && Math.floor(pr.life * 8) % 2 === 0) return;
-    ctx.save(); ctx.translate(pr.x, pr.y + bob);
-    const g = ctx.createRadialGradient(-pr.r * 0.35, -pr.r * 0.35, 1, 0, 0, pr.r);
-    if (pr.gold) { g.addColorStop(0, '#fff6c8'); g.addColorStop(1, '#e8a800'); }
-    else { g.addColorStop(0, '#ffffff'); g.addColorStop(1, '#b9d4e6'); }
-    ctx.shadowColor = pr.gold ? '#ffd24a' : '#bfe8ff'; ctx.shadowBlur = 14;
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, pr.r, 0, Math.PI * 2); ctx.fill();
+  function drawFood(pr) {
+    ctx.save(); ctx.translate(pr.x, pr.y); ctx.rotate(pr.t * pr.spin);
+    if (pr.gold) {
+      ctx.shadowColor = '#ffd24a'; ctx.shadowBlur = 16;
+      ctx.fillStyle = '#ffd24a';
+    } else {
+      ctx.fillStyle = ['#c8612c', '#d98b2b', '#a8452a'][Math.floor(pr.spin * 10 + 20) % 3];
+    }
+    // an irregular flake
+    const r = pr.r;
+    ctx.beginPath();
+    ctx.moveTo(r, 0); ctx.lineTo(r * 0.3, r * 0.8); ctx.lineTo(-r * 0.7, r * 0.6);
+    ctx.lineTo(-r, -r * 0.2); ctx.lineTo(-r * 0.2, -r * 0.9); ctx.lineTo(r * 0.7, -r * 0.6);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 0; ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.beginPath(); ctx.arc(-r * 0.25, -r * 0.3, r * 0.25, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
 
@@ -547,7 +554,7 @@
     ctx.fillStyle = 'rgba(2,14,26,0.45)'; ctx.fillRect(0, 0, W, TOP - 8);
     ctx.textBaseline = 'middle'; ctx.fillStyle = '#eaf6ff';
     ctx.font = 'bold 22px system-ui'; ctx.textAlign = 'left';
-    ctx.fillText(`${Math.floor(score)}`, 16, 26);
+    ctx.fillText(`🪙 ${Math.floor(score)}`, 16, 26);
     ctx.font = '12px system-ui'; ctx.fillStyle = '#8fb4cc';
     ctx.fillText(`BEST ${Math.max(best, Math.floor(score))}  ·  LV ${level}`, 16, 44);
 
@@ -586,7 +593,7 @@
     if (shake > 0) ctx.translate(rand(-shake, shake), rand(-shake, shake));
     drawBackground(performance.now() / 1000);
     if (state !== 'menu') {
-      for (const pr of pearls) drawPearl(pr);
+      for (const pr of food) drawFood(pr);
       for (const u of powerups) drawPowerup(u);
       for (const pt of particles) {
         ctx.globalAlpha = clamp(pt.life / pt.max, 0, 1); ctx.fillStyle = pt.color;
@@ -612,7 +619,7 @@
   // ---------- flow ----------
   const $ = id => document.getElementById(id);
   function show(id, on) { $(id).classList.toggle('hidden', !on); }
-  function updateMenuBest() { $('menuBest').textContent = best ? `Best score: ${best}` : ''; }
+  function updateMenuBest() { $('menuBest').textContent = best ? `Most coins: ${best}` : ''; }
 
   function startGame() {
     audio(); reset(); state = 'playing';
@@ -633,8 +640,8 @@
     const isBest = final > best;
     if (isBest) { best = final; store.set('shark.best', best); }
     $('finalScore').textContent = final;
-    $('finalBest').innerHTML = isBest ? '<span class="new-best">New best score!</span>' : `Best: ${best}`;
-    $('finalStats').textContent = `Level ${level} · ${pearlsCollected} pearls · survived ${Math.floor(time)}s`;
+    $('finalBest').innerHTML = isBest ? '<span class="new-best">New record!</span>' : `Best: ${best}`;
+    $('finalStats').textContent = `Level ${level} · ${foodEaten} bites of food · survived ${Math.floor(time)}s`;
     $('pauseBtn').style.display = 'none';
     setTimeout(() => { if (state === 'over') show('over', true); }, 700);
   }
