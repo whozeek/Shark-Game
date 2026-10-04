@@ -575,6 +575,33 @@ function deliver(c){
   fx.text(c.x,c.y-6,'+1',COL.ok);snd('deliver');
 }
 function moveTo(c,tx,ty,dt){const dx=tx-c.x,dy=ty-c.y,d=Math.hypot(dx,dy),s=WALK*dt;if(d<=s){c.x=tx;c.y=ty;return true}c.x+=dx/d*s;c.y+=dy/d*s;return false}
+function thinkTick(dt){
+  for(let i=G.bubbles.length-1;i>=0;i--){
+    const b=G.bubbles[i];b.t+=dt;
+    if(b.c&&G.citizens.includes(b.c)&&(b.c.state==='walk'||b.c.state==='wait')){b.x=b.c.x;b.y=b.c.y}
+    if(b.t>=b.life)G.bubbles.splice(i,1);
+  }
+  G.thinkT-=dt;
+  if(G.thinkT>0||G.bubbles.length||tutOn())return;
+  const P=G.L.patience,pool=[];
+  for(const c of G.citizens){
+    let neglected=false;
+    if(c.state==='walk'){
+      if(!c.stop)neglected=c.p<P*.97;
+      else neglected=Math.hypot(c.stop.x-c.x,c.stop.y-c.y)>170;
+    }else if(c.state==='wait')neglected=c.noRoute&&c.p<P*.8;
+    if(!neglected)continue;
+    let near=false;
+    for(const m of G.thinkMem)if(G.t-m.t<70&&Math.hypot(m.x-c.x,m.y-c.y)<140){near=true;break}
+    if(!near)pool.push(c);
+  }
+  if(!pool.length){G.thinkT=3;return}
+  const c=pool[Math.floor(rnd()*pool.length)];
+  G.bubbles.push({c,x:c.x,y:c.y,t:0,life:6});
+  G.thinkMem.push({x:c.x,y:c.y,t:G.t});if(G.thinkMem.length>8)G.thinkMem.shift();
+  G.thinkT=22+rnd()*16;
+  if(!G.thinkSeen){G.thinkSeen=true;toast('A thought bubble: someone has no good bus service nearby.',3600)}
+}
 function updCitizens(dt){
   const m=G.stormMult;
   for(let i=G.citizens.length-1;i>=0;i--){
@@ -882,7 +909,7 @@ function step(dt){
     ev.t+=dt;
     if(ev.t>=ev.dur)endEvent();
   }
-  updCitizens(dt);
+  updCitizens(dt);thinkTick(dt);
   for(const b of G.buses)updBus(b,dt);
   for(const st of G.stops.values()){if(st.cheer>0)st.cheer-=dt;if(st.missed>0)st.missed-=dt}
   for(let i=G.parts.length-1;i>=0;i--){const p=G.parts[i];p.a+=dt/p.life;if(p.a>=1)G.parts.splice(i,1)}
@@ -931,7 +958,7 @@ function gameOver(){
 /* ================= level setup ================= */
 function resetState(){
   G.stops=new Map();G.routes=[];G.buses=[];G.citizens=[];G.parts=[];G.day=1;G.t=0;G.acc=0;G.over=false;G.netVer++;
-  G.xferDelivered=0;G.delivered=0;G.gaveUp=0;G.dayDel=0;G.dayGave=0;G.win=[];G.event=null;G.stormMult=1;G.routeCount=0;G.lastEv='';G.flashSat=0;
+  G.bubbles=[];G.thinkMem=[];G.thinkT=20;G.thinkSeen=false;G.xferDelivered=0;G.delivered=0;G.gaveUp=0;G.dayDel=0;G.dayGave=0;G.win=[];G.event=null;G.stormMult=1;G.routeCount=0;G.lastEv='';G.flashSat=0;
   ui.drawing=null;ui.sel=null;ui.tool='select';ui.sheet=false;
 }
 function loadLevel(i){
@@ -1408,6 +1435,7 @@ function resetDyn(){
   for(const o of T.buses.values())T.dyn.remove(o.g);T.buses.clear();
   for(const o of T.closures.values())T.dyn.remove(o);T.closures.clear();
   for(const o of T.partObjs)T.dyn.remove(o.o);T.partObjs=[];
+  if(T.bubbleObjs){for(const o of T.bubbleObjs.values())T.dyn.remove(o);T.bubbleObjs.clear()}
   if(T.hover)T.hover.visible=false;
 }
 function ribbon(pts,w,y,mat){
@@ -1567,6 +1595,30 @@ function syncTut(now){
   if(!T.tutG.visible)return;
   const k=.4+.2*Math.sin(now/260);T.tutMats.home.opacity=t.home?0:k;T.tutMats.work.opacity=t.work?0:k;
 }
+const thinkTex=()=>spriteTex('think',192,160,(g)=>{
+  g.fillStyle='rgba(0,0,0,.18)';g.beginPath();for(const[x,y,r]of[[70,70,34],[104,56,40],[138,72,32],[100,86,36]]){g.moveTo(x+r+3,y+5);g.arc(x+3,y+5,r,0,6.3)}g.fill();
+  g.fillStyle='#ffffff';g.strokeStyle='#8a99a8';g.lineWidth=3;
+  for(const[x,y,r]of[[70,66,34],[104,50,40],[138,68,32],[100,82,36]]){g.beginPath();g.arc(x,y,r,0,6.3);g.fill()}
+  g.beginPath();g.arc(70,66,34,2.2,4.3);g.arc(104,50,40,3.5,5.6);g.arc(138,68,32,4.7,7.2);g.arc(100,82,36,.6,2.6);g.stroke();
+  g.fillStyle='#fff';for(const[x,y,r]of[[70,66,33],[104,50,39],[138,68,31],[100,82,35]]){g.beginPath();g.arc(x,y,r-1.5,0,6.3);g.fill()}
+  g.fillStyle='#fff';g.strokeStyle='#8a99a8';for(const[x,y,r]of[[58,122,9],[40,142,6]]){g.beginPath();g.arc(x,y,r,0,6.3);g.fill();g.stroke()}
+  // bus icon
+  g.fillStyle='#2f7de1';rrect(g,62,50,76,36,8);g.fill();
+  g.fillStyle='#e8f3ff';for(let i=0;i<3;i++)g.fillRect(68+i*22,56,17,13);
+  g.fillStyle='#1b2733';g.beginPath();g.arc(80,89,6,0,6.3);g.arc(120,89,6,0,6.3);g.fill();
+  g.fillStyle='#e2483d';g.font='800 40px Outfit,Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('?',150,52);
+});
+function syncBubbles(u,now){
+  const live=new Set(G.bubbles);
+  if(!T.bubbleObjs)T.bubbleObjs=new Map();
+  for(const[b,o]of T.bubbleObjs)if(!live.has(b)){T.dyn.remove(o);o.material.dispose();T.bubbleObjs.delete(b)}
+  for(const b of G.bubbles){
+    let o=T.bubbleObjs.get(b);
+    if(!o){o=mkSprite(thinkTex(),56,46);o.renderOrder=30;T.dyn.add(o);T.bubbleObjs.set(b,o)}
+    const k=Math.min(1,b.t/.5),out=Math.min(1,(b.life-b.t)/.8),a=Math.min(k,out),sc=u*(.6+.4*k);
+    o.scale.set(56*sc,46*sc,1);o.position.set(b.x,34*u+Math.sin(now/380)*2.2*u,b.y);o.material.opacity=a;
+  }
+}
 function syncMarkers(u,now){
   if(!T.hover){
     T.hover=new THREE.Mesh(T.gRing,basic('#2a7de1'));T.hover.position.y=1.5;T.dyn.add(T.hover);
@@ -1628,7 +1680,7 @@ function render3D(now,simDt,realDt){
   if(!T.ok||!G.city)return;
   updateCamera();
   const u=clamp(1.1/cam.zoom,1,2.7);
-  syncRoutes();syncStops(u,now);syncBuses(u,now);syncCitizens(u,now);syncClosures(now);syncParts(u);syncMarkers(u,now);syncTut(now);
+  syncRoutes();syncStops(u,now);syncBuses(u,now);syncCitizens(u,now);syncClosures(now);syncParts(u);syncMarkers(u,now);syncTut(now);syncBubbles(u,now);
   if(simDt>0)updCars(simDt);
   lighting(now);
   if(T.post)T.comp.render();else T.r.render(T.scene,T.camera);
@@ -1832,7 +1884,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 /* boot */
 resize();
 if(!init3D()){document.body.insertAdjacentHTML('beforeend','<div style="position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;background:#fff;z-index:99;font-weight:700">This game needs WebGL for its 3D city. Try another browser.</div>');return}
