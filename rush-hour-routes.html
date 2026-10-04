@@ -631,7 +631,18 @@ function rebuildVis(){
     }
   }
 }
-function netChanged(){G.netVer++;rebuildVis();ui.dirty=true}
+const tutOn=()=>!!ui.tut&&G.t===0&&G.day===1;
+function nearDist(list,x,y){let d=1e9;for(const b of list){const k=Math.hypot(b.x-x,b.y-y);if(k<d)d=k}return d}
+function tutState(){
+  if(!G.city)return{home:false,work:false};
+  let home=false,work=false;
+  for(const st of G.stops.values()){if(nearDist(G.city.homes,st.x,st.y)<95)home=true;if(nearDist(G.city.works,st.x,st.y)<85)work=true}
+  return{home,work};
+}
+function netChanged(){
+  G.netVer++;rebuildVis();ui.dirty=true;
+  if(tutOn()){const t=tutState();if(t.home&&t.work&&!G.routes.length&&!ui.tutBoth){ui.tutBoth=true;if(ui.tool!=='route')setTool('route')}if(!(t.home&&t.work))ui.tutBoth=false}
+}
 function newRoute(stops){
   const used=new Set(G.routes.map(r=>r.color));
   const color=ROUTE_COLORS.find(c=>!used.has(c))||ROUTE_COLORS[G.routeCount%ROUTE_COLORS.length];
@@ -928,12 +939,10 @@ function loadLevel(i){
   G.city=buildCity(G.L);
   if(T.ok){build3D(G.city);resetDyn()}
   planEvents();
-  const ids=G.L.starter.map(([c,r])=>r*(G.city.cols+1)+c);
-  for(const id of ids)addStop(id);
-  const r=newRoute(ids);addBus(r);netChanged();
-  ui.sel={type:'route',id:r.id};
+  ui.tut=true;ui.tutBoth=false;
+  netChanged();
   G.paused=true;G.modal=false;syncPlay();
-  fitCam(true);ui.dirty=true;setTool('select');
+  fitCam(true);ui.dirty=true;setTool('stop');
   buildTimeline();
 }
 function buildTimeline(){
@@ -1350,6 +1359,11 @@ function build3D(city){
   pole.castShadow=true;g.add(pole);g.add(head);
   const hg=new THREE.BufferGeometry();hg.setAttribute('position',new THREE.BufferAttribute(hp,3));
   T.halo=new THREE.Points(hg,new THREE.PointsMaterial({map:lampTex(),size:22,sizeAttenuation:true,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,opacity:0,toneMapped:false}));g.add(T.halo);
+  if(T.tutG)T.scene.remove(T.tutG);
+  const tg=new THREE.Group();T.tutG=tg;T.tutMats={home:basic('#9dffb0',{transparent:true,opacity:.5,depthWrite:false}),work:basic('#6cc0ff',{transparent:true,opacity:.5,depthWrite:false})};
+  const pg=new THREE.PlaneGeometry(S-22,S-22);pg.rotateX(-Math.PI/2);
+  for(const b of city.blocks)if(b.t==='H'||b.t==='B'){const m=new THREE.Mesh(pg,T.tutMats[b.t==='H'?'home':'work']);m.position.set(b.x+S/2,.45,b.y+S/2);m.renderOrder=2;m.userData.k=b.t==='H'?'home':'work';tg.add(m)}
+  T.scene.add(tg);
   T.city=g;T.scene.add(g);
   T.cityC={x:city.w/2,z:city.h/2,r:Math.max(city.w,city.h)*.62};
   const sh=T.sun.shadow.camera,r=T.cityC.r;sh.left=-r;sh.right=r;sh.top=r;sh.bottom=-r;sh.near=50;sh.far=2600;sh.updateProjectionMatrix();
@@ -1547,6 +1561,12 @@ function syncParts(u){
     else{const t=p.a,e=t*t*(3-2*t);o.position.set(p.x0+(p.x1-p.x0)*e,6+Math.sin(t*3.14)*10,p.y0+(p.y1-p.y0)*e);o.scale.setScalar(2.4*u);o.material.opacity=1-t*.4}
   }
 }
+function syncTut(now){
+  if(!T.tutG)return;const on=tutOn()&&!G.routes.length,t=on?tutState():{home:true,work:true};
+  T.tutG.visible=on&&!(t.home&&t.work);
+  if(!T.tutG.visible)return;
+  const k=.4+.2*Math.sin(now/260);T.tutMats.home.opacity=t.home?0:k;T.tutMats.work.opacity=t.work?0:k;
+}
 function syncMarkers(u,now){
   if(!T.hover){
     T.hover=new THREE.Mesh(T.gRing,basic('#2a7de1'));T.hover.position.y=1.5;T.dyn.add(T.hover);
@@ -1608,7 +1628,7 @@ function render3D(now,simDt,realDt){
   if(!T.ok||!G.city)return;
   updateCamera();
   const u=clamp(1.1/cam.zoom,1,2.7);
-  syncRoutes();syncStops(u,now);syncBuses(u,now);syncCitizens(u,now);syncClosures(now);syncParts(u);syncMarkers(u,now);
+  syncRoutes();syncStops(u,now);syncBuses(u,now);syncCitizens(u,now);syncClosures(now);syncParts(u);syncMarkers(u,now);syncTut(now);
   if(simDt>0)updCars(simDt);
   lighting(now);
   if(T.post)T.comp.render();else T.r.render(T.scene,T.camera);
@@ -1645,7 +1665,14 @@ function setTool(t){
 }
 function hintText(){
   if(G.over)return'';
-  if(G.paused&&G.t===0&&G.day===1&&G.delivered+G.gaveUp===0)return'Press ▶ to start the day. Your first route is ready. Add stops and buses before it gets busy.';
+  if(tutOn()){
+    const t=tutState();
+    if(G.routes.length)return'Step 4 of 4 · Your route is running with 1 bus. Press ▶ to start the day, then add stops and buses as crowds grow.';
+    if(t.home&&t.work)return'Step 3 of 4 · Connect them. With the Route tool, tap one stop, then the other.';
+    if(t.home)return'Step 2 of 4 · Good spot. Now place a stop in the business district (blue glow) so riders have somewhere to go.';
+    if(t.work)return'Step 2 of 4 · Nice. Now place a stop next to the homes (green glow) where people start their day.';
+    return'Step 1 of 4 · Where should the first bus stop go? Tap a junction right next to the glowing homes (green) or offices (blue).';
+  }
   if(ui.tool==='stop')return'Tap a road junction to place a stop. Tap an existing stop to select it.';
   if(ui.tool==='route'){const d=ui.drawing;return d?(d.routeId===null?'Tap a second stop to create the route.':'Tap the next stop, or press Done.'):'Tap a stop or junction to start a route. Tap a route\'s last stop to extend it.'}
   let nr=0;for(const st of G.stops.values())for(const c of st.waiters)if(c.noRoute)nr++;
@@ -1729,7 +1756,7 @@ document.addEventListener('click',e=>{
   const act=el.dataset.act,id=el.dataset.id?+el.dataset.id:null;
   const route=id?G.routes.find(r=>r.id===id):null;
   switch(act){
-    case'play':if(G.modal||G.over)return;G.paused=!G.paused;syncPlay();break;
+    case'play':if(G.modal||G.over)return;if(G.paused&&!G.routes.length&&G.t===0){toast('Place stops and draw a route first.');return}G.paused=!G.paused;syncPlay();break;
     case'speed':G.speed=G.speed%3+1;syncPlay();break;
     case'sound':ui.sound=!ui.sound;syncPlay();if(el.closest('#ov'))el.textContent=ui.sound?'Sound: on':'Sound: off';break;
     case'fitclose':hideOv();fitCam(true);break;
