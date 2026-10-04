@@ -123,7 +123,33 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
 .statgrid div{background:#f2f7f4;border-radius:12px;padding:10px}
 .statgrid b{display:block;font-family:var(--font-display);font-size:26px;font-variant-numeric:tabular-nums}
 .statgrid span{font-size:12px;font-weight:700;color:var(--muted)}
+#photoX{position:absolute;right:14px;bottom:14px;z-index:5;height:48px;padding:0 18px;border-radius:14px;border:0;background:rgba(20,30,40,.7);color:#fff;font-weight:800}
+.photo #top,.photo #bottom,.photo #vig{display:none}
+.cash{margin-left:auto;font-family:var(--font-display);font-weight:800;color:var(--ink);font-size:14px}
+.cash.neg{color:var(--bad)}
+.shead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:2px 4px}
+.shead b{font-family:var(--font-display);font-size:15px;margin-right:auto}
+.rtools{flex:1 0 100%;display:flex;flex-wrap:wrap;gap:6px}
+.rtools .rname{flex:1 1 140px;height:44px;border-radius:12px;border:1px solid var(--line);padding:0 12px;font:700 14px var(--font-body);min-width:0;user-select:text;-webkit-user-select:text}
+.mini.on{background:#d9f3e2;border-color:#7fcf9c}
+.sw{border:0;padding:0;cursor:pointer;width:18px}
+.badges em{font-style:normal;font-size:10px;background:#e6edf1;color:#4b5a68;border-radius:6px;padding:1px 6px;margin-left:4px;font-weight:800}
+.tbl{overflow-x:auto;margin:10px 0}
+.tbl table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:right;padding:4px 8px}
+.tbl td{text-align:right;padding:6px 8px;border-top:1px solid var(--line)}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+.neg{color:var(--bad)}
+.worst{background:#fff4d6;border-radius:12px;padding:10px 14px;margin:8px 0;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;line-height:1.35}
+.worst b{width:100%;font-family:var(--font-display)}
+.goals{list-style:none;padding:0;margin:12px 0;display:flex;flex-direction:column;gap:6px}
+.goals li{display:flex;align-items:center;gap:10px;background:#f2f7f4;border-radius:12px;padding:10px 14px;font-weight:700}
+.goals li span{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;background:var(--muted);font-size:13px}
+.goals li.ok span{background:var(--ok)}.goals li.no span{background:var(--bad)}
+.goals li em{margin-left:auto;font-style:normal;color:var(--muted);font-variant-numeric:tabular-nums}
 @media (max-width:560px){
+  .tbtn{width:60px!important;font-size:11px}
   #bSound,#bFit{display:none}
   #satCard{flex:1 1 150px;padding:6px 12px}
   #clockCard{flex:1 1 100%;padding:6px 12px;order:3}
@@ -152,7 +178,7 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
       <div class="panel" id="satCard">
         <div class="lbl">Satisfaction</div>
         <div class="satline"><span id="satPct">100%</span><div id="satBar"><i id="satFill"></i><b id="satMark"></b></div></div>
-        <div class="counts"><span><i style="background:var(--ok)"></i><span id="cDel">0</span> delivered</span><span><i style="background:var(--bad)"></i><span id="cGave">0</span> gave up</span></div>
+        <div class="counts"><span><i style="background:var(--ok)"></i><span id="cDel">0</span> delivered</span><span><i style="background:var(--bad)"></i><span id="cGave">0</span> gave up</span><span class="cash" id="cCash">$0</span></div>
       </div>
       <div class="panel" id="clockCard">
         <div class="clockline"><span id="clock">06:00</span><span id="dayLbl">Day 1/3</span><span id="phasePill">Quiet morning</span></div>
@@ -179,10 +205,12 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
       <button class="tbtn on" data-act="tool" data-tool="select"><svg viewBox="0 0 24 24"><path d="M6 3l12 8-5.5 1.5L10 18z"/></svg>Select</button>
       <button class="tbtn" data-act="tool" data-tool="stop"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5"/><path d="M12 14.5V22"/></svg>Stops</button>
       <button class="tbtn" data-act="tool" data-tool="route"><svg viewBox="0 0 24 24"><circle cx="5" cy="18" r="2.6"/><circle cx="19" cy="6" r="2.6"/><path d="M7 17c7 0 1-10 10-10.5"/></svg>Route</button>
-      <button class="tbtn" data-act="sheet"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/></svg>Buses<span class="badge" id="fleetBadge">0/6</span></button>
+      <button class="tbtn" data-act="sheet"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/></svg>Buses<span class="badge" id="fleetBadge">0</span></button>
+      <button class="tbtn" data-act="view" id="bView"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span id="viewLbl">Map view</span></button>
     </div>
   </div>
 
+  <button id="photoX" hidden data-act="photox">Exit photo mode</button>
   <div id="ov" hidden></div>
 </div>
 
@@ -208,17 +236,44 @@ const PHASES=[
 const TL_COLORS={quiet:'#cfd9e6',am:'#4a90d9',mid:'#9bd6a8',pm:'#8a5cf6',late:'#cfd9e6'};
 const ROUTE_COLORS=['#2f7de1','#8a5cf6','#13b3c4','#e0509a','#4f46c8','#7a8a99','#d96a2b','#b04fd0'];
 const COL={ok:'#3fb868',warn:'#f2b632',bad:'#e2483d'};
+const BUS_MODELS=[
+ {id:'std',name:'Standard',cap:12,price:350,spd:1,cost:.30,len:1},
+ {id:'large',name:'Large',cap:18,price:650,spd:.95,cost:.42,len:1.15},
+ {id:'artic',name:'Articulated',cap:26,price:1100,spd:.9,cost:.60,len:1.45}];
+const PRICE={stop:30,ramp:80,express:400,lane:500,move:20,engine:[1500,2800]};
+const RIDERS={commuter:{pm:1,fare:3,w:60,label:'commuter'},student:{pm:1.1,fare:1.5,w:18,label:'student'},tourist:{pm:1.3,fare:5,w:9,label:'tourist'},rush:{pm:.6,fare:6,w:9,label:'in a hurry'},wheel:{pm:1.25,fare:4,w:7,label:'wheelchair user'}};
 const HN=['Maple','Oak','Cedar','Pine','Birch','Elm','Willow','Aspen','Linden'];
 const ord=n=>n+(['th','st','nd','rd'][(n%100>10&&n%100<14)?0:(n%10<4?n%10:0)]);
 
 const LEVELS=[
- {name:'Maple Hollow',blurb:'A small town with one busy centre. Learn the ropes.',days:3,fleet:6,patience:62,perDay:130,seed:11,express:false,transfer:false,
-  map:['HHP..BB.','HH..BBBH','....BB.H','PWW.....','HWW.CPHH','HH..P.HH'],starter:[[1,1],[3,1],[5,1]],concert:14,closureDur:30,amProb:0},
- {name:'Riverside',blurb:'More homes, tighter patience. Express routes unlock.',days:3,fleet:9,patience:52,perDay:230,seed:23,express:true,transfer:false,
-  map:['HH.PP..BB.','HHH..BBBBH','....BBB..H','P.WW.BB..H','H.WW...PHH','HH..CP..H.','HHH..P....'],starter:[[1,1],[3,2],[5,2]],concert:26,closureDur:40,amProb:.5},
- {name:'Metro Heights',blurb:'A big city. Transfer stops unlock. Surprises every rush.',days:4,fleet:14,patience:44,perDay:330,seed:37,express:true,transfer:true,
-  map:['HHH.P..BB.HH','HH...BBBB.HH','...P.BBBB..H','HP....BB....','H.WW.....P.H','H.WW.CP...HH','HH......H.HH','HHH.P...HH.H'],starter:[[1,1],[3,1],[5,2]],concert:36,closureDur:45,amProb:1}
+ {name:'Maple Hollow',blurb:'A small town with one busy centre. Learn the ropes.',days:3,patience:62,perDay:130,seed:11,express:false,transfer:false,cash:1800,riders:['commuter','student'],
+  map:['HHP..BB.','HH..BBBH','....BB.H','PWW.....','HWW.CPHH','HH..P.HH'],concert:14,closureDur:30,amProb:0,goals:{sat:.8,gave:45,profit:900}},
+ {name:'Riverside',blurb:'More homes, tighter patience. Express routes unlock. Tourists and rush-hour regulars appear.',days:3,patience:52,perDay:230,seed:23,express:true,transfer:false,cash:2600,riders:['commuter','student','tourist','rush'],
+  map:['HH.PP..BB.','HHH..BBBBH','....BBB..H','P.WW.BB..H','H.WW...PHH','HH..CP..H.','HHH..P....'],concert:26,closureDur:40,amProb:.5,goals:{sat:.75,gave:90,profit:1800}},
+ {name:'Metro Heights',blurb:'A big city. Transfer stops unlock. Wheelchair riders need accessible stops.',days:4,patience:44,perDay:330,seed:37,express:true,transfer:true,cash:3600,riders:['commuter','student','tourist','rush','wheel'],
+  map:['HHH.P..BB.HH','HH...BBBB.HH','...P.BBBB..H','HP....BB....','H.WW.....P.H','H.WW.CP...HH','HH......H.HH','HHH.P...HH.H'],concert:36,closureDur:45,amProb:1,goals:{sat:.72,gave:150,profit:3000}},
+ {name:'Harborview',blurb:'A river splits the city. Only two bridges carry the whole rush.',days:4,patience:42,perDay:360,seed:41,express:true,transfer:true,cash:3600,riders:['commuter','student','tourist','rush','wheel'],
+  map:['HH.P.WW.BB.H','HHH..WW.BBBH','H.P..P..CBBH','HH...WW...HH','H.P..WW.P..H','HH.......BBH','HHH..WW...HH','HHH.P.WW.P.H'],concert:40,closureDur:45,amProb:1,goals:{sat:.70,gave:170,profit:3800}},
+ {name:'Endless City',blurb:'Sandbox. No game over, and the city keeps growing every day.',days:Infinity,sandbox:true,patience:50,perDay:300,seed:53,express:true,transfer:true,cash:6000,riders:['commuter','student','tourist','rush','wheel'],
+  map:['HHH.P..BB.HH','HH...BBBB.HH','...P.BBBB..H','HP....BB....','H.WW.....P.H','H.WW.CP...HH','HH......H.HH','HHH.P...HH.H'],concert:30,closureDur:40,amProb:.6},
+ {name:'Daily Challenge',blurb:'A fresh city every day. Everyone gets the same one.',days:3,daily:true,patience:48,perDay:260,seed:1,express:true,transfer:true,cash:2800,riders:['commuter','student','tourist','rush','wheel'],concert:26,closureDur:38,amProb:.7,goals:{sat:.72,gave:100,profit:1800}}
 ];
+function dailyLevel(tries){
+  const d=new Date(),key=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate(),R=rng(key*7+tries),cols=10,rows=7;
+  const m=[];for(let r=0;r<rows;r++){m.push([]);for(let c=0;c<cols;c++)m[r].push('.')}
+  const bw=3,bh=2+Math.floor(R()*2),bc=2+Math.floor(R()*(cols-bw-3)),br=1+Math.floor(R()*(rows-bh-2));
+  for(let r=br;r<br+bh;r++)for(let c=bc;c<bc+bw;c++)m[r][c]='B';
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    if(m[r][c]==='B')continue;
+    const dc=Math.max(bc-c,0,c-(bc+bw-1)),dr=Math.max(br-r,0,r-(br+bh-1)),dist=Math.max(dc,dr),p=R();
+    m[r][c]=(dist>=2&&p<.55)?'H':p<.62?'P':'.';
+  }
+  for(let k=0;k<10;k++){const c=1+Math.floor(R()*(cols-2)),r=1+Math.floor(R()*(rows-2));
+    if(m[r][c]!=='B'&&m[r][c+1]!=='B'&&m[r+1][c]!=='B'&&m[r+1][c+1]!=='B'){m[r][c]=m[r][c+1]=m[r+1][c]=m[r+1][c+1]='W';break}}
+  for(let k=0;k<30;k++){const c=Math.floor(R()*cols),r=Math.floor(R()*rows);if(m[r][c]==='P'||m[r][c]==='.'){m[r][c]='C';break}}
+  const base=LEVELS[5];
+  return Object.assign({},base,{map:m.map(row=>row.join('')),seed:key+tries});
+}
 
 /* ================= helpers ================= */
 const $=(s,r)=>(r||document).querySelector(s);
@@ -229,7 +284,7 @@ function shade(h,f){let[r,g,b]=hex2rgb(h);if(f<1){r*=f;g*=f;b*=f}else{r+=(255-r)
 function poly(g,p){g.beginPath();g.moveTo(p[0][0],p[0][1]);for(let i=1;i<p.length;i++)g.lineTo(p[i][0],p[i][1]);g.closePath();g.fill()}
 function rrect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 const pick=(R,a)=>a[Math.floor(R()*a.length)];
-const rnd=Math.random;
+let rnd=Math.random;
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 
 /* ================= city ================= */
@@ -254,7 +309,7 @@ function buildCity(L){
   for(const n of nodes)n.alive=n.adj.length>0;
   const blocks=[],items=[],homes=[],works=[];let venue=null;
   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
-    const t=L.map[r][c],bx=MARGIN+c*S,by=MARGIN+r*S;
+    const t=L.map[r][c],bx=MARGIN+c*S,by=MARGIN+r*S,R=rng(L.seed*977+r*131+c*7+1);
     blocks.push({c,r,x:bx,y:by,t});
     const slot=(i,j)=>[bx+16+17+34*i+(R()-.5)*3,by+16+17+34*j+(R()-.5)*3];
     if(t==='H'){
@@ -420,8 +475,8 @@ function renderStatic(city){
 const G={L:null,city:null,levelIdx:0,stops:new Map(),routes:[],buses:[],citizens:[],parts:[],
   day:1,t:0,speed:1,paused:true,modal:true,over:false,nid:1,netVer:1,acc:0,
   delivered:0,gaveUp:0,dayDel:0,dayGave:0,win:[],event:null,evPlan:[],lastEv:'',stormMult:1,routeCount:0,
-  flashSat:0,tg:null,tgVer:-1};
-const ui={tool:'select',drawing:null,sel:null,sheet:false,hover:null,dirty:true,sound:true,hintOverride:''};
+  flashSat:0,tg:null,tgVer:-1,money:0,rev:0,cost:0,dayRev:0,dayCost:0,engine:0,pendingNext:false,congT:0,lastPhase:''};
+const ui={tool:'select',drawing:null,sel:null,sheet:false,hover:null,dirty:true,sound:true,hintOverride:'',moving:null,view:'off',follow:null,photo:false};
 let W=0,H=0,dpr=1;
 const cv=$('#cv');
 
@@ -441,8 +496,30 @@ function snd(k){
   else if(k==='alert'){tone(660,.16,'square',.04);tone(440,.24,'square',.04,.18)}
   else if(k==='deliver')tone(880,.08,'sine',.03);
   else if(k==='full')tone(180,.12,'square',.03);
+  else if(k==='door')doorSound();
 }
-function ensureAudio(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(C)AC=new C()}if(AC&&AC.state==='suspended')AC.resume()}catch(e){}}
+function ensureAudio(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(C){AC=new C();audioStart()}}if(AC&&AC.state==='suspended')AC.resume()}catch(e){}}
+let AUD=null;
+function noiseBuf(){const b=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){const w=Math.random()*2-1;l=(l+.02*w)/1.02;d[i]=w*.5+l*3}return b}
+function audioStart(){
+  const nb=noiseBuf(),mk=(f,type,g)=>{const src=AC.createBufferSource();src.buffer=nb;src.loop=true;const fl=AC.createBiquadFilter();fl.type=type;fl.frequency.value=f;const gn=AC.createGain();gn.gain.value=0;src.connect(fl);fl.connect(gn);gn.connect(AC.destination);src.start();return gn};
+  const eo=AC.createOscillator(),ef=AC.createBiquadFilter(),eg=AC.createGain();eo.type='sawtooth';eo.frequency.value=58;ef.type='lowpass';ef.frequency.value=200;eg.gain.value=0;eo.connect(ef);ef.connect(eg);eg.connect(AC.destination);eo.start();
+  AUD={amb:mk(420,'lowpass'),rain:mk(1400,'highpass'),eng:eg,eo,nb};
+}
+function audioUpdate(){
+  if(!AUD||!AC)return;
+  const on=ui.sound&&!G.modal,t=AC.currentTime,run=on&&!G.paused;
+  let moving=0;for(const b of G.buses)if(b.state==='drive')moving++;
+  AUD.amb.gain.setTargetAtTime(on?(G.paused?.02:.04):0,t,.3);
+  AUD.rain.gain.setTargetAtTime(run&&G.event&&G.event.type==='storm'?.05:0,t,.4);
+  AUD.eng.gain.setTargetAtTime(run?Math.min(.035,moving*.006):0,t,.3);
+  AUD.eo.frequency.setTargetAtTime(54+Math.min(14,moving*2),t,.4);
+}
+function doorSound(){
+  if(!AUD||!AC||!ui.sound)return;
+  const src=AC.createBufferSource();src.buffer=AUD.nb;const fl=AC.createBiquadFilter();fl.type='highpass';fl.frequency.value=2500;const g=AC.createGain(),t=AC.currentTime;
+  g.gain.setValueAtTime(.05,t);g.gain.exponentialRampToValueAtTime(.0001,t+.22);src.connect(fl);fl.connect(g);g.connect(AC.destination);src.start(t,Math.random(),.25);
+}
 
 /* ================= fx ================= */
 const fx={
@@ -473,29 +550,29 @@ function roadPath(a,b,avoid){
 }
 
 /* ================= transit planning ================= */
-const busSpeed=r=>BUS_SPEED*(r.express?1.7:1);
+const busSpeed=r=>BUS_SPEED*(r.express?1.7:1)*BUS_MODELS[r.model||0].spd*(1+.12*G.engine)*(G.fogMult||1);
+const rushNow=()=>!!phaseAt(G.t).p.rush;
 function isServed(r,sid){const i=r.stops.indexOf(sid);return i>=0&&(!r.express||i===0||i===r.stops.length-1)}
 function buildTG(){
-  const adj=new Map();
+  const adj=new Map(),rush=rushNow();
   for(const r of G.routes){
     const nb=r.buses.length;if(!nb)continue;
-    const sp=busSpeed(r),n=r.stops.length;
-    const idx=r.express?[0,n-1]:r.stops.map((_,i)=>i);
-    const total=r.cum[n-1];
-    const cycle=2*total/sp+n*2.4;
-    const wait=Math.min(cycle/(2*nb),70);
-    for(let a=0;a<idx.length;a++)for(let b=0;b<idx.length;b++){
+    if(r.sched==='peak'&&!rush)continue;
+    const sp=busSpeed(r),n=r.stops.length,idx=r.express?[0,n-1]:r.stops.map((_,i)=>i);
+    const total=r.loop?r.loopLen:r.cum[n-1];
+    const cycle=(r.loop?total:2*total)/sp+n*2.4,wait=Math.min(cycle/(2*nb),70),m=idx.length;
+    for(let a=0;a<m;a++)for(let b=0;b<m;b++){
       if(a===b)continue;
       const ia=idx[a],ib=idx[b];
-      const cost=wait+Math.abs(r.cum[ib]-r.cum[ia])/sp+Math.abs(b-a)*1.2;
-      const from=r.stops[ia];
+      let d;if(r.loop)d=ib>ia?r.cum[ib]-r.cum[ia]:r.loopLen-r.cum[ia]+r.cum[ib];else d=Math.abs(r.cum[ib]-r.cum[ia]);
+      const hops=r.loop?((b-a)+m)%m:Math.abs(b-a),from=r.stops[ia];
       if(!adj.has(from))adj.set(from,[]);
-      adj.get(from).push({r,to:r.stops[ib],cost});
+      adj.get(from).push({r,to:r.stops[ib],cost:wait+d/sp+hops*1.2});
     }
   }
   G.tg=adj;G.tgVer=G.netVer;
 }
-function planFrom(sid,dest){
+function planFrom(sid,dest,acc){
   if(G.tgVer!==G.netVer)buildTG();
   const dist=new Map([[sid,0]]),prev=new Map(),done=new Set();
   while(true){
@@ -504,11 +581,15 @@ function planFrom(sid,dest){
     if(u===null)break;
     done.add(u);
     const es=G.tg.get(u);if(!es)continue;
-    for(const e of es){const nd=ud+e.cost;if(!dist.has(e.to)||nd<dist.get(e.to)){dist.set(e.to,nd);prev.set(e.to,{from:u,e})}}
+    for(const e of es){
+      if(acc){const t=G.stops.get(e.to);if(!t||!t.access)continue}
+      const nd=ud+e.cost;if(!dist.has(e.to)||nd<dist.get(e.to)){dist.set(e.to,nd);prev.set(e.to,{from:u,e})}
+    }
   }
   let best=null;
   for(const[id,d]of dist){
     const st=G.stops.get(id);if(!st)continue;
+    if(acc&&!st.access)continue;
     const w=Math.hypot(st.x-dest.x,st.y-dest.y);if(w>MAXWALK)continue;
     const tot=d+w/WALK*1.15;
     if(!best||tot<best.tot)best={id,tot};
@@ -521,16 +602,23 @@ function planFrom(sid,dest){
 }
 
 /* ================= citizens ================= */
+const blockKey=(x,y)=>Math.floor((x-MARGIN)/S)+','+Math.floor((y-MARGIN)/S);
+function pickRider(){const ts=G.L.riders;let tot=0;for(const t of ts)tot+=RIDERS[t].w;let x=rnd()*tot;for(const t of ts){x-=RIDERS[t].w;if(x<=0)return t}return ts[0]}
+function stopNear(x,y,r){for(const st of G.stops.values())if(Math.hypot(st.x-x,st.y-y)<r)return true;return false}
 function spawnCitizen(orig,destList){
-  const dst=destList[Math.floor(rnd()*destList.length)];
-  const c={id:++G.nid,state:'walk',x:orig.x,y:orig.y,dest:{x:dst.x,y:dst.y},p:G.L.patience,stop:null,plan:null,planVer:-1,noRoute:false,retry:0,alight:null,seed:rnd()};
+  const type=pickRider(),R_=RIDERS[type],C=G.city;
+  let list=destList;
+  if(type==='tourist'&&C.venue&&destList===C.works&&stopNear(C.venue.x,C.venue.y,260))list=[C.venue];
+  const dst=list[Math.floor(rnd()*list.length)],pm=G.L.patience*R_.pm;
+  const c={id:++G.nid,type,fare:R_.fare,state:'walk',x:orig.x,y:orig.y,dest:{x:dst.x,y:dst.y},p:pm,pm,stop:null,plan:null,planVer:-1,noRoute:false,retry:0,alight:null,seed:rnd(),wstart:0,lastRoute:null,ob:blockKey(orig.x,orig.y),db:blockKey(dst.x,dst.y)};
   G.citizens.push(c);assignStop(c);
 }
 function assignStop(c){
-  const cand=[...G.stops.values()].map(s=>({s,d:Math.hypot(s.x-c.x,s.y-c.y)})).sort((a,b)=>a.d-b.d).slice(0,5);
+  const acc=c.type==='wheel';
+  const cand=[...G.stops.values()].filter(s=>!acc||s.access).map(s=>({s,d:Math.hypot(s.x-c.x,s.y-c.y)})).sort((a,b)=>a.d-b.d).slice(0,5);
   let best=null;
   for(const o of cand){
-    let pl=planFrom(o.s.id,c.dest);
+    let pl=planFrom(o.s.id,c.dest,acc);
     if(pl&&pl.exit&&Math.hypot(c.x-c.dest.x,c.y-c.dest.y)>MAXWALK)pl=null;
     if(!pl)continue;
     const sc=o.d/WALK*1.3+pl.tot;
@@ -546,33 +634,39 @@ function assignStop(c){
 function joinStop(c){
   const st=c.stop;
   if(!st||G.stops.get(st.id)!==st){assignStop(c);return}
-  c.x=st.x;c.y=st.y;c.state='wait';st.waiters.push(c);replanWaiter(c);
+  c.x=st.x;c.y=st.y;c.state='wait';c.wstart=G.t;st.waiters.push(c);replanWaiter(c);
+  if(st.waiters.length>(st.peak||0)){st.peak=st.waiters.length;st.peakT=G.t}
 }
 function replanWaiter(c){
   const st=c.stop;
-  const pl=planFrom(st.id,c.dest);
+  const pl=planFrom(st.id,c.dest,c.type==='wheel');
   c.planVer=G.netVer;
   if(pl&&pl.exit){leaveStop(c);c.state='walkDest';c.stop=null;c.plan=null;c.noRoute=false;return}
   c.plan=pl;c.noRoute=!pl;
 }
 function leaveStop(c){const w=c.stop&&c.stop.waiters;if(w){const i=w.indexOf(c);if(i>=0)w.splice(i,1)}}
 function stopStatus(st){
-  let s=0;const P=G.L.patience;
-  for(const c of st.waiters){const f=c.p/P;if(f<.2)return 2;if(f<.5)s=1}
+  let s=0;
+  for(const c of st.waiters){const f=c.p/c.pm;if(f<.2)return 2;if(f<.5)s=1}
   if(st.waiters.length>=14)s=Math.max(s,1);
   return s;
 }
-function pcol(c){const f=c.p/G.L.patience;return f>.5?COL.ok:f>.2?COL.warn:COL.bad}
+function pcol(c){const f=c.p/c.pm;return f>.5?COL.ok:f>.2?COL.warn:COL.bad}
 function giveUp(c){
+  if(c.stop)c.stop.gaveDay=(c.stop.gaveDay||0)+1;
+  if(c.ob){G.gaveBlock=G.gaveBlock||{};G.gaveBlock[c.ob]=(G.gaveBlock[c.ob]||0)+1}
   leaveStop(c);
   const i=G.citizens.indexOf(c);if(i>=0)G.citizens.splice(i,1);
   G.gaveUp++;G.dayGave++;outcome(false);
   fx.text(c.x,c.y-6,'✕',COL.bad);snd('sad');
+  if(ui.vibrate&&navigator.vibrate)try{navigator.vibrate(20)}catch(e){}
 }
 function deliver(c){
   const i=G.citizens.indexOf(c);if(i>=0)G.citizens.splice(i,1);
   G.delivered++;G.dayDel++;if(c.xfer)G.xferDelivered=(G.xferDelivered||0)+1;outcome(true);
-  fx.text(c.x,c.y-6,'+1',COL.ok);snd('deliver');
+  G.money+=c.fare;G.rev+=c.fare;G.dayRev+=c.fare;
+  const r=c.lastRoute;if(r&&G.routes.includes(r))r.stat.rev+=c.fare;
+  fx.text(c.x,c.y-6,'+$'+c.fare,COL.ok);snd('deliver');
 }
 function moveTo(c,tx,ty,dt){const dx=tx-c.x,dy=ty-c.y,d=Math.hypot(dx,dy),s=WALK*dt;if(d<=s){c.x=tx;c.y=ty;return true}c.x+=dx/d*s;c.y+=dy/d*s;return false}
 function thinkTick(dt){
@@ -583,13 +677,13 @@ function thinkTick(dt){
   }
   G.thinkT-=dt;
   if(G.thinkT>0||G.bubbles.length||tutOn())return;
-  const P=G.L.patience,pool=[];
+  const pool=[];
   for(const c of G.citizens){
     let neglected=false;
     if(c.state==='walk'){
-      if(!c.stop)neglected=c.p<P*.97;
+      if(!c.stop)neglected=c.p<c.pm*.97;
       else neglected=Math.hypot(c.stop.x-c.x,c.stop.y-c.y)>170;
-    }else if(c.state==='wait')neglected=c.noRoute&&c.p<P*.8;
+    }else if(c.state==='wait')neglected=c.noRoute&&c.p<c.pm*.8;
     if(!neglected)continue;
     let near=false;
     for(const m of G.thinkMem)if(G.t-m.t<70&&Math.hypot(m.x-c.x,m.y-c.y)<140){near=true;break}
@@ -597,10 +691,11 @@ function thinkTick(dt){
   }
   if(!pool.length){G.thinkT=3;return}
   const c=pool[Math.floor(rnd()*pool.length)];
-  G.bubbles.push({c,x:c.x,y:c.y,t:0,life:6});
+  G.bubbles.push({c,x:c.x,y:c.y,t:0,life:6,wheel:c.type==='wheel'});
   G.thinkMem.push({x:c.x,y:c.y,t:G.t});if(G.thinkMem.length>8)G.thinkMem.shift();
   G.thinkT=22+rnd()*16;
   if(!G.thinkSeen){G.thinkSeen=true;toast('A thought bubble: someone has no good bus service nearby.',3600)}
+  else if(c.type==='wheel'&&!G.wheelSeen){G.wheelSeen=true;toast('A wheelchair user needs a step-free stop. Upgrade a stop with a ramp.',4200)}
 }
 function updCitizens(dt){
   const m=G.stormMult;
@@ -625,18 +720,21 @@ function sat(){const n=G.win.length;if(n<6)return 1;let s=0;for(const v of G.win
 function outcome(ok){
   G.win.push(ok?1:0);if(G.win.length>WIN_N)G.win.shift();
   G.flashSat=1;
-  if(G.win.length>=20&&sat()<.5&&!G.over)gameOver();
+  if(G.win.length>=20&&sat()<.5&&!G.over&&!G.L.sandbox)gameOver('sat');
 }
 
 /* ================= routes & buses ================= */
-function fleetUsed(){let n=0;for(const r of G.routes)n+=r.buses.length*(r.express?2:1);return n}
+function fleetUsed(){return G.buses.length}
 function recalcRoute(r){
-  r.segs=[];r.cum=[0];
+  r.segs=[];r.cum=[0];const N=G.city.nodes;
+  const plen=p=>{let l=0;for(let k=0;k<p.length-1;k++)l+=Math.hypot(N[p[k]].x-N[p[k+1]].x,N[p[k]].y-N[p[k+1]].y);return l};
   for(let i=0;i<r.stops.length-1;i++){
     const p=roadPath(r.stops[i],r.stops[i+1],false)||[r.stops[i],r.stops[i+1]];
-    r.segs.push(p);let l=0;for(let k=0;k<p.length-1;k++)l+=edgeBetween(p[k],p[k+1])?S:Math.hypot(G.city.nodes[p[k]].x-G.city.nodes[p[k+1]].x,G.city.nodes[p[k]].y-G.city.nodes[p[k+1]].y);
-    r.cum.push(r.cum[i]+l);
+    r.segs.push(p);r.cum.push(r.cum[i]+plen(p));
   }
+  const n=r.stops.length;
+  if(r.loop&&n>=3){const p=roadPath(r.stops[n-1],r.stops[0],false)||[r.stops[n-1],r.stops[0]];r.segs.push(p);r.loopLen=r.cum[n-1]+plen(p)}
+  else{r.loop=false;r.loopLen=r.cum[n-1]*2}
 }
 function rebuildVis(){
   const use=new Map();
@@ -670,18 +768,20 @@ function netChanged(){
   G.netVer++;rebuildVis();ui.dirty=true;
   if(tutOn()){const t=tutState();if(t.home&&t.work&&!G.routes.length&&!ui.tutBoth){ui.tutBoth=true;if(ui.tool!=='route')setTool('route')}if(!(t.home&&t.work))ui.tutBoth=false}
 }
+const newStat=()=>({boarded:0,waitSum:0,rev:0,cost:0,loadSum:0,loadN:0});
 function newRoute(stops){
   const used=new Set(G.routes.map(r=>r.color));
   const color=ROUTE_COLORS.find(c=>!used.has(c))||ROUTE_COLORS[G.routeCount%ROUTE_COLORS.length];
-  const r={id:++G.nid,name:'Route '+String.fromCharCode(65+G.routeCount%26),color,stops:stops.slice(),express:false,buses:[],segs:[],cum:[0],vis:[]};
+  const r={id:++G.nid,name:'Route '+String.fromCharCode(65+G.routeCount%26),color,stops:stops.slice(),express:false,expressPaid:false,loop:false,lane:false,sched:'all',model:0,buses:[],segs:[],cum:[0],vis:[],stat:newStat()};
   G.routeCount++;G.routes.push(r);recalcRoute(r);
   return r;
 }
 function deleteRoute(r){
-  for(const b of r.buses.slice())dumpBus(b,true);
+  for(const b of r.buses.slice()){G.money+=BUS_MODELS[r.model||0].price*.5;dumpBus(b,true)}
   const i=G.routes.indexOf(r);if(i>=0)G.routes.splice(i,1);
   if(ui.sel&&ui.sel.id===r.id)ui.sel=null;
   if(ui.drawing&&ui.drawing.routeId===r.id)ui.drawing=null;
+  if(ui.follow&&!G.buses.find(b=>b.id===ui.follow))ui.follow=null;
   netChanged();
 }
 function dumpBus(b,remove){
@@ -689,15 +789,55 @@ function dumpBus(b,remove){
   b.pax=[];
   if(remove){const i=b.route.buses.indexOf(b);if(i>=0)b.route.buses.splice(i,1);const j=G.buses.indexOf(b);if(j>=0)G.buses.splice(j,1)}
 }
-function addBus(r){
-  const cost=r.express?2:1;
-  if(fleetUsed()+cost>G.L.fleet){toast('No free buses. Remove one from another route first.');return false}
+function addBus(r,free){
+  const m=BUS_MODELS[r.model||0];
+  if(!free){
+    if(G.buses.length>=30){toast('Fleet limit reached (30 buses).');return false}
+    if(G.money<m.price){toast('Not enough cash for a '+m.name.toLowerCase()+' bus ($'+m.price+').');return false}
+    G.money-=m.price;
+  }
   const n=r.stops.length;let bi=0,bs=-1;
-  for(let i=0;i<n;i++){let m=99;for(const o of r.buses)m=Math.min(m,Math.abs(o.tIdx-i));if(r.buses.length===0)m=0;if(m>bs){bs=m;bi=i}}
+  for(let i=0;i<n;i++){let mm=99;for(const o of r.buses)mm=Math.min(mm,Math.abs(o.tIdx-i));if(r.buses.length===0)mm=0;if(mm>bs){bs=mm;bi=i}}
   const nd=G.city.nodes[r.stops[bi]];
-  const b={id:++G.nid,route:r,pax:[],dir:bi>=n-1?-1:1,tIdx:bi,state:'drive',x:nd.x,y:nd.y,ang:0,nx:0,ny:1,from:nd.id,to:nd.id,s:0,elen:1,queue:[],dst:nd.id,flash:0,dwell:0,retry:0};
+  const b={id:++G.nid,route:r,pax:[],cap:m.cap,dir:bi>=n-1?-1:1,tIdx:bi,state:'drive',x:nd.x,y:nd.y,ang:0,nx:0,ny:1,from:nd.id,to:nd.id,s:0,elen:1,queue:[],dst:nd.id,flash:0,dwell:0,retry:0};
   r.buses.push(b);G.buses.push(b);beginLeg(b);
   netChanged();return true;
+}
+function removeBus(r){
+  if(!r.buses.length)return;
+  let b=r.buses[0];for(const o of r.buses)if(o.pax.length<b.pax.length)b=o;
+  G.money+=BUS_MODELS[r.model||0].price*.5;
+  if(ui.follow===b.id)ui.follow=null;
+  dumpBus(b,true);netChanged();
+}
+function upgradeModel(r){
+  if((r.model||0)>=2){toast('Already the biggest bus.');return}
+  const nx=BUS_MODELS[r.model+1],cur=BUS_MODELS[r.model],cost=Math.round((nx.price-cur.price)*r.buses.length*.9);
+  if(G.money<cost){toast('Upgrading needs $'+cost+'.');return}
+  G.money-=cost;r.model++;for(const b of r.buses)b.cap=nx.cap;
+  toast(r.name+' now runs '+nx.name.toLowerCase()+' buses (seats '+nx.cap+').');snd('cheer');netChanged();
+}
+function toggleExpress(r){
+  if(!r.express&&!r.expressPaid){if(G.money<PRICE.express){toast('Express service costs $'+PRICE.express+'.');return}G.money-=PRICE.express;r.expressPaid=true}
+  r.express=!r.express;netChanged();
+  toast(r.express?'Express: fast, stops only at both ends.':'Normal service restored.');
+}
+function toggleLoop(r){
+  if(!r.loop&&r.stops.length<3){toast('A loop needs at least 3 stops.');return}
+  r.loop=!r.loop;recalcRoute(r);for(const b of r.buses)b.dir=1;netChanged();
+  toast(r.loop?'Loop: buses circle through every stop in order.':'Back-and-forth service restored.');
+}
+function reverseRoute(r){r.stops.reverse();recalcRoute(r);for(const b of r.buses){b.dir=-b.dir}netChanged();toast(r.name+' reversed.')}
+function buyLane(r){
+  if(r.lane){toast('This route already has priority lanes.');return}
+  if(G.money<PRICE.lane){toast('Priority lanes cost $'+PRICE.lane+'.');return}
+  G.money-=PRICE.lane;r.lane=true;toast('Priority lanes cut traffic delays on '+r.name+'.');snd('cheer');ui.dirty=true;
+}
+function toggleSched(r){r.sched=r.sched==='peak'?'all':'peak';G.netVer++;ui.dirty=true;toast(r.sched==='peak'?'Rush hours only: buses park the rest of the day and cost nothing.':'Buses run all day.')}
+function buyEngine(){
+  if(G.engine>=2){toast('Engines are fully upgraded.');return}
+  const c=PRICE.engine[G.engine];if(G.money<c){toast('Faster engines cost $'+c+'.');return}
+  G.money-=c;G.engine++;G.netVer++;toast('Faster engines: every bus is '+(G.engine*12)+'% quicker.');snd('cheer');ui.dirty=true;
 }
 function removeBus(r){
   if(!r.buses.length)return;
@@ -711,8 +851,10 @@ function applyPath(b,p){
 function beginLeg(b){
   const r=b.route,n=r.stops.length;
   if(b.tIdx>n-1)b.tIdx=n-1;
-  if(b.tIdx+b.dir<0||b.tIdx+b.dir>n-1)b.dir=-b.dir;
-  const nxt=clamp(b.tIdx+b.dir,0,n-1),dst=r.stops[nxt],p=roadPath(b.to,dst,true);
+  let nxt;
+  if(r.loop){b.dir=1;nxt=(b.tIdx+1)%n}
+  else{if(b.tIdx+b.dir<0||b.tIdx+b.dir>n-1)b.dir=-b.dir;nxt=clamp(b.tIdx+b.dir,0,n-1)}
+  const dst=r.stops[nxt],p=roadPath(b.to,dst,true);
   b.tIdx=nxt;b.dst=dst;
   if(!p){b.from=b.to;b.state='blocked';b.retry=1;b.queue=[];return}
   if(p.length<2){arriveStop(b);return}
@@ -737,39 +879,39 @@ function arriveStop(b){
 function serveStop(b,i){
   const r=b.route,n=r.stops.length,stop=G.stops.get(b.to);
   if(!stop)return 0;
-  const terminal=(i===0||i===n-1);
-  if(r.express&&!terminal)return 0;
-  const eff=i===0?1:(i===n-1?-1:b.dir);
+  const terminal=r.loop?false:(i===0||i===n-1);
+  if(r.express&&!(i===0||i===n-1))return 0;
+  const eff=r.loop?1:(i===0?1:(i===n-1?-1:b.dir));
   const before=stopStatus(stop);
-  // unload
   let out=0;
   for(let k=b.pax.length-1;k>=0;k--){
     const c=b.pax[k];
     if(c.alight===stop.id||!isServed(r,c.alight)){
       b.pax.splice(k,1);out++;
       c.x=stop.x;c.y=stop.y;c.stop=stop;c.alight=null;
-      const pl=planFrom(stop.id,c.dest);
+      const pl=planFrom(stop.id,c.dest,c.type==='wheel');
       if(pl&&pl.exit){c.state='walkDest';c.stop=null;c.plan=null}
-      else{c.xfer=(c.xfer||0)+1;c.state='wait';c.plan=pl;c.noRoute=!pl;c.planVer=G.netVer;c.p=Math.max(c.p,G.L.patience*.9);stop.waiters.push(c)}
+      else{c.xfer=(c.xfer||0)+1;c.state='wait';c.wstart=G.t;c.plan=pl;c.noRoute=!pl;c.planVer=G.netVer;c.p=Math.max(c.p,c.pm*.9);stop.waiters.push(c)}
     }
   }
-  // candidates
   const cands=[];
   for(const c of stop.waiters){
     if(c.planVer!==G.netVer){replanWaiter(c);if(c.state!=='wait')continue}
     const pl=c.plan;if(!pl||pl.exit||pl.route!==r)continue;
     const ib=r.stops.indexOf(pl.alight);if(ib<0)continue;
-    if(eff>0?ib>i:ib<i)cands.push(c);
+    if(r.loop?ib!==i:(eff>0?ib>i:ib<i))cands.push(c);
   }
-  if(b.pax.length>=CAP&&cands.length&&out===0){b.flash=1.4;stop.missed=1;snd('full');return 0}
+  if(b.pax.length>=b.cap&&cands.length&&out===0){b.flash=1.4;stop.missed=1;snd('full');return 0}
   let boarded=0;
   for(const c of cands){
-    if(b.pax.length>=CAP)break;
-    leaveStop(c);c.state='ride';c.alight=c.plan.alight;c.bus=b;b.pax.push(c);boarded++;
+    if(b.pax.length>=b.cap)break;
+    leaveStop(c);c.state='ride';c.alight=c.plan.alight;c.bus=b;c.lastRoute=r;b.pax.push(c);boarded++;
+    r.stat.boarded++;r.stat.waitSum+=Math.max(0,G.t-c.wstart);
     fx.fly(stop.x,stop.y,b.x,b.y,pcol(c));
   }
   if(cands.length>boarded){b.flash=1.1;stop.missed=1;snd('full')}
   if(boarded)snd('pop');
+  if(boarded||out)snd('door');
   const after=stopStatus(stop);
   if(before>0&&after===0&&boarded){stop.cheer=1;fx.ring(stop.x,stop.y,COL.ok,38);fx.text(stop.x,stop.y-26,'Cleared!',COL.ok);if(before===2)snd('cheer')}
   else if(boarded)fx.text(stop.x,stop.y-22,'+'+boarded,COL.ok);
@@ -798,13 +940,17 @@ function placeBus(b){
 }
 function updBus(b,dt){
   if(b.flash>0)b.flash-=dt;
-  if(b.state==='dwell'){b.dwell-=dt;if(b.dwell<=0)beginLeg(b);placeBus(b);return}
+  if(b.broke>0){b.broke-=dt;b.flash=Math.max(b.flash,.3);placeBus(b);return}
+  const peak=b.route.sched==='peak';
+  if(b.state==='parked'){if(!peak||rushNow())beginLeg(b);placeBus(b);return}
+  if(b.state==='dwell'){b.dwell-=dt;if(b.dwell<=0){if(peak&&!rushNow())b.state='parked';else beginLeg(b)}placeBus(b);return}
   if(b.state==='blocked'){
     b.retry-=dt;
     if(b.retry<=0){b.retry=1;const p=roadPath(b.to,b.dst,true);if(p&&p.length>1)applyPath(b,p);else if(p)arriveStop(b)}
     placeBus(b);return;
   }
-  let move=busSpeed(b.route)*dt,guard=0;
+  const e=edgeBetween(b.from,b.to),cg=e?(e.cong||0):0;
+  let move=busSpeed(b.route)*(1-cg*(b.route.lane?.25:1))*dt,guard=0;
   while(move>0&&b.state==='drive'&&guard++<30){
     const rem=b.elen-b.s;
     if(move<rem){b.s+=move;move=0}else{move-=rem;b.s=b.elen;atNode(b)}
@@ -820,14 +966,36 @@ function stopCorner(city,nd){
   return best;
 }
 function nodeName(n){return HN[n.r]+' & '+ord(n.c+1)}
-function addStop(nid){
+function addStop(nid,free){
   if(G.stops.has(nid))return G.stops.get(nid);
+  if(!free){if(G.money<PRICE.stop){toast('Not enough cash for a stop ($'+PRICE.stop+').');return null}G.money-=PRICE.stop}
   const n=G.city.nodes[nid];
-  const[sx,sy]=stopCorner(G.city,n),st={id:nid,x:n.x+sx*14,y:n.y+sy*14,sx,sy,waiters:[],cheer:0,missed:0};
+  const[sx,sy]=stopCorner(G.city,n),st={id:nid,x:n.x+sx*14,y:n.y+sy*14,sx,sy,waiters:[],cheer:0,missed:0,access:false,gaveDay:0,peak:0,peakT:0};
   G.stops.set(nid,st);G.netVer++;ui.dirty=true;
-  // citizens without a stop may now find one
   for(const c of G.citizens)if(c.state==='walk'&&!c.stop)c.retry=0;
   return st;
+}
+function makeAccessible(id){
+  const st=G.stops.get(id);if(!st)return;
+  if(st.access){toast('This stop already has a ramp.');return}
+  if(G.money<PRICE.ramp){toast('A step-free ramp costs $'+PRICE.ramp+'.');return}
+  G.money-=PRICE.ramp;st.access=true;G.netVer++;ui.dirty=true;snd('pop');toast('Step-free access added.');
+  for(const c of G.citizens)if(c.type==='wheel'&&c.state==='walk'&&!c.stop)c.retry=0;
+}
+function moveStop(oid,nid){
+  const st=G.stops.get(oid);if(!st||oid===nid)return false;
+  if(G.stops.has(nid)){toast('There is already a stop there.');return false}
+  if(G.money<PRICE.move){toast('Moving a stop costs $'+PRICE.move+'.');return false}
+  G.money-=PRICE.move;
+  const ns=addStop(nid,true);ns.access=st.access;ns.gaveDay=st.gaveDay;
+  for(const r of G.routes){const i=r.stops.indexOf(oid);if(i>=0){r.stops[i]=nid;recalcRoute(r)}}
+  for(const b of G.buses)for(const c of b.pax)if(c.alight===oid)c.alight=nid;
+  for(const c of st.waiters.slice()){c.state='walk';c.stop=ns;c.planVer=-1}
+  st.waiters=[];
+  for(const c of G.citizens)if(c.stop===st){c.stop=ns;c.planVer=-1}
+  G.stops.delete(oid);
+  if(ui.sel&&ui.sel.type==='stop'&&ui.sel.id===oid)ui.sel={type:'stop',id:nid};
+  ui.moving=null;netChanged();snd('pop');return true;
 }
 function removeStop(nid){
   const st=G.stops.get(nid);if(!st)return;
@@ -854,10 +1022,11 @@ function connectedWithout(edge){
 }
 function planEvents(){
   const L=G.L;G.evPlan=[];
-  const types=['closure','concert','storm'].filter(t=>t!==G.lastEv);
+  const pool=L.days<=3&&!L.daily&&L.cash<2000?['closure','concert','storm','breakdown']:['closure','concert','storm','breakdown','parade','fog'];
+  const types=pool.filter(t=>t!==G.lastEv);
   const t1=types[Math.floor(rnd()*types.length)];
   G.evPlan.push({phase:'pm',at:3+rnd()*8,type:t1});G.lastEv=t1;
-  if(rnd()<L.amProb)G.evPlan.push({phase:'am',at:6+rnd()*10,type:rnd()<.55?'closure':'storm'});
+  if(rnd()<L.amProb){const am=['closure','storm','breakdown','fog'].filter(t=>pool.includes(t));G.evPlan.push({phase:'am',at:6+rnd()*10,type:am[Math.floor(rnd()*am.length)]})}
 }
 function startEvent(ev){
   ev.done=true;let type=ev.type;
@@ -874,6 +1043,19 @@ function startEvent(ev){
     if(!city.venue)type='storm';
     else G.event={type:'concert',t:0,dur:22,left:G.L.concert,total:G.L.concert,spawnDur:14,acc:0,label:'Concert just ended. A big crowd is heading home.'};
   }
+  if(type==='breakdown'){
+    const bs=G.buses.filter(b=>b.state!=='parked');
+    if(!bs.length)type='storm';
+    else{const b=bs[Math.floor(rnd()*bs.length)];b.broke=22;G.event={type:'breakdown',t:0,dur:22,bus:b,label:'A bus on '+b.route.name+' has broken down. A tow truck is on the way.'};toast('Breakdown! Add another bus to cover the gap.')}
+  }
+  if(type==='parade'){
+    const ctr={x:city.w/2,y:city.h/2},nodes=city.nodes.filter(n=>n.alive).sort((a,b)=>Math.hypot(a.x-ctr.x,a.y-ctr.y)-Math.hypot(b.x-ctr.x,b.y-ctr.y)).slice(0,8);
+    const nd=nodes[Math.floor(rnd()*nodes.length)],closed=[];
+    for(const a of nd.adj){if(closed.length>=2)break;if(connectedWithout(a.e)){a.e.closed=true;closed.push(a.e)}}
+    if(!closed.length)type='storm';
+    else{G.event={type:'parade',t:0,dur:G.L.closureDur,edges:closed,label:'A parade is blocking '+closed.map(e=>e.name).join(' and ')+'.'};toast('Parade! Buses will detour.')}
+  }
+  if(type==='fog'){G.event={type:'fog',t:0,dur:40,label:'Dense fog. Buses and traffic slow down.'};G.fogMult=.82}
   if(type==='storm')G.event={type:'storm',t:0,dur:35,label:'Heavy rain. Riders lose patience faster.'};
   G.stormMult=G.event&&G.event.type==='storm'?1.6:1;
   snd('alert');ui.dirty=true;
@@ -881,7 +1063,9 @@ function startEvent(ev){
 function endEvent(){
   const ev=G.event;if(!ev)return;
   if(ev.type==='closure'){ev.edge.closed=false;toast('Road reopened.')}
-  G.stormMult=1;G.event=null;ui.dirty=true;
+  if(ev.type==='parade'){for(const e of ev.edges)e.closed=false;toast('The parade is over. Roads reopened.')}
+  if(ev.type==='breakdown'&&ev.bus){ev.bus.broke=0}
+  G.fogMult=1;G.stormMult=1;G.event=null;ui.dirty=true;
 }
 
 /* ================= simulation step ================= */
@@ -891,10 +1075,23 @@ function phaseAt(t){
   const p=PHASES[PHASES.length-1];return{p,pt:p.len,i:PHASES.length-1};
 }
 function clockHour(t){const ph=phaseAt(t);return ph.p.from+(ph.p.to-ph.p.from)*clamp(ph.pt/ph.p.len,0,1)}
+function updCong(){
+  const C=G.city,ph=phaseAt(G.t).p,rf=ph.rush?1:ph.id==='mid'?.35:.15;
+  if(!C.congInit){
+    const cx=C.w/2,cy=C.h/2,mr=Math.hypot(cx,cy)*.75,R=rng(C.seed+9);
+    for(const e of C.edges){const A=C.nodes[e.a],B=C.nodes[e.b];e.dn=clamp(Math.hypot((A.x+B.x)/2-cx,(A.y+B.y)/2-cy)/mr,0,1);e.cb=R()*.1}
+    C.congInit=true;
+  }
+  const cnt=new Map();
+  for(const b of G.buses){const e=edgeBetween(b.from,b.to);if(e)cnt.set(e,(cnt.get(e)||0)+1)}
+  for(const e of C.edges)e.cong=clamp(rf*.42*Math.pow(1-e.dn,1.3)+e.cb*rf+Math.max(0,(cnt.get(e)||0)-1)*.1,0,.65);
+}
 function step(dt){
   if(G.over)return;
   G.t+=dt;
   const ph=phaseAt(G.t),L=G.L,total=L.perDay*(1+.12*(G.day-1));
+  if(ph.p.id!==G.lastPhase){G.lastPhase=ph.p.id;G.netVer++;G.congT=0}
+  G.congT-=dt;if(G.congT<=0){G.congT=.5;updCong()}
   G.acc+=total*ph.p.share/ph.p.len*dt;
   while(G.acc>=1){
     G.acc-=1;
@@ -905,15 +1102,18 @@ function step(dt){
   }
   for(const ev of G.evPlan)if(!ev.done&&ph.p.id===ev.phase&&ph.pt>=ev.at&&!G.event)startEvent(ev);
   const ev=G.event;
-  if(ev){
-    ev.t+=dt;
-    if(ev.t>=ev.dur)endEvent();
-  }
+  if(ev){ev.t+=dt;if(ev.t>=ev.dur)endEvent()}
   updCitizens(dt);thinkTick(dt);
-  for(const b of G.buses)updBus(b,dt);
+  for(const b of G.buses){
+    updBus(b,dt);
+    if(b.state!=='parked'){const c=BUS_MODELS[b.route.model||0].cost*dt;G.money-=c;G.cost+=c;G.dayCost+=c;b.route.stat.cost+=c}
+  }
+  for(const r of G.routes){if(r.buses.length){let f=0;for(const b of r.buses)f+=b.pax.length/b.cap;r.stat.loadSum+=f/r.buses.length*dt;r.stat.loadN+=dt}}
+  for(const k in G.gaveBlock){G.gaveBlock[k]*=1-dt*.012;if(G.gaveBlock[k]<.05)delete G.gaveBlock[k]}
   for(const st of G.stops.values()){if(st.cheer>0)st.cheer-=dt;if(st.missed>0)st.missed-=dt}
   for(let i=G.parts.length-1;i>=0;i--){const p=G.parts[i];p.a+=dt/p.life;if(p.a>=1)G.parts.splice(i,1)}
   if(G.flashSat>0)G.flashSat-=dt*2;
+  if(!L.sandbox&&G.money<-800&&!G.over){gameOver('bankrupt');return}
   if(G.t>=DAY_LEN&&!G.over)endOfDay();
 }
 // concert spawn helper (rate-based burst from the arena)
@@ -924,52 +1124,132 @@ function concertTick(dt){
 }
 
 /* ================= day / level flow ================= */
-function stars(){const t=G.delivered+G.gaveUp,r=t?G.delivered/t:1;return r>=.85?3:r>=.72?2:1}
+function goalsList(){
+  const g=G.L.goals;if(!g)return[];
+  const tot=G.delivered+G.gaveUp,r=tot?G.delivered/tot:1,profit=G.rev-G.cost;
+  return[{t:'Satisfaction over '+Math.round(g.sat*100)+'%',ok:r>=g.sat,v:Math.round(r*100)+'%'},
+         {t:'Fewer than '+g.gave+' riders give up',ok:G.gaveUp<g.gave,v:String(G.gaveUp)},
+         {t:'Earn $'+g.profit+' profit',ok:profit>=g.profit,v:'$'+Math.round(profit)}];
+}
+function stars(){return goalsList().filter(g=>g.ok).length}
+const money=v=>(v<0?'-$':'$')+Math.abs(Math.round(v)).toLocaleString('en-US');
+function worstStop(){let w=null;for(const st of G.stops.values()){const sc=(st.gaveDay||0)*3+(st.peak||0);if(sc>0&&(!w||sc>w.sc))w={st,sc}}return w&&w.st}
+function dayReport(){
+  const prof=G.dayRev-G.dayCost,ws=worstStop();
+  let rows='';
+  for(const r of G.routes){const t=r.stat,ld=t.loadN?Math.round(100*t.loadSum/t.loadN):0,wt=t.boarded?Math.round(t.waitSum/t.boarded):0;
+    rows+='<tr><td><i style="background:'+r.color+'"></i>'+esc(r.name)+'</td><td>'+t.boarded+'</td><td>'+ld+'%</td><td>'+wt+'s</td><td class="'+(t.rev-t.cost<0?'neg':'')+'">'+money(t.rev-t.cost)+'</td></tr>'}
+  let worst='';
+  if(ws){const n=G.city.nodes[ws.id],h=clockHour(ws.peakT),hh=Math.floor(h),mm=Math.floor((h-hh)*60);
+    worst='<div class="worst"><b>Worst moment</b>'+esc(nodeName(n))+' hit '+ws.peak+' waiting around '+String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+(ws.gaveDay?', and '+ws.gaveDay+' gave up there':'')+'.<button class="mini" data-act="showworst" data-id="'+ws.id+'">Show me</button></div>'}
+  return'<div class="statgrid"><div><b>'+money(G.dayRev)+'</b><span>Fares</span></div><div><b>'+money(G.dayCost)+'</b><span>Running costs</span></div><div><b class="'+(prof<0?'neg':'')+'">'+money(prof)+'</b><span>Profit</span></div></div>'+
+    (rows?'<div class="tbl"><table><thead><tr><th>Route</th><th>Riders</th><th>Load</th><th>Wait</th><th>Profit</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'')+worst;
+}
 function endOfDay(){
   G.paused=true;G.modal=true;syncPlay();
-  const last=G.day>=G.L.days;
+  const last=isFinite(G.L.days)&&G.day>=G.L.days;
   const total=G.dayDel+G.dayGave,pct=total?Math.round(100*G.dayDel/total):100;
   if(last){
-    const st=stars();
-    try{const k='rhr.stars',o=JSON.parse(localStorage.getItem(k)||'{}');o[G.levelIdx]=Math.max(o[G.levelIdx]||0,st);localStorage.setItem(k,JSON.stringify(o))}catch(e){}
-    showOv('<div class="card small"><div class="stars">'+starStr(st)+'</div><h2>Level complete</h2><p class="sub">'+esc(G.L.name)+' kept moving for '+G.L.days+' days.</p>'+
-      '<div class="statgrid"><div><b>'+G.delivered+'</b><span>Delivered</span></div><div><b>'+G.gaveUp+'</b><span>Gave up</span></div><div><b>'+Math.round(100*G.delivered/Math.max(1,G.delivered+G.gaveUp))+'%</b><span>Overall</span></div></div>'+
-      '<div class="btnrow">'+(G.levelIdx<2?'<button class="btn ok" data-act="level" data-i="'+(G.levelIdx+1)+'">Next level</button>':'')+'<button class="btn alt" data-act="level" data-i="'+G.levelIdx+'">Replay</button><button class="btn alt" data-act="home">Levels</button></div></div>');
+    const gl=goalsList(),st=gl.filter(g=>g.ok).length;
+    try{const k='rhr.stars',o=JSON.parse(localStorage.getItem(k)||'{}');if(!G.L.daily)o[G.levelIdx]=Math.max(o[G.levelIdx]||0,st);localStorage.setItem(k,JSON.stringify(o))}catch(e){}
+    showOv('<div class="card"><div class="stars" style="text-align:center">'+starStr(st)+'</div><h2 style="text-align:center">Level complete</h2><p class="sub" style="text-align:center">'+esc(G.L.name)+' kept moving for '+G.L.days+' days. Cash: '+money(G.money)+'.</p>'+
+      '<ul class="goals">'+gl.map(g=>'<li class="'+(g.ok?'ok':'no')+'"><span>'+(g.ok?'✓':'✕')+'</span>'+esc(g.t)+'<em>'+esc(g.v)+'</em></li>').join('')+'</ul>'+dayReport()+
+      '<div class="btnrow">'+((G.levelIdx<3&&!G.L.daily)?'<button class="btn ok" data-act="level" data-i="'+(G.levelIdx+1)+'">Next level</button>':'')+'<button class="btn alt" data-act="level" data-i="'+G.levelIdx+'">Replay</button><button class="btn alt" data-act="home">Levels</button></div></div>');
   }else{
     const tip=pct<70?'Tip: add buses to the busiest routes, or add stops closer to red crowds.':pct<90?'Tip: watch the amber stops. Extra buses there keep them green.':'Smooth day. Tomorrow brings more people.';
-    showOv('<div class="card small"><h2>Day '+G.day+' done</h2><p class="sub">'+esc(tip)+'</p>'+
-      '<div class="statgrid"><div><b>'+G.dayDel+'</b><span>Delivered</span></div><div><b>'+G.dayGave+'</b><span>Gave up</span></div><div><b>'+pct+'%</b><span>Today</span></div></div>'+
-      '<p class="sub">You can edit routes now. The next day has more people.</p>'+
+    showOv('<div class="card"><h2>Day '+G.day+' done</h2><p class="sub">'+esc(tip)+' '+G.dayDel+' delivered, '+G.dayGave+' gave up ('+pct+'% satisfied). Cash: '+money(G.money)+'.</p>'+dayReport()+
+      '<p class="sub">You can edit routes now. The city grows overnight.</p>'+
       '<div class="btnrow"><button class="btn ok" data-act="nextday">Start day '+(G.day+1)+'</button></div></div>');
   }
 }
 function starStr(n){let s='';for(let i=0;i<3;i++)s+=i<n?'★':'<span class="off">★</span>';return s}
 function nextDay(){
-  G.day++;G.t=0;G.acc=0;G.dayDel=0;G.dayGave=0;planEvents();hideOv();G.modal=false;G.paused=true;syncPlay();ui.dirty=true;
-  toast('Day '+G.day+'. Press play when ready.');
+  if(G.event)endEvent();
+  G.day++;G.t=0;G.acc=0;G.dayDel=0;G.dayGave=0;G.dayRev=0;G.dayCost=0;G.pendingNext=false;
+  for(const r of G.routes)r.stat=newStat();
+  for(const st of G.stops.values()){st.gaveDay=0;st.peak=0;st.peakT=0}
+  const grown=G.L.growth===false?null:growCity();
+  planEvents();hideOv();G.modal=false;G.paused=true;syncPlay();ui.dirty=true;
+  toast(grown?'Day '+G.day+'. New blocks opened: '+grown+'.':'Day '+G.day+'. Press play when ready.',3600);
+  saveGame();
 }
-function gameOver(){
+function gameOver(why){
   G.over=true;G.paused=true;G.modal=true;syncPlay();snd('sad');
-  showOv('<div class="card small"><h2>Satisfaction dropped below 50%</h2><p class="sub">Too many riders gave up waiting. Add buses where crowds turn red and make sure routes reach the business district.</p>'+
+  const title=why==='bankrupt'?'The transit agency is bankrupt':'Satisfaction dropped below 50%';
+  const msg=why==='bankrupt'?'Running costs outgrew your fares. Cut buses on quiet routes, use rush-hour-only schedules, and aim fares at busy stops.':'Too many riders gave up waiting. Add buses where crowds turn red and make sure routes reach the business district.';
+  showOv('<div class="card small"><h2>'+title+'</h2><p class="sub">'+msg+'</p>'+
     '<div class="statgrid"><div><b>'+G.delivered+'</b><span>Delivered</span></div><div><b>'+G.gaveUp+'</b><span>Gave up</span></div><div><b>Day '+G.day+'</b><span>Reached</span></div></div>'+
     '<div class="btnrow"><button class="btn" data-act="level" data-i="'+G.levelIdx+'">Try again</button><button class="btn alt" data-act="home">Levels</button></div></div>');
+}
+
+/* ================= growth & save ================= */
+function growCity(){
+  const L=G.L,rows=L.map.length,cols=L.map[0].length,cand=[];
+  const at=(c,r)=>(r>=0&&r<rows&&c>=0&&c<cols)?L.map[r][c]:'x';
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    if(at(c,r)!=='.')continue;
+    let nh=0,nb=0;
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const t=at(c+dc,r+dr);if(t==='H')nh++;if(t==='B')nb++}
+    if(nh+nb>0)cand.push({c,r,nh,nb});
+  }
+  if(!cand.length)return null;
+  const picks=[],n=Math.min(2,cand.length);
+  for(let k=0;k<n;k++){const i=Math.floor(rnd()*cand.length),p=cand.splice(i,1)[0];picks.push(p)}
+  const grid=L.map.map(s=>s.split('')),names=[];
+  for(const p of picks){const letter=(p.nb>p.nh&&rnd()<.6)||rnd()<.18?'B':'H';grid[p.r][p.c]=letter;names.push((letter==='H'?'homes':'offices')+' near '+HN[p.r]+' & '+ord(p.c+1))}
+  L.map=grid.map(a=>a.join(''));
+  G.city=buildCity(L);
+  if(T.ok){build3D(G.city);resetDyn()}
+  for(const r of G.routes)recalcRoute(r);
+  netChanged();
+  return names.join(' and ');
+}
+function saveGame(){
+  try{
+    if(G.L.daily||G.over)return;
+    const d={v:1,lvl:G.levelIdx,day:G.day,money:G.money,engine:G.engine,rev:G.rev,cost:G.cost,delivered:G.delivered,gaveUp:G.gaveUp,map:G.L.map,win:G.win,
+      stops:[...G.stops.values()].map(s=>({id:s.id,acc:!!s.access})),
+      routes:G.routes.map(r=>({name:r.name,color:r.color,stops:r.stops,express:r.express,ep:r.expressPaid,loop:r.loop,lane:r.lane,sched:r.sched,model:r.model,buses:r.buses.length}))};
+    localStorage.setItem('rhr.save',JSON.stringify(d));
+  }catch(e){}
+}
+function readSave(){try{const d=JSON.parse(localStorage.getItem('rhr.save')||'null');return d&&d.v===1?d:null}catch(e){return null}}
+function loadSave(){
+  const d=readSave();if(!d)return false;
+  loadLevel(d.lvl,{skipTut:true});
+  G.L.map=d.map;G.city=buildCity(G.L);if(T.ok){build3D(G.city);resetDyn()}
+  G.day=d.day;G.money=d.money;G.engine=d.engine||0;G.rev=d.rev||0;G.cost=d.cost||0;G.delivered=d.delivered||0;G.gaveUp=d.gaveUp||0;G.win=d.win||[];
+  for(const s of d.stops){const st=addStop(s.id,true);if(st)st.access=s.acc}
+  for(const rd of d.routes){
+    const r=newRoute(rd.stops);r.name=rd.name;r.color=rd.color;r.express=rd.express;r.expressPaid=rd.ep;r.loop=rd.loop;r.lane=rd.lane;r.sched=rd.sched;r.model=rd.model;recalcRoute(r);
+    for(let k=0;k<rd.buses;k++)addBus(r,true);
+  }
+  ui.tut=false;netChanged();planEvents();ui.sheet=true;setTool('select');ui.dirty=true;
+  toast('Welcome back. Day '+G.day+', '+money(G.money)+' in the bank.');
+  return true;
 }
 
 /* ================= level setup ================= */
 function resetState(){
   G.stops=new Map();G.routes=[];G.buses=[];G.citizens=[];G.parts=[];G.day=1;G.t=0;G.acc=0;G.over=false;G.netVer++;
-  G.bubbles=[];G.thinkMem=[];G.thinkT=20;G.thinkSeen=false;G.xferDelivered=0;G.delivered=0;G.gaveUp=0;G.dayDel=0;G.dayGave=0;G.win=[];G.event=null;G.stormMult=1;G.routeCount=0;G.lastEv='';G.flashSat=0;
-  ui.drawing=null;ui.sel=null;ui.tool='select';ui.sheet=false;
+  G.bubbles=[];G.thinkMem=[];G.thinkT=20;G.thinkSeen=false;G.wheelSeen=false;G.xferDelivered=0;G.delivered=0;G.gaveUp=0;G.dayDel=0;G.dayGave=0;G.win=[];G.event=null;G.stormMult=1;G.routeCount=0;G.lastEv='';G.flashSat=0;
+  G.gaveBlock={};G.fogMult=1;G.rev=0;G.cost=0;G.dayRev=0;G.dayCost=0;G.engine=0;G.pendingNext=false;G.congT=0;G.lastPhase='';
+  ui.drawing=null;ui.sel=null;ui.tool='select';ui.sheet=false;ui.moving=null;ui.view='off';ui.follow=null;
 }
-function loadLevel(i){
-  G.levelIdx=i;G.L=LEVELS[i];resetState();
-  G.city=buildCity(G.L);
+function loadLevel(i,opts){
+  opts=opts||{};
+  G.levelIdx=i;const base=LEVELS[i];
+  let L=Object.assign({},base,{map:base.map?base.map.slice():null}),city=null;
+  if(base.daily){for(let t=0;t<30;t++){L=dailyLevel(t);city=buildCity(L);if(city.connected&&city.homes.length>=10&&city.works.length>=6)break}}
+  G.L=L;resetState();rnd=L.daily?rng(L.seed*31+7):Math.random;
+  G.city=city||buildCity(L);
+  G.money=L.cash;
   if(T.ok){build3D(G.city);resetDyn()}
   planEvents();
-  ui.tut=true;ui.tutBoth=false;
+  ui.tut=!opts.skipTut;ui.tutBoth=false;
   netChanged();
   G.paused=true;G.modal=false;syncPlay();
-  fitCam(true);ui.dirty=true;setTool('stop');
+  fitCam(true);ui.dirty=true;setTool(opts.skipTut?'select':'stop');
   buildTimeline();
 }
 function buildTimeline(){
@@ -1041,7 +1321,7 @@ cv.addEventListener('pointermove',e=>{
   if(Math.hypot(x-p.sx,y-p.sy)>8)p.moved=true;
   if(pointers.size===1&&p.moved){
     if(p.rot){cam.yaw-=(x-px)*.006;cam.pitch=clamp(cam.pitch+(y-py)*.004,.55,1.3);updateCamera()}
-    else panBy(px,py,x,y);
+    else{panBy(px,py,x,y);if(ui.follow){ui.follow=null;ui.dirty=true}}
   }else if(pointers.size>=2&&gesture){
     const a=[...pointers.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1,cx=(a[0].x+a[1].x)/2,cy=(a[0].y+a[1].y)/2,ang=Math.atan2(a[1].y-a[0].y,a[1].x-a[0].x);
     panBy(gesture.cx,gesture.cy,cx,cy);
@@ -1073,9 +1353,11 @@ function nearestNode(sx,sy,maxScreen){
 }
 function onTap(sx,sy){
   if(G.modal||!G.city)return;
+  if(ui.moving){const n=nearestNode(sx,sy,60);if(n)moveStop(ui.moving,n.id);return}
   const tool=ui.tool;
   if(tool==='select'){
     const w=toWorld(sx,sy);if(!w)return;
+    for(const b of G.buses){if(Math.hypot(b.x-w.x,b.y-w.y)<Math.max(22,24/cam.zoom)){ui.follow=b.id;cam.zoom=Math.max(cam.zoom,2);ui.dirty=true;return}}
     let best=null,bd=Math.max(30,30/cam.zoom);
     for(const st of G.stops.values()){const d=Math.hypot(st.x-w.x,st.y-w.y);if(d<bd){bd=d;best=st}}
     ui.sel=best?{type:'stop',id:best.id}:null;ui.dirty=true;return;
@@ -1083,7 +1365,7 @@ function onTap(sx,sy){
   const n=nearestNode(sx,sy,60);if(!n)return;
   if(tool==='stop'){
     if(G.stops.has(n.id)){ui.sel={type:'stop',id:n.id};ui.dirty=true}
-    else{addStop(n.id);ui.sel={type:'stop',id:n.id};fx.ring(n.x,n.y,'#2a7de1',34);snd('pop');netChanged()}
+    else{if(!addStop(n.id))return;ui.sel={type:'stop',id:n.id};fx.ring(n.x,n.y,'#2a7de1',34);snd('pop');netChanged()}
     return;
   }
   if(tool==='route')routeTap(n);
@@ -1092,7 +1374,7 @@ function routeTap(n){
   const L=G.L,d=ui.drawing,st=G.stops.get(n.id);
   const owner=st?routesAt(n.id):[];
   if(!d){
-    if(!st){addStop(n.id);ui.drawing={routeId:null,first:n.id};fx.ring(n.x,n.y,'#2a7de1',34);snd('pop');ui.dirty=true;return}
+    if(!st){if(!addStop(n.id))return;ui.drawing={routeId:null,first:n.id};fx.ring(n.x,n.y,'#2a7de1',34);snd('pop');ui.dirty=true;return}
     if(owner.length===1&&owner[0].stops[owner[0].stops.length-1]===n.id){ui.drawing={routeId:owner[0].id};ui.sel={type:'route',id:owner[0].id};toast('Extending '+owner[0].name+'. Tap the next stop.');ui.dirty=true;return}
     if(owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfer stops unlock in level 3.');return}
     ui.drawing={routeId:null,first:n.id};ui.dirty=true;return;
@@ -1101,9 +1383,9 @@ function routeTap(n){
     if(n.id===d.first){ui.drawing=null;toast('Route cancelled.');ui.dirty=true;return}
     if(owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfer stops unlock in level 3.');return}
     if(G.routes.length>=8){toast('Maximum of 8 routes.');return}
-    if(!st)addStop(n.id);
+    if(!st&&!addStop(n.id))return;
     const r=newRoute([d.first,n.id]);
-    const ok=addBus(r);if(!ok)toast(r.name+' created with no bus. Free one up from another route.');
+    const ok=addBus(r);if(!ok)toast(r.name+' has no bus yet. Add one in the Buses panel when you have cash.');
     ui.drawing={routeId:r.id};ui.sel={type:'route',id:r.id};toast(r.name+' is running. Keep tapping stops to extend it.');fx.ring(n.x,n.y,r.color,34);snd('pop');netChanged();return;
   }
   const r=G.routes.find(x=>x.id===d.routeId);
@@ -1113,7 +1395,7 @@ function routeTap(n){
     toast('That stop is already on '+r.name+'.');return;
   }
   if(st&&owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfer stops unlock in level 3.');return}
-  if(!st)addStop(n.id);
+  if(!st&&!addStop(n.id))return;
   r.stops.push(n.id);recalcRoute(r);fx.ring(n.x,n.y,r.color,34);snd('pop');netChanged();
 }
 function finishDrawing(){const id=ui.drawing&&ui.drawing.routeId;ui.drawing=null;setTool('select');if(id){ui.sheet=true;toast('Use + and − to add or remove buses.')}ui.dirty=true}
@@ -1310,7 +1592,7 @@ function build3D(city){
   T.cars=[];if(T.carBody){T.dyn.remove(T.carBody);T.dyn.remove(T.carCab)}
   const g=new THREE.Group();
   const tex=srgbTex(city.img);tex.anisotropy=Math.min(8,T.r.capabilities.getMaxAnisotropy());T.groundTex=tex;
-  const gm=new THREE.Mesh(new THREE.PlaneGeometry(city.w,city.h),new THREE.MeshStandardMaterial({map:tex,roughness:.95,envMap:T.env,envMapIntensity:.15}));
+  T.groundMat=new THREE.MeshStandardMaterial({map:tex,roughness:.95,envMap:T.env,envMapIntensity:.15});const gm=new THREE.Mesh(new THREE.PlaneGeometry(city.w,city.h),T.groundMat);
   gm.rotation.x=-Math.PI/2;gm.position.set(city.w/2,0,city.h/2);gm.receiveShadow=true;g.add(gm);
   // water
   if(!T.waterTex){const c=mkCanvas(256,256,(a)=>{const R=rng(9);a.fillStyle='#808080';a.fillRect(0,0,256,256);for(let i=0;i<260;i++){a.strokeStyle=R()<.5?'rgba(255,255,255,.12)':'rgba(0,0,0,.12)';a.lineWidth=1+R()*2;a.beginPath();const x=R()*256,y=R()*256;a.moveTo(x,y);a.bezierCurveTo(x+20,y-6,x+40,y+6,x+60,y);a.stroke()}});T.waterTex=new THREE.CanvasTexture(c);T.waterTex.wrapS=T.waterTex.wrapT=THREE.RepeatWrapping}
@@ -1391,6 +1673,26 @@ function build3D(city){
   const pg=new THREE.PlaneGeometry(S-22,S-22);pg.rotateX(-Math.PI/2);
   for(const b of city.blocks)if(b.t==='H'||b.t==='B'){const m=new THREE.Mesh(pg,T.tutMats[b.t==='H'?'home':'work']);m.position.set(b.x+S/2,.45,b.y+S/2);m.renderOrder=2;m.userData.k=b.t==='H'?'home':'work';tg.add(m)}
   T.scene.add(tg);
+  // traffic signals (visual)
+  const sigNodes=city.nodes.filter(n=>n.alive&&n.adj.length>=3);
+  T.sigNodes=sigNodes;
+  if(sigNodes.length){
+    const sp=new THREE.InstancedMesh(new THREE.CylinderGeometry(.35,.45,1,6),metalMat,sigNodes.length),sh=new THREE.InstancedMesh(T.gBox,new THREE.MeshBasicMaterial({color:0xffffff}),sigNodes.length);
+    const mm=new THREE.Matrix4(),qq=new THREE.Quaternion(),sc3=new THREE.Vector3(),pp=new THREE.Vector3();
+    sigNodes.forEach((nd,i)=>{const[cx,cy]=stopCorner(city,nd);sc3.set(1,12,1);pp.set(nd.x-cx*14,6,nd.y+cy*14);mm.compose(pp,qq,sc3);sp.setMatrixAt(i,mm);sc3.set(2.2,3.6,2.2);pp.set(nd.x-cx*14,13,nd.y+cy*14);mm.compose(pp,qq,sc3);sh.setMatrixAt(i,mm);sh.setColorAt(i,lin('#33ff77'))});
+    g.add(sp);g.add(sh);T.sigHead=sh;
+  }
+  // demand heat + traffic overlays
+  if(T.heatG)T.scene.remove(T.heatG);
+  const hGrp=new THREE.Group();T.heat=[];T.heatG=hGrp;
+  const hPlane=new THREE.PlaneGeometry(S-14,S-14);hPlane.rotateX(-Math.PI/2);
+  for(const b of city.blocks)if(b.t==='H'||b.t==='B'){const m=new THREE.Mesh(hPlane,basic('#3fb868',{transparent:true,opacity:.3,depthWrite:false}));m.position.set(b.x+S/2,.5,b.y+S/2);m.renderOrder=2;hGrp.add(m);T.heat.push({m,key:b.c+','+b.r,t:b.t})}
+  hGrp.visible=false;T.scene.add(hGrp);
+  if(T.trafG)T.scene.remove(T.trafG);
+  const tg2=new THREE.Group();T.traf=[];T.trafG=tg2;
+  for(const e of city.edges){const A=city.nodes[e.a],B=city.nodes[e.b];
+    const m=ribbon([[A.x,A.y],[B.x,B.y]],16,.45,basic('#3fb868',{transparent:true,opacity:.3,depthWrite:false}));tg2.add(m);T.traf.push({m,e})}
+  tg2.visible=false;T.scene.add(tg2);
   T.city=g;T.scene.add(g);
   T.cityC={x:city.w/2,z:city.h/2,r:Math.max(city.w,city.h)*.62};
   const sh=T.sun.shadow.camera,r=T.cityC.r;sh.left=-r;sh.right=r;sh.top=r;sh.bottom=-r;sh.near=50;sh.far=2600;sh.updateProjectionMatrix();
@@ -1412,7 +1714,7 @@ function updCars(dt){
   const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),sc=new THREE.Vector3(),ps=new THREE.Vector3();
   T.cars.forEach((c,i)=>{
     const A=C.nodes[c.a],B=C.nodes[c.b],dx=B.x-A.x,dy=B.y-A.y,l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l,nx=-uy,ny=ux;
-    let v=c.v;
+    let v=c.v;{const ce=edgeBetween(c.a,c.b);if(ce)v*=1-(ce.cong||0)*.9}
     c.x=A.x+ux*c.s+nx*5.5;c.y=A.y+uy*c.s+ny*5.5;c.ang=Math.atan2(uy,ux);
     for(const b of G.buses){const rx=b.x-c.x,ry=b.y-c.y,fwd=rx*ux+ry*uy,lat=Math.abs(rx*nx+ry*ny);if(fwd>0&&fwd<26&&lat<6){v=fwd<16?0:Math.min(v,52)}}
     c.s+=v*dt;
@@ -1508,7 +1810,7 @@ function ensureBus(b){
   const g=new THREE.Group(),r=b.route;
   const paint=M('#f1f3f5',{roughness:.3,metalness:.25,envMapIntensity:.9}),glassM=M('#18232f',{roughness:.06,metalness:.7,envMapIntensity:1.3}),dark=M('#222a31',{roughness:.6});
   const body=new THREE.Mesh(T.busGeo,paint);body.castShadow=true;body.receiveShadow=true;g.add(body);
-  const liv=M(r.color,{roughness:.35,metalness:.2}),stripe=box(g,23.4,1.5,7.9,0,3.7,0,liv,false);
+  const liv=new THREE.MeshStandardMaterial({roughness:.35,metalness:.2,envMap:T.env,envMapIntensity:.45});liv.color.copy(lin(r.color));const stripe=box(g,23.4,1.5,7.9,0,3.7,0,liv,false);
   box(g,18.4,3.1,7.85,-1.4,6.9,0,glassM,false);
   for(let i=0;i<5;i++)box(g,.7,3.2,7.9,-9.6+i*4.6,6.9,0,paint,false);
   const ws=box(g,.7,4.2,6.8,12.55,6.5,0,glassM,false);ws.rotation.z=-.1;
@@ -1522,15 +1824,16 @@ function ensureBus(b){
   const stripeY=box(g,23.6,.5,8.05,0,2.6,0,M('#ffd24d',{roughness:.4}),false);
   const flashBox=new THREE.Mesh(T.gBox,basic('#e2483d',{transparent:true,opacity:.5}));flashBox.scale.set(26,10,8.6);flashBox.position.y=6;flashBox.visible=false;g.add(flashBox);
   const full=mkSprite(textTex('FULL','#e2483d'),28,11);full.position.y=21;full.visible=false;g.add(full);
-  T.dyn.add(g);o={g,stripe,roof,bar,stripeY,flashBox,full};T.buses.set(b.id,o);return o;
+  T.dyn.add(g);o={g,stripe,roof,bar,stripeY,flashBox,full,liv};T.buses.set(b.id,o);return o;
 }
 function syncBuses(u,now){
   const alive=new Set(G.buses.map(b=>b.id));
   for(const[id,o]of T.buses)if(!alive.has(id)){T.dyn.remove(o.g);T.buses.delete(id)}
   const k=Math.max(1.1,u*.9);
   for(const b of G.buses){
-    const o=ensureBus(b),r=b.route,flash=b.flash>0&&Math.floor(now/110)%2===0,f=b.pax.length/CAP;
-    o.g.position.set(b.x,0,b.y);o.g.rotation.y=-b.ang;o.g.scale.set(k*(r.express?1.25:1),k,k);
+    const o=ensureBus(b),r=b.route,flash=b.flash>0&&Math.floor(now/110)%2===0,f=b.pax.length/b.cap;
+    o.liv.color.copy(lin(r.color));
+    o.g.position.set(b.x,0,b.y);o.g.rotation.y=-b.ang;o.g.scale.set(k*(r.express?1.25:1)*BUS_MODELS[r.model||0].len,k,k);
     o.stripeY.visible=!!r.express;o.flashBox.visible=flash;o.full.visible=b.flash>0;
     o.bar.scale.set(Math.max(.3,f*14),.6,1.6);o.bar.position.x=-9+Math.max(.3,f*14)/2-.5;
     o.bar.material.color.copy(lin(f>=1?COL.bad:f>.66?COL.warn:COL.ok));
@@ -1540,14 +1843,15 @@ const SKINS=['#f1c9a5','#e0ac82','#c68b5f','#8d5a3b','#f6d8bd'];
 function syncCitizens(u,now){
   const body=T.pBody,head=T.pHead,m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(u,u,u),ps=new THREE.Vector3();
   let i=0;const MAXI=1500,t=now/1000;
-  const put=(x,z,c,seed,walk)=>{if(i>=MAXI)return;const bob=walk?Math.abs(Math.sin(t*9+seed*20))*.7*u:0;
-    ps.set(x,(2.5)*u+bob,z);m4.compose(ps,q,sc);body.setMatrixAt(i,m4);body.setColorAt(i,lin(c));
-    ps.set(x,(5.6)*u+bob,z);m4.compose(ps,q,sc);head.setMatrixAt(i,m4);head.setColorAt(i,lin(SKINS[Math.floor(seed*5)%5]));i++};
+  const sc2=new THREE.Vector3(),put=(x,z,c,seed,walk,wheel)=>{if(i>=MAXI)return;const bob=walk&&!wheel?Math.abs(Math.sin(t*9+seed*20))*.7*u:0;
+    if(wheel){sc2.set(u*1.5,u*.65,u*1.5);ps.set(x,1.9*u,z)}else{sc2.copy(sc);ps.set(x,(2.5)*u+bob,z)}
+    m4.compose(ps,q,sc2);body.setMatrixAt(i,m4);body.setColorAt(i,lin(c));
+    ps.set(x,(wheel?4.1:5.6)*u+bob,z);m4.compose(ps,q,sc);head.setMatrixAt(i,m4);head.setColorAt(i,lin(SKINS[Math.floor(seed*5)%5]));i++};
   for(const st of G.stops.values()){
     const shown=Math.min(st.waiters.length,26);
-    for(let k=0;k<shown;k++){const c=st.waiters[k],a=Math.atan2(st.sy,st.sx)+((k%7)-3)*.5,rad=(8+4.2*Math.floor(k/7)+(k%2)*2)*u;put(st.x+Math.cos(a)*rad,st.y+Math.sin(a)*rad,pcol(c),c.seed,false)}
+    for(let k=0;k<shown;k++){const c=st.waiters[k],a=Math.atan2(st.sy,st.sx)+((k%7)-3)*.5,rad=(8+4.2*Math.floor(k/7)+(k%2)*2)*u;put(st.x+Math.cos(a)*rad,st.y+Math.sin(a)*rad,pcol(c),c.seed,false,c.type==='wheel')}
   }
-  for(const c of G.citizens)if(c.state==='walk'||c.state==='walkDest')put(c.x,c.y,c.state==='walkDest'?'#f2f2f2':pcol(c),c.seed,true);
+  for(const c of G.citizens)if(c.state==='walk'||c.state==='walkDest')put(c.x,c.y,c.state==='walkDest'?'#f2f2f2':pcol(c),c.seed,true,c.type==='wheel');
   body.count=head.count=i;body.instanceMatrix.needsUpdate=head.instanceMatrix.needsUpdate=true;
   if(body.instanceColor)body.instanceColor.needsUpdate=true;if(head.instanceColor)head.instanceColor.needsUpdate=true;
 }
@@ -1589,23 +1893,48 @@ function syncParts(u){
     else{const t=p.a,e=t*t*(3-2*t);o.position.set(p.x0+(p.x1-p.x0)*e,6+Math.sin(t*3.14)*10,p.y0+(p.y1-p.y0)*e);o.scale.setScalar(2.4*u);o.material.opacity=1-t*.4}
   }
 }
+function syncViews(now){
+  if(!T.heatG)return;
+  T.heatG.visible=ui.view==='demand';T.trafG.visible=ui.view==='traffic';
+  if(now-(T.viewT||0)<300)return;T.viewT=now;
+  if(ui.view==='demand'){
+    const live={};
+    for(const c of G.citizens){if(c.state==='ride')continue;if(c.ob)live[c.ob]=(live[c.ob]||0)+1;if(c.db&&c.state!=='walkDest')live[c.db]=(live[c.db]||0)+.4}
+    for(const h of T.heat){
+      const sc=(live[h.key]||0)+3*((G.gaveBlock&&G.gaveBlock[h.key])||0),m=h.m.material;
+      m.color.copy(lin(sc<2?'#3fb868':sc<6?'#f2b632':'#e2483d'));m.opacity=Math.min(.6,.12+sc*.06);
+    }
+  }else if(ui.view==='traffic'){
+    for(const t of T.traf){const c=t.e.cong||0,m=t.m.material;m.color.copy(lin(c<.12?'#3fb868':c<.28?'#f2b632':'#e2483d'));m.opacity=c<.05?.1:.25+c*.8}
+  }
+  if(T.sigHead&&now-(T.sigT||0)>1000){
+    T.sigT=now;const ph=Math.floor(G.t/9);
+    T.sigNodes.forEach((nd,i)=>{const k=(ph+nd.id)%2,fr=(G.t%9);T.sigHead.setColorAt(i,lin(k?(fr>7.2?'#ffc400':'#33ff77'):'#ff3b30'))});
+    if(T.sigHead.instanceColor)T.sigHead.instanceColor.needsUpdate=true;
+  }
+}
 function syncTut(now){
   if(!T.tutG)return;const on=tutOn()&&!G.routes.length,t=on?tutState():{home:true,work:true};
   T.tutG.visible=on&&!(t.home&&t.work);
   if(!T.tutG.visible)return;
   const k=.4+.2*Math.sin(now/260);T.tutMats.home.opacity=t.home?0:k;T.tutMats.work.opacity=t.work?0:k;
 }
-const thinkTex=()=>spriteTex('think',192,160,(g)=>{
+const thinkTex=(w)=>spriteTex(w?'thinkW':'think',192,160,(g)=>{
   g.fillStyle='rgba(0,0,0,.18)';g.beginPath();for(const[x,y,r]of[[70,70,34],[104,56,40],[138,72,32],[100,86,36]]){g.moveTo(x+r+3,y+5);g.arc(x+3,y+5,r,0,6.3)}g.fill();
   g.fillStyle='#ffffff';g.strokeStyle='#8a99a8';g.lineWidth=3;
   for(const[x,y,r]of[[70,66,34],[104,50,40],[138,68,32],[100,82,36]]){g.beginPath();g.arc(x,y,r,0,6.3);g.fill()}
   g.beginPath();g.arc(70,66,34,2.2,4.3);g.arc(104,50,40,3.5,5.6);g.arc(138,68,32,4.7,7.2);g.arc(100,82,36,.6,2.6);g.stroke();
   g.fillStyle='#fff';for(const[x,y,r]of[[70,66,33],[104,50,39],[138,68,31],[100,82,35]]){g.beginPath();g.arc(x,y,r-1.5,0,6.3);g.fill()}
   g.fillStyle='#fff';g.strokeStyle='#8a99a8';for(const[x,y,r]of[[58,122,9],[40,142,6]]){g.beginPath();g.arc(x,y,r,0,6.3);g.fill();g.stroke()}
-  // bus icon
+  if(w){
+    g.strokeStyle='#2f7de1';g.fillStyle='#2f7de1';g.lineWidth=6;g.lineCap='round';g.lineJoin='round';
+    g.beginPath();g.arc(92,42,6,0,6.3);g.fill();
+    g.beginPath();g.moveTo(92,52);g.lineTo(92,70);g.lineTo(110,70);g.lineTo(118,86);g.moveTo(92,60);g.lineTo(106,60);g.stroke();
+    g.lineWidth=5;g.beginPath();g.arc(88,76,13,0.6,5.6);g.stroke();
+  }else{
   g.fillStyle='#2f7de1';rrect(g,62,50,76,36,8);g.fill();
   g.fillStyle='#e8f3ff';for(let i=0;i<3;i++)g.fillRect(68+i*22,56,17,13);
-  g.fillStyle='#1b2733';g.beginPath();g.arc(80,89,6,0,6.3);g.arc(120,89,6,0,6.3);g.fill();
+  g.fillStyle='#1b2733';g.beginPath();g.arc(80,89,6,0,6.3);g.arc(120,89,6,0,6.3);g.fill();}
   g.fillStyle='#e2483d';g.font='800 40px Outfit,Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('?',150,52);
 });
 function syncBubbles(u,now){
@@ -1614,7 +1943,7 @@ function syncBubbles(u,now){
   for(const[b,o]of T.bubbleObjs)if(!live.has(b)){T.dyn.remove(o);o.material.dispose();T.bubbleObjs.delete(b)}
   for(const b of G.bubbles){
     let o=T.bubbleObjs.get(b);
-    if(!o){o=mkSprite(thinkTex(),56,46);o.renderOrder=30;T.dyn.add(o);T.bubbleObjs.set(b,o)}
+    if(!o){o=mkSprite(thinkTex(b.wheel),56,46);o.renderOrder=30;T.dyn.add(o);T.bubbleObjs.set(b,o)}
     const k=Math.min(1,b.t/.5),out=Math.min(1,(b.life-b.t)/.8),a=Math.min(k,out),sc=u*(.6+.4*k);
     o.scale.set(56*sc,46*sc,1);o.position.set(b.x,34*u+Math.sin(now/380)*2.2*u,b.y);o.material.opacity=a;
   }
@@ -1659,8 +1988,11 @@ function lighting(now){
   T.sun.color.copy(k.sun);T.sun.intensity=si;T.hemi.intensity=hi;T.hemi.color.copy(lin(night>.5?'#8a9be0':'#cfe6ff'));
   T.r.toneMappingExposure=ex;
   if(T.fin){T.fin.uniforms.exposure.value=ex;T.fin.uniforms.time.value=(now/1000)%10;T.bloom.strength=.22+.55*night;T.bloom.threshold=1.05-.3*night;T.bloom.radius=.55}
+  if(T.groundMat){T.groundMat.roughness=storm?.45:.95;T.groundMat.envMapIntensity=storm?.9:.15}
   const c=T.cityC;if(c)T.sun.position.set(c.x+dir.x*1300,dir.y*1300,c.z+dir.z*1300),T.sun.target.position.set(c.x,0,c.z),T.sun.target.updateMatrixWorld();
-  T.scene.fog.color.copy(fogC);T.scene.fog.near=cam.dist*1.1;T.scene.fog.far=cam.dist*5.2;
+  const dense=G.event&&G.event.type==='fog';
+  if(dense)fogC.copy(lin('#c9d2d8'));
+  T.scene.fog.color.copy(fogC);T.scene.fog.near=cam.dist*(dense?.55:1.1);T.scene.fog.far=cam.dist*(dense?1.9:5.2);
   const emi=night*(storm?1.0:1),ev=1-Math.min(1,night*1.4);
   for(const e of T.emis)e.m.emissiveIntensity=e.base*emi;
   if(T.halo)T.halo.material.opacity=Math.min(1,night*1.3);
@@ -1680,7 +2012,7 @@ function render3D(now,simDt,realDt){
   if(!T.ok||!G.city)return;
   updateCamera();
   const u=clamp(1.1/cam.zoom,1,2.7);
-  syncRoutes();syncStops(u,now);syncBuses(u,now);syncCitizens(u,now);syncClosures(now);syncParts(u);syncMarkers(u,now);syncTut(now);syncBubbles(u,now);
+  syncRoutes();syncStops(u,now);syncBuses(u,now);syncCitizens(u,now);syncClosures(now);syncParts(u);syncMarkers(u,now);syncTut(now);syncViews(now);syncBubbles(u,now);
   if(simDt>0)updCars(simDt);
   lighting(now);
   if(T.post)T.comp.render();else T.r.render(T.scene,T.camera);
@@ -1725,59 +2057,82 @@ function hintText(){
     if(t.work)return'Step 2 of 4 · Nice. Now place a stop next to the homes (green glow) where people start their day.';
     return'Step 1 of 4 · Where should the first bus stop go? Tap a junction right next to the glowing homes (green) or offices (blue).';
   }
-  if(ui.tool==='stop')return'Tap a road junction to place a stop. Tap an existing stop to select it.';
+  if(ui.moving)return'Moving a stop. Tap the junction where it should go.';
+  if(ui.follow)return'Following a bus. Drag the map to stop following.';
+  if(G.pendingNext)return'Press ▶ to start the next day. Edit routes first if you like.';
+  if(ui.tool==='stop')return'Tap a road junction to place a stop ($'+PRICE.stop+'). Tap an existing stop to select it.';
   if(ui.tool==='route'){const d=ui.drawing;return d?(d.routeId===null?'Tap a second stop to create the route.':'Tap the next stop, or press Done.'):'Tap a stop or junction to start a route. Tap a route\'s last stop to extend it.'}
   let nr=0;for(const st of G.stops.values())for(const c of st.waiters)if(c.noRoute)nr++;
   if(nr>=3)return nr+' riders can\'t reach their destination. Connect stops to the business district.';
   if(G.paused&&!G.modal)return'Paused. Edit freely, then press ▶.';
   return'';
 }
+function modelLine(r){const m=BUS_MODELS[r.model||0],nx=BUS_MODELS[(r.model||0)+1];return m.name+' ('+m.cap+' seats)'+(nx?' → '+nx.name+' $'+Math.round((nx.price-m.price)*r.buses.length*.9):' · max size')}
 function refreshUI(){
   ui.dirty=false;
-  // fleet
-  $('#fleetBadge').textContent=fleetUsed()+'/'+G.L.fleet;
-  // sheet
+  $('#fleetBadge').textContent=G.buses.length;
   const sh=$('#sheet');sh.hidden=!ui.sheet;
   if(ui.sheet){
-    if(!G.routes.length)sh.innerHTML='<div class="empty">No routes yet. Pick the Route tool and tap stops in order.</div>';
-    else sh.innerHTML=G.routes.map(r=>{
-      const sel=ui.sel&&ui.sel.type==='route'&&ui.sel.id===r.id;
-      const ex=G.L.express?'<button class="mini '+(r.express?'on':'')+'" data-act="express" data-id="'+r.id+'">Express</button>':'<button class="mini locked" data-act="locked" data-msg="Express routes unlock in level 2">Express (L2)</button>';
-      return'<div class="rrow '+(sel?'sel':'')+'" data-act="selroute" data-id="'+r.id+'"><span class="sw" style="background:'+r.color+'"></span>'+
-        '<div class="rinfo"><b>'+esc(r.name)+(r.express?'<em>Express</em>':'')+'</b><small class="'+(r.buses.length?'':'bad')+'" data-info="'+r.id+'"></small></div>'+
-        '<div class="stepper"><button data-act="busdown" data-id="'+r.id+'" aria-label="Remove bus">−</button><span class="bn">'+r.buses.length+'</span><button data-act="busup" data-id="'+r.id+'" aria-label="Add bus">+</button></div>'+
-        ex+'<button class="mini" data-act="extend" data-id="'+r.id+'">Extend</button><button class="mini danger" data-act="delroute" data-id="'+r.id+'">Delete</button></div>';
+    const eng=G.engine>=2?'Engines maxed':'Faster engines +12% · '+money(PRICE.engine[G.engine]);
+    let html='<div class="shead"><b>Fleet · '+G.buses.length+' buses</b><button class="mini" data-act="engine"'+(G.engine>=2?' disabled':'')+'>'+eng+'</button></div>';
+    if(!G.routes.length)html+='<div class="empty">No routes yet. Pick the Route tool and tap stops in order.</div>';
+    else html+=G.routes.map(r=>{
+      const sel=ui.sel&&ui.sel.type==='route'&&ui.sel.id===r.id,m=BUS_MODELS[r.model||0];
+      const badges='<span class="badges">'+(r.express?'<em>Express</em>':'')+(r.loop?'<em>Loop</em>':'')+(r.sched==='peak'?'<em>Rush only</em>':'')+(r.lane?'<em>Lanes</em>':'')+'</span>';
+      let tools='';
+      if(sel){
+        const ex=G.L.express?'<button class="mini '+(r.express?'on':'')+'" data-act="express" data-id="'+r.id+'">Express'+(r.expressPaid?'':' $'+PRICE.express)+'</button>':'<button class="mini locked" data-act="locked" data-msg="Express routes unlock in level 2">Express (L2)</button>';
+        tools='<div class="rtools"><input class="rname" id="rn" maxlength="14" value="'+esc(r.name)+'" data-id="'+r.id+'" aria-label="Route name">'+
+          '<button class="mini" data-act="model" data-id="'+r.id+'">'+esc(modelLine(r))+'</button>'+ex+
+          '<button class="mini '+(r.loop?'on':'')+'" data-act="loop" data-id="'+r.id+'">Loop</button>'+
+          '<button class="mini" data-act="reverse" data-id="'+r.id+'">Reverse</button>'+
+          '<button class="mini '+(r.lane?'on':'')+'" data-act="lane" data-id="'+r.id+'">'+(r.lane?'Priority lanes ✓':'Priority lanes $'+PRICE.lane)+'</button>'+
+          '<button class="mini '+(r.sched==='peak'?'on':'')+'" data-act="sched" data-id="'+r.id+'">'+(r.sched==='peak'?'Rush hours only':'All day')+'</button>'+
+          '<button class="mini" data-act="extend" data-id="'+r.id+'">Extend</button>'+
+          '<button class="mini" data-act="follow" data-id="'+r.id+'">Follow a bus</button>'+
+          '<button class="mini danger" data-act="delroute" data-id="'+r.id+'">Delete</button></div>';
+      }
+      return'<div class="rrow '+(sel?'sel':'')+'" data-act="selroute" data-id="'+r.id+'"><button class="sw" data-act="color" data-id="'+r.id+'" style="background:'+r.color+'" aria-label="Change colour"></button>'+
+        '<div class="rinfo"><b>'+esc(r.name)+badges+'</b><small class="'+(r.buses.length?'':'bad')+'" data-info="'+r.id+'"></small></div>'+
+        '<div class="stepper"><button data-act="busdown" data-id="'+r.id+'" aria-label="Sell a bus">−</button><span class="bn">'+r.buses.length+'</span><button data-act="busup" data-id="'+r.id+'" aria-label="Buy a bus">+</button></div>'+tools+'</div>';
     }).join('');
+    const keep=document.activeElement&&document.activeElement.id==='rn';
+    if(!keep)sh.innerHTML=html;
   }
-  // drawbar
   const db=$('#drawbar'),d=ui.drawing;db.hidden=!d;
   if(d){
     const r=d.routeId!==null?G.routes.find(x=>x.id===d.routeId):null;
     db.innerHTML='<span class="txt">'+(r?esc(r.name)+' · '+r.stops.length+' stops':'New route · tap 2nd stop')+'</span><button data-act="undo">Undo</button><button class="go" data-act="done">Done</button>';
   }
-  // stopcard
   const sc=$('#stopcard');
   if(ui.sel&&ui.sel.type==='stop'&&G.stops.has(ui.sel.id)){sc.hidden=false;updateStopCard(true)}else sc.hidden=true;
-  // hint
   const h=hintText(),hn=$('#hint');hn.hidden=!h;hn.textContent=h;
-  // sheet should not hide stopcard overlap on tiny screens: collapse stopcard while sheet open
   if(ui.sheet&&!sc.hidden&&W<560)sc.hidden=true;
   document.querySelector('.tbtn[data-act="sheet"]').classList.toggle('on',ui.sheet);
+  $('#bView').classList.toggle('on',ui.view!=='off');
+  $('#viewLbl').textContent=ui.view==='demand'?'Demand':ui.view==='traffic'?'Traffic':'Map view';
+}
+function riderSummary(st){
+  const c={};for(const w of st.waiters)c[w.type]=(c[w.type]||0)+1;
+  return Object.keys(c).map(t=>c[t]+' '+RIDERS[t].label+(c[t]>1&&t!=='rush'?'s':'')).join(', ');
 }
 function updateStopCard(build){
   const sc=$('#stopcard');if(sc.hidden||!ui.sel)return;
   const st=G.stops.get(ui.sel.id);if(!st)return;
   const n=G.city.nodes[st.id],rs=routesAt(st.id),nr=st.waiters.filter(c=>c.noRoute).length,stat=stopStatus(st);
   const line=st.waiters.length?(st.waiters.length+' waiting · '+(stat===2?'crowded and angry':stat===1?'getting impatient':'calm')+(nr?' · '+nr+' with no route':'')):'Nobody waiting';
-  const html='<div class="si"><b>Stop at '+esc(nodeName(n))+'</b><span data-sl>'+esc(line)+'</span><span>'+(rs.length?'Routes: '+rs.map(r=>esc(r.name)).join(', '):'Not on a route yet')+'</span></div>'+
-    '<button class="danger" data-act="rmstop">Remove stop</button><button data-act="closecard">Close</button>';
-  if(build){sc.innerHTML=html}else{const e=sc.querySelector('[data-sl]');if(e)e.textContent=line}
+  const who=riderSummary(st);
+  const html='<div class="si"><b>Stop at '+esc(nodeName(n))+(st.access?' · step-free':'')+'</b><span data-sl>'+esc(line)+'</span><span data-sw>'+esc(who)+'</span><span>'+(rs.length?'Routes: '+rs.map(r=>esc(r.name)).join(', '):'Not on a route yet')+'</span></div>'+
+    '<button data-act="movestop">Move $'+PRICE.move+'</button>'+(G.L.riders.includes('wheel')?'<button data-act="ramp"'+(st.access?' disabled':'')+'>'+(st.access?'Step-free ✓':'Ramp $'+PRICE.ramp)+'</button>':'')+
+    '<button class="danger" data-act="rmstop">Remove</button><button data-act="closecard">Close</button>';
+  if(build){sc.innerHTML=html}else{const e=sc.querySelector('[data-sl]');if(e)e.textContent=line;const w=sc.querySelector('[data-sw]');if(w)w.textContent=who}
 }
 function liveInfo(){
   for(const r of G.routes){
     const e=document.querySelector('[data-info="'+r.id+'"]');if(!e)continue;
     let w=0;for(const sid of r.stops){const st=G.stops.get(sid);if(st)w+=st.waiters.length}
-    e.textContent=r.buses.length?(r.stops.length+' stops · '+w+' waiting'):'No buses! Add one with +';
+    const t=r.stat,ld=t.loadN?Math.round(100*t.loadSum/t.loadN):0,wt=t.boarded?Math.round(t.waitSum/t.boarded):0,pf=t.rev-t.cost;
+    e.textContent=r.buses.length?(r.stops.length+' stops · '+w+' waiting · load '+ld+'% · wait '+wt+'s · '+money(pf)+' today'):'No buses! Add one with +  ('+money(BUS_MODELS[r.model||0].price)+')';
   }
 }
 function hud(){
@@ -1785,10 +2140,10 @@ function hud(){
   if(pct.textContent!==s+'%')pct.textContent=s+'%';
   const f=$('#satFill');f.style.width=s+'%';f.style.background=s>=75?COL.ok:s>=55?COL.warn:COL.bad;
   $('#satCard').classList.toggle('warn',s<58&&G.win.length>=12);
-  $('#cDel').textContent=G.delivered;$('#cGave').textContent=G.gaveUp;
+  $('#cDel').textContent=G.delivered;$('#cGave').textContent=G.gaveUp;const cc=$('#cCash');cc.textContent=money(G.money);cc.classList.toggle('neg',G.money<0);
   const h=clockHour(G.t),hh=Math.floor(h),mm=Math.floor((h-hh)*60);
   $('#clock').textContent=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
-  $('#dayLbl').textContent='Day '+G.day+'/'+G.L.days;
+  $('#dayLbl').textContent='Day '+G.day+(isFinite(G.L.days)?'/'+G.L.days:'');
   const ph=phaseAt(G.t),pp=$('#phasePill');
   const txt=ph.p.name+(ph.p.rush?(ph.p.dir==='home'?' · homes → work':' · work → homes'):'');
   if(pp.textContent!==txt){pp.textContent=txt}
@@ -1796,7 +2151,7 @@ function hud(){
   $('#tlMark').style.left=Math.min(100,G.t/DAY_LEN*100)+'%';
   const ev=G.event,bn=$('#banner');
   if(ev){bn.hidden=false;bn.className='panel'+(ev.type==='concert'?' concert':'');
-    const nm=ev.type==='closure'?'Road closure':ev.type==='concert'?'Concert crowd':'Storm';
+    const nm={closure:'Road closure',concert:'Concert crowd',storm:'Storm',breakdown:'Breakdown',parade:'Parade',fog:'Fog'}[ev.type]||'Event';
     bn.innerHTML='<b>'+nm+'</b><span>'+esc(ev.label)+'</span><span class="t">'+Math.max(0,Math.ceil(ev.dur-ev.t))+'s</span>';
   }else if(!bn.hidden)bn.hidden=true;
 }
@@ -1808,12 +2163,12 @@ document.addEventListener('click',e=>{
   const act=el.dataset.act,id=el.dataset.id?+el.dataset.id:null;
   const route=id?G.routes.find(r=>r.id===id):null;
   switch(act){
-    case'play':if(G.modal||G.over)return;if(G.paused&&!G.routes.length&&G.t===0){toast('Place stops and draw a route first.');return}G.paused=!G.paused;syncPlay();break;
+    case'play':if(G.modal||G.over)return;if(G.pendingNext){nextDay();return}if(G.paused&&!G.routes.length&&G.t===0){toast('Place stops and draw a route first.');return}G.paused=!G.paused;syncPlay();break;
     case'speed':G.speed=G.speed%3+1;syncPlay();break;
     case'sound':ui.sound=!ui.sound;syncPlay();if(el.closest('#ov'))el.textContent=ui.sound?'Sound: on':'Sound: off';break;
     case'fitclose':hideOv();fitCam(true);break;
     case'fit':fitCam(true);break;
-    case'menu':if(G.modal)return;G.paused=true;syncPlay();showOv('<div class="card small"><h2>Paused</h2><div class="btnrow" style="flex-direction:column"><button class="btn ok" data-act="resume">Resume</button><button class="btn alt" data-act="sound">'+(ui.sound?'Sound: on':'Sound: off')+'</button><button class="btn alt" data-act="fitclose">Fit map to screen</button><button class="btn alt" data-act="level" data-i="'+G.levelIdx+'">Restart level</button><button class="btn alt" data-act="home">Level select</button><button class="btn alt" data-act="howto">How to play</button></div></div>');break;
+    case'menu':if(G.modal)return;G.paused=true;syncPlay();showOv('<div class="card small"><h2>Paused</h2><div class="btnrow" style="flex-direction:column"><button class="btn ok" data-act="resume">Resume</button><button class="btn alt" data-act="sound">'+(ui.sound?'Sound: on':'Sound: off')+'</button><button class="btn alt" data-act="goals">Goals</button><button class="btn alt" data-act="photo">Photo mode</button><button class="btn alt" data-act="fitclose">Fit map to screen</button><button class="btn alt" data-act="level" data-i="'+G.levelIdx+'">Restart level</button><button class="btn alt" data-act="home">Level select</button><button class="btn alt" data-act="howto">How to play</button></div></div>');break;
     case'resume':hideOv();syncPlay();break;
     case'howto':showHowTo();break;
     case'home':showHome();break;
@@ -1824,9 +2179,23 @@ document.addEventListener('click',e=>{
     case'selroute':if(e.target.closest('button'))break;ui.sel={type:'route',id};ui.dirty=true;break;
     case'busup':if(route){addBus(route);ui.sel={type:'route',id}}break;
     case'busdown':if(route){removeBus(route)}break;
-    case'express':if(route){
-      if(!route.express&&fleetUsed()+route.buses.length>G.L.fleet){toast('Express buses count double. Not enough free buses.');break}
-      route.express=!route.express;netChanged();toast(route.express?'Express: fast, stops only at both ends.':'Normal service restored.')}break;
+    case'express':if(route)toggleExpress(route);break;
+    case'model':if(route)upgradeModel(route);break;
+    case'loop':if(route)toggleLoop(route);break;
+    case'reverse':if(route)reverseRoute(route);break;
+    case'lane':if(route)buyLane(route);break;
+    case'sched':if(route)toggleSched(route);break;
+    case'engine':buyEngine();break;
+    case'color':if(route){e.stopPropagation();const used=new Set(G.routes.map(r=>r.color)),i=ROUTE_COLORS.indexOf(route.color);let c=null;for(let k=1;k<=ROUTE_COLORS.length;k++){const t=ROUTE_COLORS[(i+k)%ROUTE_COLORS.length];if(!used.has(t)){c=t;break}}if(c){route.color=c;netChanged()}}break;
+    case'follow':if(route&&route.buses.length){ui.follow=route.buses[0].id;cam.zoom=Math.max(cam.zoom,2);ui.sheet=false;ui.dirty=true}else toast('This route has no buses yet.');break;
+    case'movestop':if(ui.sel&&ui.sel.type==='stop'){ui.moving=ui.sel.id;ui.sel=null;setTool('select');ui.dirty=true}break;
+    case'ramp':if(ui.sel&&ui.sel.type==='stop')makeAccessible(ui.sel.id);break;
+    case'view':ui.view=ui.view==='off'?'demand':ui.view==='demand'?'traffic':'off';ui.dirty=true;toast(ui.view==='demand'?'Demand view: homes and offices glow where riders are being missed.':ui.view==='traffic'?'Traffic view: roads turn amber and red where buses slow down.':'Map view off.');break;
+    case'showworst':{const st=G.stops.get(id);hideOv();G.modal=false;if(st){cam.x=st.x;cam.y=st.y;cam.zoom=Math.max(cam.zoom,1.8);ui.sel={type:'stop',id:st.id};ui.dirty=true}if(isFinite(G.L.days)&&G.day>=G.L.days){}else G.pendingNext=true;syncPlay();break}
+    case'photo':hideOv();ui.photo=true;ui.follow=null;document.getElementById('app').classList.add('photo');$('#photoX').hidden=false;break;
+    case'photox':ui.photo=false;document.getElementById('app').classList.remove('photo');$('#photoX').hidden=true;break;
+    case'goals':showGoals();break;
+    case'continue':hideOv();loadSave();syncPlay();break;
     case'locked':toast(el.dataset.msg);break;
     case'extend':if(route){ui.sel={type:'route',id};setTool('route');ui.drawing={routeId:id};toast('Tap the next stop for '+route.name+'.');ui.dirty=true}break;
     case'delroute':if(route){deleteRoute(route)}break;
@@ -1838,11 +2207,21 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{
   if(e.code==='Space'&&!G.modal){e.preventDefault();G.paused=!G.paused;syncPlay()}
+  else if(e.key==='Escape'&&ui.moving){ui.moving=null;ui.dirty=true}
   else if(e.key==='Escape'&&ui.drawing)finishDrawing();
   else if(e.key==='q'||e.key==='Q'){cam.yaw-=.15;updateCamera()}
   else if(e.key==='e'||e.key==='E'){cam.yaw+=.15;updateCamera()}
 });
 
+document.addEventListener('input',e=>{
+  const t=e.target;if(t&&t.classList&&t.classList.contains('rname')){const r=G.routes.find(x=>x.id===+t.dataset.id);if(r)r.name=t.value.slice(0,14)||'Route'}
+});
+function showGoals(){
+  const g=G.L.goals;
+  if(!g){showOv('<div class="card small"><h2>No goals</h2><p class="sub">Sandbox mode has no goals. Build whatever you like.</p><div class="btnrow"><button class="btn ok" data-act="resume">Back</button></div></div>');return}
+  const gl=goalsList();
+  showOv('<div class="card small" style="text-align:left"><h2>Goals</h2><p class="sub">Finish all '+(isFinite(G.L.days)?G.L.days+' days':'days')+' to earn a star for each goal you meet.</p><ul class="goals">'+gl.map(x=>'<li class="'+(x.ok?'ok':'no')+'"><span>'+(x.ok?'✓':'·')+'</span>'+esc(x.t)+'<em>'+esc(x.v)+'</em></li>').join('')+'</ul><div class="btnrow"><button class="btn ok" data-act="resume">Back to game</button></div></div>');
+}
 function startLevel(i){hideOv();loadLevel(i);syncPlay()}
 function getStars(){try{return JSON.parse(localStorage.getItem('rhr.stars')||'{}')}catch(e){return{}}}
 function showHowTo(){
@@ -1853,14 +2232,17 @@ function showHowTo(){
    '<div><b>3 · Add buses</b>Open <u>Buses</u> and use + and −. A full bus skips stops and flashes red, so add more where crowds grow.</div>'+
    '<div><b>4 · Watch patience</b><span class="dot" style="background:var(--ok)"></span> calm &nbsp;<span class="dot" style="background:var(--warn)"></span> impatient &nbsp;<span class="dot" style="background:var(--bad)"></span> about to quit. Red stops need buses now.</div>'+
    '<div><b>5 · Survive the day</b>Morning rush goes homes to work, evening goes back. Roads close, concerts end, rain falls. Keep satisfaction above 50%.</div>'+
+   '<div><b>6 · Run it like a business</b>Fares pay for stops, buses and upgrades. Each bus costs money to run. Check the Demand and Traffic map views.</div>'+
    '<div><b>Controls</b>Drag to pan. Pinch or scroll to zoom. Twist two fingers (or right-drag) to rotate. Tap or click to place. Pause any time to edit.</div>'+
    '</div><div class="lbl" style="margin-bottom:8px">Choose a level</div>'+levelCards()+'</div>');
 }
 function levelCards(){
-  const st=getStars();
-  return'<div class="levels">'+LEVELS.map((L,i)=>'<button class="lv" data-act="level" data-i="'+i+'"><b>'+(i+1)+'. '+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small>'+
-    '<div class="chips"><span class="chip">'+L.days+' days</span><span class="chip">'+L.fleet+' buses</span>'+(i===1?'<span class="chip new">Express routes</span>':'')+(i===2?'<span class="chip new">Transfer stops</span>':'')+'</div>'+
-    '<div class="stars">'+starStr(st[i]||0)+'</div></button>').join('')+'</div>';
+  const st=getStars(),sv=readSave();
+  let cont='';
+  if(sv)cont='<button class="lv" data-act="continue" style="border-color:var(--ok)"><b>Continue</b><small>'+esc(LEVELS[sv.lvl].name)+' · day '+sv.day+' · $'+Math.round(sv.money).toLocaleString('en-US')+'</small><div class="chips"><span class="chip new">Saved game</span></div></button>';
+  return'<div class="levels">'+cont+LEVELS.map((L,i)=>'<button class="lv" data-act="level" data-i="'+i+'"><b>'+(i+1)+'. '+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small>'+
+    '<div class="chips"><span class="chip">'+(isFinite(L.days)?L.days+' days':'Endless')+'</span><span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>'+(i===1?'<span class="chip new">Express routes</span>':'')+(i===2?'<span class="chip new">Transfers · step-free stops</span>':'')+(i===3?'<span class="chip new">Bridges</span>':'')+(L.sandbox?'<span class="chip new">No game over</span>':'')+(L.daily?'<span class="chip new">Today only</span>':'')+'</div>'+
+    (i<4?'<div class="stars">'+starStr(st[i]||0)+'</div>':'')+'</button>').join('')+'</div>';
 }
 function showHome(){showOv('<div class="card"><h1>Choose a level</h1><p class="sub">Each level adds more people, less patience and new tools.</p><div style="height:12px"></div>'+levelCards()+'<div class="btnrow"><button class="btn alt" data-act="howto">How to play</button></div></div>')}
 
@@ -1875,7 +2257,10 @@ function frame(now){
     }
     uiT+=rdt;
     if(ui.dirty)refreshUI();
-    if(uiT>.25){uiT=0;hud();updateStopCard(false);liveInfo();const h=hintText(),hn=$('#hint');if(hn.textContent!==h){hn.hidden=!h;hn.textContent=h}}
+    if(uiT>.25){uiT=0;ui.vibrate=true;hud();updateStopCard(false);liveInfo();const h=hintText(),hn=$('#hint');if(hn.textContent!==h){hn.hidden=!h;hn.textContent=h}}
+    if(ui.follow){const fb=G.buses.find(x=>x.id===ui.follow);if(!fb){ui.follow=null;ui.dirty=true}else{const k=Math.min(1,rdt*5);cam.x+=(fb.x-cam.x)*k;cam.y+=(fb.y-cam.y)*k;clampCam()}}
+    if(ui.photo)cam.yaw+=rdt*.1;
+    if(uiT===0)audioUpdate();
     render3D(now,(!G.paused&&!G.modal&&!G.over)?rdt*G.speed:0,rdt);
   }
   requestAnimationFrame(frame);
@@ -1884,7 +2269,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={fn:{upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 /* boot */
 resize();
 if(!init3D()){document.body.insertAdjacentHTML('beforeend','<div style="position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;background:#fff;z-index:99;font-weight:700">This game needs WebGL for its 3D city. Try another browser.</div>');return}
