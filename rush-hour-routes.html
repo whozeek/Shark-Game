@@ -1,0 +1,1319 @@
+<title>Rush Hour Routes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Nunito+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: full-screen map canvas, glass HUD on top, big thumb-friendly toolbar at the bottom. */
+:root{
+  --grass:#93c96f; --deep:#1d3b2f; --ink:#1b2733; --muted:#5d6b78; --panel:rgba(255,255,255,.95); --line:#d7e0e6;
+  --accent:#2a7de1; --accent-soft:#e4effd; --ok:#3fb868; --warn:#f2b632; --bad:#e2483d; --night:#2b3a67;
+  --font-display:'Outfit','Trebuchet MS',system-ui,sans-serif;
+  --font-body:'Nunito Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;overflow:hidden;background:#6fae55;color:var(--ink);font-family:var(--font-body);font-size:14px;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointer}
+#app{position:relative;width:100%;height:100%;overflow:hidden}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#cv.pick{cursor:crosshair}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 18px rgba(18,45,30,.22)}
+#top{position:absolute;left:10px;right:10px;top:10px;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+#top>*{pointer-events:auto}
+#row1{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;pointer-events:none}
+#row1>*{pointer-events:auto}
+#satCard{flex:1 1 230px;padding:8px 14px;min-width:0}
+.lbl{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.satline{display:flex;align-items:center;gap:12px}
+#satPct{font-family:var(--font-display);font-weight:800;font-size:34px;line-height:1.05;min-width:76px;font-variant-numeric:tabular-nums}
+#satBar{position:relative;flex:1;height:12px;border-radius:8px;background:#e6edf1;overflow:hidden}
+#satFill{position:absolute;left:0;top:0;bottom:0;width:100%;border-radius:8px;background:var(--ok);transition:width .4s,background .4s}
+#satMark{position:absolute;left:50%;top:-2px;bottom:-2px;width:3px;background:var(--ink);opacity:.55}
+.counts{font-size:12px;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums;display:flex;gap:10px;flex-wrap:wrap}
+.counts i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+#satCard.warn #satPct{color:var(--bad);animation:pulse .8s infinite alternate}
+@keyframes pulse{to{opacity:.55}}
+#clockCard{flex:1 1 200px;padding:8px 14px;min-width:0}
+.clockline{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+#clock{font-family:var(--font-display);font-weight:800;font-size:28px;line-height:1.05;font-variant-numeric:tabular-nums}
+#dayLbl{font-weight:800;font-size:13px;color:var(--muted)}
+#phasePill{font-weight:800;font-size:12px;padding:3px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+#phasePill.rush{background:var(--accent);color:#fff}
+#tl{position:relative;display:flex;height:8px;border-radius:6px;overflow:hidden;margin-top:6px;background:#e6edf1}
+#tl i{display:block;height:100%}
+#tlMark{position:absolute;top:-2px;bottom:-2px;width:4px;border-radius:2px;background:var(--ink);transform:translateX(-2px)}
+#ctrl{display:flex;gap:6px;padding:6px;align-items:center}
+.cbtn{width:52px;height:52px;border-radius:14px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:16px;padding:0}
+.cbtn:active{transform:scale(.95)}
+.cbtn svg{width:24px;height:24px}
+#bPlay{background:var(--ok);color:#fff;border-color:transparent;width:60px}
+#bPlay.paused.ready{animation:ready 1s infinite alternate}
+@keyframes ready{to{box-shadow:0 0 0 8px rgba(63,184,104,.28)}}
+#banner{padding:8px 14px;font-weight:700;display:flex;gap:10px;align-items:center;border-left:6px solid var(--warn)}
+#banner.concert{border-left-color:#8a5cf6}
+#banner b{font-family:var(--font-display)}
+#banner span.t{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted)}
+#hint{align-self:center;max-width:100%;padding:7px 14px;border-radius:99px;background:rgba(27,39,51,.82);color:#fff;font-weight:700;font-size:13px;text-align:center;pointer-events:none}
+.toast{align-self:center;padding:8px 16px;border-radius:12px;background:var(--ink);color:#fff;font-weight:700;font-size:13px;pointer-events:none;animation:tin .2s}
+@keyframes tin{from{opacity:0;transform:translateY(-6px)}}
+#bottom{position:absolute;left:10px;right:10px;bottom:10px;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+#bottom>*{pointer-events:auto;max-width:100%}
+#toolbar{display:flex;gap:6px;padding:6px}
+.tbtn{position:relative;width:78px;height:62px;border-radius:14px;border:2px solid transparent;background:#f1f5f8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:800;font-size:12px;padding:0}
+.tbtn svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tbtn.on{background:var(--accent);color:#fff}
+.tbtn:active{transform:scale(.96)}
+.tbtn .badge{position:absolute;top:-6px;right:-4px;background:var(--ink);color:#fff;border-radius:99px;font-size:11px;padding:2px 7px;font-variant-numeric:tabular-nums}
+#sheet{width:min(600px,100%);max-height:38vh;overflow:auto;padding:8px;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
+.rrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px;border-radius:12px;border:2px solid var(--line);background:#fff}
+.rrow.sel{border-color:var(--accent);background:var(--accent-soft)}
+.rrow:not(.sel) .mini{display:none}
+.sw{width:14px;height:34px;border-radius:7px;flex:none}
+.rinfo{flex:1 1 120px;min-width:0;display:flex;flex-direction:column}
+.rinfo b{font-family:var(--font-display);font-size:15px}
+.rinfo b em{font-style:normal;font-size:11px;background:#fff3c9;color:#8a6200;border-radius:6px;padding:1px 6px;margin-left:4px}
+.rinfo small{color:var(--muted);font-weight:600}
+.rinfo small.bad{color:var(--bad);font-weight:800}
+.stepper{display:flex;align-items:center;gap:4px}
+.stepper button{width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:#f1f5f8;font-size:24px;font-weight:800;line-height:1;padding:0}
+.stepper .bn{min-width:26px;text-align:center;font-family:var(--font-display);font-weight:800;font-size:20px;font-variant-numeric:tabular-nums}
+.mini{height:46px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:#f1f5f8;font-weight:800;font-size:13px}
+.mini.on{background:#ffe9a8;border-color:#e6b93a}
+.mini.danger{color:var(--bad)}
+.mini.locked{opacity:.55}
+.mini:disabled{opacity:.45}
+.empty{padding:10px;color:var(--muted);font-weight:600;text-align:center}
+#drawbar{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border:2px solid var(--accent)}
+#drawbar .txt{font-weight:800;margin-right:4px}
+#drawbar button{height:50px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:#f1f5f8;font-weight:800;font-size:14px}
+#drawbar button.go{background:var(--ok);color:#fff;border-color:transparent}
+#stopcard{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;width:min(520px,100%);box-sizing:border-box}
+#stopcard .si{flex:1 1 200px;display:flex;flex-direction:column}
+#stopcard .si b{font-family:var(--font-display);font-size:15px}
+#stopcard .si span{color:var(--muted);font-weight:600;font-size:13px}
+#stopcard button{height:46px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:#f1f5f8;font-weight:800}
+#stopcard button.danger{color:var(--bad)}
+#ov{position:absolute;inset:0;background:rgba(18,40,32,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;z-index:10}
+.card{width:min(760px,100%);max-height:100%;overflow:auto;background:#fff;border-radius:20px;padding:22px;box-sizing:border-box;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.card.small{width:min(440px,100%);text-align:center}
+.card h1{font-family:var(--font-display);font-weight:800;font-size:34px;margin:0;line-height:1.05;text-wrap:balance}
+.card h2{font-family:var(--font-display);font-weight:800;font-size:26px;margin:0 0 6px;text-wrap:balance}
+.card p{margin:6px 0;line-height:1.45;color:#34424f}
+.sub{color:var(--muted);font-weight:600;margin-top:6px}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:16px 0}
+.how div{background:#f2f7f4;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.4}
+.how b{display:block;font-family:var(--font-display);font-size:15px;margin-bottom:2px}
+.how .dot{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.lv{border:2px solid var(--line);border-radius:16px;background:#fff;padding:14px;text-align:left;min-height:120px;display:flex;flex-direction:column;gap:4px}
+.lv:hover,.lv:focus-visible{border-color:var(--accent);background:var(--accent-soft);outline:none}
+.lv b{font-family:var(--font-display);font-size:18px}
+.lv small{color:var(--muted);font-weight:600;line-height:1.35}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.chip{font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px;background:#e6edf1}
+.chip.new{background:#ffe9a8;color:#7a5600}
+.stars{font-size:20px;letter-spacing:2px;color:#d3a21d}
+.stars .off{color:#d6dde2}
+.btnrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.btn{height:54px;padding:0 24px;border-radius:14px;border:0;background:var(--accent);color:#fff;font-family:var(--font-display);font-weight:800;font-size:17px}
+.btn.alt{background:#e9eff3;color:var(--ink)}
+.btn.ok{background:var(--ok)}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.statgrid div{background:#f2f7f4;border-radius:12px;padding:10px}
+.statgrid b{display:block;font-family:var(--font-display);font-size:26px;font-variant-numeric:tabular-nums}
+.statgrid span{font-size:12px;font-weight:700;color:var(--muted)}
+@media (max-width:560px){
+  #bSound,#bFit{display:none}
+  #satCard{flex:1 1 150px;padding:6px 12px}
+  #clockCard{flex:1 1 100%;padding:6px 12px;order:3}
+  #ctrl{order:2}
+  .satline{gap:8px}
+  #top,#bottom{left:8px;right:8px}
+  #top{top:8px}#bottom{bottom:8px}
+  #satPct{font-size:28px;min-width:64px}
+  #clock{font-size:24px}
+  .cbtn{width:46px;height:46px}#bPlay{width:54px}
+  .tbtn{width:70px;height:60px}
+  .card{padding:16px}.card h1{font-size:28px}
+  .how{grid-template-columns:repeat(2,1fr);gap:8px}.how div{font-size:12.5px;padding:10px}.how b{font-size:14px}
+  #sheet{max-height:34vh}
+  #ctrl{padding:5px;gap:4px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div id="app">
+  <canvas id="cv" aria-label="City map"></canvas>
+
+  <div id="top">
+    <div id="row1">
+      <div class="panel" id="satCard">
+        <div class="lbl">Satisfaction</div>
+        <div class="satline"><span id="satPct">100%</span><div id="satBar"><i id="satFill"></i><b id="satMark"></b></div></div>
+        <div class="counts"><span><i style="background:var(--ok)"></i><span id="cDel">0</span> delivered</span><span><i style="background:var(--bad)"></i><span id="cGave">0</span> gave up</span></div>
+      </div>
+      <div class="panel" id="clockCard">
+        <div class="clockline"><span id="clock">06:00</span><span id="dayLbl">Day 1/3</span><span id="phasePill">Quiet morning</span></div>
+        <div id="tl"><span id="tlMark"></span></div>
+      </div>
+      <div class="panel" id="ctrl">
+        <button class="cbtn paused ready" id="bPlay" data-act="play" aria-label="Play or pause"></button>
+        <button class="cbtn" id="bSpeed" data-act="speed" aria-label="Speed">1×</button>
+        <button class="cbtn" id="bSound" data-act="sound" aria-label="Sound"></button>
+        <button class="cbtn" id="bFit" data-act="fit" aria-label="Fit map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+        <button class="cbtn" id="bMenu" data-act="menu" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
+    </div>
+    <div class="panel" id="banner" hidden></div>
+    <div id="hint" hidden></div>
+    <div id="toasts" style="display:flex;flex-direction:column;gap:6px"></div>
+  </div>
+
+  <div id="bottom">
+    <div class="panel" id="stopcard" hidden></div>
+    <div class="panel" id="drawbar" hidden></div>
+    <div class="panel" id="sheet" hidden></div>
+    <div class="panel" id="toolbar">
+      <button class="tbtn on" data-act="tool" data-tool="select"><svg viewBox="0 0 24 24"><path d="M6 3l12 8-5.5 1.5L10 18z"/></svg>Select</button>
+      <button class="tbtn" data-act="tool" data-tool="stop"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5"/><path d="M12 14.5V22"/></svg>Stops</button>
+      <button class="tbtn" data-act="tool" data-tool="route"><svg viewBox="0 0 24 24"><circle cx="5" cy="18" r="2.6"/><circle cx="19" cy="6" r="2.6"/><path d="M7 17c7 0 1-10 10-10.5"/></svg>Route</button>
+      <button class="tbtn" data-act="sheet"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/></svg>Buses<span class="badge" id="fleetBadge">0/6</span></button>
+    </div>
+  </div>
+
+  <div id="ov" hidden></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ================= constants ================= */
+const S=100, MARGIN=90, ROAD_W=22, CAP=12, BUS_SPEED=62, WALK=34, MAXWALK=250, DAY_LEN=120, WIN_N=50;
+const PHASES=[
+  {id:'quiet',name:'Quiet morning',len:10,from:6,to:7,dir:'home',share:.04},
+  {id:'am',name:'Morning rush',len:35,from:7,to:9.5,dir:'home',share:.40,rush:true},
+  {id:'mid',name:'Calm midday',len:25,from:9.5,to:16,dir:'mix',share:.12},
+  {id:'pm',name:'Evening rush',len:40,from:16,to:19,dir:'work',share:.40,rush:true},
+  {id:'late',name:'Wind-down',len:10,from:19,to:20,dir:'work',share:.04}
+];
+const TL_COLORS={quiet:'#cfd9e6',am:'#4a90d9',mid:'#9bd6a8',pm:'#8a5cf6',late:'#cfd9e6'};
+const ROUTE_COLORS=['#2f7de1','#8a5cf6','#13b3c4','#e0509a','#4f46c8','#7a8a99','#d96a2b','#b04fd0'];
+const COL={ok:'#3fb868',warn:'#f2b632',bad:'#e2483d'};
+const HN=['Maple','Oak','Cedar','Pine','Birch','Elm','Willow','Aspen','Linden'];
+const ord=n=>n+(['th','st','nd','rd'][(n%100>10&&n%100<14)?0:(n%10<4?n%10:0)]);
+
+const LEVELS=[
+ {name:'Maple Hollow',blurb:'A small town with one busy centre. Learn the ropes.',days:3,fleet:6,patience:62,perDay:130,seed:11,express:false,transfer:false,
+  map:['HHP..BB.','HH..BBBH','....BB.H','PWW.....','HWW.CPHH','HH..P.HH'],starter:[[1,1],[3,1],[5,1]],concert:14,closureDur:30,amProb:0},
+ {name:'Riverside',blurb:'More homes, tighter patience. Express routes unlock.',days:3,fleet:9,patience:52,perDay:230,seed:23,express:true,transfer:false,
+  map:['HH.PP..BB.','HHH..BBBBH','....BBB..H','P.WW.BB..H','H.WW...PHH','HH..CP..H.','HHH..P....'],starter:[[1,1],[3,2],[5,2]],concert:26,closureDur:40,amProb:.5},
+ {name:'Metro Heights',blurb:'A big city. Transfer stops unlock. Surprises every rush.',days:4,fleet:14,patience:44,perDay:330,seed:37,express:true,transfer:true,
+  map:['HHH.P..BB.HH','HH...BBBB.HH','...P.BBBB..H','HP....BB....','H.WW.....P.H','H.WW.CP...HH','HH......H.HH','HHH.P...HH.H'],starter:[[1,1],[3,1],[5,2]],concert:36,closureDur:45,amProb:1}
+];
+
+/* ================= helpers ================= */
+const $=(s,r)=>(r||document).querySelector(s);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hex2rgb(h){const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255]}
+function shade(h,f){let[r,g,b]=hex2rgb(h);if(f<1){r*=f;g*=f;b*=f}else{r+=(255-r)*(f-1);g+=(255-g)*(f-1);b+=(255-b)*(f-1)}return'rgb('+(r|0)+','+(g|0)+','+(b|0)+')'}
+function poly(g,p){g.beginPath();g.moveTo(p[0][0],p[0][1]);for(let i=1;i<p.length;i++)g.lineTo(p[i][0],p[i][1]);g.closePath();g.fill()}
+function rrect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+const pick=(R,a)=>a[Math.floor(R()*a.length)];
+const rnd=Math.random;
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+/* ================= city ================= */
+const WALLS=['#f6e7c8','#f3d9c2','#e8efd6','#dfe9f4','#f7dede','#efe3f4'];
+const ROOFS=['#d9654f','#c9533e','#b9604a','#6b88b8','#7a6bb0','#d98a3d'];
+const APTS=['#e9d5b8','#d6c4e3','#c9dcd0','#f0cfc4'];
+const GLASS=['#86aacb','#9bb8cf','#7497bd','#8fb3c9','#a5bccd'];
+
+function buildCity(L){
+  const rows=L.map.length, cols=L.map[0].length, R=rng(L.seed);
+  const nodes=[];
+  for(let r=0;r<=rows;r++)for(let c=0;c<=cols;c++)nodes.push({id:r*(cols+1)+c,c,r,x:MARGIN+c*S,y:MARGIN+r*S,adj:[],alive:false});
+  const blk=(c,r)=>(r>=0&&r<rows&&c>=0&&c<cols)?L.map[r][c]:'.';
+  const cls=ch=>ch==='W'?'W':(ch==='P'||ch==='C')?'P':'';
+  const id=(c,r)=>r*(cols+1)+c;
+  const edges=[],edgeMap=new Map();
+  function addEdge(a,b,name){const e={id:edges.length,a,b,len:S,closed:false,name};edges.push(e);nodes[a].adj.push({to:b,e});nodes[b].adj.push({to:a,e});edgeMap.set(a*4096+b,e);edgeMap.set(b*4096+a,e)}
+  for(let r=0;r<=rows;r++)for(let c=0;c<=cols;c++){
+    if(c<cols){const A=cls(blk(c,r-1)),B=cls(blk(c,r));if(!(A&&A===B))addEdge(id(c,r),id(c+1,r),HN[r]+' Street')}
+    if(r<rows){const A=cls(blk(c-1,r)),B=cls(blk(c,r));if(!(A&&A===B))addEdge(id(c,r),id(c,r+1),ord(c+1)+' Avenue')}
+  }
+  for(const n of nodes)n.alive=n.adj.length>0;
+  const blocks=[],items=[],homes=[],works=[];let venue=null;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const t=L.map[r][c],bx=MARGIN+c*S,by=MARGIN+r*S;
+    blocks.push({c,r,x:bx,y:by,t});
+    const slot=(i,j)=>[bx+16+17+34*i+(R()-.5)*3,by+16+17+34*j+(R()-.5)*3];
+    if(t==='H'){
+      const all=[[0,0],[1,0],[0,1],[1,1]];let use=all.filter(()=>R()<.85);if(use.length<3)use=all.slice(0,3);
+      const apt=R()<.3?Math.floor(R()*use.length):-1;
+      use.forEach((s,k)=>{const[x,y]=slot(s[0],s[1]);
+        const b=k===apt?{type:'home',kind:'apt',x,y,w:27,d:26,h:22+R()*8,col:pick(R,APTS)}:{type:'home',kind:'house',x,y,w:21+R()*5,d:17+R()*4,h:9+R()*4,col:pick(R,WALLS),roof:pick(R,ROOFS)};
+        items.push({k:'b',y:y+b.d/2,b});homes.push(b);if(k===apt)homes.push(b)});
+      if(R()<.6)items.push({k:'t',y:by+50,x:bx+50,s:.8,v:R()<.5});
+    }else if(t==='B'){
+      const all=[[0,0],[1,0],[0,1],[1,1]];let use=all.filter(()=>R()<.8);if(use.length<3)use=all.slice(0,3);
+      for(const s of use){const[x,y]=slot(s[0],s[1]);const b={type:'work',x,y,w:25,d:25,h:20+R()*26,col:pick(R,GLASS)};items.push({k:'b',y:y+b.d/2,b});works.push(b)}
+    }else if(t==='C'){
+      venue={type:'venue',x:bx+50,y:by+52,w:62,d:46,h:12};items.push({k:'b',y:venue.y+venue.d/2,b:venue});
+      for(let k=0;k<4;k++)items.push({k:'t',y:by+22+R()*60,x:bx+(k%2?86:14)+(R()-.5)*6,s:.8,v:R()<.5});
+    }else if(t==='P'){
+      for(let k=0;k<7;k++)items.push({k:'t',y:by+14+R()*72,x:bx+14+R()*72,s:.7+R()*.5,v:R()<.5});
+    }else if(t==='.'){
+      for(let k=0;k<3;k++)items.push({k:'t',y:by+18+R()*64,x:bx+18+R()*64,s:.7+R()*.4,v:R()<.5});
+    }
+  }
+  items.sort((a,b)=>a.y-b.y);
+  // connectivity check
+  const alive=nodes.filter(n=>n.alive),seen=new Set([alive[0].id]),q=[alive[0].id];
+  while(q.length){const n=nodes[q.pop()];for(const a of n.adj)if(!seen.has(a.to)){seen.add(a.to);q.push(a.to)}}
+  const connected=seen.size===alive.length;
+  const city={L,nodes,edges,edgeMap,blocks,items,homes,works,venue,cols,rows,w:MARGIN*2+cols*S,h:MARGIN*2+rows*S,seed:L.seed,connected};
+  city.img=renderStatic(city);
+  return city;
+}
+
+function facets(g,x,y,w,h,base,amt,step,R){
+  const nx=Math.ceil(w/step),ny=Math.ceil(h/step),V=[];
+  g.fillStyle=base;g.fillRect(x,y,w,h);
+  for(let j=0;j<=ny;j++){V[j]=[];for(let i=0;i<=nx;i++){const e=(i===0||j===0||i===nx||j===ny);V[j][i]=[x+Math.min(w,i*step)+(e?0:(R()-.5)*step*.6),y+Math.min(h,j*step)+(e?0:(R()-.5)*step*.6)]}}
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){
+    const A=V[j][i],B=V[j][i+1],C=V[j+1][i+1],D=V[j+1][i];
+    g.fillStyle=shade(base,1+(R()-.5)*2*amt);poly(g,[A,B,C]);
+    g.fillStyle=shade(base,1+(R()-.5)*2*amt);poly(g,[A,C,D]);
+  }
+}
+function drawBox(g,x,y,w,d,h,col,topCol){
+  const x0=x-w/2,y0=y-d/2,x1=x+w/2,y1=y+d/2,sx=-h*.22,sy=-h*.58;
+  g.fillStyle=shade(col,.8);poly(g,[[x0,y1],[x1,y1],[x1+sx,y1+sy],[x0+sx,y1+sy]]);
+  g.fillStyle=shade(col,.62);poly(g,[[x1,y0],[x1,y1],[x1+sx,y1+sy],[x1+sx,y0+sy]]);
+  g.fillStyle=topCol||shade(col,1.12);g.fillRect(x0+sx,y0+sy,w,d);
+  return{sx,sy,x0,y0,x1,y1};
+}
+function drawTree(g,x,y,s,v){
+  g.fillStyle='rgba(20,60,30,.18)';g.beginPath();g.ellipse(x+3*s,y+1,7*s,3*s,0,0,6.3);g.fill();
+  g.fillStyle='#6b4a2f';g.fillRect(x-1.3*s,y-4*s,2.6*s,5*s);
+  const a=v?'#2f7a45':'#3a8a3e',b=v?'#3f9a58':'#4fa84a';
+  g.fillStyle=a;poly(g,[[x,y-18*s],[x-7.5*s,y-3*s],[x,y-3*s]]);
+  g.fillStyle=b;poly(g,[[x,y-18*s],[x,y-3*s],[x+7.5*s,y-3*s]]);
+  g.fillStyle=a;poly(g,[[x,y-23*s],[x-5.5*s,y-11*s],[x,y-11*s]]);
+  g.fillStyle=b;poly(g,[[x,y-23*s],[x,y-11*s],[x+5.5*s,y-11*s]]);
+}
+function drawBuilding(g,b){
+  if(b.type==='venue'){
+    g.fillStyle='rgba(0,0,0,.14)';g.beginPath();g.ellipse(b.x+6,b.y+8,b.w/2+4,b.d/2,0,0,6.3);g.fill();
+    g.fillStyle='#8f6fd6';g.beginPath();g.ellipse(b.x,b.y,b.w/2,b.d/2,0,0,6.3);g.fill();
+    g.fillRect(b.x-b.w/2,b.y-8,b.w,8);
+    g.fillStyle='#a98ae6';g.beginPath();g.ellipse(b.x,b.y-8,b.w/2,b.d/2,0,0,6.3);g.fill();
+    g.fillStyle='#5a8c47';g.beginPath();g.ellipse(b.x,b.y-8,b.w/2-9,b.d/2-8,0,0,6.3);g.fill();
+    g.fillStyle='#e4d3a4';g.fillRect(b.x-9,b.y-13,18,8);
+    for(let i=0;i<10;i++){const a=i/10*6.28;g.fillStyle=i%2?'#ffd24d':'#ff7aa8';g.fillRect(b.x+Math.cos(a)*(b.w/2-3)-1.5,b.y-8+Math.sin(a)*(b.d/2-3)-1.5,3,3)}
+    return;
+  }
+  const bx=b.x,by=b.y;
+  g.fillStyle='rgba(0,0,0,.15)';g.fillRect(bx-b.w/2+3,by-b.d/2+3,b.w,b.d);
+  if(b.type==='work'){
+    const o=drawBox(g,bx,by,b.w,b.d,b.h,b.col);
+    const n=Math.floor(b.h/7);g.strokeStyle='rgba(255,255,255,.4)';g.lineWidth=1.2;
+    for(let k=1;k<=n;k++){const yy=o.y1+o.sy*(k/(n+1));g.beginPath();g.moveTo(o.x0+o.sx*(k/(n+1))+2,yy);g.lineTo(o.x1+o.sx*(k/(n+1))-2,yy);g.stroke()}
+    g.fillStyle=shade(b.col,.9);g.fillRect(bx+o.sx-6,by+o.sy-6,12,10);
+    g.fillStyle=shade(b.col,1.25);g.fillRect(bx+o.sx-6,by+o.sy-6,12,3);
+  }else if(b.kind==='apt'){
+    const o=drawBox(g,bx,by,b.w,b.d,b.h,b.col,shade(b.col,1.05));
+    g.fillStyle='rgba(60,90,140,.55)';
+    for(let k=0;k<3;k++)for(let m=0;m<3;m++)g.fillRect(o.x0+o.sx+4+k*8,o.y1+o.sy*(.2+m*.28)-2,4,3.5);
+    g.fillStyle='#a05a46';g.fillRect(bx+o.sx-9,by+o.sy-6,18,12);
+  }else{
+    const o=drawBox(g,bx,by,b.w,b.d,b.h,b.col);
+    const tx0=o.x0+o.sx-2,tx1=o.x1+o.sx+2,ty0=o.y0+o.sy-2,ty1=o.y1+o.sy+2,cx=(tx0+tx1)/2+o.sx*.8,cy=(ty0+ty1)/2+o.sy*.8;
+    g.fillStyle=shade(b.roof,.8);poly(g,[[tx0,ty0],[tx1,ty0],[cx,cy]]);
+    g.fillStyle=shade(b.roof,.95);poly(g,[[tx0,ty0],[cx,cy],[tx0,ty1]]);
+    g.fillStyle=shade(b.roof,.68);poly(g,[[tx1,ty0],[tx1,ty1],[cx,cy]]);
+    g.fillStyle=b.roof;poly(g,[[tx0,ty1],[tx1,ty1],[cx,cy]]);
+    g.fillStyle='rgba(70,110,150,.6)';g.fillRect(o.x0+o.sx+4,o.y1+o.sy*.5-1,4,4);g.fillRect(o.x1+o.sx-8,o.y1+o.sy*.5-1,4,4);
+  }
+}
+function renderStatic(city){
+  const sc=Math.min(2,2800/city.w,2400/city.h),cv=document.createElement('canvas');
+  cv.width=Math.ceil(city.w*sc);cv.height=Math.ceil(city.h*sc);
+  const g=cv.getContext('2d');g.scale(sc,sc);
+  const R=rng(city.seed*7+3);
+  facets(g,0,0,city.w,city.h,'#93c96f',.05,50,R);
+  for(const b of city.blocks){
+    if(b.t==='H')facets(g,b.x,b.y,S,S,'#a9d985',.035,34,R);
+    else if(b.t==='B'){g.fillStyle='#d4dadf';g.fillRect(b.x,b.y,S,S);g.fillStyle='#e3e7ea';g.fillRect(b.x+12,b.y+12,S-24,S-24)}
+    else if(b.t==='P'||b.t==='C')facets(g,b.x,b.y,S,S,'#7dbb5b',.05,34,R);
+    else if(b.t==='W'){facets(g,b.x,b.y,S,S,'#66b2e3',.07,25,R);g.fillStyle='rgba(255,255,255,.22)';for(let k=0;k<3;k++){const x=b.x+10+R()*60,y=b.y+10+R()*80;g.fillRect(x,y,14+R()*10,1.6)}}
+  }
+  g.lineCap='round';g.lineJoin='round';
+  for(const pass of[0,1,2]){
+    for(const e of city.edges){
+      const A=city.nodes[e.a],B=city.nodes[e.b];
+      if(pass===0){g.strokeStyle='#dde2d3';g.lineWidth=ROAD_W+7}
+      else if(pass===1){g.strokeStyle='#4d555f';g.lineWidth=ROAD_W}
+      else{
+        const dx=B.x-A.x,dy=B.y-A.y,l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l;
+        g.strokeStyle='rgba(255,255,255,.5)';g.lineWidth=1.6;g.setLineDash([7,9]);g.lineCap='butt';
+        g.beginPath();g.moveTo(A.x+ux*15,A.y+uy*15);g.lineTo(B.x-ux*15,B.y-uy*15);g.stroke();g.setLineDash([]);g.lineCap='round';continue;
+      }
+      g.beginPath();g.moveTo(A.x,A.y);g.lineTo(B.x,B.y);g.stroke();
+    }
+  }
+  for(const it of city.items){if(it.k==='t')drawTree(g,it.x,it.y,it.s,it.v);else drawBuilding(g,it.b)}
+  return cv;
+}
+
+/* ================= game state ================= */
+const G={L:null,city:null,levelIdx:0,stops:new Map(),routes:[],buses:[],citizens:[],parts:[],
+  day:1,t:0,speed:1,paused:true,modal:true,over:false,nid:1,netVer:1,acc:0,
+  delivered:0,gaveUp:0,dayDel:0,dayGave:0,win:[],event:null,evPlan:[],lastEv:'',stormMult:1,routeCount:0,
+  flashSat:0,tg:null,tgVer:-1};
+const ui={tool:'select',drawing:null,sel:null,sheet:false,hover:null,dirty:true,sound:true,hintOverride:''};
+const cam={x:0,y:0,zoom:1,minZ:.3,maxZ:3.2};
+let W=0,H=0,dpr=1;
+const cv=$('#cv'),ctx=cv.getContext('2d');
+
+/* ================= sound ================= */
+let AC=null;const lastSnd={};
+function tone(f,d,type,vol,when,slide){
+  if(!ui.sound||!AC)return;
+  try{const t=AC.currentTime+(when||0),o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);
+    g.gain.setValueAtTime(vol||.05,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.02)}catch(e){}
+}
+function snd(k){
+  const n=performance.now();if(lastSnd[k]&&n-lastSnd[k]<90)return;lastSnd[k]=n;
+  if(k==='pop')tone(520+rnd()*120,.07,'sine',.04);
+  else if(k==='cheer'){tone(523,.14,'triangle',.07);tone(659,.14,'triangle',.07,.08);tone(784,.22,'triangle',.07,.16)}
+  else if(k==='sad')tone(220,.25,'sawtooth',.03,0,140);
+  else if(k==='alert'){tone(660,.16,'square',.04);tone(440,.24,'square',.04,.18)}
+  else if(k==='deliver')tone(880,.08,'sine',.03);
+  else if(k==='full')tone(180,.12,'square',.03);
+}
+function ensureAudio(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(C)AC=new C()}if(AC&&AC.state==='suspended')AC.resume()}catch(e){}}
+
+/* ================= fx ================= */
+const fx={
+  text(x,y,t,c){G.parts.push({k:'text',x,y,t,c,a:0,life:1.1})},
+  ring(x,y,c,r){G.parts.push({k:'ring',x,y,c,r,a:0,life:.8})},
+  fly(x0,y0,x1,y1,c){G.parts.push({k:'fly',x:x0,y:y0,x0,y0,x1,y1,c,a:0,life:.35})}
+};
+
+/* ================= road graph ================= */
+const edgeBetween=(a,b)=>G.city.edgeMap.get(a*4096+b);
+function roadPath(a,b,avoid){
+  if(a===b)return[a];
+  const N=G.city.nodes,dist=new Map([[a,0]]),prev=new Map(),done=new Set();
+  while(true){
+    let u=-1,ud=1e18;
+    for(const[k,d]of dist)if(!done.has(k)&&d<ud){ud=d;u=k}
+    if(u<0)return null;
+    if(u===b)break;
+    done.add(u);
+    for(const nb of N[u].adj){
+      if(avoid&&nb.e.closed)continue;
+      const nd=ud+nb.e.len;
+      if(!dist.has(nb.to)||nd<dist.get(nb.to)){dist.set(nb.to,nd);prev.set(nb.to,u)}
+    }
+  }
+  const p=[b];let c=b;while(c!==a){c=prev.get(c);p.push(c)}
+  return p.reverse();
+}
+
+/* ================= transit planning ================= */
+const busSpeed=r=>BUS_SPEED*(r.express?1.7:1);
+function isServed(r,sid){const i=r.stops.indexOf(sid);return i>=0&&(!r.express||i===0||i===r.stops.length-1)}
+function buildTG(){
+  const adj=new Map();
+  for(const r of G.routes){
+    const nb=r.buses.length;if(!nb)continue;
+    const sp=busSpeed(r),n=r.stops.length;
+    const idx=r.express?[0,n-1]:r.stops.map((_,i)=>i);
+    const total=r.cum[n-1];
+    const cycle=2*total/sp+n*2.4;
+    const wait=Math.min(cycle/(2*nb),70);
+    for(let a=0;a<idx.length;a++)for(let b=0;b<idx.length;b++){
+      if(a===b)continue;
+      const ia=idx[a],ib=idx[b];
+      const cost=wait+Math.abs(r.cum[ib]-r.cum[ia])/sp+Math.abs(b-a)*1.2;
+      const from=r.stops[ia];
+      if(!adj.has(from))adj.set(from,[]);
+      adj.get(from).push({r,to:r.stops[ib],cost});
+    }
+  }
+  G.tg=adj;G.tgVer=G.netVer;
+}
+function planFrom(sid,dest){
+  if(G.tgVer!==G.netVer)buildTG();
+  const dist=new Map([[sid,0]]),prev=new Map(),done=new Set();
+  while(true){
+    let u=null,ud=1e18;
+    for(const[k,d]of dist)if(!done.has(k)&&d<ud){ud=d;u=k}
+    if(u===null)break;
+    done.add(u);
+    const es=G.tg.get(u);if(!es)continue;
+    for(const e of es){const nd=ud+e.cost;if(!dist.has(e.to)||nd<dist.get(e.to)){dist.set(e.to,nd);prev.set(e.to,{from:u,e})}}
+  }
+  let best=null;
+  for(const[id,d]of dist){
+    const st=G.stops.get(id);if(!st)continue;
+    const w=Math.hypot(st.x-dest.x,st.y-dest.y);if(w>MAXWALK)continue;
+    const tot=d+w/WALK*1.15;
+    if(!best||tot<best.tot)best={id,tot};
+  }
+  if(!best)return null;
+  if(best.id===sid)return{exit:true,tot:best.tot};
+  let cur=best.id,pe=prev.get(cur);
+  while(pe.from!==sid){cur=pe.from;pe=prev.get(cur)}
+  return{exit:false,route:pe.e.r,alight:pe.e.to,tot:best.tot};
+}
+
+/* ================= citizens ================= */
+function spawnCitizen(orig,destList){
+  const dst=destList[Math.floor(rnd()*destList.length)];
+  const c={id:++G.nid,state:'walk',x:orig.x,y:orig.y,dest:{x:dst.x,y:dst.y},p:G.L.patience,stop:null,plan:null,planVer:-1,noRoute:false,retry:0,alight:null,seed:rnd()};
+  G.citizens.push(c);assignStop(c);
+}
+function assignStop(c){
+  const cand=[...G.stops.values()].map(s=>({s,d:Math.hypot(s.x-c.x,s.y-c.y)})).sort((a,b)=>a.d-b.d).slice(0,5);
+  let best=null;
+  for(const o of cand){
+    let pl=planFrom(o.s.id,c.dest);
+    if(pl&&pl.exit&&Math.hypot(c.x-c.dest.x,c.y-c.dest.y)>MAXWALK)pl=null;
+    if(!pl)continue;
+    const sc=o.d/WALK*1.3+pl.tot;
+    if(!best||sc<best.sc)best={s:o.s,pl,sc};
+  }
+  c.state='walk';
+  if(best){
+    if(best.pl.exit){c.state='walkDest';c.stop=null;c.noRoute=false;return}
+    c.stop=best.s;c.plan=best.pl;c.planVer=G.netVer;c.noRoute=false;
+  }else if(cand.length){c.stop=cand[0].s;c.plan=null;c.noRoute=true;c.planVer=G.netVer}
+  else{c.stop=null;c.noRoute=true;c.retry=1}
+}
+function joinStop(c){
+  const st=c.stop;
+  if(!st||G.stops.get(st.id)!==st){assignStop(c);return}
+  c.x=st.x;c.y=st.y;c.state='wait';st.waiters.push(c);replanWaiter(c);
+}
+function replanWaiter(c){
+  const st=c.stop;
+  const pl=planFrom(st.id,c.dest);
+  c.planVer=G.netVer;
+  if(pl&&pl.exit){leaveStop(c);c.state='walkDest';c.stop=null;c.plan=null;c.noRoute=false;return}
+  c.plan=pl;c.noRoute=!pl;
+}
+function leaveStop(c){const w=c.stop&&c.stop.waiters;if(w){const i=w.indexOf(c);if(i>=0)w.splice(i,1)}}
+function stopStatus(st){
+  let s=0;const P=G.L.patience;
+  for(const c of st.waiters){const f=c.p/P;if(f<.2)return 2;if(f<.5)s=1}
+  if(st.waiters.length>=14)s=Math.max(s,1);
+  return s;
+}
+function pcol(c){const f=c.p/G.L.patience;return f>.5?COL.ok:f>.2?COL.warn:COL.bad}
+function giveUp(c){
+  leaveStop(c);
+  const i=G.citizens.indexOf(c);if(i>=0)G.citizens.splice(i,1);
+  G.gaveUp++;G.dayGave++;outcome(false);
+  fx.text(c.x,c.y-6,'✕',COL.bad);snd('sad');
+}
+function deliver(c){
+  const i=G.citizens.indexOf(c);if(i>=0)G.citizens.splice(i,1);
+  G.delivered++;G.dayDel++;if(c.xfer)G.xferDelivered=(G.xferDelivered||0)+1;outcome(true);
+  fx.text(c.x,c.y-6,'+1',COL.ok);snd('deliver');
+}
+function moveTo(c,tx,ty,dt){const dx=tx-c.x,dy=ty-c.y,d=Math.hypot(dx,dy),s=WALK*dt;if(d<=s){c.x=tx;c.y=ty;return true}c.x+=dx/d*s;c.y+=dy/d*s;return false}
+function updCitizens(dt){
+  const m=G.stormMult;
+  for(let i=G.citizens.length-1;i>=0;i--){
+    const c=G.citizens[i];
+    if(c.state==='ride')continue;
+    if(c.state==='walk'){
+      if(!c.stop){c.p-=dt*m;c.retry-=dt;if(c.retry<=0){c.retry=1;assignStop(c)}}
+      else{c.p-=dt*m*.5;if(moveTo(c,c.stop.x,c.stop.y,dt))joinStop(c)}
+    }else if(c.state==='wait'){
+      c.p-=dt*m;
+      if(c.planVer!==G.netVer)replanWaiter(c);
+    }else if(c.state==='walkDest'){
+      if(moveTo(c,c.dest.x,c.dest.y,dt)){deliver(c);continue}
+    }
+    if(c.state!=='walkDest'&&c.p<=0)giveUp(c);
+  }
+}
+
+/* ================= outcomes ================= */
+function sat(){const n=G.win.length;if(n<6)return 1;let s=0;for(const v of G.win)s+=v;return s/n}
+function outcome(ok){
+  G.win.push(ok?1:0);if(G.win.length>WIN_N)G.win.shift();
+  G.flashSat=1;
+  if(G.win.length>=20&&sat()<.5&&!G.over)gameOver();
+}
+
+/* ================= routes & buses ================= */
+function fleetUsed(){let n=0;for(const r of G.routes)n+=r.buses.length*(r.express?2:1);return n}
+function recalcRoute(r){
+  r.segs=[];r.cum=[0];
+  for(let i=0;i<r.stops.length-1;i++){
+    const p=roadPath(r.stops[i],r.stops[i+1],false)||[r.stops[i],r.stops[i+1]];
+    r.segs.push(p);let l=0;for(let k=0;k<p.length-1;k++)l+=edgeBetween(p[k],p[k+1])?S:Math.hypot(G.city.nodes[p[k]].x-G.city.nodes[p[k+1]].x,G.city.nodes[p[k]].y-G.city.nodes[p[k+1]].y);
+    r.cum.push(r.cum[i]+l);
+  }
+}
+function rebuildVis(){
+  const use=new Map();
+  for(const r of G.routes)for(const p of r.segs)for(let k=0;k<p.length-1;k++){
+    const e=edgeBetween(p[k],p[k+1]);if(!e)continue;
+    if(!use.has(e.id))use.set(e.id,[]);const a=use.get(e.id);if(!a.includes(r.id))a.push(r.id);
+  }
+  const N=G.city.nodes;
+  for(const r of G.routes){
+    r.vis=[];
+    for(const p of r.segs){
+      const pts=[];
+      for(let k=0;k<p.length-1;k++){
+        const A=N[p[k]],B=N[p[k+1]],e=edgeBetween(p[k],p[k+1]),l=use.get(e.id)||[r.id];
+        const off=(l.indexOf(r.id)-(l.length-1)/2)*5.5,dx=B.x-A.x,dy=B.y-A.y,d=Math.hypot(dx,dy),nx=-dy/d*off,ny=dx/d*off;
+        pts.push([A.x+nx,A.y+ny],[B.x+nx,B.y+ny]);
+      }
+      r.vis.push(pts);
+    }
+  }
+}
+function netChanged(){G.netVer++;rebuildVis();ui.dirty=true}
+function newRoute(stops){
+  const used=new Set(G.routes.map(r=>r.color));
+  const color=ROUTE_COLORS.find(c=>!used.has(c))||ROUTE_COLORS[G.routeCount%ROUTE_COLORS.length];
+  const r={id:++G.nid,name:'Route '+String.fromCharCode(65+G.routeCount%26),color,stops:stops.slice(),express:false,buses:[],segs:[],cum:[0],vis:[]};
+  G.routeCount++;G.routes.push(r);recalcRoute(r);
+  return r;
+}
+function deleteRoute(r){
+  for(const b of r.buses.slice())dumpBus(b,true);
+  const i=G.routes.indexOf(r);if(i>=0)G.routes.splice(i,1);
+  if(ui.sel&&ui.sel.id===r.id)ui.sel=null;
+  if(ui.drawing&&ui.drawing.routeId===r.id)ui.drawing=null;
+  netChanged();
+}
+function dumpBus(b,remove){
+  for(const c of b.pax){c.state='walk';c.x=b.x;c.y=b.y;c.stop=null;assignStop(c)}
+  b.pax=[];
+  if(remove){const i=b.route.buses.indexOf(b);if(i>=0)b.route.buses.splice(i,1);const j=G.buses.indexOf(b);if(j>=0)G.buses.splice(j,1)}
+}
+function addBus(r){
+  const cost=r.express?2:1;
+  if(fleetUsed()+cost>G.L.fleet){toast('No free buses. Remove one from another route first.');return false}
+  const n=r.stops.length;let bi=0,bs=-1;
+  for(let i=0;i<n;i++){let m=99;for(const o of r.buses)m=Math.min(m,Math.abs(o.tIdx-i));if(r.buses.length===0)m=0;if(m>bs){bs=m;bi=i}}
+  const nd=G.city.nodes[r.stops[bi]];
+  const b={id:++G.nid,route:r,pax:[],dir:bi>=n-1?-1:1,tIdx:bi,state:'drive',x:nd.x,y:nd.y,ang:0,nx:0,ny:1,from:nd.id,to:nd.id,s:0,elen:1,queue:[],dst:nd.id,flash:0,dwell:0,retry:0};
+  r.buses.push(b);G.buses.push(b);beginLeg(b);
+  netChanged();return true;
+}
+function removeBus(r){
+  if(!r.buses.length)return;
+  let b=r.buses[0];for(const o of r.buses)if(o.pax.length<b.pax.length)b=o;
+  dumpBus(b,true);netChanged();
+}
+function applyPath(b,p){
+  b.state='drive';b.from=p[0];b.to=p[1];b.queue=p.slice(2);b.s=0;b.dst=p[p.length-1];
+  const A=G.city.nodes[b.from],B=G.city.nodes[b.to];b.elen=Math.hypot(B.x-A.x,B.y-A.y);
+}
+function beginLeg(b){
+  const r=b.route,n=r.stops.length;
+  if(b.tIdx>n-1)b.tIdx=n-1;
+  if(b.tIdx+b.dir<0||b.tIdx+b.dir>n-1)b.dir=-b.dir;
+  const nxt=clamp(b.tIdx+b.dir,0,n-1),dst=r.stops[nxt],p=roadPath(b.to,dst,true);
+  b.tIdx=nxt;b.dst=dst;
+  if(!p){b.from=b.to;b.state='blocked';b.retry=1;b.queue=[];return}
+  if(p.length<2){arriveStop(b);return}
+  applyPath(b,p);
+}
+function retarget(b){
+  const r=b.route,n=r.stops.length,nd=G.city.nodes[b.to];let bi=0,bd=1e9;
+  r.stops.forEach((sid,i)=>{const s=G.stops.get(sid);const d=Math.hypot(s.x-nd.x,s.y-nd.y);if(d<bd){bd=d;bi=i}});
+  b.tIdx=bi;b.dir=bi===n-1?-1:bi===0?1:b.dir;
+  const dst=r.stops[bi],p=roadPath(b.to,dst,true);b.dst=dst;
+  if(p&&p.length>1)applyPath(b,p);
+  else if(p){arriveStop(b)}
+  else{b.state='blocked';b.retry=1;b.queue=[]}
+}
+function arriveStop(b){
+  const r=b.route,i=r.stops.indexOf(b.to);
+  if(i<0){retarget(b);return}
+  b.tIdx=i;b.from=b.to;b.s=b.elen;
+  const dw=serveStop(b,i);
+  if(dw>0){b.state='dwell';b.dwell=dw}else beginLeg(b);
+}
+function serveStop(b,i){
+  const r=b.route,n=r.stops.length,stop=G.stops.get(b.to);
+  if(!stop)return 0;
+  const terminal=(i===0||i===n-1);
+  if(r.express&&!terminal)return 0;
+  const eff=i===0?1:(i===n-1?-1:b.dir);
+  const before=stopStatus(stop);
+  // unload
+  let out=0;
+  for(let k=b.pax.length-1;k>=0;k--){
+    const c=b.pax[k];
+    if(c.alight===stop.id||!isServed(r,c.alight)){
+      b.pax.splice(k,1);out++;
+      c.x=stop.x;c.y=stop.y;c.stop=stop;c.alight=null;
+      const pl=planFrom(stop.id,c.dest);
+      if(pl&&pl.exit){c.state='walkDest';c.stop=null;c.plan=null}
+      else{c.xfer=(c.xfer||0)+1;c.state='wait';c.plan=pl;c.noRoute=!pl;c.planVer=G.netVer;c.p=Math.max(c.p,G.L.patience*.9);stop.waiters.push(c)}
+    }
+  }
+  // candidates
+  const cands=[];
+  for(const c of stop.waiters){
+    if(c.planVer!==G.netVer){replanWaiter(c);if(c.state!=='wait')continue}
+    const pl=c.plan;if(!pl||pl.exit||pl.route!==r)continue;
+    const ib=r.stops.indexOf(pl.alight);if(ib<0)continue;
+    if(eff>0?ib>i:ib<i)cands.push(c);
+  }
+  if(b.pax.length>=CAP&&cands.length&&out===0){b.flash=1.4;stop.missed=1;snd('full');return 0}
+  let boarded=0;
+  for(const c of cands){
+    if(b.pax.length>=CAP)break;
+    leaveStop(c);c.state='ride';c.alight=c.plan.alight;c.bus=b;b.pax.push(c);boarded++;
+    fx.fly(stop.x,stop.y,b.x,b.y,pcol(c));
+  }
+  if(cands.length>boarded){b.flash=1.1;stop.missed=1;snd('full')}
+  if(boarded)snd('pop');
+  const after=stopStatus(stop);
+  if(before>0&&after===0&&boarded){stop.cheer=1;fx.ring(stop.x,stop.y,COL.ok,38);fx.text(stop.x,stop.y-26,'Cleared!',COL.ok);if(before===2)snd('cheer')}
+  else if(boarded)fx.text(stop.x,stop.y-22,'+'+boarded,COL.ok);
+  if(out+boarded===0&&!terminal)return 0;
+  return Math.min(3,.5+.2*(out+boarded))+(terminal?.8:0);
+}
+function atNode(b){
+  const node=b.to;
+  if(b.queue.length){
+    const nx=b.queue[0],e=edgeBetween(node,nx);
+    if(e&&e.closed){
+      const p=roadPath(node,b.dst,true);
+      if(!p){b.from=node;b.state='blocked';b.retry=1;b.queue=[];return}
+      if(p.length<2){arriveStop(b);return}
+      applyPath(b,p);return;
+    }
+    b.from=node;b.to=b.queue.shift();b.s=0;
+    const A=G.city.nodes[b.from],B=G.city.nodes[b.to];b.elen=Math.hypot(B.x-A.x,B.y-A.y);
+  }else arriveStop(b);
+}
+function placeBus(b){
+  const N=G.city.nodes,A=N[b.from],B=N[b.to],t=b.elen?clamp(b.s/b.elen,0,1):1;
+  const dx=B.x-A.x,dy=B.y-A.y,l=Math.hypot(dx,dy);
+  if(l>0){b.ang=Math.atan2(dy,dx);b.nx=-dy/l;b.ny=dx/l}
+  b.x=A.x+dx*t+b.nx*5.5;b.y=A.y+dy*t+b.ny*5.5;
+}
+function updBus(b,dt){
+  if(b.flash>0)b.flash-=dt;
+  if(b.state==='dwell'){b.dwell-=dt;if(b.dwell<=0)beginLeg(b);placeBus(b);return}
+  if(b.state==='blocked'){
+    b.retry-=dt;
+    if(b.retry<=0){b.retry=1;const p=roadPath(b.to,b.dst,true);if(p&&p.length>1)applyPath(b,p);else if(p)arriveStop(b)}
+    placeBus(b);return;
+  }
+  let move=busSpeed(b.route)*dt,guard=0;
+  while(move>0&&b.state==='drive'&&guard++<30){
+    const rem=b.elen-b.s;
+    if(move<rem){b.s+=move;move=0}else{move-=rem;b.s=b.elen;atNode(b)}
+  }
+  placeBus(b);
+}
+
+/* ================= stops ================= */
+function nodeName(n){return HN[n.r]+' & '+ord(n.c+1)}
+function addStop(nid){
+  if(G.stops.has(nid))return G.stops.get(nid);
+  const n=G.city.nodes[nid];
+  const st={id:nid,x:n.x,y:n.y,waiters:[],cheer:0,missed:0};
+  G.stops.set(nid,st);G.netVer++;ui.dirty=true;
+  // citizens without a stop may now find one
+  for(const c of G.citizens)if(c.state==='walk'&&!c.stop)c.retry=0;
+  return st;
+}
+function removeStop(nid){
+  const st=G.stops.get(nid);if(!st)return;
+  for(const r of G.routes.slice()){
+    const i=r.stops.indexOf(nid);
+    if(i>=0){r.stops.splice(i,1);if(r.stops.length<2)deleteRoute(r);else{recalcRoute(r)}}
+  }
+  G.stops.delete(nid);
+  if(ui.sel&&ui.sel.type==='stop'&&ui.sel.id===nid)ui.sel=null;
+  if(ui.drawing&&ui.drawing.first===nid)ui.drawing=null;
+  for(const c of st.waiters.slice()){c.stop=null;c.state='walk';assignStop(c)}
+  st.waiters=[];
+  for(const c of G.citizens)if(c.stop===st){c.stop=null;assignStop(c)}
+  netChanged();
+}
+function routesAt(sid){return G.routes.filter(r=>r.stops.includes(sid))}
+
+/* ================= events ================= */
+function connectedWithout(edge){
+  const N=G.city.nodes;edge.closed=true;
+  const alive=N.filter(n=>n.alive),seen=new Set([alive[0].id]),q=[alive[0].id];
+  while(q.length){const n=N[q.pop()];for(const a of n.adj)if(!a.e.closed&&!seen.has(a.to)){seen.add(a.to);q.push(a.to)}}
+  edge.closed=false;return seen.size===alive.length;
+}
+function planEvents(){
+  const L=G.L;G.evPlan=[];
+  const types=['closure','concert','storm'].filter(t=>t!==G.lastEv);
+  const t1=types[Math.floor(rnd()*types.length)];
+  G.evPlan.push({phase:'pm',at:3+rnd()*8,type:t1});G.lastEv=t1;
+  if(rnd()<L.amProb)G.evPlan.push({phase:'am',at:6+rnd()*10,type:rnd()<.55?'closure':'storm'});
+}
+function startEvent(ev){
+  ev.done=true;let type=ev.type;
+  const city=G.city;
+  if(type==='closure'){
+    const used=new Set();
+    for(const r of G.routes)for(const p of r.segs)for(let k=0;k<p.length-1;k++){const e=edgeBetween(p[k],p[k+1]);if(e)used.add(e)}
+    let pool=[...used];if(!pool.length)pool=city.edges.filter(e=>{const a=city.nodes[e.a];return a.c>=3&&a.c<=6});
+    pool=pool.filter(e=>connectedWithout(e));
+    if(!pool.length)type='storm';
+    else{const e=pool[Math.floor(rnd()*pool.length)];e.closed=true;G.event={type:'closure',t:0,dur:G.L.closureDur,edge:e,label:'Road closed on '+e.name};toast('Road closed. Buses will detour.')}
+  }
+  if(type==='concert'){
+    if(!city.venue)type='storm';
+    else G.event={type:'concert',t:0,dur:22,left:G.L.concert,total:G.L.concert,spawnDur:14,acc:0,label:'Concert just ended. A big crowd is heading home.'};
+  }
+  if(type==='storm')G.event={type:'storm',t:0,dur:35,label:'Heavy rain. Riders lose patience faster.'};
+  G.stormMult=G.event&&G.event.type==='storm'?1.6:1;
+  snd('alert');ui.dirty=true;
+}
+function endEvent(){
+  const ev=G.event;if(!ev)return;
+  if(ev.type==='closure'){ev.edge.closed=false;toast('Road reopened.')}
+  G.stormMult=1;G.event=null;ui.dirty=true;
+}
+
+/* ================= simulation step ================= */
+function phaseAt(t){
+  let a=0;
+  for(let i=0;i<PHASES.length;i++){const p=PHASES[i];if(t<a+p.len)return{p,pt:t-a,i};a+=p.len}
+  const p=PHASES[PHASES.length-1];return{p,pt:p.len,i:PHASES.length-1};
+}
+function clockHour(t){const ph=phaseAt(t);return ph.p.from+(ph.p.to-ph.p.from)*clamp(ph.pt/ph.p.len,0,1)}
+function step(dt){
+  if(G.over)return;
+  G.t+=dt;
+  const ph=phaseAt(G.t),L=G.L,total=L.perDay*(1+.12*(G.day-1));
+  G.acc+=total*ph.p.share/ph.p.len*dt;
+  while(G.acc>=1){
+    G.acc-=1;
+    const kind=ph.p.dir==='mix'?(rnd()<.5?'home':'work'):ph.p.dir;
+    const C=G.city;
+    if(kind==='home')spawnCitizen(C.homes[Math.floor(rnd()*C.homes.length)],C.works);
+    else spawnCitizen(C.works[Math.floor(rnd()*C.works.length)],C.homes);
+  }
+  for(const ev of G.evPlan)if(!ev.done&&ph.p.id===ev.phase&&ph.pt>=ev.at&&!G.event)startEvent(ev);
+  const ev=G.event;
+  if(ev){
+    ev.t+=dt;
+    if(ev.t>=ev.dur)endEvent();
+  }
+  updCitizens(dt);
+  for(const b of G.buses)updBus(b,dt);
+  for(const st of G.stops.values()){if(st.cheer>0)st.cheer-=dt;if(st.missed>0)st.missed-=dt}
+  for(let i=G.parts.length-1;i>=0;i--){const p=G.parts[i];p.a+=dt/p.life;if(p.a>=1)G.parts.splice(i,1)}
+  if(G.flashSat>0)G.flashSat-=dt*2;
+  if(G.t>=DAY_LEN&&!G.over)endOfDay();
+}
+// concert spawn helper (rate-based burst from the arena)
+function concertTick(dt){
+  const ev=G.event;if(!ev||ev.type!=='concert'||ev.left<=0)return;
+  ev.acc+=ev.total*dt/ev.spawnDur;
+  while(ev.acc>=1&&ev.left>0){ev.acc-=1;ev.left--;spawnCitizen(G.city.venue,G.city.homes)}
+}
+
+/* ================= day / level flow ================= */
+function stars(){const t=G.delivered+G.gaveUp,r=t?G.delivered/t:1;return r>=.85?3:r>=.72?2:1}
+function endOfDay(){
+  G.paused=true;G.modal=true;syncPlay();
+  const last=G.day>=G.L.days;
+  const total=G.dayDel+G.dayGave,pct=total?Math.round(100*G.dayDel/total):100;
+  if(last){
+    const st=stars();
+    try{const k='rhr.stars',o=JSON.parse(localStorage.getItem(k)||'{}');o[G.levelIdx]=Math.max(o[G.levelIdx]||0,st);localStorage.setItem(k,JSON.stringify(o))}catch(e){}
+    showOv('<div class="card small"><div class="stars">'+starStr(st)+'</div><h2>Level complete</h2><p class="sub">'+esc(G.L.name)+' kept moving for '+G.L.days+' days.</p>'+
+      '<div class="statgrid"><div><b>'+G.delivered+'</b><span>Delivered</span></div><div><b>'+G.gaveUp+'</b><span>Gave up</span></div><div><b>'+Math.round(100*G.delivered/Math.max(1,G.delivered+G.gaveUp))+'%</b><span>Overall</span></div></div>'+
+      '<div class="btnrow">'+(G.levelIdx<2?'<button class="btn ok" data-act="level" data-i="'+(G.levelIdx+1)+'">Next level</button>':'')+'<button class="btn alt" data-act="level" data-i="'+G.levelIdx+'">Replay</button><button class="btn alt" data-act="home">Levels</button></div></div>');
+  }else{
+    const tip=pct<70?'Tip: add buses to the busiest routes, or add stops closer to red crowds.':pct<90?'Tip: watch the amber stops. Extra buses there keep them green.':'Smooth day. Tomorrow brings more people.';
+    showOv('<div class="card small"><h2>Day '+G.day+' done</h2><p class="sub">'+esc(tip)+'</p>'+
+      '<div class="statgrid"><div><b>'+G.dayDel+'</b><span>Delivered</span></div><div><b>'+G.dayGave+'</b><span>Gave up</span></div><div><b>'+pct+'%</b><span>Today</span></div></div>'+
+      '<p class="sub">You can edit routes now. The next day has more people.</p>'+
+      '<div class="btnrow"><button class="btn ok" data-act="nextday">Start day '+(G.day+1)+'</button></div></div>');
+  }
+}
+function starStr(n){let s='';for(let i=0;i<3;i++)s+=i<n?'★':'<span class="off">★</span>';return s}
+function nextDay(){
+  G.day++;G.t=0;G.acc=0;G.dayDel=0;G.dayGave=0;planEvents();hideOv();G.modal=false;G.paused=true;syncPlay();ui.dirty=true;
+  toast('Day '+G.day+'. Press play when ready.');
+}
+function gameOver(){
+  G.over=true;G.paused=true;G.modal=true;syncPlay();snd('sad');
+  showOv('<div class="card small"><h2>Satisfaction dropped below 50%</h2><p class="sub">Too many riders gave up waiting. Add buses where crowds turn red and make sure routes reach the business district.</p>'+
+    '<div class="statgrid"><div><b>'+G.delivered+'</b><span>Delivered</span></div><div><b>'+G.gaveUp+'</b><span>Gave up</span></div><div><b>Day '+G.day+'</b><span>Reached</span></div></div>'+
+    '<div class="btnrow"><button class="btn" data-act="level" data-i="'+G.levelIdx+'">Try again</button><button class="btn alt" data-act="home">Levels</button></div></div>');
+}
+
+/* ================= level setup ================= */
+function resetState(){
+  G.stops=new Map();G.routes=[];G.buses=[];G.citizens=[];G.parts=[];G.day=1;G.t=0;G.acc=0;G.over=false;G.netVer++;
+  G.xferDelivered=0;G.delivered=0;G.gaveUp=0;G.dayDel=0;G.dayGave=0;G.win=[];G.event=null;G.stormMult=1;G.routeCount=0;G.lastEv='';G.flashSat=0;
+  ui.drawing=null;ui.sel=null;ui.tool='select';ui.sheet=false;
+}
+function loadLevel(i){
+  G.levelIdx=i;G.L=LEVELS[i];resetState();
+  G.city=buildCity(G.L);
+  planEvents();
+  const ids=G.L.starter.map(([c,r])=>r*(G.city.cols+1)+c);
+  for(const id of ids)addStop(id);
+  const r=newRoute(ids);addBus(r);netChanged();
+  ui.sel={type:'route',id:r.id};
+  G.paused=true;G.modal=false;syncPlay();
+  fitCam(true);ui.dirty=true;setTool('select');
+  buildTimeline();
+}
+function buildTimeline(){
+  const tl=$('#tl');tl.querySelectorAll('i').forEach(e=>e.remove());
+  for(const p of PHASES){const i=document.createElement('i');i.style.width=(p.len/DAY_LEN*100)+'%';i.style.background=TL_COLORS[p.id];i.title=p.name;tl.insertBefore(i,$('#tlMark'))}
+}
+
+/* ================= camera & input ================= */
+function resize(){
+  const r=cv.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,2.5);
+  W=Math.max(1,r.width);H=Math.max(1,r.height);cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
+  if(G.city)fitCam(false);
+}
+function fitCam(force){
+  if(!G.city)return;
+  const topH=($('#row1').getBoundingClientRect().bottom||100)+10,botH=Math.max(60,H-($('#toolbar').getBoundingClientRect().top||H-90))+10;
+  const availH=Math.max(120,H-topH-botH),z=Math.min(W/G.city.w,availH/G.city.h);
+  cam.minZ=z*.8;cam.maxZ=3.2;
+  if(force||!cam._fitted||true){
+    cam.zoom=z;cam.x=G.city.w/2;
+    const offset=(topH+(H-botH))/2-H/2;cam.y=G.city.h/2-offset/z;cam._fitted=true;
+  }
+}
+function zoomAt(sx,sy,f){
+  const z=cam.zoom,nz=clamp(z*f,cam.minZ,cam.maxZ);
+  const wx=cam.x+(sx-W/2)/z,wy=cam.y+(sy-H/2)/z;
+  cam.zoom=nz;cam.x=wx-(sx-W/2)/nz;cam.y=wy-(sy-H/2)/nz;clampCam();
+}
+function clampCam(){if(!G.city)return;cam.x=clamp(cam.x,0,G.city.w);cam.y=clamp(cam.y,0,G.city.h)}
+const toWorld=(sx,sy)=>({x:cam.x+(sx-W/2)/cam.zoom,y:cam.y+(sy-H/2)/cam.zoom});
+const pointers=new Map();let gesture=null,multi=false;
+cv.addEventListener('pointerdown',e=>{
+  ensureAudio();
+  if(e.isPrimary){pointers.clear();multi=false;gesture=null}
+  try{cv.setPointerCapture(e.pointerId)}catch(_){}
+  const r=cv.getBoundingClientRect();
+  pointers.set(e.pointerId,{x:e.clientX-r.left,y:e.clientY-r.top,sx:e.clientX-r.left,sy:e.clientY-r.top,t:performance.now(),moved:false});
+  if(pointers.size>=2){multi=true;startGesture()}
+  cv.style.cursor='grabbing';
+});
+function startGesture(){
+  const a=[...pointers.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1;
+  gesture={d,z:cam.zoom};
+}
+cv.addEventListener('pointermove',e=>{
+  const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,p=pointers.get(e.pointerId);
+  if(!p){if(e.pointerType==='mouse'){ui.hover=(ui.tool!=='select')?nearestNode(x,y,55):null}return}
+  const dx=x-p.x,dy=y-p.y;p.x=x;p.y=y;
+  if(Math.hypot(x-p.sx,y-p.sy)>8)p.moved=true;
+  if(pointers.size===1&&p.moved){cam.x-=dx/cam.zoom;cam.y-=dy/cam.zoom;clampCam()}
+  else if(pointers.size>=2&&gesture){
+    const a=[...pointers.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1,cx=(a[0].x+a[1].x)/2,cy=(a[0].y+a[1].y)/2;
+    // pan with midpoint movement (distribute delta) then zoom around midpoint
+    cam.x-=dx/cam.zoom/2;cam.y-=dy/cam.zoom/2;
+    const target=clamp(gesture.z*d/gesture.d,cam.minZ,cam.maxZ);zoomAt(cx,cy,target/cam.zoom);
+  }
+});
+function endPointer(e,cancel){
+  const p=pointers.get(e.pointerId);if(!p)return;
+  pointers.delete(e.pointerId);
+  const wasMulti=multi;
+  if(pointers.size===0){multi=false;gesture=null;cv.style.cursor=ui.tool==='select'?'grab':'crosshair'}
+  else if(pointers.size===1)gesture=null;
+  if(!cancel&&!wasMulti&&!p.moved&&performance.now()-p.t<700)onTap(p.x,p.y);
+}
+cv.addEventListener('pointerup',e=>endPointer(e,false));
+cv.addEventListener('pointercancel',e=>endPointer(e,true));
+cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,Math.exp(-e.deltaY*(e.ctrlKey?.01:.0016)))},{passive:false});
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+
+function nearestNode(sx,sy,maxScreen){
+  if(!G.city)return null;
+  const w=toWorld(sx,sy);let best=null,bd=Infinity;
+  const lim=Math.min(55,maxScreen/cam.zoom);
+  for(const n of G.city.nodes){if(!n.alive)continue;const d=Math.hypot(n.x-w.x,n.y-w.y);if(d<bd){bd=d;best=n}}
+  return best&&bd<=Math.max(lim,34)?best:null;
+}
+function onTap(sx,sy){
+  if(G.modal||!G.city)return;
+  const tool=ui.tool;
+  if(tool==='select'){
+    const w=toWorld(sx,sy);let best=null,bd=Math.max(30,30/cam.zoom);
+    for(const st of G.stops.values()){const d=Math.hypot(st.x-w.x,st.y-w.y);if(d<bd){bd=d;best=st}}
+    ui.sel=best?{type:'stop',id:best.id}:null;ui.dirty=true;return;
+  }
+  const n=nearestNode(sx,sy,60);if(!n)return;
+  if(tool==='stop'){
+    if(G.stops.has(n.id)){ui.sel={type:'stop',id:n.id};ui.dirty=true}
+    else{addStop(n.id);ui.sel={type:'stop',id:n.id};fx.ring(n.x,n.y,'#2a7de1',34);snd('pop');netChanged()}
+    return;
+  }
+  if(tool==='route')routeTap(n);
+}
+function routeTap(n){
+  const L=G.L,d=ui.drawing,st=G.stops.get(n.id);
+  const owner=st?routesAt(n.id):[];
+  if(!d){
+    if(!st){addStop(n.id);ui.drawing={routeId:null,first:n.id};fx.ring(n.x,n.y,'#2a7de1',34);snd('pop');ui.dirty=true;return}
+    if(owner.length===1&&owner[0].stops[owner[0].stops.length-1]===n.id){ui.drawing={routeId:owner[0].id};ui.sel={type:'route',id:owner[0].id};toast('Extending '+owner[0].name+'. Tap the next stop.');ui.dirty=true;return}
+    if(owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfer stops unlock in level 3.');return}
+    ui.drawing={routeId:null,first:n.id};ui.dirty=true;return;
+  }
+  if(d.routeId===null){
+    if(n.id===d.first){ui.drawing=null;toast('Route cancelled.');ui.dirty=true;return}
+    if(owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfer stops unlock in level 3.');return}
+    if(G.routes.length>=8){toast('Maximum of 8 routes.');return}
+    if(!st)addStop(n.id);
+    const r=newRoute([d.first,n.id]);
+    const ok=addBus(r);if(!ok)toast(r.name+' created with no bus. Free one up from another route.');
+    ui.drawing={routeId:r.id};ui.sel={type:'route',id:r.id};toast(r.name+' is running. Keep tapping stops to extend it.');fx.ring(n.x,n.y,r.color,34);snd('pop');netChanged();return;
+  }
+  const r=G.routes.find(x=>x.id===d.routeId);
+  if(!r){ui.drawing=null;ui.dirty=true;return}
+  if(st&&r.stops.includes(n.id)){
+    if(r.stops[r.stops.length-1]===n.id){finishDrawing();return}
+    toast('That stop is already on '+r.name+'.');return;
+  }
+  if(st&&owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfer stops unlock in level 3.');return}
+  if(!st)addStop(n.id);
+  r.stops.push(n.id);recalcRoute(r);fx.ring(n.x,n.y,r.color,34);snd('pop');netChanged();
+}
+function finishDrawing(){const id=ui.drawing&&ui.drawing.routeId;ui.drawing=null;setTool('select');if(id){ui.sheet=true;toast('Use + and − to add or remove buses.')}ui.dirty=true}
+function undoDraw(){
+  const d=ui.drawing;if(!d)return;
+  if(d.routeId===null){ui.drawing=null;ui.dirty=true;return}
+  const r=G.routes.find(x=>x.id===d.routeId);if(!r){ui.drawing=null;return}
+  const last=r.stops.pop();
+  if(r.stops.length<2){const first=r.stops[0];r.stops.push(last);deleteRoute(r);ui.drawing={routeId:null,first};ui.dirty=true;return}
+  recalcRoute(r);netChanged();
+}
+
+/* ================= rendering ================= */
+function stopColorsFor(st){return routesAt(st.id).map(r=>r.color)}
+function draw(now){
+  const z=cam.zoom,u=clamp(.9/z,1,2.5);
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#93c96f';ctx.fillRect(0,0,W,H);
+  if(!G.city)return;
+  ctx.setTransform(dpr*z,0,0,dpr*z,dpr*(W/2-cam.x*z),dpr*(H/2-cam.y*z));
+  ctx.drawImage(G.city.img,0,0,G.city.w,G.city.h);
+  const N=G.city.nodes;
+  // closures
+  for(const e of G.city.edges)if(e.closed){
+    const A=N[e.a],B=N[e.b];
+    ctx.lineCap='butt';ctx.lineWidth=ROAD_W*.8;ctx.strokeStyle='#e2483d';ctx.setLineDash([7,7]);ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();
+    ctx.strokeStyle='#fff';ctx.lineDashOffset=7;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();ctx.setLineDash([]);ctx.lineDashOffset=0;
+    const mx=(A.x+B.x)/2,my=(A.y+B.y)/2;ctx.fillStyle='#e2483d';ctx.beginPath();ctx.arc(mx,my,9*u,0,6.3);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(mx-5*u,my-1.8*u,10*u,3.6*u);
+  }
+  // arena glow during concert
+  const ev=G.event;
+  if(ev&&ev.type==='concert'&&G.city.venue){const v=G.city.venue,k=(Math.sin(now/180)+1)/2;ctx.strokeStyle='rgba(138,92,246,'+(.35+.4*k)+')';ctx.lineWidth=3*u;ctx.beginPath();ctx.ellipse(v.x,v.y-6,v.w/2+8+k*6,v.d/2+8+k*4,0,0,6.3);ctx.stroke()}
+  // draft route preview from first stop
+  const dr=ui.drawing;
+  // routes
+  const selR=ui.sel&&ui.sel.type==='route'?ui.sel.id:null;
+  ctx.lineJoin='round';ctx.lineCap='round';
+  for(const r of G.routes){
+    const hi=selR===r.id||(dr&&dr.routeId===r.id),dim=selR&&!hi;
+    ctx.globalAlpha=dim?.4:.95;
+    ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=(hi?8:6.5)*Math.max(1,u*.8);
+    for(const pts of r.vis){ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke()}
+    ctx.strokeStyle=r.color;ctx.lineWidth=(hi?5.2:4)*Math.max(1,u*.8);
+    if(r.express)ctx.setLineDash([12*u*.8,5*u*.8]);
+    for(const pts of r.vis){ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke()}
+    ctx.setLineDash([]);
+  }
+  ctx.globalAlpha=1;
+  // hover ring
+  if(ui.hover){ctx.strokeStyle='#2a7de1';ctx.lineWidth=2.5*u;ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(ui.hover.x,ui.hover.y,13*u,0,6.3);ctx.stroke();ctx.setLineDash([])}
+  // drawing start marker
+  if(dr&&dr.first!=null&&dr.routeId===null){const n=N[dr.first];ctx.strokeStyle='#2a7de1';ctx.lineWidth=3*u;ctx.beginPath();ctx.arc(n.x,n.y,16*u+Math.sin(now/200)*2,0,6.3);ctx.stroke()}
+  // stops
+  for(const st of G.stops.values())drawStop(st,u,now);
+  // walkers
+  for(const c of G.citizens){
+    if(c.state==='walk'||c.state==='walkDest'){
+      ctx.fillStyle=c.state==='walkDest'?'#fff':pcol(c);ctx.strokeStyle='rgba(20,30,40,.7)';ctx.lineWidth=.9*u;
+      ctx.beginPath();ctx.arc(c.x,c.y,2.4*u,0,6.3);ctx.fill();ctx.stroke();
+    }
+  }
+  // buses
+  for(const b of G.buses)drawBus(b,u,now);
+  // particles
+  for(const p of G.parts){
+    if(p.k==='text'){ctx.globalAlpha=1-p.a*p.a;ctx.fillStyle=p.c;ctx.strokeStyle='#fff';ctx.lineWidth=3*u;ctx.font='800 '+(11*u)+'px Outfit,system-ui,sans-serif';ctx.textAlign='center';ctx.strokeText(p.t,p.x,p.y-p.a*22*u);ctx.fillText(p.t,p.x,p.y-p.a*22*u);ctx.globalAlpha=1}
+    else if(p.k==='ring'){ctx.globalAlpha=1-p.a;ctx.strokeStyle=p.c;ctx.lineWidth=3*u*(1-p.a);ctx.beginPath();ctx.arc(p.x,p.y,6+p.r*u*p.a,0,6.3);ctx.stroke();ctx.globalAlpha=1}
+    else if(p.k==='fly'){const t=p.a,e=t*t*(3-2*t),x=p.x0+(p.x1-p.x0)*e,y=p.y0+(p.y1-p.y0)*e-Math.sin(t*3.14)*8;ctx.globalAlpha=1-t*.4;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(x,y,2.6*u,0,6.3);ctx.fill();ctx.globalAlpha=1}
+  }
+  // screen-space overlays
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const h=clockHour(G.t);let tint=null;
+  if(h<7)tint='rgba(255,165,120,'+(.14*(7-h))+')';
+  else if(h>16&&h<=19)tint='rgba(255,150,60,'+(.12*(h-16)/3)+')';
+  else if(h>19)tint='rgba(40,55,120,'+(.12+.12*(h-19))+')';
+  if(tint){ctx.fillStyle=tint;ctx.fillRect(0,0,W,H)}
+  if(G.event&&G.event.type==='storm'){
+    ctx.fillStyle='rgba(30,50,80,.2)';ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(220,235,255,.55)';ctx.lineWidth=1.2;ctx.beginPath();
+    for(let i=0;i<70;i++){const x=((i*97.3+now*.35)%(W+40))-20,y=((i*61.7+now*.9)%(H+40))-20;ctx.moveTo(x,y);ctx.lineTo(x-4,y+12)}
+    ctx.stroke();
+  }
+}
+function drawStop(st,u,now){
+  const stat=stopStatus(st),col=stat===2?COL.bad:stat===1?COL.warn:COL.ok,n=st.waiters.length;
+  const sel=ui.sel&&ui.sel.type==='stop'&&ui.sel.id===st.id;
+  // crowd dots
+  const shown=Math.min(n,26);
+  for(let k=0;k<shown;k++){
+    const c=st.waiters[k],a=k*2.399+.6,rad=(16+4.6*Math.floor(k/7))*u;
+    ctx.fillStyle=pcol(c);ctx.strokeStyle='rgba(20,30,40,.65)';ctx.lineWidth=.9*u;
+    ctx.beginPath();ctx.arc(st.x+Math.cos(a)*rad,st.y+Math.sin(a)*rad,2.7*u,0,6.3);ctx.fill();ctx.stroke();
+  }
+  // ring
+  const pulse=stat===2?1+.12*Math.sin(now/110):1;
+  ctx.fillStyle='rgba(255,255,255,.95)';ctx.beginPath();ctx.arc(st.x,st.y,11*u*pulse,0,6.3);ctx.fill();
+  ctx.strokeStyle=col;ctx.lineWidth=4*u;ctx.beginPath();ctx.arc(st.x,st.y,11*u*pulse,0,6.3);ctx.stroke();
+  if(stat===2){ctx.globalAlpha=.25;ctx.fillStyle=COL.bad;ctx.beginPath();ctx.arc(st.x,st.y,(20+4*Math.sin(now/130))*u,0,6.3);ctx.fill();ctx.globalAlpha=1}
+  else if(stat===1){ctx.globalAlpha=.16;ctx.fillStyle=COL.warn;ctx.beginPath();ctx.arc(st.x,st.y,19*u,0,6.3);ctx.fill();ctx.globalAlpha=1}
+  const cols=stopColorsFor(st);
+  if(cols.length){const seg=6.2832/cols.length;cols.forEach((c,i)=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(st.x,st.y);ctx.arc(st.x,st.y,6.4*u,-1.57+seg*i,-1.57+seg*(i+1));ctx.fill()});ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(st.x,st.y,2.4*u,0,6.3);ctx.fill()}
+  else{ctx.fillStyle='#9aa8b4';ctx.beginPath();ctx.arc(st.x,st.y,5*u,0,6.3);ctx.fill()}
+  if(st.cheer>0){ctx.globalAlpha=Math.min(1,st.cheer);ctx.strokeStyle=COL.ok;ctx.lineWidth=3*u;ctx.beginPath();ctx.arc(st.x,st.y,(14+(1-st.cheer)*12)*u,0,6.3);ctx.stroke();ctx.globalAlpha=1}
+  if(st.missed>0&&(Math.floor(now/120)%2===0)){ctx.strokeStyle=COL.bad;ctx.lineWidth=3*u;ctx.beginPath();ctx.arc(st.x,st.y,16*u,0,6.3);ctx.stroke()}
+  if(sel){ctx.strokeStyle='#1b2733';ctx.lineWidth=2*u;ctx.setLineDash([4*u,3*u]);ctx.beginPath();ctx.arc(st.x,st.y,26*u,0,6.3);ctx.stroke();ctx.setLineDash([])}
+  if(n>0){
+    const t=String(n),fs=11*u;ctx.font='800 '+fs+'px Outfit,system-ui,sans-serif';const tw=ctx.measureText(t).width+8*u,bx=st.x-tw/2,by=st.y-(32+Math.floor(shown/7)*3)*u;
+    ctx.fillStyle=col;rrect(ctx,bx,by,tw,fs+5*u,(fs+5*u)/2);ctx.fill();
+    ctx.fillStyle=stat===1?'#3b2c00':'#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,st.x,by+(fs+5*u)/2+.5*u);ctx.textBaseline='alphabetic';
+  }
+  if(st.waiters.some(c=>c.noRoute)){ctx.fillStyle='#5d6b78';ctx.beginPath();ctx.arc(st.x+13*u,st.y-13*u,6*u,0,6.3);ctx.fill();ctx.fillStyle='#fff';ctx.font='800 '+(9*u)+'px Outfit,sans-serif';ctx.textAlign='center';ctx.fillText('?',st.x+13*u,st.y-10*u)}
+}
+function drawBus(b,u,now){
+  const full=b.pax.length>=CAP,flash=b.flash>0&&Math.floor(now/110)%2===0,r=b.route,k=Math.max(1.1,u*.9);
+  ctx.save();ctx.translate(b.x,b.y);
+  ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(1.5*k,2.5*k,10*k,5*k,b.ang,0,6.3);ctx.fill();
+  ctx.rotate(b.ang);
+  const L=(r.express?11:9)*k,Wd=4.6*k;
+  ctx.fillStyle=flash?COL.bad:r.color;rrect(ctx,-L,-Wd,L*2,Wd*2,2.5*k);ctx.fill();
+  ctx.strokeStyle=full?COL.bad:'rgba(255,255,255,.9)';ctx.lineWidth=(full?1.8:1)*k;ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect(-L+2.5*k,-Wd+1.2*k,L*1.5,Wd*2-2.4*k);
+  ctx.fillStyle='rgba(40,60,90,.85)';ctx.fillRect(L-4.5*k,-Wd+1.2*k,3*k,Wd*2-2.4*k);
+  // load fill
+  const f=b.pax.length/CAP;ctx.fillStyle=f>=1?COL.bad:f>.66?COL.warn:r.color;ctx.fillRect(-L+2.5*k,-Wd+1.2*k,L*1.5*f,Wd*2-2.4*k);
+  if(r.express){ctx.fillStyle='#ffd24d';ctx.fillRect(-L,-.8*k,L*2,1.6*k)}
+  ctx.restore();
+  if(b.flash>0){const t='FULL';ctx.font='800 '+(10*k)+'px Outfit,system-ui,sans-serif';ctx.textAlign='center';ctx.lineWidth=3*k;ctx.strokeStyle='#fff';ctx.strokeText(t,b.x,b.y-10*k);ctx.fillStyle=COL.bad;ctx.fillText(t,b.x,b.y-10*k)}
+}
+
+/* ================= UI ================= */
+function toast(msg,ms){
+  const d=document.createElement('div');d.className='toast';d.textContent=msg;$('#toasts').appendChild(d);
+  while($('#toasts').children.length>3)$('#toasts').firstChild.remove();
+  setTimeout(()=>d.remove(),ms||2800);
+}
+function showOv(html){const o=$('#ov');o.innerHTML=html;o.hidden=false;G.modal=true}
+function hideOv(){$('#ov').hidden=true;G.modal=false}
+const ICON_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+const ICON_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
+const ICON_SND='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/></svg>';
+const ICON_MUTE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
+function syncPlay(){
+  const b=$('#bPlay');b.innerHTML=G.paused?ICON_PLAY:ICON_PAUSE;
+  b.classList.toggle('paused',G.paused);b.classList.toggle('ready',G.paused&&G.t===0&&G.day===1&&!G.modal);
+  $('#bSound').innerHTML=ui.sound?ICON_SND:ICON_MUTE;
+  $('#bSpeed').textContent=G.speed+'×';
+  ui.dirty=true;
+}
+function setTool(t){
+  ui.tool=t;if(t!=='route')ui.drawing=null;if(t==='route')ui.sheet=false;
+  document.querySelectorAll('.tbtn[data-tool]').forEach(b=>b.classList.toggle('on',b.dataset.tool===t));
+  cv.classList.toggle('pick',t!=='select');ui.hover=null;ui.dirty=true;
+}
+function hintText(){
+  if(G.over)return'';
+  if(G.paused&&G.t===0&&G.day===1&&G.delivered+G.gaveUp===0)return'Press ▶ to start the day. Your first route is ready. Add stops and buses before it gets busy.';
+  if(ui.tool==='stop')return'Tap a road junction to place a stop. Tap an existing stop to select it.';
+  if(ui.tool==='route'){const d=ui.drawing;return d?(d.routeId===null?'Tap a second stop to create the route.':'Tap the next stop, or press Done.'):'Tap a stop or junction to start a route. Tap a route\'s last stop to extend it.'}
+  let nr=0;for(const st of G.stops.values())for(const c of st.waiters)if(c.noRoute)nr++;
+  if(nr>=3)return nr+' riders can\'t reach their destination. Connect stops to the business district.';
+  if(G.paused&&!G.modal)return'Paused. Edit freely, then press ▶.';
+  return'';
+}
+function refreshUI(){
+  ui.dirty=false;
+  // fleet
+  $('#fleetBadge').textContent=fleetUsed()+'/'+G.L.fleet;
+  // sheet
+  const sh=$('#sheet');sh.hidden=!ui.sheet;
+  if(ui.sheet){
+    if(!G.routes.length)sh.innerHTML='<div class="empty">No routes yet. Pick the Route tool and tap stops in order.</div>';
+    else sh.innerHTML=G.routes.map(r=>{
+      const sel=ui.sel&&ui.sel.type==='route'&&ui.sel.id===r.id;
+      const ex=G.L.express?'<button class="mini '+(r.express?'on':'')+'" data-act="express" data-id="'+r.id+'">Express</button>':'<button class="mini locked" data-act="locked" data-msg="Express routes unlock in level 2">Express (L2)</button>';
+      return'<div class="rrow '+(sel?'sel':'')+'" data-act="selroute" data-id="'+r.id+'"><span class="sw" style="background:'+r.color+'"></span>'+
+        '<div class="rinfo"><b>'+esc(r.name)+(r.express?'<em>Express</em>':'')+'</b><small class="'+(r.buses.length?'':'bad')+'" data-info="'+r.id+'"></small></div>'+
+        '<div class="stepper"><button data-act="busdown" data-id="'+r.id+'" aria-label="Remove bus">−</button><span class="bn">'+r.buses.length+'</span><button data-act="busup" data-id="'+r.id+'" aria-label="Add bus">+</button></div>'+
+        ex+'<button class="mini" data-act="extend" data-id="'+r.id+'">Extend</button><button class="mini danger" data-act="delroute" data-id="'+r.id+'">Delete</button></div>';
+    }).join('');
+  }
+  // drawbar
+  const db=$('#drawbar'),d=ui.drawing;db.hidden=!d;
+  if(d){
+    const r=d.routeId!==null?G.routes.find(x=>x.id===d.routeId):null;
+    db.innerHTML='<span class="txt">'+(r?esc(r.name)+' · '+r.stops.length+' stops':'New route · tap 2nd stop')+'</span><button data-act="undo">Undo</button><button class="go" data-act="done">Done</button>';
+  }
+  // stopcard
+  const sc=$('#stopcard');
+  if(ui.sel&&ui.sel.type==='stop'&&G.stops.has(ui.sel.id)){sc.hidden=false;updateStopCard(true)}else sc.hidden=true;
+  // hint
+  const h=hintText(),hn=$('#hint');hn.hidden=!h;hn.textContent=h;
+  // sheet should not hide stopcard overlap on tiny screens: collapse stopcard while sheet open
+  if(ui.sheet&&!sc.hidden&&W<560)sc.hidden=true;
+  document.querySelector('.tbtn[data-act="sheet"]').classList.toggle('on',ui.sheet);
+}
+function updateStopCard(build){
+  const sc=$('#stopcard');if(sc.hidden||!ui.sel)return;
+  const st=G.stops.get(ui.sel.id);if(!st)return;
+  const n=G.city.nodes[st.id],rs=routesAt(st.id),nr=st.waiters.filter(c=>c.noRoute).length,stat=stopStatus(st);
+  const line=st.waiters.length?(st.waiters.length+' waiting · '+(stat===2?'crowded and angry':stat===1?'getting impatient':'calm')+(nr?' · '+nr+' with no route':'')):'Nobody waiting';
+  const html='<div class="si"><b>Stop at '+esc(nodeName(n))+'</b><span data-sl>'+esc(line)+'</span><span>'+(rs.length?'Routes: '+rs.map(r=>esc(r.name)).join(', '):'Not on a route yet')+'</span></div>'+
+    '<button class="danger" data-act="rmstop">Remove stop</button><button data-act="closecard">Close</button>';
+  if(build){sc.innerHTML=html}else{const e=sc.querySelector('[data-sl]');if(e)e.textContent=line}
+}
+function liveInfo(){
+  for(const r of G.routes){
+    const e=document.querySelector('[data-info="'+r.id+'"]');if(!e)continue;
+    let w=0;for(const sid of r.stops){const st=G.stops.get(sid);if(st)w+=st.waiters.length}
+    e.textContent=r.buses.length?(r.stops.length+' stops · '+w+' waiting'):'No buses! Add one with +';
+  }
+}
+function hud(){
+  const s=Math.round(sat()*100),pct=$('#satPct');
+  if(pct.textContent!==s+'%')pct.textContent=s+'%';
+  const f=$('#satFill');f.style.width=s+'%';f.style.background=s>=75?COL.ok:s>=55?COL.warn:COL.bad;
+  $('#satCard').classList.toggle('warn',s<58&&G.win.length>=12);
+  $('#cDel').textContent=G.delivered;$('#cGave').textContent=G.gaveUp;
+  const h=clockHour(G.t),hh=Math.floor(h),mm=Math.floor((h-hh)*60);
+  $('#clock').textContent=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+  $('#dayLbl').textContent='Day '+G.day+'/'+G.L.days;
+  const ph=phaseAt(G.t),pp=$('#phasePill');
+  const txt=ph.p.name+(ph.p.rush?(ph.p.dir==='home'?' · homes → work':' · work → homes'):'');
+  if(pp.textContent!==txt){pp.textContent=txt}
+  pp.classList.toggle('rush',!!ph.p.rush);
+  $('#tlMark').style.left=Math.min(100,G.t/DAY_LEN*100)+'%';
+  const ev=G.event,bn=$('#banner');
+  if(ev){bn.hidden=false;bn.className='panel'+(ev.type==='concert'?' concert':'');
+    const nm=ev.type==='closure'?'Road closure':ev.type==='concert'?'Concert crowd':'Storm';
+    bn.innerHTML='<b>'+nm+'</b><span>'+esc(ev.label)+'</span><span class="t">'+Math.max(0,Math.ceil(ev.dur-ev.t))+'s</span>';
+  }else if(!bn.hidden)bn.hidden=true;
+}
+
+/* ================= actions ================= */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el)return;
+  ensureAudio();
+  const act=el.dataset.act,id=el.dataset.id?+el.dataset.id:null;
+  const route=id?G.routes.find(r=>r.id===id):null;
+  switch(act){
+    case'play':if(G.modal||G.over)return;G.paused=!G.paused;syncPlay();break;
+    case'speed':G.speed=G.speed%3+1;syncPlay();break;
+    case'sound':ui.sound=!ui.sound;syncPlay();if(el.closest('#ov'))el.textContent=ui.sound?'Sound: on':'Sound: off';break;
+    case'fitclose':hideOv();fitCam(true);break;
+    case'fit':fitCam(true);break;
+    case'menu':if(G.modal)return;G.paused=true;syncPlay();showOv('<div class="card small"><h2>Paused</h2><div class="btnrow" style="flex-direction:column"><button class="btn ok" data-act="resume">Resume</button><button class="btn alt" data-act="sound">'+(ui.sound?'Sound: on':'Sound: off')+'</button><button class="btn alt" data-act="fitclose">Fit map to screen</button><button class="btn alt" data-act="level" data-i="'+G.levelIdx+'">Restart level</button><button class="btn alt" data-act="home">Level select</button><button class="btn alt" data-act="howto">How to play</button></div></div>');break;
+    case'resume':hideOv();syncPlay();break;
+    case'howto':showHowTo();break;
+    case'home':showHome();break;
+    case'level':startLevel(+el.dataset.i);break;
+    case'nextday':nextDay();break;
+    case'tool':setTool(el.dataset.tool);break;
+    case'sheet':ui.sheet=!ui.sheet;ui.dirty=true;break;
+    case'selroute':if(e.target.closest('button'))break;ui.sel={type:'route',id};ui.dirty=true;break;
+    case'busup':if(route){addBus(route);ui.sel={type:'route',id}}break;
+    case'busdown':if(route){removeBus(route)}break;
+    case'express':if(route){
+      if(!route.express&&fleetUsed()+route.buses.length>G.L.fleet){toast('Express buses count double. Not enough free buses.');break}
+      route.express=!route.express;netChanged();toast(route.express?'Express: fast, stops only at both ends.':'Normal service restored.')}break;
+    case'locked':toast(el.dataset.msg);break;
+    case'extend':if(route){ui.sel={type:'route',id};setTool('route');ui.drawing={routeId:id};toast('Tap the next stop for '+route.name+'.');ui.dirty=true}break;
+    case'delroute':if(route){deleteRoute(route)}break;
+    case'undo':undoDraw();break;
+    case'done':finishDrawing();break;
+    case'rmstop':if(ui.sel&&ui.sel.type==='stop'){removeStop(ui.sel.id);ui.sel=null;ui.dirty=true}break;
+    case'closecard':ui.sel=null;ui.dirty=true;break;
+  }
+});
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'&&!G.modal){e.preventDefault();G.paused=!G.paused;syncPlay()}
+  else if(e.key==='Escape'&&ui.drawing)finishDrawing();
+});
+
+function startLevel(i){hideOv();loadLevel(i);syncPlay()}
+function getStars(){try{return JSON.parse(localStorage.getItem('rhr.stars')||'{}')}catch(e){return{}}}
+function showHowTo(){
+  showOv('<div class="card"><h1>Rush Hour Routes</h1><p class="sub">You run the buses. Get everyone to work and back home before they lose patience.</p>'+
+   '<div class="how">'+
+   '<div><b>1 · Place stops</b>Pick <u>Stops</u> and tap road junctions. Citizens walk to the nearest useful stop and wait.</div>'+
+   '<div><b>2 · Draw routes</b>Pick <u>Route</u>, then tap stops in order. Buses run back and forth. Press Done to finish.</div>'+
+   '<div><b>3 · Add buses</b>Open <u>Buses</u> and use + and −. A full bus skips stops and flashes red, so add more where crowds grow.</div>'+
+   '<div><b>4 · Watch patience</b><span class="dot" style="background:var(--ok)"></span> calm &nbsp;<span class="dot" style="background:var(--warn)"></span> impatient &nbsp;<span class="dot" style="background:var(--bad)"></span> about to quit. Red stops need buses now.</div>'+
+   '<div><b>5 · Survive the day</b>Morning rush goes homes to work, evening goes back. Roads close, concerts end, rain falls. Keep satisfaction above 50%.</div>'+
+   '<div><b>Controls</b>Drag to pan. Pinch or scroll to zoom. Tap or click to place. Pause any time to edit, then resume.</div>'+
+   '</div><div class="lbl" style="margin-bottom:8px">Choose a level</div>'+levelCards()+'</div>');
+}
+function levelCards(){
+  const st=getStars();
+  return'<div class="levels">'+LEVELS.map((L,i)=>'<button class="lv" data-act="level" data-i="'+i+'"><b>'+(i+1)+'. '+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small>'+
+    '<div class="chips"><span class="chip">'+L.days+' days</span><span class="chip">'+L.fleet+' buses</span>'+(i===1?'<span class="chip new">Express routes</span>':'')+(i===2?'<span class="chip new">Transfer stops</span>':'')+'</div>'+
+    '<div class="stars">'+starStr(st[i]||0)+'</div></button>').join('')+'</div>';
+}
+function showHome(){showOv('<div class="card"><h1>Choose a level</h1><p class="sub">Each level adds more people, less patience and new tools.</p><div style="height:12px"></div>'+levelCards()+'<div class="btnrow"><button class="btn alt" data-act="howto">How to play</button></div></div>')}
+
+/* ================= main loop ================= */
+let last=performance.now(),uiT=0;
+function frame(now){
+  const rdt=Math.min(.1,(now-last)/1000);last=now;
+  if(G.city){
+    if(!G.paused&&!G.modal&&!G.over){
+      let dt=rdt*G.speed;
+      while(dt>0){const s=Math.min(.05,dt);stepAll(s);dt-=s}
+    }
+    uiT+=rdt;
+    if(ui.dirty)refreshUI();
+    if(uiT>.25){uiT=0;hud();updateStopCard(false);liveInfo();const h=hintText(),hn=$('#hint');if(hn.textContent!==h){hn.hidden=!h;hn.textContent=h}}
+    draw(now);
+  }
+  requestAnimationFrame(frame);
+}
+function stepAll(dt){concertTick(dt);step(dt)}
+
+window.addEventListener('resize',resize);
+window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
+window.__rhr={G,ui,cam,step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+/* boot */
+resize();
+loadLevel(0);syncPlay();showHowTo();
+requestAnimationFrame(frame);
+})();
+</script>
