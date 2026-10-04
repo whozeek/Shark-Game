@@ -775,11 +775,17 @@ function updBus(b,dt){
 }
 
 /* ================= stops ================= */
+function stopCorner(city,nd){
+  const has=(dx,dy)=>nd.adj.some(a=>{const B=city.nodes[a.to];return Math.sign(B.x-nd.x)===dx&&Math.sign(B.y-nd.y)===dy});
+  const order=[[1,1],[-1,1],[1,-1],[-1,-1]];let best=order[0],bs=-1;
+  for(const[sx,sy]of order){const sc=(has(sx,0)?1:0)+(has(0,sy)?1:0);if(sc>bs){bs=sc;best=[sx,sy]}}
+  return best;
+}
 function nodeName(n){return HN[n.r]+' & '+ord(n.c+1)}
 function addStop(nid){
   if(G.stops.has(nid))return G.stops.get(nid);
   const n=G.city.nodes[nid];
-  const st={id:nid,x:n.x,y:n.y,waiters:[],cheer:0,missed:0};
+  const[sx,sy]=stopCorner(G.city,n),st={id:nid,x:n.x+sx*14,y:n.y+sy*14,sx,sy,waiters:[],cheer:0,missed:0};
   G.stops.set(nid,st);G.netVer++;ui.dirty=true;
   // citizens without a stop may now find one
   for(const c of G.citizens)if(c.state==='walk'&&!c.stop)c.retry=0;
@@ -1336,7 +1342,7 @@ function build3D(city){
   }
   // street lamps + night halos
   const lampPos=[];
-  for(const nd of city.nodes){if(!nd.alive)continue;lampPos.push([nd.x+14,nd.y+14,0,0],[nd.x-14,nd.y-14,0,0])}
+  for(const nd of city.nodes){if(!nd.alive)continue;const[cx,cy]=stopCorner(city,nd);lampPos.push([nd.x-cx*14,nd.y-cy*14],[nd.x+cx*14,nd.y-cy*14])}
   city.edges.forEach((e,i)=>{const A=city.nodes[e.a],B=city.nodes[e.b],dx=B.x-A.x,dy=B.y-A.y,l=Math.hypot(dx,dy),s=(i%2?1:-1)*(ROAD_W/2+3);lampPos.push([(A.x+B.x)/2-dy/l*s,(A.y+B.y)/2+dx/l*s])});
   const pole=new THREE.InstancedMesh(new THREE.CylinderGeometry(.4,.6,1,6),metalMat,lampPos.length),head=new THREE.InstancedMesh(T.gBox,M('#dfe3e6',{emissive:'#ffe2a8',eBase:3.2}),lampPos.length);
   const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),hp=new Float32Array(lampPos.length*3);
@@ -1416,18 +1422,18 @@ function ensureStop(st){
   const g=new THREE.Group();g.position.set(st.x,0,st.y);
   const pole=new THREE.Mesh(T.gCyl,M('#59636d',{roughness:.4,metalness:.8}));pole.scale.set(.9,22,.9);pole.position.y=11;pole.castShadow=true;g.add(pole);
   const plate=new THREE.Mesh(T.gCyl,M('#ffffff',{roughness:.4}));plate.scale.set(8.5,1.6,8.5);plate.position.y=22.8;plate.castShadow=true;g.add(plate);
-  const ringMat=basic('#3fb868',{transparent:true,opacity:.95});const ring=new THREE.Mesh(T.gRing,ringMat);ring.scale.setScalar(14);ring.position.y=.9;g.add(ring);
-  const haloMat=basic('#e2483d',{transparent:true,opacity:.25,depthWrite:false});const halo=new THREE.Mesh(T.gDisc,haloMat);halo.scale.setScalar(20);halo.position.y=.8;halo.visible=false;g.add(halo);
+  const ringMat=basic('#3fb868',{transparent:true,opacity:.95});const ring=new THREE.Mesh(T.gRing,ringMat);ring.scale.setScalar(9);ring.position.y=.9;g.add(ring);
+  const haloMat=basic('#e2483d',{transparent:true,opacity:.25,depthWrite:false});const halo=new THREE.Mesh(T.gDisc,haloMat);halo.scale.setScalar(13);halo.position.y=.8;halo.visible=false;g.add(halo);
   // shelter on the corner
-  const sg=new THREE.Group();sg.position.set(-17,0,15);g.add(sg);
+  const sg=new THREE.Group();sg.position.set(st.sx*13,0,st.sy*4);sg.rotation.y=st.sy>0?Math.PI:0;g.add(sg);
   box(sg,14,.8,6.5,0,9.5,0,M('#39424b',{roughness:.5,metalness:.4}));
   for(const x of[-6.4,6.4])box(sg,.7,9.2,.7,x,4.6,-2.6,M('#59636d',{roughness:.4,metalness:.8}));
   box(sg,13,6.6,.3,0,5.2,-3,M('#bfe3f2',{roughness:.05,metalness:.2,transparent:true,opacity:.35,envMapIntensity:1.4}),false);
   box(sg,10,.8,2.2,0,3.2,-1.6,M('#8a6a45',{roughness:.8}));
   const pie=new THREE.Group();pie.position.y=23.8;g.add(pie);
   const cheer=new THREE.Mesh(T.gRing,basic('#3fb868',{transparent:true}));cheer.visible=false;cheer.position.y=1.1;g.add(cheer);
-  const miss=new THREE.Mesh(T.gRing,basic('#e2483d'));miss.visible=false;miss.position.y=1.2;miss.scale.setScalar(19);g.add(miss);
-  const sel=new THREE.Mesh(T.gRing,basic('#1b2733'));sel.scale.setScalar(29);sel.position.y=1;sel.visible=false;g.add(sel);
+  const miss=new THREE.Mesh(T.gRing,basic('#e2483d'));miss.visible=false;miss.position.y=1.2;miss.scale.setScalar(12);g.add(miss);
+  const sel=new THREE.Mesh(T.gRing,basic('#1b2733'));sel.scale.setScalar(19);sel.position.y=1;sel.visible=false;g.add(sel);
   const q=mkSprite(qTex(),11,11);q.position.set(15,38,0);q.visible=false;g.add(q);
   T.dyn.add(g);
   o={g,ringMat,ring,halo,haloMat,pie,cheer,miss,sel,q,badge:null,badgeKey:'',pieKey:'#'};T.stops.set(st.id,o);return o;
@@ -1443,14 +1449,14 @@ function syncStops(u,now){
     }
     o.g.scale.setScalar(u);
     const pulse=stat===2?1+.1*Math.sin(now/110):1;
-    o.ring.scale.setScalar(14*pulse);
+    o.ring.scale.setScalar(9*pulse);
     o.ringMat.color.copy(lin(stat===2?COL.bad:stat===1?COL.warn:COL.ok));
     o.halo.visible=stat>0;
-    if(stat>0){o.haloMat.color.copy(lin(stat===2?COL.bad:COL.warn));o.haloMat.opacity=stat===2?.24+.1*Math.sin(now/130):.17;o.halo.scale.setScalar(21+(stat===2?3*Math.sin(now/130):0))}
+    if(stat>0){o.haloMat.color.copy(lin(stat===2?COL.bad:COL.warn));o.haloMat.opacity=stat===2?.24+.1*Math.sin(now/130):.17;o.halo.scale.setScalar(13+(stat===2?2*Math.sin(now/130):0))}
     const bk=n?n+'_'+stat:'';
     if(bk!==o.badgeKey){o.badgeKey=bk;if(o.badge){o.g.remove(o.badge);o.badge.material.dispose();o.badge=null}if(n){o.badge=mkSprite(badgeTex(n,stat),30,15);o.badge.position.set(0,38,0);o.g.add(o.badge)}}
     o.q.visible=st.waiters.some(c=>c.noRoute);
-    o.cheer.visible=st.cheer>0;if(st.cheer>0){o.cheer.scale.setScalar(14+(1-st.cheer)*16);o.cheer.material.opacity=Math.min(1,st.cheer)}
+    o.cheer.visible=st.cheer>0;if(st.cheer>0){o.cheer.scale.setScalar(9+(1-st.cheer)*14);o.cheer.material.opacity=Math.min(1,st.cheer)}
     o.miss.visible=st.missed>0&&Math.floor(now/120)%2===0;
     o.sel.visible=!!(ui.sel&&ui.sel.type==='stop'&&ui.sel.id===st.id);
   }
@@ -1497,7 +1503,7 @@ function syncCitizens(u,now){
     ps.set(x,(5.6)*u+bob,z);m4.compose(ps,q,sc);head.setMatrixAt(i,m4);head.setColorAt(i,lin(SKINS[Math.floor(seed*5)%5]));i++};
   for(const st of G.stops.values()){
     const shown=Math.min(st.waiters.length,26);
-    for(let k=0;k<shown;k++){const c=st.waiters[k],a=k*2.399+.6,rad=(18+4.8*Math.floor(k/7))*u;put(st.x+Math.cos(a)*rad,st.y+Math.sin(a)*rad,pcol(c),c.seed,false)}
+    for(let k=0;k<shown;k++){const c=st.waiters[k],a=Math.atan2(st.sy,st.sx)+((k%7)-3)*.5,rad=(8+4.2*Math.floor(k/7)+(k%2)*2)*u;put(st.x+Math.cos(a)*rad,st.y+Math.sin(a)*rad,pcol(c),c.seed,false)}
   }
   for(const c of G.citizens)if(c.state==='walk'||c.state==='walkDest')put(c.x,c.y,c.state==='walkDest'?'#f2f2f2':pcol(c),c.seed,true);
   body.count=head.count=i;body.instanceMatrix.needsUpdate=head.instanceMatrix.needsUpdate=true;
