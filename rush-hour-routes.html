@@ -372,7 +372,6 @@ const ACH=[
  {id:'week_clean',name:'Perfect Week',desc:'Seven spotless days in a row.'},
  {id:'rich',name:'Fat Cat',desc:'Hold $50,000 in cash.'},
  {id:'lv5',name:'Fleet Chief',desc:'Reach company level 5.'},
- {id:'push5',name:'Rival Slayer',desc:'Push the rival out of five stops.'},
  {id:'landmarks',name:'City of Landmarks',desc:'Open both the university and the airport.'},
  {id:'depot',name:'Home Base',desc:'Build a depot.'},
  {id:'loop',name:'Round and Round',desc:'Run a loop route.'},
@@ -393,7 +392,6 @@ const UNLOCKS=[
  {id:'electric',name:'Electric buses',desc:'Running costs fall 30% for every bus.',cost:3500,lvl:3},
  {id:'dispatch',name:'Priority dispatch',desc:'Priority calls last longer and recharge twice as fast.',cost:3000,lvl:3},
  {id:'smartlights',name:'Smart traffic lights',desc:'Traffic slows your buses 25% less.',cost:4500,lvl:4},
- {id:'rivalradar',name:'Rival radar',desc:'Your rival expands more slowly and loses stops to you more often.',cost:3000,lvl:5},
  {id:'night',name:'Night service',desc:'Adds a night shift to every day. Switch routes to night service for higher fares, at higher running costs.',cost:3500,lvl:4},
  {id:'bikes',name:'Bike share',desc:'Lets you add bike docks to stops. Docks pull in riders from much farther away.',cost:6000,lvl:6},
  {id:'tram',name:'Trams',desc:'A fifth vehicle: trams carry 40 riders, are fast, and ignore traffic jams.',cost:9000,lvl:8}];
@@ -908,7 +906,7 @@ function spawnCitizen(orig,destList){
     if(type==='tourist'){if(lm.air&&stopNear(lm.air.x,lm.air.y,260)&&rnd()<.7)list=[lm.air];else if(C.venue&&stopNear(C.venue.x,C.venue.y,260))list=[C.venue]}
     else if(type==='student'&&lm.uni&&stopNear(lm.uni.x,lm.uni.y,260)&&rnd()<.6)list=[lm.uni];
   }
-  if(!G.noRival&&rivalSteal(orig)){G.lostRival++;G.dayLost++;fx.text(orig.x,orig.y-8,'→ Rival','#e08a2b');return}
+  if(false){G.lostRival++;G.dayLost++;fx.text(orig.x,orig.y-8,'→ Rival','#e08a2b');return}
   const dst=list[Math.floor(rnd()*list.length)],pm=G.L.patience*R_.pm*(has('signs')?1.12:1),fare=Math.max(1,Math.round(R_.fare*(G.fareMult||1)));
   const dk=dst.type==='landmark'?dst.kind:(dst.type==='venue'?'venue':'work'),nt=!!phaseAt(G.t).p.night;
   const c={id:++G.nid,type,fare:nt?Math.round(fare*1.6):fare,state:'walk',x:orig.x,y:orig.y,dest:{x:dst.x,y:dst.y},dk,p:nt?pm*1.3:pm,pm:nt?pm*1.3:pm,stop:null,plan:null,planVer:-1,noRoute:false,retry:0,alight:null,seed:rnd(),wstart:0,lastRoute:null,ob:blockKey(orig.x,orig.y),db:blockKey(dst.x,dst.y)};
@@ -1703,7 +1701,6 @@ function nextDay(){
   for(const st of G.stops.values()){st.gaveDay=0;st.peak=0;st.peakT=0;st.prio=0}
   G.season=seasonFor(G.day);
   const grown=G.L.growth===false?null:growCity();
-  if(G.day>=2){rivalPush();rivalExpand();if(G.day>=4)rivalExpand()}
   if(G.season!==prevSeason&&T.ok&&!grown){build3D(G.city);resetDyn()}
   planEvents();makeMissions();hideOv();G.modal=false;G.paused=true;syncPlay();ui.dirty=true;
   toast((grown?'Day '+G.day+' · '+G.season+'. New blocks opened: '+grown+'.':'Day '+G.day+' · '+G.season+'. Press play when ready.'),3800);
@@ -1819,7 +1816,7 @@ function applySave(d){
     for(let k=0;k<rd.buses;k++)addBus(r,true);
   }
   for(const id of d.depots||[]){const n=G.city.nodes[id],[sx,sy]=stopCorner(G.city,n);G.depots.set(id,{id,x:n.x+sx*34,y:n.y+sy*30,sx,sy})}
-  G.rival={stops:(d.rival||[]).slice(),routes:[]};
+  G.rival={stops:[],routes:[]};
   for(let i=1;i<G.rival.stops.length&&G.rival.routes.length<3;i++){const p=roadPath(G.rival.stops[i-1],G.rival.stops[i],false);if(p&&p.length>1)G.rival.routes.push({path:p,seg:0,s:0,dir:1,x:0,y:0,ang:0})}
   G.season=seasonFor(G.day);
   ui.tut=false;netChanged();planEvents();makeMissions();ui.sheet=true;setTool('select');ui.dirty=true;G.snap=d;
@@ -3120,7 +3117,7 @@ function showHowTo(){
    '<div><b>4 · Watch patience</b><span class="dot" style="background:var(--ok)"></span> calm &nbsp;<span class="dot" style="background:var(--warn)"></span> impatient &nbsp;<span class="dot" style="background:var(--bad)"></span> about to quit. Red stops need buses now.</div>'+
    '<div><b>5 · Survive the day</b>Morning rush goes homes to work, evening goes back. Roads close, concerts end, rain falls. Keep satisfaction above 50%.</div>'+
    '<div><b>6 · Run it like a business</b>Fares pay for stops, buses and upgrades. Each bus costs money to run. Check the Demand and Traffic map views.</div>'+
-   '<div><b>7 · Level up</b>Missions, landmarks and a rival bus company keep every day different. Earn XP to unlock City Hall upgrades and Garage looks.</div>'+
+   '<div><b>7 · Level up</b>Missions, landmarks, weather and surprise events keep every day different. Earn XP to unlock City Hall upgrades and Garage looks.</div>'+
    '<div><b>8 · Grow the city</b>Schools, malls and hospitals open as you deliver more riders. Night service, bike docks and trams unlock at higher company levels.</div>'+
    '<div><b>Controls</b>Drag to pan. Pinch or scroll to zoom. Twist two fingers (or right-drag) to rotate. Tap or click to place. Pause any time to edit.</div>'+
    '</div></details><div class="btnrow" style="margin:0 0 12px"><button class="btn alt" data-act="settings" data-from="howto">Settings</button><button class="btn alt" data-act="trophies" data-from="howto">Trophies</button><button class="btn alt" data-act="slots" data-from="howto">Save slots</button><button class="btn alt" data-act="shop" data-from="howto">Shop</button></div><div class="lbl" style="margin-bottom:8px">Choose a level</div>'+levelCards()+'</div>');
