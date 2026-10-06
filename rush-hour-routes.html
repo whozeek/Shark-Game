@@ -252,7 +252,7 @@ body.rm *{animation:none!important;transition:none!important}
       <button class="tbtn on" data-act="tool" data-tool="select"><svg viewBox="0 0 24 24"><path d="M6 3l12 8-5.5 1.5L10 18z"/></svg>Select</button>
       <button class="tbtn" data-act="tool" data-tool="stop"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5"/><path d="M12 14.5V22"/></svg>Stops</button>
       <button class="tbtn" data-act="tool" data-tool="route"><svg viewBox="0 0 24 24"><circle cx="5" cy="18" r="2.6"/><circle cx="19" cy="6" r="2.6"/><path d="M7 17c7 0 1-10 10-10.5"/></svg>Route</button>
-      <button class="tbtn" data-act="sheet"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/></svg>Buses<span class="badge" id="fleetBadge">0</span></button>
+      <button class="tbtn" data-act="sheet"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/></svg>Buses<span class="badge" id="fleetBadge" title="Buses in your fleet">0</span></button>
       <button class="tbtn" data-act="view" id="bView"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span id="viewLbl">Map view</span></button>
     </div>
   </div>
@@ -1710,7 +1710,7 @@ const COACH=[
 let coachT=-1e9;
 function coachTick(){
   const el=$('#coach');if(!el)return;
-  if(!el.hidden)return;
+  if(!el.hidden){if(performance.now()-coachT>12000){PROF.coach[el.dataset.id]=true;saveProfile();el.hidden=true}return}
   if(G.modal||tutOn()||ui.photo||performance.now()-coachT<40000)return;
   PROF.coach=PROF.coach||{};
   for(const c of COACH){
@@ -2898,7 +2898,7 @@ function refreshUI(){
   }
   const sc=$('#stopcard');
   if(ui.sel&&ui.sel.type==='stop'&&G.stops.has(ui.sel.id)){sc.hidden=false;updateStopCard(true)}else sc.hidden=true;
-  const h=hintText(),hn=$('#hint');hn.hidden=!h;hn.textContent=h;
+  const h=(G.event&&!G.paused)?'':hintText(),hn=$('#hint');hn.hidden=!h;hn.textContent=h;
   if(ui.sheet&&!sc.hidden&&W<560)sc.hidden=true;
   document.querySelector('.tbtn[data-act="sheet"]').classList.toggle('on',ui.sheet);
   $('#bView').classList.toggle('on',ui.view!=='off');
@@ -3092,7 +3092,7 @@ function startLevel(i){hideOv();loadLevel(i);syncPlay()}
 function getStars(){try{return JSON.parse(localStorage.getItem('rhr.stars')||'{}')}catch(e){return{}}}
 function showHowTo(){
   showOv('<div class="card"><h1>Rush Hour Routes</h1><p class="sub">You run the buses. Get everyone to work and back home before they lose patience.</p>'+
-   '<div class="how">'+
+   (PROF.stat.delivered>0?'':'<button class="btn ok full" data-act="level" data-i="0" style="margin:4px 0 8px">Play: Maple Hollow</button>')+'<details class="howd"'+(PROF.stat.delivered>0?'':' open')+'><summary style="font-weight:800;cursor:pointer;margin:6px 0">How to play</summary><div class="how">'+
    '<div><b>1 · Place stops</b>Pick <u>Stops</u> and tap road junctions. Citizens walk to the nearest useful stop and wait.</div>'+
    '<div><b>2 · Draw routes</b>Pick <u>Route</u>, then tap stops in order. Buses run back and forth. Press Done to finish.</div>'+
    '<div><b>3 · Add buses</b>Open <u>Buses</u> and use + and −. A full bus skips stops and flashes red, so add more where crowds grow.</div>'+
@@ -3102,7 +3102,7 @@ function showHowTo(){
    '<div><b>7 · Level up</b>Missions, landmarks and a rival bus company keep every day different. Earn XP to unlock City Hall upgrades and Garage looks.</div>'+
    '<div><b>8 · Grow the city</b>Schools, malls and hospitals open as you deliver more riders. Night service, bike docks and trams unlock at higher company levels.</div>'+
    '<div><b>Controls</b>Drag to pan. Pinch or scroll to zoom. Twist two fingers (or right-drag) to rotate. Tap or click to place. Pause any time to edit.</div>'+
-   '</div><div class="btnrow" style="margin:0 0 12px"><button class="btn alt" data-act="settings" data-from="howto">Settings</button><button class="btn alt" data-act="trophies" data-from="howto">Trophies</button><button class="btn alt" data-act="slots" data-from="howto">Save slots</button><button class="btn alt" data-act="shop" data-from="howto">Shop</button></div><div class="lbl" style="margin-bottom:8px">Choose a level</div>'+levelCards()+'</div>');
+   '</div></details><div class="btnrow" style="margin:0 0 12px"><button class="btn alt" data-act="settings" data-from="howto">Settings</button><button class="btn alt" data-act="trophies" data-from="howto">Trophies</button><button class="btn alt" data-act="slots" data-from="howto">Save slots</button><button class="btn alt" data-act="shop" data-from="howto">Shop</button></div><div class="lbl" style="margin-bottom:8px">Choose a level</div>'+levelCards()+'</div>');
 }
 function levelCards(){
   const st=getStars();let cont='';
