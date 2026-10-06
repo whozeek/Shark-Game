@@ -246,17 +246,17 @@ const HN=['Maple','Oak','Cedar','Pine','Birch','Elm','Willow','Aspen','Linden'];
 const ord=n=>n+(['th','st','nd','rd'][(n%100>10&&n%100<14)?0:(n%10<4?n%10:0)]);
 
 const LEVELS=[
- {name:'Maple Hollow',blurb:'A small town with one busy centre. Learn the ropes.',days:3,patience:62,perDay:130,seed:11,express:false,transfer:false,cash:3600,riders:['commuter','student'],
+ {name:'Maple Hollow',blurb:'A small town with one busy centre. Learn the ropes.',days:3,patience:62,perDay:130,seed:11,express:false,transfer:false,cash:7200,riders:['commuter','student'],
   map:['HHP..BB.','HH..BBBH','....BB.H','PWW.....','HWW.CPHH','HH..P.HH'],concert:14,closureDur:30,amProb:0,goals:{sat:.8,gave:45,profit:1500}},
- {name:'Riverside',blurb:'More homes, tighter patience. Express routes unlock. Tourists and rush-hour regulars appear.',days:3,patience:52,perDay:230,seed:23,express:true,transfer:false,cash:5200,riders:['commuter','student','tourist','rush'],
+ {name:'Riverside',blurb:'More homes, tighter patience. Express routes unlock. Tourists and rush-hour regulars appear.',days:3,patience:52,perDay:230,seed:23,express:true,transfer:false,cash:10400,riders:['commuter','student','tourist','rush'],
   map:['HH.PP..BB.','HHH..BBBBH','....BBB..H','P.WW.BB..H','H.WW...PHH','HH..CP..H.','HHH..P....'],concert:26,closureDur:40,amProb:.5,goals:{sat:.75,gave:90,profit:2800}},
- {name:'Metro Heights',blurb:'A big city. Transfer stops unlock. Wheelchair riders need accessible stops.',days:4,patience:44,perDay:330,seed:37,express:true,transfer:true,cash:7000,riders:['commuter','student','tourist','rush','wheel'],
+ {name:'Metro Heights',blurb:'A big city. Transfer stops unlock. Wheelchair riders need accessible stops.',days:4,patience:44,perDay:330,seed:37,express:true,transfer:true,cash:14000,riders:['commuter','student','tourist','rush','wheel'],
   map:['HHH.P..BB.HH','HH...BBBB.HH','...P.BBBB..H','HP....BB....','H.WW.....P.H','H.WW.CP...HH','HH......H.HH','HHH.P...HH.H'],concert:36,closureDur:45,amProb:1,goals:{sat:.72,gave:150,profit:4800}},
- {name:'Harborview',blurb:'A river splits the city. Only two bridges carry the whole rush.',days:4,patience:42,perDay:360,seed:41,express:true,transfer:true,cash:7500,riders:['commuter','student','tourist','rush','wheel'],
+ {name:'Harborview',blurb:'A river splits the city. Only two bridges carry the whole rush.',days:4,patience:42,perDay:360,seed:41,express:true,transfer:true,cash:15000,riders:['commuter','student','tourist','rush','wheel'],
   map:['HH.P.WW.BB.H','HHH..WW.BBBH','H.P..P..CBBH','HH...WW...HH','H.P..WW.P..H','HH.......BBH','HHH..WW...HH','HHH.P.WW.P.H'],concert:40,closureDur:45,amProb:1,goals:{sat:.70,gave:170,profit:6000}},
- {name:'Endless City',blurb:'Sandbox. No game over, and the city keeps growing every day.',days:Infinity,sandbox:true,patience:50,perDay:300,seed:53,express:true,transfer:true,cash:12000,riders:['commuter','student','tourist','rush','wheel'],
+ {name:'Endless City',blurb:'Sandbox. No game over, and the city keeps growing every day.',days:Infinity,sandbox:true,patience:50,perDay:300,seed:53,express:true,transfer:true,cash:24000,riders:['commuter','student','tourist','rush','wheel'],
   map:['HHH.P..BB.HH','HH...BBBB.HH','...P.BBBB..H','HP....BB....','H.WW.....P.H','H.WW.CP...HH','HH......H.HH','HHH.P...HH.H'],concert:30,closureDur:40,amProb:.6},
- {name:'Daily Challenge',blurb:'A fresh city every day. Everyone gets the same one.',days:3,daily:true,patience:48,perDay:260,seed:1,express:true,transfer:true,cash:5500,riders:['commuter','student','tourist','rush','wheel'],concert:26,closureDur:38,amProb:.7,goals:{sat:.72,gave:100,profit:2800}}
+ {name:'Daily Challenge',blurb:'A fresh city every day. Everyone gets the same one.',days:3,daily:true,patience:48,perDay:260,seed:1,express:true,transfer:true,cash:11000,riders:['commuter','student','tourist','rush','wheel'],concert:26,closureDur:38,amProb:.7,goals:{sat:.72,gave:100,profit:2800}}
 ];
 function dailyLevel(tries){
   const d=new Date(),key=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate(),R=rng(key*7+tries),cols=10,rows=7;
@@ -1147,7 +1147,7 @@ function dayReport(){
 }
 function endOfDay(){
   G.paused=true;G.modal=true;syncPlay();
-  const grant=200+Math.round(G.dayDel*.5);G.money+=grant;G.dayGrant=grant;
+  const grant=400+G.dayDel;G.money+=grant;G.dayGrant=grant;
   const last=isFinite(G.L.days)&&G.day>=G.L.days;
   const total=G.dayDel+G.dayGave,pct=total?Math.round(100*G.dayDel/total):100;
   if(last){
