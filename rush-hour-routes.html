@@ -721,6 +721,7 @@ function applyGfx(){
 function setOpt(k,v){
   if(k==='cb'||k==='big'||k==='rm')PROF.a11y[k]=!PROF.a11y[k];
   else if(k==='music')PROF.music=!PROF.music;
+  else if(k==='streets')PROF.streets=PROF.streets===false;
   else if(k==='sound'){ui.sound=!ui.sound;syncPlay()}
   else if(k==='gfx')PROF.gfx=v;
   else if(k==='diff')PROF.diff=v;
@@ -734,6 +735,7 @@ function showSettings(from){
    '<div class="set"><div><b>Sound effects</b></div>'+tg('sound',ui.sound)+'</div>'+
    '<div class="set"><div><b>Music</b><small>Calm by day. Faster and tense in rush hour or when riders are upset.</small></div>'+tg('music',PROF.music)+'</div>'+
    '<div class="set"><div><b>Colour-blind safe colours</b><small>Blue, yellow and orange, plus shapes on stop badges.</small></div>'+tg('cb',PROF.a11y.cb)+'</div>'+
+   '<div class="set"><div><b>Street names</b><small>Names painted on the roads when you zoom in.</small></div>'+tg('streets',PROF.streets!==false)+'</div>'+
    '<div class="set"><div><b>Large text and buttons</b></div>'+tg('big',PROF.a11y.big)+'</div>'+
    '<div class="set"><div><b>Reduced motion</b><small>Turns off pulsing and sliding animations.</small></div>'+tg('rm',PROF.a11y.rm)+'</div>'+
    '<div class="set"><div><b>Graphics</b><small>Auto lowers detail if the game runs slowly. Ultra adds sharper shadows and glow.</small></div>'+sg('gfx',PROF.gfx,[['auto','Auto'],['light','Light'],['standard','Standard'],['ultra','Ultra']])+'</div>'+
@@ -2368,6 +2370,30 @@ function build3D(city){
   for(const e of city.edges){const A=city.nodes[e.a],B=city.nodes[e.b];
     const m=ribbon([[A.x,A.y],[B.x,B.y]],16,.45,basic('#3fb868',{transparent:true,opacity:.3,depthWrite:false}));tg2.add(m);T.traf.push({m,e})}
   tg2.visible=false;T.scene.add(tg2);
+  // street name labels painted on the asphalt
+  {
+    const byName=new Map();for(const e of city.edges){if(!byName.has(e.name))byName.set(e.name,[]);byName.get(e.name).push(e)}
+    const sg=new THREE.Group();sg.userData.keep=true;
+    for(const[name,list]of byName){
+      list.sort((a,b)=>(city.nodes[a.a].x+city.nodes[a.a].y)-(city.nodes[b.a].x+city.nodes[b.a].y));
+      const tex=srgbTex(mkCanvas(512,64,(c,w,h)=>{c.font='800 40px Outfit,Arial,sans-serif';c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.lineWidth=8;c.strokeStyle='rgba(20,24,28,.85)';c.strokeText(name.toUpperCase(),w/2,h/2+2);c.fillStyle='#f4f1ea';c.fillText(name.toUpperCase(),w/2,h/2+2)}));
+      tex.anisotropy=Math.min(8,T.r.capabilities.getMaxAnisotropy());
+      const pos=[],uv=[],idx=[];let k=0;
+      list.forEach((e,i)=>{
+        if(i%2)return;
+        const A=city.nodes[e.a],B=city.nodes[e.b];let ux=B.x-A.x,uy=B.y-A.y;const L=Math.hypot(ux,uy)||1;ux/=L;uy/=L;
+        if(Math.abs(ux)>=Math.abs(uy)){if(ux<0){ux=-ux;uy=-uy}}else if(uy>0){ux=-ux;uy=-uy}
+        const vx=-uy,vy=ux,cx=(A.x+B.x)/2,cy=(A.y+B.y)/2,HW=31,HH=3.9;
+        for(const[sx,sy]of[[-1,-1],[1,-1],[1,1],[-1,1]]){pos.push(cx+sx*HW*ux+sy*HH*vx,.55,cy+sx*HW*uy+sy*HH*vy);uv.push((sx+1)/2,sy<0?1:0)}
+        idx.push(k,k+1,k+2,k,k+2,k+3);k+=4;
+      });
+      if(!k)continue;
+      const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);
+      const mt=new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,side:THREE.DoubleSide,opacity:.9,toneMapped:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+      const m=new THREE.Mesh(geo,mt);m.renderOrder=2;m.userData.keep=true;sg.add(m);
+    }
+    g.add(sg);T.streetG=sg;
+  }
   mergeStatic(g);
   T.city=g;T.scene.add(g);
   T.cityC={x:city.w/2,z:city.h/2,r:Math.max(city.w,city.h)*.62};
@@ -2630,6 +2656,7 @@ function effView(){
   return'off';
 }
 function syncViews(now){
+  if(T.streetG)T.streetG.visible=PROF.streets!==false&&cam.zoom>=.75&&!ui.photo;
   if(!T.heatG)return;
   const view=effView();
   T.heatG.visible=view==='demand'||view==='coverage';T.trafG.visible=view==='traffic';
