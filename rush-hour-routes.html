@@ -66,7 +66,7 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
 .tbtn.on{background:var(--accent);color:#fff}
 .tbtn:active{transform:scale(.96)}
 .tbtn .badge{position:absolute;top:-6px;right:-4px;background:var(--ink);color:#fff;border-radius:99px;font-size:11px;padding:2px 7px;font-variant-numeric:tabular-nums}
-#sheet{width:min(600px,100%);max-height:38vh;overflow:auto;padding:8px;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
+#sheet{width:min(600px,100%);max-height:min(38vh,calc(100vh - 250px));overflow:auto;padding:8px 8px 16px;scroll-padding-bottom:16px;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
 .rrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px;border-radius:12px;border:2px solid var(--line);background:#fff}
 .rrow.sel{border-color:var(--accent);background:var(--accent-soft)}
 .rrow:not(.sel) .mini{display:none}
@@ -195,6 +195,9 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
   #ctrl{padding:5px;gap:4px}
 }
 
+.legend{position:absolute;left:10px;bottom:92px;max-width:250px;padding:9px 12px;font-size:12.5px;font-weight:700;line-height:1.4;pointer-events:none}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+@media (max-width:560px){.legend{left:8px;bottom:84px;max-width:210px;font-size:12px}}
 .set{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);text-align:left}
 .set b{font-family:var(--font-display);font-size:15px}.set small{display:block;color:var(--muted);font-weight:600;font-size:12px}
 .seg{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
@@ -1832,7 +1835,7 @@ function applySave(d){
   G.rival={stops:[],routes:[]};
   for(let i=1;i<G.rival.stops.length&&G.rival.routes.length<3;i++){const p=roadPath(G.rival.stops[i-1],G.rival.stops[i],false);if(p&&p.length>1)G.rival.routes.push({path:p,seg:0,s:0,dir:1,x:0,y:0,ang:0})}
   G.season=seasonFor(G.day);
-  ui.tut=false;netChanged();planEvents();makeMissions();ui.sheet=true;setTool('select');ui.dirty=true;G.snap=d;
+  ui.tut=false;netChanged();planEvents();makeMissions();ui.sheet=false;setTool('select');ui.dirty=true;G.snap=d;
   if(T.ok){build3D(G.city);resetDyn()}
 }
 function loadSave(n){
@@ -1980,12 +1983,12 @@ function onTap(sx,sy){
     for(const b of G.buses){if(Math.hypot(b.x-w.x,b.y-w.y)<Math.max(22,24/cam.zoom)){ui.follow=b.id;cam.zoom=Math.max(cam.zoom,2);ui.dirty=true;return}}
     let best=null,bd=Math.max(30,30/cam.zoom);
     for(const st of G.stops.values()){const d=Math.hypot(st.x-w.x,st.y-w.y);if(d<bd){bd=d;best=st}}
-    ui.sel=best?{type:'stop',id:best.id}:null;ui.dirty=true;return;
+    ui.sel=best?{type:'stop',id:best.id}:null;if(best)ui.sheet=false;ui.dirty=true;return;
   }
   const n=nearestNode(sx,sy,60);if(!n)return;
   if(tool==='stop'||tool==='route')pushUndo();
   if(tool==='stop'){
-    if(G.stops.has(n.id)){ui.sel={type:'stop',id:n.id};ui.dirty=true}
+    if(G.stops.has(n.id)){ui.sel={type:'stop',id:n.id};ui.sheet=false;ui.dirty=true}
     else{if(!addStop(n.id))return;ui.sel={type:'stop',id:n.id};fx.ring(n.x,n.y,'#2a7de1',34);snd('pop');netChanged()}
     return;
   }
@@ -2959,6 +2962,9 @@ function refreshUI(){
   if(ui.sheet&&!sc.hidden&&W<560)sc.hidden=true;
   document.querySelector('.tbtn[data-act="sheet"]').classList.toggle('on',ui.sheet);
   $('#bView').classList.toggle('on',ui.view!=='off');
+  {let lg=$('#legend');if(!lg){lg=document.createElement('div');lg.id='legend';lg.className='panel legend';lg.hidden=true;$('#app').appendChild(lg)}
+   const L={demand:'<b>Demand</b><br><i style="background:#3fb868"></i>Few riders waiting<br><i style="background:#f2b632"></i>A crowd is building<br><i style="background:#e2483d"></i>Riders waiting or giving up',traffic:'<b>Traffic</b><br><i style="background:#3fb868"></i>Flowing<br><i style="background:#f2b632"></i>Slowing<br><i style="background:#e2483d"></i>Jammed',coverage:'<b>Coverage</b><br><i style="background:#3fb868"></i>Stop within walking distance<br><i style="background:#e2483d"></i>No stop nearby'};
+   const eff=effView(),h=L[eff]||'';if(lg._h!==h){lg._h=h;lg.innerHTML=h}lg.hidden=!h||ui.photo}
   $('#viewLbl').textContent=ui.view==='demand'?'Demand':ui.view==='traffic'?'Traffic':ui.view==='coverage'?'Coverage':'Map view';
 }
 function riderSummary(st){
