@@ -160,6 +160,7 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
 #missions .m.fail{color:var(--muted);text-decoration:line-through;opacity:.7}
 #missions .m em{margin-left:auto;font-style:normal;color:var(--muted);font-variant-numeric:tabular-nums}
 #missions .goal u{text-decoration:none;font-weight:800}#missions .goal u.bad{color:var(--bad)}#missions .goal u.ok{color:var(--ok)}
+#missions .mayor b{color:#b8860b}#missions .mayor span{font-weight:800}
 #missions .rv{color:#c26a12}
 .lvlrow{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:11px;font-weight:800;color:var(--muted)}
 #xpBar{flex:1;height:5px;border-radius:4px;background:#e6edf1;overflow:hidden}
@@ -199,6 +200,11 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
   #ctrl{padding:5px;gap:4px}
 }
 
+#tour{position:absolute;inset:0;z-index:30}#tour .tspot{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(10,20,30,.58);border:3px solid #fff;pointer-events:none;animation:pulse .9s infinite alternate}
+#tour .tcard{position:fixed;left:50%;transform:translateX(-50%);width:min(380px,calc(100% - 24px));background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.4);box-sizing:border-box}
+#tour .tcard b{font-family:var(--font-display);font-size:17px}#tour .tcard p{margin:6px 0 10px;line-height:1.45}
+#tour .tbtns{display:flex;gap:8px;align-items:center}#tour .tbtns span{margin-right:auto;color:var(--muted);font-weight:700;font-size:12px}
+#tour .tbtns button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:7px 12px;font-weight:800}#tour .tbtns button.go{background:var(--ok);border-color:var(--ok);color:#fff}
 .rtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.rtop button{border:0;background:#e6edf1;border-radius:8px;width:28px;height:28px;font-weight:800}
 #replay{position:absolute;left:50%;transform:translateX(-50%);top:150px;width:min(450px,calc(100% - 20px));padding:10px 12px;box-sizing:border-box;z-index:6}#replay canvas{width:100%;height:auto;display:block;border-radius:10px}#replay small{display:block;color:var(--muted);font-weight:600;margin-top:4px}
 .pin{border:0;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:11px;border-radius:8px;padding:2px 7px;margin-left:4px}
@@ -667,6 +673,8 @@ function snd(k){
   else if(k==='sad')tone(220,.25,'sawtooth',.03,0,140);
   else if(k==='alert'){tone(660,.16,'square',.04);tone(440,.24,'square',.04,.18)}
   else if(k==='deliver')tone(880,.08,'sine',.03);
+  else if(k==='bell'){tone(1175,.1,'sine',.03);tone(880,.16,'sine',.025,.09)}
+  else if(k==='hiss'){airBrake()}
   else if(k==='alert2'){tone(740,.1,'triangle',.05);tone(587,.16,'triangle',.05,.1)}
   else if(k==='full')tone(180,.12,'square',.03);
   else if(k==='door')doorSound();
@@ -677,16 +685,22 @@ function noiseBuf(){const b=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate),d=b
 function audioStart(){
   const nb=noiseBuf(),mk=(f,type,g)=>{const src=AC.createBufferSource();src.buffer=nb;src.loop=true;const fl=AC.createBiquadFilter();fl.type=type;fl.frequency.value=f;const gn=AC.createGain();gn.gain.value=0;src.connect(fl);fl.connect(gn);gn.connect(AC.destination);src.start();return gn};
   const eo=AC.createOscillator(),ef=AC.createBiquadFilter(),eg=AC.createGain();eo.type='sawtooth';eo.frequency.value=58;ef.type='lowpass';ef.frequency.value=200;eg.gain.value=0;eo.connect(ef);ef.connect(eg);eg.connect(AC.destination);eo.start();
-  AUD={amb:mk(420,'lowpass'),rain:mk(1400,'highpass'),eng:eg,eo,nb};
+  AUD={amb:mk(420,'lowpass'),rain:mk(1400,'highpass'),wind:mk(700,'bandpass'),eng:eg,eo,nb};
 }
 function audioUpdate(){
   if(!AUD||!AC)return;
   musicTick();
   const on=ui.sound&&!G.modal,t=AC.currentTime,run=on&&!G.paused;
   let moving=0;for(const b of G.buses)if(b.state==='drive')moving++;
-  AUD.amb.gain.setTargetAtTime(on?(G.paused?.02:.04):0,t,.3);
+  const z=clamp(((typeof cam!=='undefined'?cam.zoom:1)-.5)/2.2,0,1),hh=clockHour(G.t),dayT=hh>=6.4&&hh<19,nightT=hh>=19.6,wet=!!(G.event&&(G.event.type==='storm'||G.event.type==='flood')),am=PROF.amb!==false;
+  AUD.amb.gain.setTargetAtTime(on?((G.paused?.02:.03)+(am?.045*z:0)):0,t,.3);
+  AUD.wind.gain.setTargetAtTime(on&&am?(1-z)*(wet?.045:.022)*(G.paused?.4:1):0,t,.5);
+  if(run&&am){
+    if(dayT&&z>.35&&!wet&&(G.season==='spring'||G.season==='summer')&&Math.random()<.14){const f=2500+Math.random()*900;tone(f,.07,'sine',.012,0,f*1.4);tone(f*1.1,.06,'sine',.01,.1,f*1.5)}
+    if(nightT&&z>.2&&Math.random()<.4){for(let k=0;k<3;k++)tone(4300,.035,'sine',.005,k*.07)}
+  }
   AUD.rain.gain.setTargetAtTime(run&&G.event&&(G.event.type==='storm'||G.event.type==='flood')?.05:0,t,.4);
-  AUD.eng.gain.setTargetAtTime(run?Math.min(.035,moving*.006):0,t,.3);
+  AUD.eng.gain.setTargetAtTime(run?Math.min(.035,moving*.006)*(.6+.8*z)+(ui.follow?.012:0):0,t,.3);
   AUD.eo.frequency.setTargetAtTime(54+Math.min(14,moving*2),t,.4);
 }
 const MUS={next:0,step:0,bar:0,gain:null};
@@ -713,6 +727,11 @@ function musicTick(){
     MUS.step++;MUS.next+=beat;
   }
 }
+function airBrake(){
+  if(!AUD||!AC||!ui.sound)return;
+  const src=AC.createBufferSource();src.buffer=AUD.nb;const fl=AC.createBiquadFilter();fl.type='bandpass';fl.frequency.value=3200;const g=AC.createGain(),t=AC.currentTime;
+  g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(.035,t+.04);g.gain.exponentialRampToValueAtTime(.0001,t+.45);src.connect(fl);fl.connect(g);g.connect(AC.destination);src.start(t,Math.random(),.5);
+}
 function doorSound(){
   if(!AUD||!AC||!ui.sound)return;
   const src=AC.createBufferSource();src.buffer=AUD.nb;const fl=AC.createBiquadFilter();fl.type='highpass';fl.frequency.value=2500;const g=AC.createGain(),t=AC.currentTime;
@@ -732,7 +751,7 @@ function applyA11y(){
 }
 function applyGfx(){
   if(!T.ok)return;const m=PROF.gfx,f=T.fps;
-  if(m==='light'){f.lvl=2;if(T.comp&&T.post)setPost(false);T.sun.castShadow=false}
+  if(m==='light'||m==='saver'){f.lvl=2;if(T.comp&&T.post)setPost(false);T.sun.castShadow=false}
   else{
     f.lvl=0;f.n=0;f.t=0;T.sun.castShadow=true;if(T.comp&&!T.post)setPost(true);
     const ms=m==='ultra'?4096:2048;
@@ -744,10 +763,11 @@ function applyGfx(){
 function setOpt(k,v){
   if(k==='cb'||k==='big'||k==='rm')PROF.a11y[k]=!PROF.a11y[k];
   else if(k==='music')PROF.music=!PROF.music;
+  else if(k==='amb')PROF.amb=PROF.amb===false;
   else if(k==='streets')PROF.streets=PROF.streets===false;
   else if(k==='skiptut')PROF.skipTut=!PROF.skipTut;
   else if(k==='sound'){ui.sound=!ui.sound;syncPlay()}
-  else if(k==='gfx')PROF.gfx=v;
+  else if(k==='gfx'){const was=PROF.gfx;PROF.gfx=v;if((was==='saver')!==(v==='saver')&&G.city&&T.ok){saveProfile();applyGfx();build3D(G.city);resetDyn();return showSettings(ui.setFrom)}}
   else if(k==='diff')PROF.diff=v;
   saveProfile();applyA11y();if(k==='gfx')applyGfx();showSettings(ui.setFrom);
 }
@@ -757,13 +777,16 @@ function showSettings(from){
   const sg=(k,cur,opts)=>'<div class="seg wide">'+opts.map(o=>'<button class="'+(cur===o[0]?'on':'')+'" data-act="set" data-k="'+k+'" data-v="'+o[0]+'">'+o[1]+'</button>').join('')+'</div>';
   showOv('<div class="card small"><h2>Settings</h2>'+
    '<div class="set"><div><b>Sound effects</b></div>'+tg('sound',ui.sound)+'</div>'+
+   '<div class="set"><div><b>Ambience</b><small>City sounds that change with zoom and time of day: wind, birds, crickets, bus bells.</small></div>'+tg('amb',PROF.amb!==false)+'</div>'+
    '<div class="set"><div><b>Music</b><small>Calm by day. Faster and tense in rush hour or when riders are upset.</small></div>'+tg('music',PROF.music)+'</div>'+
    '<div class="set"><div><b>Colour-blind safe colours</b><small>Blue, yellow and orange, plus shapes on stop badges.</small></div>'+tg('cb',PROF.a11y.cb)+'</div>'+
    '<div class="set"><div><b>Skip the tutorial</b><small>Start levels without the step-by-step first stop and route tutorial.</small></div>'+tg('skiptut',!!PROF.skipTut)+'</div>'+
+   '<div class="set"><div><b>Interactive tour</b><small>A quick walk through the buttons on screen.</small></div><div class="seg"><button data-act="tour">Start tour</button></div></div>'+
+   '<div class="set"><div><b>Offline play</b><small>'+(OFFLINE_TXT[ui.offline]||OFFLINE_TXT.checking)+'</small></div></div>'+
    '<div class="set"><div><b>Street names</b><small>Names painted on the roads when you zoom in.</small></div>'+tg('streets',PROF.streets!==false)+'</div>'+
    '<div class="set"><div><b>Large text and buttons</b></div>'+tg('big',PROF.a11y.big)+'</div>'+
    '<div class="set"><div><b>Reduced motion</b><small>Turns off pulsing and sliding animations.</small></div>'+tg('rm',PROF.a11y.rm)+'</div>'+
-   '<div class="set"><div><b>Graphics</b><small>Auto lowers detail if the game runs slowly. Ultra adds sharper shadows and glow.</small></div>'+sg('gfx',PROF.gfx,[['auto','Auto'],['light','Light'],['standard','Standard'],['ultra','Ultra']])+'</div>'+
+   '<div class="set"><div><b>Graphics</b><small>Auto lowers detail if the game runs slowly. Saver is for phones: lighter scenery, no glow, 30 frames a second to save battery. Ultra adds sharper shadows and glow.</small></div>'+sg('gfx',PROF.gfx,[['auto','Auto'],['saver','Saver'],['light','Light'],['standard','Standard'],['ultra','Ultra']])+'</div>'+
    '<div class="set"><div><b>Difficulty</b><small>Applies to the next level you start.'+(PROF.ach.citywide?' Plus is new game plus: tougher everything, unlocked by finishing the campaign.':'')+'</small></div>'+sg('diff',PROF.diff,[['relaxed','Relaxed'],['standard','Standard'],['hard','Hard']].concat(PROF.ach.citywide?[['plus','Plus']]:[]))+'</div>'+
    '<div class="btnrow"><button class="btn alt" data-act="backup" data-from="'+ui.setFrom+'">Backup / restore</button><button class="btn ok" data-act="'+(ui.setFrom==='howto'?'howto':'resume')+'">'+(ui.setFrom==='howto'?'Back':'Back to game')+'</button></div></div>');
 }
@@ -836,7 +859,7 @@ function showDrivers(){
 
 const GUIDE_TABS=[['start','Start here'],['tools','Tools & top bar'],['routes','Route buttons'],['stops','Stop buttons'],['riders','Riders'],['money','Money'],['events','Events'],['unlocks','Unlocks'],['strategy','Strategy']];
 const GUIDE={
-start:`<h3>The goal</h3><p>You run the city's buses. Riders appear at homes in the morning and at offices in the evening, walk to the nearest stop, wait, ride, and walk to where they are going. Get them there before they lose patience.</p>
+start:`<p><button class="btn alt" data-act="tour">Take the interactive tour</button></p><h3>The goal</h3><p>You run the city's buses. Riders appear at homes in the morning and at offices in the evening, walk to the nearest stop, wait, ride, and walk to where they are going. Get them there before they lose patience.</p>
 <ul><li><b>You lose</b> if satisfaction drops below 50% (a bit more forgiving on day 1), or if you go more than $800 into debt.</li><li><b>Satisfaction</b> is the share of the last 50 riders who reached their destination instead of giving up.</li><li><b>You win a level</b> by finishing all its days. Stars come from the level's goals (satisfaction, riders who gave up, profit).</li></ul>
 <h3>Your first three minutes</h3><ol><li>Pick <b>Stops</b> and tap a road junction next to a cluster of houses.</li><li>Tap another junction next to offices or shops.</li><li>Pick <b>Route</b>, then tap the first stop and the second stop. A route and a bus appear.</li><li>Press ▶ and watch. Colour tells you who needs help: green is calm, amber is impatient, red is about to give up.</li><li>Open <b>Buses</b> and press + on routes with red stops.</li></ol>
 <div class="tip">Rush hours matter most. Mornings move riders from homes to work. Evenings move them back.</div>
@@ -847,7 +870,7 @@ tools:`<h3>Bottom toolbar</h3><dl><dt>Select</dt><dd>Tap a stop to open its card
 <dt>Buses</dt><dd>Opens the fleet panel with every route and its controls. The number is how many buses you own.</dd>
 <dt>Map view</dt><dd>Cycles through Demand (where riders are waiting or being missed), Traffic (where roads are slow) and Coverage (which blocks have a stop within walking distance), then off.</dd></dl>
 <h3>Top bar</h3><dl><dt>▶ / ❚❚</dt><dd>Play and pause. You can edit freely while paused. Space also toggles it.</dd><dt>1× 2× 3×</dt><dd>Game speed.</dd><dt>Speaker</dt><dd>Sound on or off.</dd><dt>Undo</dt><dd>Reverses your last change. While you are drawing a route it removes the last stop and keeps you on that route. Your earnings are kept.</dd><dt>Fit map</dt><dd>Re-centres the camera on the whole city.</dd><dt>Menu</dt><dd>Restart today, City Hall, Garage, Share card, Goals, Photo mode, Settings, Trophies, Save slots, Shop, Drivers and this Guide.</dd></dl>
-<h3>Helpful extras</h3><ul><li>When the hint bar says riders cannot reach their destination, <b>tap it</b>. Red rings show the places they are trying to get to.</li><li>Missions that need a landmark have a <b>Show me</b> button that flies the camera there.</li><li>The <b>Level goals</b> line under the clock tracks your cumulative goals live.</li><li>At the end of a day, <b>Show me</b> on the Worst moment plays a replay of the crowd building up at that stop.</li></ul>
+<h3>Helpful extras</h3><ul><li>Phones: the <b>Saver</b> graphics option (Settings) uses lighter scenery and 30 frames a second. It turns on automatically on low-power phones.</li><li>People wave at arriving buses, hurry when they are running out of patience, and open umbrellas in the rain.</li><li>When the hint bar says riders cannot reach their destination, <b>tap it</b>. Red rings show the places they are trying to get to.</li><li>Missions that need a landmark have a <b>Show me</b> button that flies the camera there.</li><li>The <b>Level goals</b> line under the clock tracks your cumulative goals live.</li><li>At the end of a day, <b>Show me</b> on the Worst moment plays a replay of the crowd building up at that stop.</li></ul>
 <h3>Drawing bar</h3><p>While you draw a route a bar appears: <b>Undo</b> removes the last stop, <b>New route</b> starts a separate route (useful from the end stop of another route), <b>Done</b> finishes.</p>`,
 routes:`<p>Open <b>Buses</b>, then tap a route to see these buttons.</p><dl>
 <dt>+ / − buses</dt><dd>Add a bus (costs its price) or remove one (refunds half). More buses mean shorter waits and fewer red stops, but every bus costs money to run.</dd>
@@ -882,7 +905,7 @@ money:`<ul><li><b>Income</b>: every rider who arrives pays a fare ($3 to $10; ni
 <h3>Missions</h3><p>The panel under the clock shows today's missions, like delivering a number of riders before noon. They pay cash and company XP. Tap the panel on a phone to see all of them.</p>`,
 events:`<dl><dt>Road closure / Parade</dt><dd>Roads are blocked. Buses detour automatically. Check your routes still connect.</dd><dt>Accident</dt><dd>A road is blocked for a short while. A hospital helps clear it faster.</dd><dt>Storm</dt><dd>Riders lose patience faster.</dd><dt>Flooding</dt><dd>Like a storm, and low roads near water close.</dd><dt>Snow</dt><dd>In winter. A road is blocked and all buses are slower.</dd><dt>Fog</dt><dd>Buses and traffic slow down.</dd><dt>Concert</dt><dd>When it ends a big crowd heads home from the arena. Put a stop near it and add buses.</dd><dt>Breakdown</dt><dd>One bus stops for a while. Extra buses cover the gap, and depots speed up the recovery.</dd></dl>
 <div class="tip">Seasons change the look of the city and the odds of events. Events are your reason to keep a cash buffer.</div>`,
-unlocks:`<dl><dt>Company level and XP</dt><dd>You earn XP for deliveries, missions, trophies and finishing days. Levels carry over between games.</dd><dt>City Hall</dt><dd>Spend cash on permanent upgrades once your company level is high enough: arrival signs (more patient riders), depot network, electric buses (cheaper running), priority dispatch, smart traffic lights, night service, bike share and trams.</dd><dt>Garage</dt><dd>Cosmetics: bus paint, stop signs and tower styles, unlocked by level.</dd><dt>Drivers</dt><dd>Every bus has a named driver. Drivers earn experience for every rider they deliver and level up: Rookie, Steady, Pro, Veteran, Legend. Higher levels drive faster and stop quicker, and they keep their levels across games.</dd><dt>Rider stories</dt><dd>A few riders each day have names and jobs. Their stories, good and bad, appear in the day report.</dd><dt>New game plus</dt><dd>After you finish the whole campaign, a Plus difficulty appears in Settings with tougher patience, income and running costs.</dd><dt>Backup and restore</dt><dd>In Settings you can copy a backup code of your profile, drivers and saves, and paste it later on any device.</dd><dt>Trophies</dt><dd>Achievements for things like your first route, a spotless day, a loop route or a tram.</dd><dt>Levels</dt><dd>Eleven campaign maps get harder, plus Sandbox (endless, no game over), a Daily Challenge and a Weekly Challenge. Difficulty and settings are in the menu.</dd></dl>`,
+unlocks:`<dl><dt>Company level and XP</dt><dd>You earn XP for deliveries, missions, trophies and finishing days. Levels carry over between games.</dd><dt>City Hall</dt><dd>Spend cash on permanent upgrades once your company level is high enough: arrival signs (more patient riders), depot network, electric buses (cheaper running), priority dispatch, smart traffic lights, night service, bike share and trams.</dd><dt>Garage</dt><dd>Cosmetics: bus paint, stop signs and tower styles, unlocked by level.</dd><dt>Drivers</dt><dd>Every bus has a named driver. Drivers earn experience for every rider they deliver and level up: Rookie, Steady, Pro, Veteran, Legend. Higher levels drive faster and stop quicker, and they keep their levels across games.</dd><dt>Mayor requests</dt><dd>From day 2 the mayor sometimes adds a special mission (marked with a flag): serve a landmark, link two places by bus, keep everyone happy until 09:30, or grow your fleet. They pay extra cash and XP.</dd><dt>Rider stories</dt><dd>A few riders each day have names and jobs. Their stories, good and bad, appear in the day report.</dd><dt>New game plus</dt><dd>After you finish the whole campaign, a Plus difficulty appears in Settings with tougher patience, income and running costs.</dd><dt>Backup and restore</dt><dd>In Settings you can copy a backup code of your profile, drivers and saves, and paste it later on any device.</dd><dt>Trophies</dt><dd>Achievements for things like your first route, a spotless day, a loop route or a tram.</dd><dt>Levels</dt><dd>Eleven campaign maps get harder, plus Sandbox (endless, no game over), a Daily Challenge and a Weekly Challenge. Difficulty and settings are in the menu.</dd></dl>`,
 strategy:`<h3>Build well</h3><ul><li>Put your first two stops between the biggest group of houses and the biggest group of offices. Glowing blocks are where riders appear.</li><li>Use <b>Coverage</b> map view to find blocks that have no stop. Red blocks are riders you are missing.</li><li>Long straight routes with few turns beat tangled ones. Use <b>Shape road</b> to dodge jams instead of adding more stops.</li><li>Use <b>Loop</b> for rings and downtown circuits, <b>Express</b> for long trips, and transfers for big cities (a few busy trunk routes feeding smaller local ones).</li></ul>
 <h3>Run well</h3><ul><li>Check the stops first thing in the rush. Add a bus to the route with the red stops, not to every route.</li><li>If a route is full and cannot take another bus (roads get jammed), upgrade the vehicle size.</li><li>Quiet routes: switch to <b>Rush hours only</b> or cut a bus. Busy routes: add buses before upgrading.</li><li>Turn on <b>Even spacing</b> when buses on a long route clump together.</li><li>Use <b>Priority call</b> on a single stop that is about to explode, not as a habit.</li><li>Put ramps on stops that join residential blocks to the network once wheelchair users appear.</li></ul>
 <h3>Stay safe</h3><ul><li>Keep a cash buffer of at least one or two buses. Events cost you.</li><li>Do not add night service or bike docks until your day routes are stable.</li><li>Read the day report: 'Worst moment' shows where you lost the most riders. Tap <b>Show me</b> and fix that stop.</li><li>If a day goes badly, use Retry from today and try a different plan.</li></ul>
@@ -911,6 +934,44 @@ function doImport(){
     try{if(d.stars)localStorage.setItem('rhr.stars',d.stars)}catch(e){}
     applyA11y();toast('Backup restored.');showBackup(ui.setFrom);
   }catch(e){toast('That code is not valid.')}
+}
+/* ================= offline ================= */
+function initOffline(){
+  ui.offline='checking';
+  try{
+    if(!('serviceWorker' in navigator)){ui.offline='unsupported';return}
+    navigator.serviceWorker.register('sw.js').then(()=>{ui.offline='ready'}).catch(()=>{ui.offline='blocked'});
+  }catch(e){ui.offline='blocked'}
+  window.addEventListener('offline',()=>toast('You are offline. The game keeps working and saves stay on this device.',3600));
+  window.addEventListener('online',()=>toast('Back online.',1800));
+}
+const OFFLINE_TXT={ready:'Cached on this device. The game can start without a connection.',blocked:'This host does not allow offline caching. Once the game has loaded it keeps working without a connection, and saves stay on your device.',unsupported:'This browser does not support offline caching. Once loaded the game keeps working without a connection.',checking:'Checking...'};
+/* ================= interactive tour ================= */
+const TOUR=[
+ {sel:'#bPlay',title:'Play and pause',text:'Press ▶ to start the clock. Pause any time to edit your network freely.'},
+ {sel:'.tbtn[data-act="sheet"]',title:'Buses',text:'Open your fleet. Add buses with + and tap a route for Express, Loop, Shape road and more.'},
+ {sel:'#bView',title:'Map views',text:'Cycle through Demand, Traffic and Coverage to see where riders are missed, where roads jam, and which blocks have no stop.'},
+ {sel:'#missions',title:'Missions and goals',text:'Daily missions and your level goals live here. The mayor sometimes makes a special request. Tap to see everything.'},
+ {sel:'#bUndo',title:'Undo',text:'Made a mistake? Undo removes the last change. While you draw a route it removes the last stop.'},
+ {sel:'#satCard',title:'Satisfaction',text:'The share of the last 50 riders who got where they wanted. Keep it above 50%, and above 60% to stay safe.'},
+ {sel:'#bMenu',title:'Menu and Guide',text:'Everything else is here, including the Guide with every button explained and the best strategies.'}];
+function startTour(){
+  ui.tour={i:-1,was:G.paused};G.paused=true;G.modal=true;syncPlay();
+  let el=$('#tour');if(!el){el=document.createElement('div');el.id='tour';$('#app').appendChild(el)}
+  el.hidden=false;tourStep(1);
+}
+function tourStep(d){
+  const tr=ui.tour;if(!tr)return;let i=tr.i+d;
+  while(i>=0&&i<TOUR.length){const e=document.querySelector(TOUR[i].sel);if(e&&e.getBoundingClientRect().width>2&&!e.closest('[hidden]'))break;i+=d}
+  if(i<0)i=0;
+  if(i>=TOUR.length){endTour();return}
+  tr.i=i;const st=TOUR[i],e=document.querySelector(st.sel),r=e.getBoundingClientRect(),el=$('#tour'),below=r.top<innerHeight/2;
+  el.innerHTML='<div class="tspot" style="left:'+(r.left-6)+'px;top:'+(r.top-6)+'px;width:'+(r.width+12)+'px;height:'+(r.height+12)+'px"></div><div class="tcard" style="'+(below?'top:'+Math.min(innerHeight-190,r.bottom+16)+'px':'bottom:'+Math.max(10,innerHeight-r.top+16)+'px')+'"><b>'+esc(st.title)+'</b><p>'+esc(st.text)+'</p><div class="tbtns"><span>'+(i+1)+' / '+TOUR.length+'</span><button data-act="tourskip">Skip</button>'+(i>0?'<button data-act="tourback">Back</button>':'')+'<button class="go" data-act="tournext">'+(i===TOUR.length-1?'Done':'Next')+'</button></div></div>';
+}
+function endTour(){
+  const tr=ui.tour;ui.tour=null;PROF.tourDone=true;saveProfile();
+  const el=$('#tour');if(el){el.hidden=true;el.innerHTML=''}
+  G.modal=false;if(tr)G.paused=tr.was;syncPlay();ui.dirty=true;
 }
 /* ================= shop ================= */
 const PAY_LINKS={};
@@ -1378,6 +1439,7 @@ function arriveStop(b){
   if(i<0){retarget(b);return}
   b.tIdx=i;b.from=b.to;b.s=b.elen;
   const dw=serveStop(b,i);
+  if(dw>0&&(cam.zoom>1.1||ui.follow===b.id)){snd('hiss');if(PROF.amb!==false)snd('bell')}
   if(dw>0){b.state='dwell';b.dwell=dw*drvPerk(b).dwell}else beginLeg(b);
 }
 function serveStop(b,i){
@@ -1668,7 +1730,35 @@ function makeMissions(){
   if(lm.uni)pool.push({id:'uni',text:'Take 10 students to the university',goal:10,prog:()=>G.mDest.uni||0,reward:400,xp:40});
   if(G.city.venue)pool.push({id:'arena',text:'Take 8 riders to the arena',goal:8,prog:()=>G.mDest.venue||0,reward:400,xp:40});
   const picks=[];while(picks.length<2&&pool.length){picks.push(pool.splice(Math.floor(rnd()*pool.length),1)[0])}
-  G.missions=picks.map(m=>Object.assign({done:false,failed:false},m));G.mDel=0;G.mClears=0;G.mDest={};G.gaveMark=-1;ui.dirty=true;
+  G.missions=picks.map(m=>Object.assign({done:false,failed:false},m));{const my=mayorRequest();if(my){G.missions.push(my);if(!tutOn())setTimeout(()=>toast('The mayor has a special request today. See the missions panel.',3600),600)}}G.mDel=0;G.mClears=0;G.mDest={};G.gaveMark=-1;ui.dirty=true;
+}
+const MY_NAMES={hosp:'hospital',mall:'shopping centre',school:'school',uni:'university',air:'airport',venue:'arena',down:'business district',res:'residential area'};
+function mayorTargets(){
+  const C=G.city,lm=C.landmarks||{},o=[];
+  for(const k of['hosp','mall','school','uni','air'])if(lm[k])o.push({k,x:lm[k].x,y:lm[k].y});
+  if(C.venue)o.push({k:'venue',x:C.venue.x,y:C.venue.y});
+  const avg=a=>{let x=0,y=0;for(const b of a){x+=b.x;y+=b.y}return a.length?{x:x/a.length,y:y/a.length}:null};
+  const d=avg(C.works),r=avg(C.homes);if(d)o.push({k:'down',x:d.x,y:d.y});if(r)o.push({k:'res',x:r.x,y:r.y});
+  return o;
+}
+function servedBy(t){for(const r of G.routes){if(!r.buses.length)continue;for(const sid of r.stops){const st=G.stops.get(sid);if(st&&Math.hypot(st.x-t.x,st.y-t.y)<160)return true}}return false}
+function linked(a,b){
+  let best=null,bd=230;for(const st of G.stops.values()){const d=Math.hypot(st.x-a.x,st.y-a.y);if(d<bd){bd=d;best=st}}
+  if(!best||!G.buses.length)return false;const pl=planFrom(best.id,{x:b.x,y:b.y},false);return !!pl&&!pl.exit;
+}
+function mayorRequest(){
+  if(!G.city||(G.day<2&&!G.L.sandbox))return null;
+  if(rnd()>.7)return null;
+  const T0=mayorTargets(),kinds=[],serveable=T0.filter(t=>t.k!=='down'&&t.k!=='res'&&!servedBy(t)),pairs=[];
+  for(const a of T0)for(const b of T0)if(a.k<b.k&&Math.hypot(a.x-b.x,a.y-b.y)>380)pairs.push([a,b]);
+  if(serveable.length)kinds.push('serve','serve');
+  if(pairs.length&&G.routes.length)kinds.push('link','link');
+  kinds.push('calm');if(G.buses.length<24&&G.money>800)kinds.push('fleet');
+  const k=kinds[Math.floor(rnd()*kinds.length)],base={mayor:true,done:false,failed:false,goal:1,reward:700,xp:60};
+  if(k==='serve'){const t=serveable[Math.floor(rnd()*serveable.length)];return Object.assign(base,{id:'my_serve',pin:t.k==='venue'?'arena':t.k,text:'Mayor: run a bus route to the '+MY_NAMES[t.k],prog:()=>servedBy(t)?1:0})}
+  if(k==='link'){const[a,b]=pairs[Math.floor(rnd()*pairs.length)];return Object.assign(base,{id:'my_link',reward:900,xp:70,text:'Mayor: link the '+MY_NAMES[a.k]+' and the '+MY_NAMES[b.k]+' by bus',prog:()=>linked(a,b)?1:0})}
+  if(k==='calm')return Object.assign(base,{id:'my_calm',text:'Mayor: nobody gives up before 09:30',byT:46,prog:()=>(G.t>=45&&G.dayGave===0)?1:0,failIf:()=>G.dayGave>0});
+  const n=Math.min(30,G.buses.length+2);return Object.assign(base,{id:'my_fleet',text:'Mayor: have '+n+' buses on the road by noon',byT:54,prog:()=>G.buses.length>=n?1:0});
 }
 function completeMission(m){
   m.done=true;G.money+=m.reward;addXp(m.xp);G.xpDay+=m.xp;snd('cheer');toast('Mission complete: '+m.text+'  +$'+m.reward+' · +'+m.xp+' XP',4200);ui.dirty=true;
@@ -1677,6 +1767,7 @@ function tickMissions(){
   if(!G.missions.length||tutOn())return;
   for(const m of G.missions){
     if(m.done||m.failed)continue;
+    if(m.failIf&&m.failIf()){m.failed=true;ui.dirty=true;continue}
     if(m.special==='pm'){
       if(G.t>=70&&G.gaveMark<0)G.gaveMark=G.dayGave;
       if(G.t>=110){if(G.gaveMark>=0&&G.dayGave===G.gaveMark)completeMission(m);else{m.failed=true;ui.dirty=true}}
@@ -1877,6 +1968,7 @@ const COACH=[
 let coachT=-1e9;
 function coachTick(){
   const el=$('#coach');if(!el)return;
+  if(!PROF.tourDone&&!ui.tour&&!tutOn()&&G.routes.length&&!G.modal&&!ui.photo&&G.day===1&&G.t<40&&el.hidden){startTour();return}
   if(!el.hidden){if(performance.now()-coachT>12000){PROF.coach[el.dataset.id]=true;saveProfile();el.hidden=true}return}
   if(G.modal||tutOn()||ui.photo||performance.now()-coachT<40000)return;
   PROF.coach=PROF.coach||{};
@@ -2023,7 +2115,7 @@ function buildTimeline(){
 /* ================= camera & input ================= */
 const cam={x:0,y:0,zoom:1,minZ:.3,maxZ:3.2,yaw:0,pitch:.92,fov:36};
 function resize(){
-  const r=cv.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,PROF.gfx==='light'?1:PROF.gfx==='ultra'?2.5:(window.matchMedia&&matchMedia('(pointer:coarse)').matches)?1.5:2);
+  const r=cv.getBoundingClientRect();dpr=Math.min(window.devicePixelRatio||1,(PROF.gfx==='light'||PROF.gfx==='saver')?1:PROF.gfx==='ultra'?2.5:(window.matchMedia&&matchMedia('(pointer:coarse)').matches)?1.5:2);
   W=Math.max(1,r.width);H=Math.max(1,r.height);
   if(T.ok){T.r.setPixelRatio(dpr);T.r.setSize(W,H,false);T.camera.aspect=W/H;T.camera.updateProjectionMatrix();if(T.comp){T.comp.setPixelRatio(dpr);T.comp.setSize(W,H)}}
   if(G.city)fitCam(false);
@@ -2115,7 +2207,7 @@ function nearestNode(sx,sy,maxScreen){
   return best&&bd<=Math.max(lim,34)?best:null;
 }
 function onTap(sx,sy){
-  if(G.modal||!G.city)return;
+  if(G.modal||ui.tour||!G.city)return;
   if(ui.shape){const n=nearestNode(sx,sy,60);if(n)shapeTap(n);return}
   if(ui.moving){const n=nearestNode(sx,sy,60);if(n){pushUndo();moveStop(ui.moving,n.id)}return}
   const tool=ui.tool;
@@ -2228,6 +2320,9 @@ function init3D(){
   T.pBody=new THREE.InstancedMesh(new THREE.CylinderGeometry(1.25,1.45,4.4,7),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.8}),1500);
   T.pHead=new THREE.InstancedMesh(new THREE.SphereGeometry(1.2,8,6),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.7}),1500);
   for(const m of[T.pBody,T.pHead]){m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.frustumCulled=false;m.castShadow=false;m.setColorAt(0,lin('#ffffff'));m.count=0;T.dyn.add(m)}
+  T.pUmb=new THREE.InstancedMesh(new THREE.ConeGeometry(4.6,2,10),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.6}),1500);
+  T.pArm=new THREE.InstancedMesh(new THREE.BoxGeometry(.7,3,.7),new THREE.MeshStandardMaterial({color:0xf1c9a5,roughness:.7}),1500);
+  for(const m of[T.pUmb,T.pArm]){m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.frustumCulled=false;m.castShadow=false;m.setColorAt(0,lin('#ffffff'));m.count=0;T.dyn.add(m)}
   // rain
   const N=800,pos=new Float32Array(N*6);T.rainBase=[];for(let i=0;i<N;i++)T.rainBase.push([Math.random()*2-1,Math.random(),Math.random()*2-1]);
   T.rain=new THREE.LineSegments(new THREE.BufferGeometry().setAttribute('position',new THREE.BufferAttribute(pos,3)),new THREE.LineBasicMaterial({color:0xdcebff,transparent:true,opacity:.45,fog:false}));
@@ -2477,6 +2572,7 @@ function build3D(city){
       box(g,3.2,6.4,.5,b.x,3.2,b.y+b.d/2+.15,doorMat,false);
     }
   }
+  if(PROF.gfx==='saver'){for(let i=trees.length-1;i>=0;i--)if(i%2)trees.splice(i,1)}
   if(trees.length){
     const n=trees.length,leafMat=new THREE.MeshStandardMaterial({map:leafTex(),color:0xffffff,roughness:.95,emissive:new THREE.Color(0x182a12)});
     const ico=new THREE.IcosahedronGeometry(1,1),pa=ico.attributes.position;
@@ -2531,7 +2627,7 @@ function build3D(city){
   // landscape around the city, different for every map
   {
     const th=(G.L&&G.L.theme)||THEME_OF[G.levelIdx]||['meadow','riverbank','urban','forest'][(G.L&&G.L.seed||0)%4];
-    const W_=city.w,H_=city.h,cx=W_/2,cz=H_/2,R=rng(((G.L&&G.L.seed)||7)*13+5);
+    const sav=PROF.gfx==='saver',W_=city.w,H_=city.h,cx=W_/2,cz=H_/2,R=rng(((G.L&&G.L.seed)||7)*13+5);
     const col={meadow:'#6c9a47',riverbank:'#76a653',urban:'#8d9399',harbor:'#2c6e8d',cobble:'#8a8d78',canal:'#6a9858',hills:'#6fa04b',forest:'#4b843a',sea:'#2c6e8d'}[th];
     const wet=th==='harbor'||th==='sea';
     const gmat=wet?new THREE.MeshStandardMaterial({color:lin('#1b5b73').clone(),roughness:.08,metalness:.15,envMap:T.env,envMapIntensity:1.2,bumpMap:T.waterTex,bumpScale:.7}):new THREE.MeshStandardMaterial({color:lin(col).clone(),roughness:.96});
@@ -2539,16 +2635,16 @@ function build3D(city){
     if(wet){const sand=new THREE.Mesh(new THREE.PlaneGeometry(W_+90,H_+90),new THREE.MeshStandardMaterial({color:lin('#d7c795').clone(),roughness:1}));sand.rotation.x=-Math.PI/2;sand.position.set(cx,-.5,cz);sand.userData.keep=true;g.add(sand)}
     const ring=(i,min,max)=>{const a=R()*6.283,d=Math.max(W_,H_)*.5+min+R()*(max-min);return[cx+Math.cos(a)*d*(W_/Math.max(W_,H_)+.3),cz+Math.sin(a)*d*(H_/Math.max(W_,H_)+.3)]};
     const outside=(x,z)=>x<-70||x>W_+70||z<-70||z>H_+70;
-    if(th==='hills'||th==='meadow'||th==='riverbank'||th==='canal'){
+    if(!sav&&(th==='hills'||th==='meadow'||th==='riverbank'||th==='canal')){
       const n=th==='hills'?22:8,mat=new THREE.MeshStandardMaterial({color:lin(th==='hills'?'#5f9444':'#6aa04a').clone(),roughness:.97});
       for(let i=0;i<n;i++){const p=ring(i,120,700);if(!outside(p[0],p[1]))continue;const r=th==='hills'?160+R()*260:90+R()*140,h=th==='hills'?(70+R()*120):(25+R()*35);const m=new THREE.Mesh(T.gSphere,mat);m.scale.set(r,h,r*(.8+R()*.4));m.position.set(p[0],-h*.2,p[1]);m.userData.keep=false;g.add(m)}
     }
-    if(th==='forest'||th==='meadow'||th==='hills'||th==='canal'){
+    if(!sav&&(th==='forest'||th==='meadow'||th==='hills'||th==='canal')){
       const n=th==='forest'?260:90,cone=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),new THREE.MeshStandardMaterial({color:lin(th==='forest'?'#2f6a2c':'#3f7a34').clone(),roughness:.95,emissive:new THREE.Color(0x0e1a0a)}),n),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3();let k=0;
       for(let i=0;i<n*3&&k<n;i++){const p=ring(i,60,780);if(!outside(p[0],p[1]))continue;const h=34+R()*40,w=12+R()*10;sc.set(w,h,w);ps.set(p[0],h/2,p[1]);m4.compose(ps,q,sc);cone.setMatrixAt(k++,m4)}
       cone.count=k;cone.castShadow=false;cone.userData.keep=true;g.add(cone);
     }
-    if(th==='urban'||th==='cobble'){
+    if(!sav&&(th==='urban'||th==='cobble')){
       const n=90,box1=new THREE.InstancedMesh(T.gBox,new THREE.MeshStandardMaterial({color:lin(th==='urban'?'#9fb0c2':'#b49a82').clone(),roughness:.7,metalness:.1,emissive:new THREE.Color(0x10151c)}),n),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3();let k=0;
       for(let i=0;i<n*3&&k<n;i++){const p=ring(i,70,520);if(!outside(p[0],p[1]))continue;const h=(th==='urban'?60+R()*220:40+R()*80),w=40+R()*50;sc.set(w,h,w*(.8+R()*.5));ps.set(p[0],h/2,p[1]);m4.compose(ps,q,sc);box1.setMatrixAt(k++,m4)}
       box1.count=k;box1.userData.keep=true;g.add(box1);
@@ -2781,19 +2877,27 @@ function syncBuses(u,now){
 }
 const SKINS=['#f1c9a5','#e0ac82','#c68b5f','#8d5a3b','#f6d8bd'];
 function syncCitizens(u,now){
-  const body=T.pBody,head=T.pHead,m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(u,u,u),ps=new THREE.Vector3();
-  let i=0;const MAXI=1500,t=now/1000;
-  const sc2=new THREE.Vector3(),put=(x,z,c,seed,walk,wheel)=>{if(i>=MAXI)return;const bob=walk&&!wheel?Math.abs(Math.sin(t*9+seed*20))*.7*u:0;
-    if(wheel){sc2.set(u*1.5,u*.65,u*1.5);ps.set(x,1.9*u,z)}else{sc2.copy(sc);ps.set(x,(2.5)*u+bob,z)}
+  const body=T.pBody,head=T.pHead,umb=T.pUmb,arm=T.pArm,m4=new THREE.Matrix4(),q=new THREE.Quaternion(),qa=new THREE.Quaternion(),eu=new THREE.Euler(),sc=new THREE.Vector3(u,u,u),ps=new THREE.Vector3();
+  const rain=!!(G.event&&(G.event.type==='storm'||G.event.type==='flood')),calm=!!ui.rm,UMB=['#e2483d','#2f80ed','#f2b632','#3fb868','#8a5cf6'];
+  const arriving=new Set();for(const b of G.buses){if(b.state==='drive'){const st=G.stops.get(b.to);if(st&&Math.hypot(st.x-b.x,st.y-b.y)<120)arriving.add(st.id)}}
+  let i=0,ai=0;const MAXI=1500,t=now/1000;
+  const sc2=new THREE.Vector3(),put=(x,z,c,seed,walk,wheel,hurry,wave)=>{
+    if(i>=MAXI)return;
+    const bob=walk&&!wheel?Math.abs(Math.sin(t*(hurry?14:9)+seed*20))*(hurry?1:.7)*u:0,sw=(!walk&&!wheel&&!calm)?Math.sin(t*1.7+seed*30)*.5*u:0;
+    if(wheel){sc2.set(u*1.5,u*.65,u*1.5);ps.set(x+sw,1.9*u,z)}else{sc2.copy(sc);ps.set(x+sw,(2.5)*u+bob,z)}
     m4.compose(ps,q,sc2);body.setMatrixAt(i,m4);body.setColorAt(i,lin(c));
-    ps.set(x,(wheel?4.1:5.6)*u+bob,z);m4.compose(ps,q,sc);head.setMatrixAt(i,m4);head.setColorAt(i,lin(SKINS[Math.floor(seed*5)%5]));i++};
+    ps.set(x+sw,(wheel?4.1:5.6)*u+bob,z);m4.compose(ps,q,sc);head.setMatrixAt(i,m4);head.setColorAt(i,lin(SKINS[Math.floor(seed*5)%5]));
+    if(rain){ps.set(x+sw,(wheel?7:9.4)*u+bob,z);m4.compose(ps,q,sc);umb.setMatrixAt(i,m4);umb.setColorAt(i,lin(UMB[Math.floor(seed*5)%5]))}
+    if(wave&&!calm&&ai<MAXI){qa.setFromEuler(eu.set(0,0,2.5+Math.sin(t*9+seed*11)*.55));ps.set(x+sw+1.7*u,7.6*u+bob,z);m4.compose(ps,qa,sc);arm.setMatrixAt(ai++,m4)}
+    i++};
   for(const st of G.stops.values()){
-    const shown=Math.min(st.waiters.length,26);
-    for(let k=0;k<shown;k++){const c=st.waiters[k],a=Math.atan2(st.sy,st.sx)+((k%7)-3)*.5,rad=(8+4.2*Math.floor(k/7)+(k%2)*2)*u;put(st.x+Math.cos(a)*rad,st.y+Math.sin(a)*rad,pcol(c),c.seed,false,c.type==='wheel')}
+    const shown=Math.min(st.waiters.length,26),arr=arriving.has(st.id);
+    for(let k=0;k<shown;k++){const c=st.waiters[k],a=Math.atan2(st.sy,st.sx)+((k%7)-3)*.5,rad=(8+4.2*Math.floor(k/7)+(k%2)*2)*u;put(st.x+Math.cos(a)*rad,st.y+Math.sin(a)*rad,pcol(c),c.seed,false,c.type==='wheel',false,arr&&k<14&&((k+Math.floor(c.seed*10))%3===0))}
   }
-  for(const c of G.citizens)if(c.state==='walk'||c.state==='walkDest')put(c.x,c.y,c.state==='walkDest'?'#f2f2f2':pcol(c),c.seed,true,c.type==='wheel');
-  body.count=head.count=i;body.instanceMatrix.needsUpdate=head.instanceMatrix.needsUpdate=true;
-  if(body.instanceColor)body.instanceColor.needsUpdate=true;if(head.instanceColor)head.instanceColor.needsUpdate=true;
+  for(const c of G.citizens)if(c.state==='walk'||c.state==='walkDest')put(c.x,c.y,c.state==='walkDest'?'#f2f2f2':pcol(c),c.seed,true,c.type==='wheel',c.p/c.pm<.35);
+  body.count=head.count=i;umb.count=rain?i:0;arm.count=ai;
+  body.instanceMatrix.needsUpdate=head.instanceMatrix.needsUpdate=true;umb.instanceMatrix.needsUpdate=arm.instanceMatrix.needsUpdate=true;
+  if(body.instanceColor)body.instanceColor.needsUpdate=true;if(head.instanceColor)head.instanceColor.needsUpdate=true;if(umb.instanceColor)umb.instanceColor.needsUpdate=true;
 }
 function syncClosures(now){
   for(const[id,o]of T.closures)if(!G.city.edges[id].closed){T.dyn.remove(o);T.closures.delete(id)}
@@ -3199,7 +3303,7 @@ function hud(){
   $('#dayLbl').textContent='Day '+G.day+(isFinite(G.L.days)?'/'+G.L.days:'')+' · '+G.season[0].toUpperCase()+G.season.slice(1);
   {const lv=levelOf(PROF.xp),a=xpFor(lv-1),b=xpFor(lv);$('#cLvl').textContent='Lv '+lv+' · '+rankOf(lv);$('#xpFill').style.width=Math.round(100*(PROF.xp-a)/(b-a))+'%'}
   {const mp=$('#missions');let h='';
-   if(!tutOn()){for(const m of G.missions){const pr=m.prog?Math.min(m.goal,Math.floor(m.prog())):0;h+='<div class="m '+(m.done?'done':m.failed?'fail':'')+'"><b>'+(m.done?'✓':m.failed?'✕':'◻')+'</b><span>'+esc(m.text)+(!m.done&&!m.failed&&['arena','uni','air','hosp','mall','school'].includes(m.id)?' <button class="pin" data-act="msnpin" data-k="'+m.id+'">Show me</button>':'')+'</span><em>'+(m.special?'':pr+'/'+m.goal+' · ')+'$'+m.reward+'</em></div>'}
+   if(!tutOn()){for(const m of G.missions){const pr=m.prog?Math.min(m.goal,Math.floor(m.prog())):0;h+='<div class="m '+(m.done?'done':m.failed?'fail':m.mayor?'mayor':'')+'"><b>'+(m.done?'✓':m.failed?'✕':m.mayor?'⚑':'◻')+'</b><span>'+esc(m.text)+(!m.done&&!m.failed&&['arena','uni','air','hosp','mall','school'].includes(m.pin||m.id)?' <button class="pin" data-act="msnpin" data-k="'+(m.pin||m.id)+'">Show me</button>':'')+'</span><em>'+(m.special?'':pr+'/'+m.goal+' · ')+'$'+m.reward+'</em></div>'}
      if(G.rival.stops.length)h+='<div class="m rv"><b>⚑</b><span>Rival Transit holds '+G.rival.stops.length+' stop'+(G.rival.stops.length>1?'s':'')+'</span><em>'+G.dayLost+' riders lost today</em></div>'}
    if(!tutOn()&&G.L.goals){const g=G.L.goals,profit=Math.round(G.rev-G.cost);h+='<div class="m goal"><b>★</b><span>Level goals: gave up <u class="'+(G.gaveUp>=g.gave?'bad':'')+'">'+G.gaveUp+'/'+g.gave+'</u> · profit <u class="'+(profit>=g.profit?'ok':'')+'">$'+profit+'/$'+g.profit+'</u></span></div>'}
    if(h!==mp._h){mp._h=h;mp.innerHTML=h;mp.hidden=!h}}
@@ -3235,6 +3339,10 @@ document.addEventListener('click',e=>{
     case'backov':{const h=ui.prevOv;ui.prevOv=null;if(h){showOv(h)}else{hideOv();syncPlay()}break}
     case'set':setOpt(el.dataset.k,el.dataset.v);break;
     case'shop':showShop(el.dataset.from);break;
+    case'tour':hideOv();syncPlay();startTour();break;
+    case'tournext':tourStep(1);break;
+    case'tourback':tourStep(-1);break;
+    case'tourskip':endTour();break;
     case'copybk':{const t=$('#bk');t.select();try{navigator.clipboard.writeText(t.value);toast('Code copied.')}catch(e){try{document.execCommand('copy');toast('Code copied.')}catch(e2){toast('Press and hold the code to copy it.')}}break}
     case'replayx':{const r=$('#replay');if(r)r.hidden=true;break}
     case'backup':showBackup(el.dataset.from);break;
@@ -3405,7 +3513,7 @@ function frame(now){
     if(ui.follow){const fb=G.buses.find(x=>x.id===ui.follow);if(!fb){ui.follow=null;ui.dirty=true}else{const k=Math.min(1,rdt*5);cam.x+=(fb.x-cam.x)*k;cam.y+=(fb.y-cam.y)*k;clampCam()}}
     if(ui.photo)cam.yaw+=rdt*.1;
     if(uiT===0)audioUpdate();
-    render3D(now,(!G.paused&&!G.modal&&!G.over)?rdt*G.speed:0,rdt);
+    if(!(PROF.gfx==='saver'&&now-(T.lastR||0)<31)){T.lastR=now;render3D(now,(!G.paused&&!G.modal&&!G.over)?rdt*G.speed:0,rdt)}
   }
   requestAnimationFrame(frame);
 }
@@ -3413,14 +3521,15 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={meta:{showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={meta:{mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 /* boot */
 resize();
 if(!init3D()){document.body.insertAdjacentHTML('beforeend','<div style="position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;background:#fff;z-index:99;font-weight:700">This game needs WebGL for its 3D city. Try another browser.</div>');return}
 resize();
 $('#missions').addEventListener('click',e=>e.currentTarget.classList.toggle('open'));
-applyA11y();applyGfx();
-loadLevel(0);syncPlay();showHowTo();
+if(PROF.autoGfx===undefined){PROF.autoGfx=true;try{const lowMem=navigator.deviceMemory&&navigator.deviceMemory<=4,lowCpu=navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4,coarse=matchMedia('(pointer:coarse)').matches;if(PROF.gfx==='auto'&&coarse&&(lowMem||lowCpu)){PROF.gfx='saver';ui.saverNote=true}saveProfile()}catch(e){}}
+applyA11y();applyGfx();initOffline();
+loadLevel(0);if(ui.saverNote)setTimeout(()=>toast('Battery saver graphics are on for this device. Change it in Settings.',4200),1500);syncPlay();showHowTo();
 requestAnimationFrame(frame);
 })();
 </script>
