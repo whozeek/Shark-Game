@@ -66,7 +66,7 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
 .tbtn.on{background:var(--accent);color:#fff}
 .tbtn:active{transform:scale(.96)}
 .tbtn .badge{position:absolute;top:-6px;right:-4px;background:var(--ink);color:#fff;border-radius:99px;font-size:11px;padding:2px 7px;font-variant-numeric:tabular-nums}
-#sheet{width:min(600px,100%);max-height:min(38vh,calc(100vh - 250px));overflow:auto;padding:8px 8px 16px;scroll-padding-bottom:16px;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
+#sheet{width:min(600px,100%);max-height:min(34vh,calc(100vh - 250px));overflow:auto;padding:8px 8px 16px;scroll-padding-bottom:16px;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
 .rrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px;border-radius:12px;border:2px solid var(--line);background:#fff}
 .rrow.sel{border-color:var(--accent);background:var(--accent-soft)}
 .rrow:not(.sel) .mini{display:none}
@@ -226,7 +226,7 @@ body.rm *{animation:none!important;transition:none!important}
       <div class="panel" id="satCard">
         <div class="lbl" title="Share of the last 50 riders who reached their destination">Satisfaction · last 50 riders</div>
         <div class="satline"><span id="satPct">100%</span><div id="satBar"><i id="satFill"></i><b id="satMark"></b></div></div>
-        <div class="counts"><span><i style="background:var(--ok)"></i><span id="cDel">0</span> delivered</span><span><i style="background:var(--bad)"></i><span id="cGave">0</span> gave up</span><span class="cash" id="cCash">$0</span></div>
+        <div class="counts" title="Totals for this level so far"><span><i style="background:var(--ok)"></i><span id="cDel">0</span> delivered</span><span><i style="background:var(--bad)"></i><span id="cGave">0</span> gave up</span><span class="cash" id="cCash">$0</span></div>
         <div class="lvlrow"><span id="cLvl">Lv 1</span><div id="xpBar"><i id="xpFill"></i></div></div>
       </div>
       <div class="panel" id="clockCard">
@@ -1029,7 +1029,7 @@ function sat(){const n=G.win.length;if(n<6)return 1;let s=0;for(const v of G.win
 function outcome(ok){
   G.win.push(ok?1:0);if(G.win.length>WIN_N)G.win.shift();
   G.flashSat=1;
-  if(G.win.length>=20&&sat()<(G.day===1?.4:.5)&&!G.over&&!G.L.sandbox)gameOver('sat');
+  if(G.win.length>=30&&sat()<(G.day===1?.4:.5)&&!G.over&&!G.L.sandbox)gameOver('sat');
 }
 
 /* ================= routes & buses ================= */
@@ -1698,7 +1698,7 @@ function endOfDay(){
       '<div class="btnrow">'+(st&&CAMPAIGN.indexOf(G.levelIdx)>=0&&CAMPAIGN.indexOf(G.levelIdx)<CAMPAIGN.length-1?'<button class="btn ok" data-act="level" data-i="'+CAMPAIGN[CAMPAIGN.indexOf(G.levelIdx)+1]+'">Next level</button>':'')+'<button class="btn alt" data-act="level" data-i="'+G.levelIdx+'">Replay</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="home">Levels</button></div></div>');
   }else{
     const tip=pct<70?'Tip: add buses to the busiest routes, or add stops closer to red crowds.':pct<90?'Tip: watch the amber stops. Extra buses there keep them green.':'Smooth day. Tomorrow brings more people.';
-    showOv('<div class="card"><h2>Day '+G.day+' done</h2><p class="sub">'+esc(tip)+' '+G.dayDel+' delivered, '+G.dayGave+' gave up ('+pct+'% satisfied). Cash: '+money(G.money)+'.</p>'+dayReport()+
+    showOv('<div class="card"><h2>Day '+G.day+' done</h2><p class="sub">'+esc(tip)+' '+G.dayDel+' delivered today, '+G.dayGave+' gave up today ('+pct+'% of today\'s riders happy). Cash: '+money(G.money)+'.</p>'+dayReport()+
       '<p class="sub">You can edit routes now. The city grows overnight.</p>'+
       '<div class="btnrow"><button class="btn ok" data-act="nextday">Start day '+(G.day+1)+'</button><button class="btn alt" data-act="share">Share card</button></div></div>');
   }
@@ -1707,6 +1707,7 @@ function starStr(n){let s='';for(let i=0;i<3;i++)s+=i<n?'★':'<span class="off"
 function nextDay(){
   if(G.event)endEvent();
   const prevSeason=G.season;
+  for(const c of G.citizens)c.p=c.pm;
   G.dayEnding=false;G.day++;G.t=0;G.acc=0;G.dayDel=0;G.dayGave=0;G.dayRev=0;G.dayCost=0;G.pendingNext=false;G.dayLost=0;G.xpDay=0;G.reactT=-9;
   for(const r of G.routes)r.stat=newStat();
   for(const st of G.stops.values()){st.gaveDay=0;st.peak=0;st.peakT=0;st.prio=0}
@@ -1749,7 +1750,7 @@ function coachTick(){
 }
 /* ================= undo ================= */
 function netSnap(){
-  return{money:G.money,engine:G.engine,
+  return{money:G.money,rev:G.rev,cost:G.cost,engine:G.engine,
     stops:[...G.stops.values()].map(s=>({id:s.id,acc:!!s.access,bike:!!s.bike})),
     routes:G.routes.map(r=>({via:JSON.parse(JSON.stringify(r.via||{})),name:r.name,color:r.color,stops:r.stops.slice(),express:r.express,ep:r.expressPaid,loop:r.loop,lane:r.lane,sched:r.sched,night:!!r.night,model:r.model,spacing:!!r.spacing,buses:r.buses.length})),
     depots:[...G.depots.keys()]};
@@ -1770,7 +1771,7 @@ function restoreNet(d){
     for(let k=0;k<rd.buses;k++)addBus(r,true);
   }
   G.depots=new Map();for(const id of d.depots){const n=G.city.nodes[id],[sx,sy]=stopCorner(G.city,n);G.depots.set(id,{id,x:n.x+sx*34,y:n.y+sy*30,sx,sy})}
-  G.money=d.money;G.engine=d.engine;ui.sel=null;ui.drawing=null;ui.shape=null;ui.moving=null;G.netVer++;netChanged();
+  G.money=(d.rev!==undefined)?d.money+((G.rev-d.rev)-(G.cost-d.cost)):d.money;G.engine=d.engine;ui.sel=null;ui.drawing=null;ui.shape=null;ui.moving=null;G.netVer++;netChanged();
 }
 function undo(){
   if(ui.drawing){undoDraw();toast(ui.drawing&&ui.drawing.routeId?'Removed the last stop. Keep going or press Done.':'Cancelled. Tap a stop to start again.');snd('pop');ui.dirty=true;return}
@@ -1987,7 +1988,7 @@ function onTap(sx,sy){
     for(const st of G.stops.values()){const d=Math.hypot(st.x-w.x,st.y-w.y);if(d<bd){bd=d;best=st}}
     ui.sel=best?{type:'stop',id:best.id}:null;if(best)ui.sheet=false;ui.dirty=true;return;
   }
-  const n=nearestNode(sx,sy,60);if(!n)return;
+  const n=nearestNode(sx,sy,60);if(!n){if(tool==='stop'||tool==='route')toast('Tap right on a road junction to place a stop.',1800);return}
   if(tool==='stop'||tool==='route')pushUndo();
   if(tool==='stop'){
     if(G.stops.has(n.id)){ui.sel={type:'stop',id:n.id};ui.sheet=false;ui.dirty=true}
@@ -2934,7 +2935,7 @@ function refreshUI(){
       const badges='<span class="badges">'+(r.express?'<em>Express</em>':'')+(r.loop?'<em>Loop</em>':'')+(r.sched==='peak'?'<em>Rush only</em>':'')+(r.night?'<em>Night</em>':'')+(r.model===3?'<em>Tram</em>':'')+(r.lane?'<em>Lanes</em>':'')+'</span>';
       let tools='';
       if(sel){
-        const ex=G.L.express?'<button class="mini '+(r.express?'on':'')+'" data-act="express" data-id="'+r.id+'">Express'+(r.expressPaid?'':' $'+PRICE.express)+'</button>':'<button class="mini locked" data-act="locked" data-msg="Express routes unlock in level 2">Express (L2)</button>';
+        const ex=G.L.express?'<button class="mini '+(r.express?'on':'')+'" data-act="express" data-id="'+r.id+'">Express'+(r.expressPaid?'':' $'+PRICE.express)+'</button>':'<button class="mini locked" data-act="locked" data-msg="Express routes unlock at Riverside (level 2 of the campaign)">Express (L2)</button>';
         tools='<div class="rtools"><input class="rname" id="rn" maxlength="14" value="'+esc(r.name)+'" data-id="'+r.id+'" aria-label="Route name">'+
           '<button class="mini" data-act="model" data-id="'+r.id+'">'+esc(modelLine(r))+'</button>'+ex+
           '<button class="mini '+(r.loop?'on':'')+'" data-act="loop" data-id="'+r.id+'">Loop</button>'+
@@ -2966,7 +2967,7 @@ function refreshUI(){
   $('#bView').classList.toggle('on',ui.view!=='off');
   {let lg=$('#legend');if(!lg){lg=document.createElement('div');lg.id='legend';lg.className='panel legend';lg.hidden=true;$('#app').appendChild(lg)}
    const L={demand:'<b>Demand</b><br><i style="background:#3fb868"></i>Few riders waiting<br><i style="background:#f2b632"></i>A crowd is building<br><i style="background:#e2483d"></i>Riders waiting or giving up',traffic:'<b>Traffic</b><br><i style="background:#3fb868"></i>Flowing<br><i style="background:#f2b632"></i>Slowing<br><i style="background:#e2483d"></i>Jammed',coverage:'<b>Coverage</b><br><i style="background:#3fb868"></i>Stop within walking distance<br><i style="background:#e2483d"></i>No stop nearby'};
-   const eff=effView(),h=L[eff]||'';if(lg._h!==h){lg._h=h;lg.innerHTML=h}lg.hidden=!h||ui.photo}
+   const eff=ui.view,h=L[eff]||'';if(lg._h!==h){lg._h=h;lg.innerHTML=h}lg.hidden=!h||ui.photo}
   $('#viewLbl').textContent=ui.view==='demand'?'Demand':ui.view==='traffic'?'Traffic':ui.view==='coverage'?'Coverage':'Map view';
 }
 function riderSummary(st){
@@ -3181,7 +3182,7 @@ function levelCards(){
     '<div class="chips"><span class="chip">'+(isFinite(L.days)?L.days+' days':'Endless')+'</span><span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>'+(i===1?'<span class="chip new">Express routes</span>':'')+(i===2?'<span class="chip new">Transfers · step-free stops</span>':'')+(i===3?'<span class="chip new">Bridges</span>':'')+(i===7?'<span class="chip new">Narrow streets</span>':'')+(i===8?'<span class="chip new">Canals</span>':'')+(i===9?'<span class="chip new">Hill detours</span>':'')+(i===10?'<span class="chip new">Lake</span>':'')+(i===11?'<span class="chip new">Coast</span>':'')+(i===12?'<span class="chip new">Ring road</span>':'')+(i===13?'<span class="chip new">Finale</span>':'')+(L.sandbox?'<span class="chip new">No game over</span>':'')+(L.daily?'<span class="chip new">Today only</span>':'')+(L.weekly?'<span class="chip new">This week only</span>':'')+'</div>'+
     (ci>=0?'<div class="stars">'+starStr(st[i]||0)+'</div>':'')+'</button>'}).join('')+'</div>';
 }
-function showHome(){showOv('<div class="card"><h1>Choose a level</h1><p class="sub">Each level adds more people, less patience and new tools.</p><div style="height:12px"></div>'+levelCards()+'<div class="btnrow"><button class="btn alt" data-act="howto">How to play</button></div></div>')}
+function showHome(){showOv('<div class="card"><h1>Choose a level</h1><p class="sub">Each level adds more people, less patience and new tools.</p><div style="height:12px"></div>'+levelCards()+'<div class="btnrow"><button class="btn alt" data-act="howto">How to play</button><button class="btn ok" data-act="resume">Back to game</button></div></div>')}
 
 /* ================= main loop ================= */
 let last=performance.now(),uiT=0;
