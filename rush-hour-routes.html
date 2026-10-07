@@ -200,6 +200,7 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
 @media (max-width:560px){.legend{left:8px;bottom:84px;max-width:210px;font-size:12px}}
 .set{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);text-align:left}
 .set b{font-family:var(--font-display);font-size:15px}.set small{display:block;color:var(--muted);font-weight:600;font-size:12px}
+.set:has(.seg.wide){flex-wrap:wrap}.seg.wide{width:100%;justify-content:flex-start}
 .seg{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
 .seg button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:7px 11px;font-weight:800;font-size:13px;min-height:38px}
 .seg button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
@@ -210,7 +211,7 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
 .slotc{border:2px solid var(--line);border-radius:14px;padding:12px;margin:8px 0;text-align:left}
 .slotc.cur{border-color:var(--ok)}
 .quote{font-style:italic;color:var(--ink);line-height:1.5;margin:10px 0}
-body.big #top,body.big #bottom,body.big #ov .card{zoom:1.18}
+body.big #top,body.big #bottom,body.big #ov .card{zoom:1.1}
 body.rm *{animation:none!important;transition:none!important}
 @media (max-width:560px){#missions:not(.open) .m:nth-child(n+2){display:none}#missions{cursor:pointer}#missions:not(.open)::after{content:"Tap for all missions";font-size:11px;color:var(--muted);font-weight:700}body.big #top,body.big #bottom,body.big #ov .card{zoom:1.1}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -733,7 +734,7 @@ function setOpt(k,v){
 function showSettings(from){
   ui.setFrom=from||'game';
   const tg=(k,on)=>'<div class="seg"><button class="'+(on?'on':'')+'" data-act="set" data-k="'+k+'">'+(on?'On':'Off')+'</button></div>';
-  const sg=(k,cur,opts)=>'<div class="seg">'+opts.map(o=>'<button class="'+(cur===o[0]?'on':'')+'" data-act="set" data-k="'+k+'" data-v="'+o[0]+'">'+o[1]+'</button>').join('')+'</div>';
+  const sg=(k,cur,opts)=>'<div class="seg wide">'+opts.map(o=>'<button class="'+(cur===o[0]?'on':'')+'" data-act="set" data-k="'+k+'" data-v="'+o[0]+'">'+o[1]+'</button>').join('')+'</div>';
   showOv('<div class="card small"><h2>Settings</h2>'+
    '<div class="set"><div><b>Sound effects</b></div>'+tg('sound',ui.sound)+'</div>'+
    '<div class="set"><div><b>Music</b><small>Calm by day. Faster and tense in rush hour or when riders are upset.</small></div>'+tg('music',PROF.music)+'</div>'+
@@ -1188,6 +1189,7 @@ function buyBike(id){
   if(!has('bikes')){toast('Unlock Bike share in City Hall first.');return}
   if(st.bike){toast('This stop already has a bike dock.');return}
   if(G.money<450){toast('A bike dock costs $450.');return}
+  if(!confirmTap('bike','Docks pull riders from much farther away, so expect bigger crowds here.'))return;
   G.money-=450;st.bike=true;G.netVer++;ui.dirty=true;ach('bike_life');snd('pop');toast('Bike dock added. Riders will come from farther away.');
   for(const c of G.citizens)if(c.state==='walk'&&!c.stop)c.retry=0;
 }
@@ -1421,7 +1423,7 @@ function startEvent(ev){
     else{
       const e=pool[Math.floor(rnd()*pool.length)],edges=[e];e.closed=true;
       if(type==='flood'){const p2=pool.filter(x=>x!==e&&connectedWithout(x));if(p2.length){const e2=p2[Math.floor(rnd()*p2.length)];e2.closed=true;edges.push(e2)}}
-      const names=edges.map(x=>x.name).join(' and ');
+      const names=[...new Set(edges.map(x=>x.name))].join(' and ');
       if(type==='accident'){e.accident=true;const dur=(G.city.landmarks&&G.city.landmarks.hosp)?15:23;G.event={type:'accident',t:0,dur,edges,label:'Accident on '+names+'. Emergency crews are on scene.'+((G.city.landmarks&&G.city.landmarks.hosp)?' The hospital speeds them up.':'')};toast('Accident! Buses will detour.')}
       else if(type==='flood')G.event={type:'flood',t:0,dur:36,edges,label:'Flooded streets: '+names+'. Riders also lose patience faster.'},toast('Flooding! Buses will detour.');
       else{G.event={type:'snow',t:0,dur:40,edges,label:'Snow is blocking '+names+'. Everything moves slower.'};G.fogMult=.86;toast('Snow! Buses will detour.')}
@@ -1779,7 +1781,7 @@ function undo(){
   restoreNet(d);ui.undoSig='';
   let re=null;for(const r of G.routes)if(cur[r.name]!==undefined&&r.stops.length<cur[r.name])re=r;
   if(re){setTool('route');ui.drawing={routeId:re.id};ui.sel={type:'route',id:re.id};toast('Undone. You are still on '+re.name+': tap the next stop.')}
-  else toast('Undone.');
+  else toast(Object.keys(cur).length>G.routes.length?'Undone: a route was removed.':'Undone: your last change was reverted.');
   snd('pop');ui.dirty=true;
 }
 /* ================= growth & save ================= */
@@ -1844,7 +1846,7 @@ function loadSave(n){
 }
 function retryDay(){
   if(!G.snap){toast('Nothing to restore yet.');return}
-  hideOv();applySave(G.snap);G.paused=true;G.modal=false;syncPlay();toast('Back to the start of day '+G.day+'. Try a different plan.');
+  hideOv();applySave(G.snap);G.paused=true;G.modal=false;syncPlay();if(G.money<1500){G.money=1500;toast('Back to day '+G.day+'. The council added a $1,500 relief grant.',3800)}else toast('Back to the start of day '+G.day+'. Try a different plan.')
 }
 
 /* ================= level setup ================= */
@@ -1866,7 +1868,7 @@ function loadLevel(i,opts){
   G.money=L.cash;
   if(T.ok){build3D(G.city);resetDyn()}
   G.season=seasonFor(1);planEvents();
-  ui.tut=!opts.skipTut;ui.tutBoth=false;
+  ui.tut=!opts.skipTut&&PROF.stat.delivered<150;ui.tutBoth=false;
   netChanged();
   G.paused=true;G.modal=false;syncPlay();
   fitCam(true);ui.dirty=true;setTool(opts.skipTut?'select':'stop');
@@ -1903,7 +1905,7 @@ function toWorld(sx,sy){
 function fitCam(force){
   if(!G.city)return;
   const topH=($('#row1').getBoundingClientRect().bottom||100)+10,botH=Math.max(60,H-($('#toolbar').getBoundingClientRect().top||H-90))+10;
-  const availH=Math.max(120,H-topH-botH),z=Math.min(W/G.city.w,availH/(G.city.h*Math.sin(.92)))*.92;
+  const availH=Math.max(120,H-topH-botH),z=Math.min(W/G.city.w,availH/(G.city.h*Math.sin(.92)))*1.04;
   cam.minZ=z*.7;cam.maxZ=3.2;
   cam.zoom=z;cam.yaw=0;cam.pitch=.92;cam.x=G.city.w/2;cam.y=G.city.h/2;updateCamera();
   const g=toWorld(W/2,(topH+(H-botH))/2);
@@ -2002,12 +2004,12 @@ function routeTap(n){
     const enders=owner.filter(r=>r.stops[r.stops.length-1]===n.id&&!r.loop);
     if(enders.length&&!ui.newRt){const er=(ui.sel&&ui.sel.type==='route'&&enders.find(r=>r.id===ui.sel.id))||enders.slice().sort((a,b)=>b.id-a.id)[0];ui.drawing={routeId:er.id};ui.sel={type:'route',id:er.id};toast('Extending '+er.name+'. Tap the next stop.');ui.dirty=true;return}
     ui.newRt=false;
-    if(owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfer stops unlock in level 3.');return}
+    if(owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfers unlock at Metro Heights (level 3 of the campaign).');return}
     ui.drawing={routeId:null,first:n.id};ui.dirty=true;return;
   }
   if(d.routeId===null){
     if(n.id===d.first){ui.drawing=null;toast('Route cancelled.');ui.dirty=true;return}
-    if(owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfer stops unlock in level 3.');return}
+    if(owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfers unlock at Metro Heights (level 3 of the campaign).');return}
     if(G.routes.length>=8){toast('Maximum of 8 routes.');return}
     if(!st&&!addStop(n.id))return;
     const r=newRoute([d.first,n.id]);
@@ -2020,7 +2022,7 @@ function routeTap(n){
     if(r.stops[r.stops.length-1]===n.id){finishDrawing();return}
     toast('That stop is already on '+r.name+'.');return;
   }
-  if(st&&owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfer stops unlock in level 3.');return}
+  if(st&&owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfers unlock at Metro Heights (level 3 of the campaign).');return}
   if(!st&&!addStop(n.id))return;
   r.stops.push(n.id);recalcRoute(r);fx.ring(n.x,n.y,r.color,34);snd('pop');netChanged();
 }
@@ -2801,8 +2803,8 @@ const KF=[
  [16,'#4682d4','#d2dfec','#ffecc8',1.3,.55,1,0],
  [18,'#5a78c8','#ffcfa0','#ffc088',1.15,.48,1,.05],
  [19.2,'#3f4f9a','#ff9a62','#ff8a50',.8,.4,1.05,.45],
- [20,'#18204a','#3d4772','#8090d0',.3,.34,1.15,1],
- [24,'#0a0e2a','#1f2750','#6070b0',.25,.3,1.15,1]
+ [20,'#18204a','#3d4772','#8090d0',.38,.5,1.15,1],
+ [24,'#0a0e2a','#1f2750','#6070b0',.34,.48,1.15,1]
 ];
 function kf(h){
   let a=KF[0],b=KF[KF.length-1];
@@ -2876,7 +2878,7 @@ function stopColorsFor(st){return routesAt(st.id).map(r=>r.color)}
 /* ================= UI ================= */
 function toast(msg,ms){
   const d=document.createElement('div');d.className='toast';d.textContent=msg;$('#toasts').appendChild(d);
-  while($('#toasts').children.length>(window.matchMedia&&matchMedia('(max-width:560px)').matches?2:3))$('#toasts').firstChild.remove();
+  while($('#toasts').children.length>2)$('#toasts').firstChild.remove();
   setTimeout(()=>d.remove(),ms||2800);
 }
 function showOv(html){const o=$('#ov');o.innerHTML=html;o.hidden=false;G.modal=true}
@@ -3032,6 +3034,7 @@ document.addEventListener('click',e=>{
     case'fit':fitCam(true);break;
     case'menu':if(G.modal)return;G.paused=true;syncPlay();showOv('<div class="card small"><h2>Paused</h2><div class="menugrid"><button class="btn ok full" data-act="resume">Resume</button><button class="btn alt" data-act="retryday"'+(G.snap?'':' disabled')+'>Restart today</button><button class="btn alt" data-act="cityhall">City Hall</button><button class="btn alt" data-act="garage">Garage</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="goals">Goals</button><button class="btn alt" data-act="photo">Photo mode</button><button class="btn alt" data-act="sound">'+(ui.sound?'Sound: on':'Sound: off')+'</button><button class="btn alt" data-act="settings" data-from="game">Settings</button><button class="btn alt" data-act="trophies" data-from="game">Trophies</button><button class="btn alt" data-act="slots" data-from="game">Save slots</button><button class="btn alt" data-act="shop" data-from="game">Shop</button><button class="btn alt" data-act="drivers">Drivers</button><button class="btn alt" data-act="fitclose">Fit map</button><button class="btn alt" data-act="restartlevel">Restart level</button><button class="btn alt" data-act="home">Level select</button><button class="btn alt full" data-act="howto">How to play</button></div></div>');break;
     case'resume':hideOv();syncPlay();break;
+    case'backov':{const h=ui.prevOv;ui.prevOv=null;if(h){showOv(h)}else{hideOv();syncPlay()}break}
     case'set':setOpt(el.dataset.k,el.dataset.v);break;
     case'shop':showShop(el.dataset.from);break;
     case'drivers':showDrivers();break;
@@ -3148,7 +3151,7 @@ function shareCard(){
       g.fillStyle='#ffd25c';g.font='800 64px Outfit,Arial,sans-serif';g.fillText('★'.repeat(st)+'☆'.repeat(Math.max(0,3-st)),48,990);
       g.fillStyle='#c9d6e2';g.font='800 30px Outfit,Arial,sans-serif';g.fillText('Company level '+lv+' · '+rankOf(lv),48,1050);
       g.fillStyle='#7d8fa0';g.font='600 22px Nunito Sans,Arial,sans-serif';g.fillText(new Date().toDateString(),48,1090);
-      showOv('<div class="card small"><h2>Share card</h2><img class="sharecard" alt="Share card" src="'+c.toDataURL('image/png')+'"><p class="sub">Press and hold the image to save or share it, or take a screenshot.</p><div class="btnrow"><button class="btn ok" data-act="resume">Back</button></div></div>');
+      ui.prevOv=$('#ov').hidden?null:$('#ov').innerHTML;showOv('<div class="card small"><h2>Share card</h2><img class="sharecard" alt="Share card" src="'+c.toDataURL('image/png')+'"><p class="sub">Press and hold the image to save or share it, or take a screenshot.</p><div class="btnrow"><button class="btn ok" data-act="'+(ui.prevOv?'backov':'resume')+'">Back</button></div></div>');
     };
     const gr=g.createLinearGradient(0,0,0,H2);gr.addColorStop(0,'#16314a');gr.addColorStop(1,'#0e1b2a');g.fillStyle=gr;g.fillRect(0,0,W2,H2);
     if(url){const img=new Image();img.onload=()=>{const r=Math.max(W2/img.width,600/img.height),w=img.width*r,h=img.height*r;g.save();rrect(g,0,0,W2,600,0);g.clip();g.drawImage(img,(W2-w)/2,(600-h)/2,w,h);g.restore();const sh=g.createLinearGradient(0,420,0,600);sh.addColorStop(0,'rgba(14,27,42,0)');sh.addColorStop(1,'rgba(14,27,42,1)');g.fillStyle=sh;g.fillRect(0,420,W2,181);done()};img.onerror=done;img.src=url}else done();
