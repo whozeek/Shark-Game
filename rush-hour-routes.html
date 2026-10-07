@@ -1768,9 +1768,16 @@ function restoreNet(d){
   G.money=d.money;G.engine=d.engine;ui.sel=null;ui.drawing=null;ui.shape=null;ui.moving=null;G.netVer++;netChanged();
 }
 function undo(){
-  const d=ui.undo.pop();
-  if(!d){toast('Nothing to undo.');return}
-  restoreNet(d);ui.undoSig='';toast('Undone.');snd('pop');ui.dirty=true;
+  if(ui.drawing){undoDraw();toast(ui.drawing&&ui.drawing.routeId?'Removed the last stop. Keep going or press Done.':'Cancelled. Tap a stop to start again.');snd('pop');ui.dirty=true;return}
+  const sg=n=>JSON.stringify(n.stops)+JSON.stringify(n.routes)+n.engine+'|'+n.depots.join(','),now=sg(netSnap());
+  let d=ui.undo.pop();while(d&&sg(d)===now)d=ui.undo.pop();
+  if(!d){toast('Nothing to undo.');ui.undoSig='';ui.dirty=true;return}
+  const cur={};for(const r of G.routes)cur[r.name]=r.stops.length;
+  restoreNet(d);ui.undoSig='';
+  let re=null;for(const r of G.routes)if(cur[r.name]!==undefined&&r.stops.length<cur[r.name])re=r;
+  if(re){setTool('route');ui.drawing={routeId:re.id};ui.sel={type:'route',id:re.id};toast('Undone. You are still on '+re.name+': tap the next stop.')}
+  else toast('Undone.');
+  snd('pop');ui.dirty=true;
 }
 /* ================= growth & save ================= */
 function growCity(){
@@ -1989,7 +1996,9 @@ function routeTap(n){
   const owner=st?routesAt(n.id):[];
   if(!d){
     if(!st){if(!addStop(n.id))return;ui.drawing={routeId:null,first:n.id};fx.ring(n.x,n.y,'#2a7de1',34);snd('pop');ui.dirty=true;return}
-    if(owner.length===1&&owner[0].stops[owner[0].stops.length-1]===n.id){ui.drawing={routeId:owner[0].id};ui.sel={type:'route',id:owner[0].id};toast('Extending '+owner[0].name+'. Tap the next stop.');ui.dirty=true;return}
+    const enders=owner.filter(r=>r.stops[r.stops.length-1]===n.id&&!r.loop);
+    if(enders.length&&!ui.newRt){const er=(ui.sel&&ui.sel.type==='route'&&enders.find(r=>r.id===ui.sel.id))||enders.slice().sort((a,b)=>b.id-a.id)[0];ui.drawing={routeId:er.id};ui.sel={type:'route',id:er.id};toast('Extending '+er.name+'. Tap the next stop.');ui.dirty=true;return}
+    ui.newRt=false;
     if(owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfer stops unlock in level 3.');return}
     ui.drawing={routeId:null,first:n.id};ui.dirty=true;return;
   }
@@ -2012,7 +2021,7 @@ function routeTap(n){
   if(!st&&!addStop(n.id))return;
   r.stops.push(n.id);recalcRoute(r);fx.ring(n.x,n.y,r.color,34);snd('pop');netChanged();
 }
-function finishDrawing(){const id=ui.drawing&&ui.drawing.routeId;ui.drawing=null;setTool('select');if(id){ui.sheet=true;toast('Use + and − to add or remove buses.')}ui.dirty=true}
+function finishDrawing(){const id=ui.drawing&&ui.drawing.routeId;ui.drawing=null;ui.newRt=false;setTool('select');if(id){ui.sheet=true;toast('Use + and − to add or remove buses.')}ui.dirty=true}
 function undoDraw(){
   const d=ui.drawing;if(!d)return;
   if(d.routeId===null){ui.drawing=null;ui.dirty=true;return}
@@ -2881,7 +2890,7 @@ function syncPlay(){
   ui.dirty=true;
 }
 function setTool(t){
-  ui.tool=t;if(t!=='route')ui.drawing=null;if(t==='route')ui.sheet=false;
+  ui.tool=t;ui.newRt=false;if(t!=='route')ui.drawing=null;if(t==='route')ui.sheet=false;
   document.querySelectorAll('.tbtn[data-tool]').forEach(b=>b.classList.toggle('on',b.dataset.tool===t));
   cv.classList.toggle('pick',t!=='select');ui.hover=null;ui.dirty=true;
 }
@@ -2900,7 +2909,7 @@ function hintText(){
   if(ui.follow){const fb=G.buses.find(x=>x.id===ui.follow);return'Following '+(fb&&fb.drv?fb.drv.name+' ('+DRV_TITLE[drvLevel(fb.drv)-1]+', level '+drvLevel(fb.drv)+')':'a bus')+'. Drag the map to stop following.'}
   if(G.pendingNext)return'Press ▶ to start the next day. Edit routes first if you like.';
   if(ui.tool==='stop')return'Tap a road junction to place a stop ($'+PRICE.stop+'). Tap an existing stop to select it.';
-  if(ui.tool==='route'){const d=ui.drawing;return d?(d.routeId===null?'Tap a second stop to create the route.':'Tap the next stop, or press Done.'):'Tap a stop or junction to start a route. Tap a route\'s last stop to extend it.'}
+  if(ui.tool==='route'){const d=ui.drawing;return d?(d.routeId===null?'Tap a second stop to create the route.':'Tap the next stop, or press Done.'):'Tap a stop or junction to start a route. Tap the last stop of a route to keep extending it.'}
   let nr=0;for(const st of G.stops.values())for(const c of st.waiters)if(c.noRoute)nr++;
   if(nr>=3)return nr+' riders can\'t reach their destination. Connect stops to the business district.';
   if(G.paused&&!G.modal)return'Paused. Edit freely, then press ▶.';
@@ -2942,7 +2951,7 @@ function refreshUI(){
   if(ui.shape){const r=G.routes.find(x=>x.id===ui.shape);db.innerHTML='<span class="txt">Shaping '+(r?esc(r.name):'route')+'</span><button data-act="clearshape">Reset bends</button><button class="go" data-act="doneshape">Done</button>'}
   else if(d){
     const r=d.routeId!==null?G.routes.find(x=>x.id===d.routeId):null;
-    db.innerHTML='<span class="txt">'+(r?esc(r.name)+' · '+r.stops.length+' stops':'New route · tap 2nd stop')+'</span><button data-act="undo">Undo</button><button class="go" data-act="done">Done</button>';
+    db.innerHTML='<span class="txt">'+(r?esc(r.name)+' · '+r.stops.length+' stops':'New route · tap 2nd stop')+'</span><button data-act="undo">Undo</button>'+(r?'<button data-act="newroute">New route</button>':'')+'<button class="go" data-act="done">Done</button>';
   }
   const sc=$('#stopcard');
   if(ui.sel&&ui.sel.type==='stop'&&G.stops.has(ui.sel.id)){sc.hidden=false;updateStopCard(true)}else sc.hidden=true;
@@ -3072,7 +3081,7 @@ document.addEventListener('click',e=>{
     case'clearshape':{const rr=G.routes.find(x=>x.id===ui.shape);if(rr){pushUndo();rr.via={};recalcRoute(rr);netChanged();toast('Route reset to the shortest roads.')}break}
     case'extend':if(route){ui.sel={type:'route',id};setTool('route');ui.drawing={routeId:id};toast('Tap the next stop for '+route.name+'.');ui.dirty=true}break;
     case'delroute':if(route){deleteRoute(route)}break;
-    case'undo':undoDraw();break;
+    case'newroute':ui.drawing=null;ui.newRt=true;ui.sel=null;toast('Tap a stop to start a new route from it.');ui.dirty=true;break;
     case'done':finishDrawing();break;
     case'rmstop':if(ui.sel&&ui.sel.type==='stop'){removeStop(ui.sel.id);ui.sel=null;ui.dirty=true}break;
     case'closecard':ui.sel=null;ui.dirty=true;break;
@@ -3188,7 +3197,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={meta:{showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={meta:{routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 /* boot */
 resize();
 if(!init3D()){document.body.insertAdjacentHTML('beforeend','<div style="position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;background:#fff;z-index:99;font-weight:700">This game needs WebGL for its 3D city. Try another browser.</div>');return}
