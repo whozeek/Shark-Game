@@ -66,7 +66,7 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
 .tbtn.on{background:var(--accent);color:#fff}
 .tbtn:active{transform:scale(.96)}
 .tbtn .badge{position:absolute;top:-6px;right:-4px;background:var(--ink);color:#fff;border-radius:99px;font-size:11px;padding:2px 7px;font-variant-numeric:tabular-nums}
-#sheet{width:min(600px,100%);max-height:min(34vh,calc(100vh - 250px));overflow:auto;padding:8px 8px 16px;scroll-padding-bottom:16px;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
+#sheet{width:min(600px,100%);max-height:min(30vh,calc(100vh - 250px));overflow:auto;padding:8px 8px 16px;scroll-padding-bottom:16px;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
 .rrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px;border-radius:12px;border:2px solid var(--line);background:#fff}
 .rrow.sel{border-color:var(--accent);background:var(--accent-soft)}
 .rrow:not(.sel) .mini{display:none}
@@ -210,6 +210,8 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
 .pin{border:0;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:11px;border-radius:8px;padding:2px 7px;margin-left:4px}
 #rbubble{position:absolute;width:220px;padding:8px 11px;border-left:5px solid var(--ok);font-size:13px;line-height:1.35;z-index:7;pointer-events:none}#rbubble b{display:block;font-family:var(--font-display)}
 #growbar{position:absolute;left:50%;transform:translateX(-50%);bottom:96px;display:flex;gap:12px;align-items:center;padding:8px 12px;font-weight:700;z-index:8}
+#ov.light{backdrop-filter:none;background:rgba(18,40,32,.15);align-items:flex-end;padding-bottom:84px}
+@keyframes nudge{0%,100%{transform:none}50%{transform:translateY(-6px)}}.tbtn.nudge{animation:nudge .45s 4;box-shadow:0 0 0 3px var(--accent)}
 .legend{position:absolute;left:10px;bottom:92px;max-width:250px;padding:9px 12px;font-size:12.5px;font-weight:700;line-height:1.4;pointer-events:none}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
 @media (max-width:560px){.legend{left:8px;bottom:84px;max-width:210px;font-size:12px}}
@@ -1374,7 +1376,7 @@ function tutState(){
 }
 function netChanged(){
   G.netVer++;rebuildVis();refreshDepots();ui.dirty=true;
-  if(tutOn()){const t=tutState();if(t.home&&t.work&&!G.routes.length&&!ui.tutBoth){ui.tutBoth=true;if(ui.tool!=='route')setTool('route')}if(!(t.home&&t.work))ui.tutBoth=false}
+  if(tutOn()){const t=tutState();if(t.home&&t.work&&!G.routes.length&&!ui.tutBoth){ui.tutBoth=true;if(ui.tool!=='route'){setTool('route');toast('Both stops are placed. Now connect them: tap one, then the other.',3600)}}if(!(t.home&&t.work))ui.tutBoth=false}
 }
 const newStat=()=>({boarded:0,waitSum:0,rev:0,cost:0,loadSum:0,loadN:0});
 function newRoute(stops){
@@ -2030,7 +2032,7 @@ const COACH=[
  {id:'crowd',when:()=>[...G.stops.values()].some(s=>s.waiters.length>=6),text:'That number above a stop is a crowd. Open Buses and press + to add a bus. Crowds turn amber, then red, before riders give up.'},
  {id:'second',when:()=>G.routes.length>=1&&G.buses.length<=1&&G.money>=700&&G.t>25,text:'You have cash to spare. A second bus on your busiest route halves the wait. Open Buses, then press +.'},
  {id:'mission',when:()=>G.missions.length>0&&G.t>18,text:'Missions are listed under the clock. They pay cash and XP, and XP unlocks City Hall upgrades and Garage looks.'},
- {id:'cover',when:()=>G.gaveUp>=3,text:'Riders are giving up. Try Map view: Demand shows where, and Coverage shows blocks with no stop nearby.'},
+ {id:'cover',when:()=>G.dayGave>=3,text:'Riders are giving up. Try Map view: Demand shows where, and Coverage shows blocks with no stop nearby.'},
  {id:'undo',when:()=>G.stops.size>=3,text:'Made a mistake? The undo arrow next to play takes back your last change.'},
  {id:'shape',when:()=>G.routes.length>=1&&G.day>=2,text:'You can steer a route. Select it in Buses, press Shape road, then tap junctions to send it down different streets.'},
  {id:'depot',when:()=>G.day>=3&&G.money>3000,text:'Spend cash wisely: City Hall has permanent upgrades, and a Priority call on a stop calms a crowd for a moment.'}];
@@ -2109,7 +2111,7 @@ function showGrowth(opts){
   opts.forEach((o,i)=>{const x=MARGIN+o.c*S+S/2,y=MARGIN+o.r*S+S/2;fx.ring(x,y,['#2a7de1','#e0509a','#3fb868'][i%3],60);fx.text(x,y-20,String.fromCharCode(65+i),'#1b2733')});
   showOv('<div class="card small"><h2>The city is growing</h2><p class="sub">Day '+G.day+' begins. Choose where the next block goes. The marked spots are shown on the map behind this card.</p>'+
    opts.map((o,i)=>'<button class="lv" style="width:100%;min-height:0;margin:6px 0" data-act="growpick" data-i="'+i+'"><b>'+String.fromCharCode(65+i)+'. '+esc(o.title)+' near '+esc(o.place)+'</b><small>'+esc(o.desc)+'</small></button>').join('')+
-   '<div class="btnrow"><button class="btn alt" data-act="growlook">Look at the map</button><button class="btn alt" data-act="growskip">Not today</button></div></div>');
+   '<div class="btnrow"><button class="btn alt" data-act="growlook">Look at the map</button><button class="btn alt" data-act="growskip">Not today</button></div></div>');$('#ov').classList.add('light');
 }
 function applyGrowth(i){
   const o=(ui.growOpts||[])[i];hideOv();ui.growOpts=null;{const gb=$('#growbar');if(gb)gb.hidden=true}
@@ -2942,7 +2944,7 @@ function syncStops(u,now){
     o.halo.visible=stat>0;
     if(stat>0){o.haloMat.color.copy(lin(stat===2?COL.bad:COL.warn));o.haloMat.opacity=stat===2?.24+.1*Math.sin(now/130):.17;o.halo.scale.setScalar(13+(stat===2?2*Math.sin(now/130):0))}
     const bk=n?n+'_'+stat:'';
-    if(bk!==o.badgeKey){o.badgeKey=bk;if(o.badge){o.g.remove(o.badge);o.badge.material.dispose();o.badge=null}if(n){o.badge=mkSprite(badgeTex(n,stat),30,15);o.badge.position.set(0,38,0);o.g.add(o.badge)}}
+    if(bk!==o.badgeKey){o.badgeKey=bk;if(o.badge){o.g.remove(o.badge);o.badge.material.dispose();o.badge=null}if(n){o.badge=mkSprite(badgeTex(n,stat),37,18.5);o.badge.position.set(0,40,0);o.g.add(o.badge)}}
     o.q.visible=st.waiters.some(c=>c.noRoute);
     o.cheer.visible=st.cheer>0;if(st.cheer>0){o.cheer.scale.setScalar(9+(1-st.cheer)*14);o.cheer.material.opacity=Math.min(1,st.cheer)}
     o.miss.visible=st.missed>0&&Math.floor(now/120)%2===0;
@@ -3061,6 +3063,16 @@ function effView(){
   return'off';
 }
 function syncViews(now){
+  {const go=ui.growOpts;
+   if(go&&go.length){
+     if(!T.growG){T.growG=new THREE.Group();T.dyn.add(T.growG)}
+     if(T.growG._k!==go){clearGroup(T.growG);T.growG._k=go;T.growG._r=[];
+       go.forEach((o,i)=>{const x=MARGIN+o.c*S+S/2,y=MARGIN+o.r*S+S/2,col=['#2a7de1','#e0509a','#3fb868'][i%3];
+         const ring=new THREE.Mesh(T.gRing,basic(col,{transparent:true,opacity:.95,depthWrite:false}));ring.position.set(x,1.4,y);ring.scale.setScalar(50);ring.renderOrder=6;T.growG.add(ring);T.growG._r.push(ring);
+         const pil=new THREE.Mesh(T.gCyl,basic(col,{transparent:true,opacity:.35,depthWrite:false}));pil.scale.set(3,70,3);pil.position.set(x,35,y);T.growG.add(pil);
+         const lb=mkSprite(textTex(String.fromCharCode(65+i),col),52,21);lb.position.set(x,84,y);T.growG.add(lb)})}
+     for(const r of T.growG._r)r.scale.setScalar(46+9*Math.sin(now/280));
+   }else if(T.growG&&T.growG._k){clearGroup(T.growG);T.growG._k=null}}
   if(T.waterTex&&!ui.rm){T.waterTex.offset.set((now/26000)%1,(now/41000)%1)}
   if(T.foamMat)T.foamMat.opacity=.22+.14*Math.sin(now/900);
   if(T.streetG)T.streetG.visible=PROF.streets!==false&&cam.zoom>=.75&&!ui.photo;
@@ -3271,11 +3283,12 @@ function stopColorsFor(st){return routesAt(st.id).map(r=>r.color)}
 
 /* ================= UI ================= */
 function toast(msg,ms){
+  for(const t of $('#toasts').children)if(t.textContent===msg)return;
   const d=document.createElement('div');d.className='toast';d.textContent=msg;$('#toasts').appendChild(d);
   while($('#toasts').children.length>2)$('#toasts').firstChild.remove();
   setTimeout(()=>d.remove(),ms||2800);
 }
-function showOv(html){const o=$('#ov');o.innerHTML=html;o.hidden=false;G.modal=true}
+function showOv(html){const o=$('#ov');o.classList.remove('light');o.innerHTML=html;o.hidden=false;G.modal=true}
 function hideOv(){$('#ov').hidden=true;G.modal=false}
 const ICON_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 const ICON_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
@@ -3387,7 +3400,7 @@ function liveInfo(){
   }
 }
 function applyHint(){
-  const h=(G.event&&!G.paused)?'':hintText(),hn=$('#hint');
+  const h=((G.event&&!G.paused)||(!$('#stopcard').hidden&&!tutOn()))?'':hintText(),hn=$('#hint');
   if(hn.textContent!==h){hn.hidden=!h;hn.textContent=h}
   const un=/can't reach/.test(h);hn.style.pointerEvents=un?'auto':'none';hn.style.cursor=un?'pointer':'';if(un)hn.dataset.act='unreach';else delete hn.dataset.act;
 }
@@ -3415,7 +3428,7 @@ function hud(){
   $('#dayLbl').textContent='Day '+G.day+(isFinite(G.L.days)?'/'+G.L.days:'')+' · '+G.season[0].toUpperCase()+G.season.slice(1);
   {const lv=levelOf(PROF.xp),a=xpFor(lv-1),b=xpFor(lv);$('#cLvl').textContent='Lv '+lv+' · '+rankOf(lv);$('#xpFill').style.width=Math.round(100*(PROF.xp-a)/(b-a))+'%'}
   {const mp=$('#missions');let h='';
-   if(!tutOn()){for(const m of G.missions){const pr=m.prog?Math.min(m.goal,Math.floor(m.prog())):0;h+='<div class="m '+(m.done?'done':m.failed?'fail':m.mayor?'mayor':'')+'"><b>'+(m.done?'✓':m.failed?'✕':m.mayor?'⚑':'◻')+'</b><span>'+esc(m.text)+(!m.done&&!m.failed&&['arena','uni','air','hosp','mall','school'].includes(m.pin||m.id)?' <button class="pin" data-act="msnpin" data-k="'+(m.pin||m.id)+'">Show me</button>':'')+'</span><em>'+(m.special?'':pr+'/'+m.goal+' · ')+'$'+m.reward+'</em></div>'}
+   if(!tutOn()){for(const m of G.missions){const pr=m.prog?Math.min(m.goal,Math.floor(m.prog())):0;h+='<div class="m '+(m.done?'done':m.failed?'fail':m.mayor?'mayor':'')+'"><b>'+(m.done?'✓':m.failed?'✕':m.mayor?'⚑':'◻')+'</b><span>'+esc(m.text)+(!m.done&&!m.failed&&['arena','uni','air','hosp','mall','school'].includes(m.pin||m.id)?' <button class="pin" data-act="msnpin" data-k="'+(m.pin||m.id)+'">Show me</button>':'')+'</span><em>'+(m.special?(m.special==='pm'?(G.gaveMark>=0?(G.dayGave-G.gaveMark)+' gave up · ':''):m.special==='happy'?((G.dayDel+G.dayGave)?Math.round(100*G.dayDel/(G.dayDel+G.dayGave))+'% · ':''):''):pr+'/'+m.goal+' · ')+'$'+m.reward+'</em></div>'}
      if(G.rival.stops.length)h+='<div class="m rv"><b>⚑</b><span>Rival Transit holds '+G.rival.stops.length+' stop'+(G.rival.stops.length>1?'s':'')+'</span><em>'+G.dayLost+' riders lost today</em></div>'}
    if(!tutOn()&&G.L.goals){const g=G.L.goals,profit=Math.round(G.rev-G.cost);h+='<div class="m goal"><b>★</b><span>Level goals: gave up <u class="'+(G.gaveUp>=g.gave?'bad':'')+'">'+G.gaveUp+'/'+g.gave+'</u> · profit <u class="'+(profit>=g.profit?'ok':'')+'">$'+profit+'/$'+g.profit+'</u></span></div>'}
    if(h!==mp._h){mp._h=h;mp.innerHTML=h;mp.hidden=!h}}
@@ -3441,7 +3454,7 @@ document.addEventListener('click',e=>{
   const route=id?G.routes.find(r=>r.id===id):null;
   switch(act){
     case'play':if(G.modal||G.over)return;if(G.pendingNext){nextDay();return}
-      if(G.paused&&G.t===0&&!ui.growOpts){G.snap=serialize();if(!G.missions.length)makeMissions()}if(G.paused&&!G.routes.length&&G.t===0){toast('Place stops and draw a route first.');return}G.paused=!G.paused;syncPlay();break;
+      if(G.paused&&G.t===0&&!ui.growOpts){G.snap=serialize();if(!G.missions.length)makeMissions()}if(G.paused&&!G.routes.length&&G.t===0){toast('Place stops and draw a route first.');const sb=document.querySelector('.tbtn[data-tool="stop"]');if(sb){sb.classList.add('nudge');setTimeout(()=>sb.classList.remove('nudge'),2200)}return}G.paused=!G.paused;syncPlay();break;
     case'speed':G.speed=G.speed%3+1;syncPlay();break;
     case'sound':ui.sound=!ui.sound;syncPlay();if(el.closest('#ov'))el.textContent=ui.sound?'Sound: on':'Sound: off';break;
     case'fitclose':hideOv();fitCam(true);break;
