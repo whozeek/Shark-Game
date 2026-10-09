@@ -253,7 +253,7 @@ body.rm *{animation:none!important;transition:none!important}
   <div id="top">
     <div id="row1">
       <div class="panel" id="satCard">
-        <div class="lbl" title="Share of the last 50 riders who reached their destination">Satisfaction · last 50 riders</div>
+        <div class="lbl" title="This is the number that decides game over: the share of the last 50 riders who reached their destination. Keep it above 50%.">Satisfaction · last 50 riders<span id="cToday" title="Share of today's riders who got where they were going" style="float:right;text-transform:none;letter-spacing:0;font-weight:700">Today 100%</span></div>
         <div class="satline"><span id="satPct">100%</span><div id="satBar"><i id="satFill"></i><b id="satMark"></b></div></div>
         <div class="counts" title="Totals for this level so far"><span><i style="background:var(--ok)"></i><span id="cDel">0</span> delivered</span><span><i style="background:var(--bad)"></i><span id="cGave">0</span> gave up</span><span class="cash" id="cCash">$0</span></div>
         <div class="lvlrow"><span id="cLvl">Lv 1</span><div id="xpBar"><i id="xpFill"></i></div></div>
@@ -510,6 +510,7 @@ function buildCity(L){
       for(let k=0;k<4;k++)items.push({k:'t',y:by+22+R()*60,x:bx+(k%2?86:14)+(R()-.5)*6,s:.8,v:R()<.5});
     }else if(t==='P'){
       for(let k=0;k<7;k++)items.push({k:'t',y:by+14+R()*72,x:bx+14+R()*72,s:.7+R()*.5,v:R()<.5});
+      for(let k=0;k<7;k++)items.push({k:'t',y:by+12+R()*76,x:bx+12+R()*76,s:.28+R()*.16,v:R()<.5});
     }else if(t==='.'){
       for(let k=0;k<3;k++)items.push({k:'t',y:by+18+R()*64,x:bx+18+R()*64,s:.7+R()*.4,v:R()<.5});
     }
@@ -651,6 +652,7 @@ function renderStatic(city){
       g.lineWidth=1.8;g.beginPath();g.moveTo(cx+ux*7.2+nx*-ROAD_W/2,cy+uy*7.2+ny*-ROAD_W/2);g.lineTo(cx+ux*7.2+nx*ROAD_W/2,cy+uy*7.2+ny*ROAD_W/2);g.stroke();
     }
   }
+  {const TINTS=['#ffe9a8','#a8d8ff','#ffd0c8','#c8f0b8','#e8d0ff'];for(const b of city.blocks){if(b.t==='W'||b.t==='B'||LMK[b.t])continue;const R2=rng(city.seed*53+b.c*17+b.r*5+3);if(R2()<.7){g.globalAlpha=.05+R2()*.08;g.fillStyle=TINTS[Math.floor(R2()*5)];g.fillRect(b.x+10,b.y+10,S-20,S-20);g.globalAlpha=1}}}
   return cv;
 }
 
@@ -897,7 +899,7 @@ function showDrivers(){
 const GUIDE_TABS=[['start','Start here'],['tools','Tools & top bar'],['routes','Route buttons'],['stops','Stop buttons'],['riders','Riders'],['money','Money'],['events','Events'],['unlocks','Unlocks'],['strategy','Strategy']];
 const GUIDE={
 start:`<p><button class="btn alt" data-act="tour">Take the interactive tour</button></p><h3>The goal</h3><p>You run the city's buses. Riders appear at homes in the morning and at offices in the evening, walk to the nearest stop, wait, ride, and walk to where they are going. Get them there before they lose patience.</p>
-<ul><li><b>You lose</b> if satisfaction drops below 50% (a bit more forgiving on day 1), or if you go more than $800 into debt.</li><li><b>Satisfaction</b> is the share of the last 50 riders who reached their destination instead of giving up.</li><li><b>You win a level</b> by finishing all its days. Stars come from the level's goals (satisfaction, riders who gave up, profit).</li></ul>
+<ul><li><b>You lose</b> if satisfaction drops below 50% (a bit more forgiving on day 1), or if you go more than $800 into debt.</li><li><b>Satisfaction</b> (the big number) is the share of the last 50 riders who reached their destination instead of giving up. It is the one that decides game over. <b>Today</b> beside it is the share of today's riders, and the level goals use all riders on the level. Each screen says which one it shows.</li><li><b>You win a level</b> by finishing all its days. Stars come from the level's goals (satisfaction, riders who gave up, profit).</li></ul>
 <h3>Your first three minutes</h3><ol><li>Pick <b>Stops</b> and tap a road junction next to a cluster of houses.</li><li>Tap another junction next to offices or shops.</li><li>Pick <b>Route</b>, then tap the first stop and the second stop. A route and a bus appear.</li><li>Press ▶ and watch. Colour tells you who needs help: green is calm, amber is impatient, red is about to give up.</li><li>Open <b>Buses</b> and press + on routes with red stops.</li></ol>
 <div class="tip">Rush hours matter most. Mornings move riders from homes to work. Evenings move them back.</div>
 <h3>The day</h3><p>Each day runs from 06:00 to 20:00 (plus a night shift if you unlock Night service). The coloured bar under the clock shows quiet, morning rush, midday, evening rush and wind-down. At the end of every day you get a report and a small grant, and the city may grow.</p>`,
@@ -1792,7 +1794,7 @@ function makeMissions(){
    {id:'clear',text:'Clear 3 red stops',goal:3,prog:()=>G.mClears,reward:350,xp:35},
    {id:'pm',text:'Evening rush: nobody gives up',goal:1,special:'pm',reward:500,xp:50},
    {id:'fares',text:'Earn '+money(Math.round(exp*3.6))+' in fares today',goal:Math.round(exp*3.6),prog:()=>G.dayRev,reward:400,xp:40},
-   {id:'happy',text:'Finish the day over 85% satisfied',goal:1,special:'happy',reward:450,xp:45}];
+   {id:'happy',text:'Over 85% of today\'s riders get there',goal:1,special:'happy',reward:450,xp:45}];
   if(lm.hosp)pool.push({id:'hosp',text:'Take 5 patients to the hospital',goal:5,prog:()=>G.mDest.hosp||0,reward:500,xp:50});
   if(lm.mall)pool.push({id:'mall',text:'Take 8 shoppers to the mall',goal:8,prog:()=>G.mDest.mall||0,reward:400,xp:40});
   if(lm.school)pool.push({id:'school',text:'Take 8 pupils to school',goal:8,prog:()=>G.mDest.school||0,reward:400,xp:40});
@@ -1953,7 +1955,7 @@ function concertTick(dt){
 function goalsList(){
   const g=G.L.goals;if(!g)return[];
   const tot=G.delivered+G.gaveUp,r=tot?G.delivered/tot:1,profit=G.rev-G.cost;
-  return[{t:'Satisfaction over '+Math.round(g.sat*100)+'%',ok:r>=g.sat,v:Math.round(r*100)+'%'},
+  return[{t:'Over '+Math.round(g.sat*100)+'% of all riders this level get there',ok:r>=g.sat,v:Math.round(r*100)+'%'},
          {t:'Fewer than '+g.gave+' riders give up',ok:G.gaveUp<g.gave,v:String(G.gaveUp)},
          {t:'Earn $'+g.profit+' profit',ok:profit>=g.profit,v:'$'+Math.round(profit)}];
 }
@@ -1996,7 +1998,7 @@ function endOfDay(){
       '<div class="btnrow">'+(st&&CAMPAIGN.indexOf(G.levelIdx)>=0&&CAMPAIGN.indexOf(G.levelIdx)<CAMPAIGN.length-1?'<button class="btn ok" data-act="level" data-i="'+CAMPAIGN[CAMPAIGN.indexOf(G.levelIdx)+1]+'">Next level</button>':'')+'<button class="btn alt" data-act="level" data-i="'+G.levelIdx+'">Replay</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="home">Levels</button></div></div>');
   }else{
     const tip=pct<70?'Tip: add buses to the busiest routes, or add stops closer to red crowds.':pct<90?'Tip: watch the amber stops. Extra buses there keep them green.':'Smooth day. Tomorrow brings more people.';
-    showOv('<div class="card"><h2>Day '+G.day+' done</h2><p class="sub">'+esc(tip)+' '+G.dayDel+' delivered today, '+G.dayGave+' gave up today ('+pct+'% of today\'s riders happy). Cash: '+money(G.money)+'.</p>'+dayReport()+
+    showOv('<div class="card"><h2>Day '+G.day+' done</h2><p class="sub">'+esc(tip)+' '+G.dayDel+' delivered today and '+G.dayGave+' gave up ('+pct+'% of today\'s riders). The number that decides game over, your last 50 riders, stands at '+Math.round(sat()*100)+'%. Cash: '+money(G.money)+'.</p>'+dayReport()+
       '<p class="sub">You can edit routes now. The city grows overnight.</p>'+
       '<div class="btnrow"><button class="btn ok" data-act="nextday">Start day '+(G.day+1)+'</button><button class="btn alt" data-act="share">Share card</button></div></div>');
   }
@@ -2894,13 +2896,17 @@ function ribbon(pts,w,y,mat){
 function syncRoutes(){
   const selR=ui.sel&&ui.sel.type==='route'?ui.sel.id:null,dr=ui.drawing;
   const key=G.netVer+'|'+selR+'|'+(dr?dr.routeId:'')+'|'+(ui.shape||'')+'|'+G.routes.map(r=>r.express?1:0).join('');
-  if(key===T.routeKey)return;T.routeKey=key;clearGroup(T.routeG);
+  if(key===T.routeKey)return;T.routeKey=key;clearGroup(T.routeG);T.flow=null;
   for(const r of G.routes){
     const hi=selR===r.id||(dr&&dr.routeId===r.id),dim=selR&&!hi;
     const op=(o)=>({transparent:true,opacity:o,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
     const under=basic(r.express?'#ffd24d':'#ffffff',op(dim?.3:.9)),top=basic(r.color,op(dim?.45:.97));
     const all=[].concat(...r.vis);
     T.routeG.add(ribbon(all,hi?13:10.5,.55,under));T.routeG.add(ribbon(all,hi?8.4:6.4,.7,top));
+    if(hi&&!T.flow){const segs=[],cum=[0];for(let k=0;k+1<all.length;k+=2){const a=all[k],b=all[k+1],l=Math.hypot(b[0]-a[0],b[1]-a[1]);segs.push([a,b,l]);cum.push(cum[cum.length-1]+l)}
+      const total=cum[cum.length-1];
+      if(total>60){const n=Math.min(70,Math.floor(total/38)),geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute([-3,0,-2.8,3.4,0,0,-3,0,2.8],3));geo.setIndex([0,2,1]);
+        const im=new THREE.InstancedMesh(geo,basic('#ffffff',{transparent:true,opacity:.92,depthWrite:false,side:THREE.DoubleSide}),n);im.frustumCulled=false;im.renderOrder=7;im.userData.keep=true;T.routeG.add(im);T.flow={im,segs,cum,total,n}}}
     if((hi||ui.shape===r.id)&&r.via){for(const k in r.via)for(const id of r.via[k]){const nd=G.city.nodes[id],w=new THREE.Mesh(T.gDisc,basic('#ffffff'));w.scale.setScalar(7.5);w.position.set(nd.x,1.1,nd.y);w.renderOrder=6;T.routeG.add(w);const w2=new THREE.Mesh(T.gRing,basic(r.color));w2.scale.setScalar(10);w2.position.set(nd.x,1.2,nd.y);w2.renderOrder=7;T.routeG.add(w2)}}
   }
 }
@@ -3064,6 +3070,10 @@ function effView(){
   return'off';
 }
 function syncViews(now){
+  if(T.flow){const f=T.flow,m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),p=new THREE.Vector3(),sc=new THREE.Vector3(1,1,1),off=ui.rm?0:now/24;
+    for(let i=0;i<f.n;i++){let d=(off+i*f.total/f.n)%f.total,k=0;while(k<f.segs.length-1&&d>f.cum[k+1])k++;const sg=f.segs[k],t=Math.min(1,Math.max(0,(d-f.cum[k])/(sg[2]||1)));
+      p.set(sg[0][0]+(sg[1][0]-sg[0][0])*t,.95,sg[0][1]+(sg[1][1]-sg[0][1])*t);q.setFromEuler(e.set(0,-Math.atan2(sg[1][1]-sg[0][1],sg[1][0]-sg[0][0]),0));m4.compose(p,q,sc);f.im.setMatrixAt(i,m4)}
+    f.im.instanceMatrix.needsUpdate=true}
   {const go=ui.growOpts;
    if(go&&go.length){
      if(!T.growG){T.growG=new THREE.Group();T.dyn.add(T.growG)}
@@ -3423,7 +3433,7 @@ function hud(){
   if(pct.textContent!==s+'%')pct.textContent=s+'%';
   const f=$('#satFill');f.style.width=s+'%';f.style.background=s>=75?COL.ok:s>=55?COL.warn:COL.bad;
   $('#satCard').classList.toggle('warn',s<58&&G.win.length>=12);
-  $('#cDel').textContent=G.delivered;$('#cGave').textContent=G.gaveUp;const cc=$('#cCash');cc.textContent=money(G.money);cc.classList.toggle('neg',G.money<0);
+  $('#cDel').textContent=G.delivered;$('#cGave').textContent=G.gaveUp;{const tt=G.dayDel+G.dayGave;$('#cToday').textContent='Today '+(tt?Math.round(100*G.dayDel/tt):100)+'%'}const cc=$('#cCash');cc.textContent=money(G.money);cc.classList.toggle('neg',G.money<0);
   const h=clockHour(G.t),hh=Math.floor(h),mm=Math.floor((h-hh)*60);
   $('#clock').textContent=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
   $('#dayLbl').textContent='Day '+G.day+(isFinite(G.L.days)?'/'+G.L.days:'')+' · '+G.season[0].toUpperCase()+G.season.slice(1);
