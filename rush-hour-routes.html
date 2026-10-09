@@ -2583,6 +2583,55 @@ function disposeTree(o){
     for(const m of ms){if(cachedM.has(m)||m.type==='SpriteMaterial')continue;if(m.map&&m.map!==T.leaf&&m.map!==T.waterTex&&!T.sprites.has(m.map.__key))m.map.dispose();m.dispose()}
   });
 }
+/* ================= landscape ================= */
+function buildLandscape(g,city,th,sav){
+  const W_=city.w,H_=city.h,cx=W_/2,cz=H_/2,R=rng(((G.L&&G.L.seed)||7)*13+5),wet=th==='harbor'||th==='sea';
+  const grass={meadow:'#6c9a47',riverbank:'#76a653',urban:'#8d9399',cobble:'#8a8d78',canal:'#6a9858',hills:'#6fa04b',forest:'#4b843a'}[th];
+  // distance outside the board (0 inside)
+  const dOut=(x,z)=>{const dx=Math.max(-70-x,0,x-(W_+70)),dz=Math.max(-70-z,0,z-(H_+70));return Math.hypot(dx,dz)};
+  const sstep=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};
+  const nz=(x,z)=>{const v=Math.sin(x*.0021+1.3)*Math.cos(z*.0017+.4)+.55*Math.sin((x+z)*.0042+2)+.28*Math.sin(x*.0113)*Math.cos(z*.0097)+.14*Math.sin(x*.027+z*.023);return(v/1.97+1)/2};
+  const amp={hills:280,forest:90,meadow:52,riverbank:44,canal:38,urban:0,cobble:0}[th]||0;
+  const hAt=(x,z)=>amp*sstep(140,850,dOut(x,z))*(.3+.7*nz(x,z));
+  // ground: tiled grass texture, or open water
+  let gmat;
+  if(wet){gmat=new THREE.MeshStandardMaterial({color:lin('#1b5b73').clone(),roughness:.08,metalness:.15,envMap:T.env,envMapIntensity:1.2,bumpMap:T.waterTex,bumpScale:.7})}
+  else{
+    gmat=new THREE.MeshStandardMaterial({color:lin(grass).clone(),roughness:.97})}
+  const big=new THREE.Mesh(new THREE.PlaneGeometry(W_+3600,H_+3600),gmat);big.rotation.x=-Math.PI/2;big.position.set(cx,-.9,cz);big.userData.keep=true;g.add(big);
+  // soft skirt so the board melts into its surroundings
+  {
+    const pad=wet?150:260,pw=W_+pad*2,ph=H_+pad*2,cwid=1024,chei=Math.round(1024*ph/pw),k=cwid/pw,col=wet?'#d9c998':grass;
+    const skirt=srgbTex(mkCanvas(cwid,chei,(c)=>{c.shadowColor=col;c.shadowBlur=wet?26:90;c.fillStyle=col;c.fillRect((pad-30)*k,(pad-30)*k,(W_+60)*k,(H_+60)*k)}));
+    const sk=new THREE.Mesh(new THREE.PlaneGeometry(pw,ph),new THREE.MeshStandardMaterial({map:skirt,transparent:true,roughness:1,depthWrite:false}));sk.rotation.x=-Math.PI/2;sk.position.set(cx,-.4,cz);sk.userData.keep=true;sk.renderOrder=-1;g.add(sk);
+  }
+  // rolling terrain ring
+  if(!sav&&amp>0){
+    const SEG=80,SZ=3000,geo=new THREE.PlaneGeometry(SZ+W_,SZ+H_,SEG,SEG);geo.rotateX(-Math.PI/2);
+    const pos=geo.attributes.position,col=new Float32Array(pos.count*3),lo=new THREE.Color(grass).multiplyScalar(1.05),hi=new THREE.Color(th==='hills'?'#9fae82':'#5f9547'),rk=new THREE.Color('#d8dbd2'),tmp=new THREE.Color();
+    for(let i=0;i<pos.count;i++){const x=pos.getX(i)+cx,z=pos.getZ(i)+cz,h=hAt(x,z);pos.setY(i,h-.55);
+      const t=Math.min(1,h/amp);tmp.copy(lo).lerp(hi,t*.8+.15*nz(x*3,z*3));if(th==='hills'&&t>.85)tmp.lerp(rk,(t-.85)/.15*.8);col[i*3]=tmp.r;col[i*3+1]=tmp.g;col[i*3+2]=tmp.b}
+    geo.setAttribute('color',new THREE.BufferAttribute(col,3));geo.computeVertexNormals();
+    const terr=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.97}));terr.position.set(cx,0,cz);terr.userData.keep=true;g.add(terr);
+    // trees on the slopes
+    const n=th==='forest'?700:th==='hills'?420:220,cone=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.95,emissive:new THREE.Color(0x0e1a0a)}),n*2),trunk=new THREE.InstancedMesh(new THREE.CylinderGeometry(.12,.16,1,5),M('#5b4128',{roughness:1}),n),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),c1=new THREE.Color();
+    const GR=th==='forest'?['#2f6a2c','#3b7a33','#2a5d2a','#477f34']:['#3f7a34','#4f8b3c','#356f30','#5c9444'];let k=0,j=0;
+    for(let i=0;i<n*6&&k<n;i++){
+      const x=-1300+R()*(W_+2600),z=-1300+R()*(H_+2600),d=dOut(x,z);if(d<80||d>1250)continue;
+      const h=hAt(x,z);if(amp&&h>amp*.82)continue;
+      const H=26+R()*(th==='forest'?34:24),w=H*.34;
+      sc.set(.9,H*.34,.9);ps.set(x,h+H*.17,z);m4.compose(ps,q.identity(),sc);trunk.setMatrixAt(k,m4);
+      sc.set(w,H*.62,w);ps.set(x,h+H*.5,z);m4.compose(ps,q,sc);cone.setMatrixAt(j,m4);cone.setColorAt(j++,c1.set(GR[Math.floor(R()*4)]));
+      sc.set(w*.74,H*.5,w*.74);ps.set(x,h+H*.78,z);m4.compose(ps,q,sc);cone.setMatrixAt(j,m4);cone.setColorAt(j++,c1.set(GR[Math.floor(R()*4)]));k++}
+    cone.count=j;trunk.count=k;cone.userData.keep=true;trunk.userData.keep=true;g.add(cone);g.add(trunk);
+  }
+  if(!sav&&(th==='urban'||th==='cobble')){
+    const n=110,bx=new THREE.InstancedMesh(T.gBox,new THREE.MeshStandardMaterial({color:lin(th==='urban'?'#aab8c8':'#b9a28b').clone(),roughness:.7,metalness:.1,emissive:new THREE.Color(0x10151c)}),n),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3();let k=0;
+    for(let i=0;i<n*4&&k<n;i++){const x=-700+R()*(W_+1400),z=-700+R()*(H_+1400),d=dOut(x,z);if(d<90||d>520)continue;const h=(th==='urban'?60+R()*240:40+R()*80),w=40+R()*50;sc.set(w,h,w*(.8+R()*.5));ps.set(x,h/2,z);m4.compose(ps,q,sc);bx.setMatrixAt(k++,m4)}
+    bx.count=k;bx.userData.keep=true;g.add(bx);
+  }
+  if(wet&&!sav){const mat=new THREE.MeshStandardMaterial({color:0xf2f4f6,roughness:.5});for(let i=0;i<8;i++){const a=R()*6.283,d=Math.max(W_,H_)*.5+260+R()*700,x=cx+Math.cos(a)*d*(W_/Math.max(W_,H_)+.3),z=cz+Math.sin(a)*d*(H_/Math.max(W_,H_)+.3);if(dOut(x,z)<160)continue;const b1=box(g,34,7,12,x,3.5,z,mat);b1.rotation.y=R()*6;box(g,10,9,8,x,10,z,M('#e2483d',{roughness:.5}))}}
+}
 function build3D(city){
   if(T.city){T.scene.remove(T.city);disposeTree(T.city);if(T.groundTex)T.groundTex.dispose()}
   T.cars=[];if(T.carBody){T.dyn.remove(T.carBody);T.dyn.remove(T.carCab);T.carBody.dispose();T.carCab.dispose();T.carBody.material.dispose()}
@@ -2742,35 +2791,7 @@ function build3D(city){
     const m=ribbon([[A.x,A.y],[B.x,B.y]],16,.45,basic('#3fb868',{transparent:true,opacity:.3,depthWrite:false}));tg2.add(m);T.traf.push({m,e})}
   tg2.visible=false;T.scene.add(tg2);
   // landscape around the city, different for every map
-  {
-    const th=(G.L&&G.L.theme)||THEME_OF[G.levelIdx]||['meadow','riverbank','urban','forest'][(G.L&&G.L.seed||0)%4];
-    const sav=PROF.gfx==='saver',W_=city.w,H_=city.h,cx=W_/2,cz=H_/2,R=rng(((G.L&&G.L.seed)||7)*13+5);
-    const col={meadow:'#6c9a47',riverbank:'#76a653',urban:'#8d9399',harbor:'#2c6e8d',cobble:'#8a8d78',canal:'#6a9858',hills:'#6fa04b',forest:'#4b843a',sea:'#2c6e8d'}[th];
-    const wet=th==='harbor'||th==='sea';
-    const gmat=wet?new THREE.MeshStandardMaterial({color:lin('#1b5b73').clone(),roughness:.08,metalness:.15,envMap:T.env,envMapIntensity:1.2,bumpMap:T.waterTex,bumpScale:.7}):new THREE.MeshStandardMaterial({color:lin(col).clone(),roughness:.96});
-    const big=new THREE.Mesh(new THREE.PlaneGeometry(W_+3600,H_+3600),gmat);big.rotation.x=-Math.PI/2;big.position.set(cx,-.7,cz);big.userData.keep=true;g.add(big);
-    if(wet){const sand=new THREE.Mesh(new THREE.PlaneGeometry(W_+90,H_+90),new THREE.MeshStandardMaterial({color:lin('#d7c795').clone(),roughness:1}));sand.rotation.x=-Math.PI/2;sand.position.set(cx,-.5,cz);sand.userData.keep=true;g.add(sand)}
-    const ring=(i,min,max)=>{const a=R()*6.283,d=Math.max(W_,H_)*.5+min+R()*(max-min);return[cx+Math.cos(a)*d*(W_/Math.max(W_,H_)+.3),cz+Math.sin(a)*d*(H_/Math.max(W_,H_)+.3)]};
-    const outside=(x,z)=>x<-70||x>W_+70||z<-70||z>H_+70;
-    if(!sav&&(th==='hills'||th==='meadow'||th==='riverbank'||th==='canal')){
-      const n=th==='hills'?22:8,mat=new THREE.MeshStandardMaterial({color:lin(th==='hills'?'#5f9444':'#6aa04a').clone(),roughness:.97});
-      for(let i=0;i<n;i++){const p=ring(i,120,700);if(!outside(p[0],p[1]))continue;const r=th==='hills'?160+R()*260:90+R()*140,h=th==='hills'?(70+R()*120):(25+R()*35);const m=new THREE.Mesh(T.gSphere,mat);m.scale.set(r,h,r*(.8+R()*.4));m.position.set(p[0],-h*.2,p[1]);m.userData.keep=false;g.add(m)}
-    }
-    if(!sav&&(th==='forest'||th==='meadow'||th==='hills'||th==='canal')){
-      const n=th==='forest'?260:90,cone=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),new THREE.MeshStandardMaterial({color:lin(th==='forest'?'#2f6a2c':'#3f7a34').clone(),roughness:.95,emissive:new THREE.Color(0x0e1a0a)}),n),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3();let k=0;
-      for(let i=0;i<n*3&&k<n;i++){const p=ring(i,60,780);if(!outside(p[0],p[1]))continue;const h=34+R()*40,w=12+R()*10;sc.set(w,h,w);ps.set(p[0],h/2,p[1]);m4.compose(ps,q,sc);cone.setMatrixAt(k++,m4)}
-      cone.count=k;cone.castShadow=false;cone.userData.keep=true;g.add(cone);
-    }
-    if(!sav&&(th==='urban'||th==='cobble')){
-      const n=90,box1=new THREE.InstancedMesh(T.gBox,new THREE.MeshStandardMaterial({color:lin(th==='urban'?'#9fb0c2':'#b49a82').clone(),roughness:.7,metalness:.1,emissive:new THREE.Color(0x10151c)}),n),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3();let k=0;
-      for(let i=0;i<n*3&&k<n;i++){const p=ring(i,70,520);if(!outside(p[0],p[1]))continue;const h=(th==='urban'?60+R()*220:40+R()*80),w=40+R()*50;sc.set(w,h,w*(.8+R()*.5));ps.set(p[0],h/2,p[1]);m4.compose(ps,q,sc);box1.setMatrixAt(k++,m4)}
-      box1.count=k;box1.userData.keep=true;g.add(box1);
-    }
-    if(wet){
-      const n=7,mat=new THREE.MeshStandardMaterial({color:0xf2f4f6,roughness:.5});
-      for(let i=0;i<n;i++){const p=ring(i,160,900);if(!outside(p[0],p[1]))continue;const b1=box(g,34,7,12,p[0],3.5,p[1],mat);b1.rotation.y=R()*6;box(g,10,9,8,p[0],10,p[1],M('#e2483d',{roughness:.5}))}
-    }
-  }
+  buildLandscape(g,city,(G.L&&G.L.theme)||THEME_OF[G.levelIdx]||['meadow','riverbank','urban','forest'][(G.L&&G.L.seed||0)%4],PROF.gfx==='saver');
   // street name labels painted on the asphalt
   {
     const byName=new Map();for(const e of city.edges){if(!byName.has(e.name))byName.set(e.name,[]);byName.get(e.name).push(e)}
@@ -3244,7 +3265,7 @@ function lighting(now){
   const c=T.cityC;if(c)T.sun.position.set(c.x+dir.x*1300,dir.y*1300,c.z+dir.z*1300),T.sun.target.position.set(c.x,0,c.z),T.sun.target.updateMatrixWorld();
   const dense=G.event&&G.event.type==='fog';
   if(dense)fogC.copy(lin('#c9d2d8'));
-  T.scene.fog.color.copy(fogC);T.scene.fog.near=cam.dist*(dense?.55:1.1);T.scene.fog.far=cam.dist*(dense?1.9:5.2);
+  T.scene.fog.color.copy(fogC);T.scene.fog.near=cam.dist*(dense?.55:1.7);T.scene.fog.far=cam.dist*(dense?1.9:6.6);
   const emi=night*(storm?1.0:1),ev=1-Math.min(1,night*1.4);T.night=night;
   for(const e of T.emis)e.m.emissiveIntensity=e.base*emi;
   if(T.halo)T.halo.material.opacity=Math.min(1,night*1.3);
@@ -3662,7 +3683,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={meta:{selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={meta:{T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 /* boot (deferred one frame so the splash screen can paint first) */
 function bootGame(){
 performance.mark('rhr:boot');
