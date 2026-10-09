@@ -119,7 +119,7 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
 .chip.new{background:#ffe9a8;color:#7a5600}
 .stars{font-size:20px;letter-spacing:2px;color:#d3a21d}
 .stars .off{color:#d6dde2}
-.card>.btnrow:last-child{position:sticky;bottom:-22px;background:linear-gradient(rgba(255,255,255,0),#fff 28%);padding:14px 0 4px;margin-top:10px}
+.card>.btnrow:last-child{box-shadow:0 -16px 14px -6px #fff;position:sticky;bottom:-22px;background:linear-gradient(rgba(255,255,255,0),#fff 28%);padding:14px 0 4px;margin-top:10px}
 .btnrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
 .btn{height:54px;padding:0 24px;border-radius:14px;border:0;background:var(--accent);color:#fff;font-family:var(--font-display);font-weight:800;font-size:17px}
 .btn.alt{background:#e9eff3;color:var(--ink)}
@@ -885,7 +885,7 @@ function pickDriver(){
   if(!d){const taken=new Set(PROF.drivers.map(x=>x.name));d={name:DRV_NAMES.find(n=>!taken.has(n))||('Driver '+(PROF.drivers.length+1)),xp:0};PROF.drivers.push(d)}
   return d;
 }
-function drvXp(d){const a=drvLevel(d);d.xp++;const b=drvLevel(d);if(b>a){toast(d.name+' is now a '+DRV_TITLE[b-1]+' driver (level '+b+'). Drives faster and stops quicker.',3800);snd('cheer');saveProfile()}}
+function drvXp(d){const a=drvLevel(d);d.xp++;const b=drvLevel(d);if(b>a){const n=performance.now();if(n-(T.drvToastT||0)>6000){T.drvToastT=n;toast(d.name+' is now a '+DRV_TITLE[b-1]+' driver (level '+b+').',3200);snd('cheer')}saveProfile()}}
 function showDrivers(){
   const ds=(PROF.drivers||[]).slice().sort((a,b)=>b.xp-a.xp),on=new Map(G.buses.filter(b=>b.drv).map(b=>[b.drv,b.route.name]));
   showOv('<div class="card small"><h2>Drivers</h2><p class="sub">Every bus has a named driver. They earn experience for each rider they deliver, and drive faster and stop quicker as they level up. Your drivers stay with you across games.</p>'+
@@ -1026,7 +1026,7 @@ const TOUR=[
  {sel:'#satCard',title:'Satisfaction',text:'The share of the last 50 riders who got where they wanted. Keep it above 50%, and above 60% to stay safe.'},
  {sel:'#bMenu',title:'Menu and Guide',text:'Everything else is here, including the Guide with every button explained and the best strategies.'}];
 function startTour(){
-  ui.tour={i:-1,was:G.paused};G.paused=true;G.modal=true;syncPlay();
+  ui.tour={i:-1,was:G.paused};ui.sheet=false;ui.sel=null;G.paused=true;G.modal=true;syncPlay();ui.dirty=true;
   let el=$('#tour');if(!el){el=document.createElement('div');el.id='tour';$('#app').appendChild(el)}
   el.hidden=false;tourStep(1);
 }
@@ -1036,7 +1036,7 @@ function tourStep(d){
   if(i<0)i=0;
   if(i>=TOUR.length){endTour();return}
   tr.i=i;const st=TOUR[i],e=document.querySelector(st.sel),r=e.getBoundingClientRect(),el=$('#tour'),below=r.top<innerHeight/2;
-  el.innerHTML='<div class="tspot" style="left:'+(r.left-6)+'px;top:'+(r.top-6)+'px;width:'+(r.width+12)+'px;height:'+(r.height+12)+'px"></div><div class="tcard" style="'+(below?'top:'+Math.min(innerHeight-190,r.bottom+16)+'px':'bottom:'+Math.max(10,innerHeight-r.top+16)+'px')+'"><b>'+esc(st.title)+'</b><p>'+esc(st.text)+'</p><div class="tbtns"><span>'+(i+1)+' / '+TOUR.length+'</span><button data-act="tourskip">Skip</button>'+(i>0?'<button data-act="tourback">Back</button>':'')+'<button class="go" data-act="tournext">'+(i===TOUR.length-1?'Done':'Next')+'</button></div></div>';
+  el.innerHTML='<div class="tspot" style="left:'+(r.left-6)+'px;top:'+(r.top-6)+'px;width:'+(r.width+12)+'px;height:'+(r.height+12)+'px"></div><div class="tcard" style="'+(r.top>innerHeight*.55?'top:96px':'bottom:104px')+'"><b>'+esc(st.title)+'</b><p>'+esc(st.text)+'</p><div class="tbtns"><span>'+(i+1)+' / '+TOUR.length+'</span><button data-act="tourskip">Skip</button>'+(i>0?'<button data-act="tourback">Back</button>':'')+'<button class="go" data-act="tournext">'+(i===TOUR.length-1?'Done':'Next')+'</button></div></div>';
 }
 function endTour(){
   const tr=ui.tour;ui.tour=null;PROF.tourDone=true;saveProfile();
@@ -1974,8 +1974,8 @@ function dayReport(){
   let worst='';
   if(ws){const n=G.city.nodes[ws.id],h=clockHour(ws.peakT),hh=Math.floor(h),mm=Math.floor((h-hh)*60);
     worst='<div class="worst"><b>Worst moment</b>'+esc(nodeName(n))+' hit '+ws.peak+' waiting around '+String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+(ws.gaveDay?', and '+ws.gaveDay+' gave up there':'')+'.<button class="mini" data-act="showworst" data-id="'+ws.id+'">Show me</button></div>'}
-  return storiesHtml()+missionReport()+'<div class="worst" style="background:#e4f6ea"><b>City grant: +'+money(G.dayGrant||0)+'</b>Public funding paid at the end of every day, plus a bonus for each rider you delivered.</div><div class="statgrid"><div><b>'+money(G.dayRev)+'</b><span>Fares</span></div><div><b>'+money(G.dayCost)+'</b><span>Running costs</span></div><div><b class="'+(prof<0?'neg':'')+'">'+money(prof)+'</b><span>Profit</span></div></div>'+
-    (rows?'<div class="tbl"><table><thead><tr><th>Route</th><th>Riders</th><th>Load</th><th>Wait</th><th>Profit</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'')+worst;
+  return missionReport()+'<div class="worst" style="background:#e4f6ea"><b>City grant: +'+money(G.dayGrant||0)+'</b>Public funding paid at the end of every day, plus a bonus for each rider you delivered.</div><div class="statgrid"><div><b>'+money(G.dayRev)+'</b><span>Fares</span></div><div><b>'+money(G.dayCost)+'</b><span>Running costs</span></div><div><b class="'+(prof<0?'neg':'')+'">'+money(prof)+'</b><span>Profit</span></div></div>'+
+    (rows?'<div class="tbl"><table><thead><tr><th>Route</th><th>Riders</th><th>Load</th><th>Wait</th><th>Profit</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'')+worst+storiesHtml();
 }
 function endOfDay(){
   G.paused=true;G.modal=true;syncPlay();
@@ -2019,6 +2019,7 @@ function nextDay(){
   saveGame();
 }
 function gameOver(why){
+  setTimeout(()=>{const o=$('#ov');if(o&&!o.hidden)o.classList.add('light')},0);
   G.over=true;G.paused=true;G.modal=true;syncPlay();snd('sad');
   const title=why==='bankrupt'?'The transit agency is bankrupt':'Satisfaction dropped below 50%';
   const msg=why==='bankrupt'?'Running costs outgrew your fares. Cut buses on quiet routes, use rush-hour-only schedules, and aim fares at busy stops.':'Too many riders gave up waiting. Add buses where crowds turn red and make sure routes reach the business district.';
@@ -2899,7 +2900,7 @@ function syncRoutes(){
     const op=(o)=>({transparent:true,opacity:o,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
     const under=basic(r.express?'#ffd24d':'#ffffff',op(dim?.3:.9)),top=basic(r.color,op(dim?.45:.97));
     const all=[].concat(...r.vis);
-    T.routeG.add(ribbon(all,hi?11:9,.55,under));T.routeG.add(ribbon(all,hi?7:5.4,.7,top));
+    T.routeG.add(ribbon(all,hi?13:10.5,.55,under));T.routeG.add(ribbon(all,hi?8.4:6.4,.7,top));
     if((hi||ui.shape===r.id)&&r.via){for(const k in r.via)for(const id of r.via[k]){const nd=G.city.nodes[id],w=new THREE.Mesh(T.gDisc,basic('#ffffff'));w.scale.setScalar(7.5);w.position.set(nd.x,1.1,nd.y);w.renderOrder=6;T.routeG.add(w);const w2=new THREE.Mesh(T.gRing,basic(r.color));w2.scale.setScalar(10);w2.position.set(nd.x,1.2,nd.y);w2.renderOrder=7;T.routeG.add(w2)}}
   }
 }
@@ -3288,7 +3289,7 @@ function toast(msg,ms){
   while($('#toasts').children.length>2)$('#toasts').firstChild.remove();
   setTimeout(()=>d.remove(),ms||2800);
 }
-function showOv(html){const o=$('#ov');o.classList.remove('light');o.innerHTML=html;o.hidden=false;G.modal=true}
+function showOv(html){const o=$('#ov');{const c=$('#coach');if(c&&!c.hidden){c.hidden=true}}o.classList.remove('light');o.innerHTML=html;o.hidden=false;G.modal=true}
 function hideOv(){$('#ov').hidden=true;G.modal=false}
 const ICON_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 const ICON_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
@@ -3459,7 +3460,7 @@ document.addEventListener('click',e=>{
     case'sound':ui.sound=!ui.sound;syncPlay();if(el.closest('#ov'))el.textContent=ui.sound?'Sound: on':'Sound: off';break;
     case'fitclose':hideOv();fitCam(true);break;
     case'fit':fitCam(true);break;
-    case'menu':if(G.modal)return;G.paused=true;syncPlay();showOv('<div class="card small"><h2>Paused</h2><div class="menugrid"><button class="btn ok full" data-act="resume">Resume</button><button class="btn alt" data-act="retryday"'+(G.snap?'':' disabled')+'>Restart today</button><button class="btn alt" data-act="cityhall">City Hall</button><button class="btn alt" data-act="garage">Garage</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="goals">Goals</button><button class="btn alt" data-act="photo">Photo mode</button><button class="btn alt" data-act="sound">'+(ui.sound?'Sound: on':'Sound: off')+'</button><button class="btn alt" data-act="settings" data-from="game">Settings</button><button class="btn alt" data-act="trophies" data-from="game">Trophies</button><button class="btn alt" data-act="slots" data-from="game">Save slots</button><button class="btn alt" data-act="guide" data-from="game">Guide</button><button class="btn alt" data-act="shop" data-from="game">Shop</button><button class="btn alt" data-act="drivers">Drivers</button><button class="btn alt" data-act="fitclose">Fit map</button><button class="btn alt" data-act="restartlevel">Restart level</button><button class="btn alt" data-act="home">Level select</button><button class="btn alt full" data-act="howto">How to play</button></div></div>');break;
+    case'menu':if(G.modal){if(ui.growOpts)toast('Choose where the city grows first, or tap Not today.',2400);return}G.paused=true;syncPlay();showOv('<div class="card small"><h2>Paused</h2><div class="menugrid"><button class="btn ok full" data-act="resume">Resume</button><button class="btn alt" data-act="retryday"'+(G.snap?'':' disabled')+'>Restart today</button><button class="btn alt" data-act="cityhall">City Hall</button><button class="btn alt" data-act="garage">Garage</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="goals">Goals</button><button class="btn alt" data-act="photo">Photo mode</button><button class="btn alt" data-act="sound">'+(ui.sound?'Sound: on':'Sound: off')+'</button><button class="btn alt" data-act="settings" data-from="game">Settings</button><button class="btn alt" data-act="trophies" data-from="game">Trophies</button><button class="btn alt" data-act="slots" data-from="game">Save slots</button><button class="btn alt" data-act="guide" data-from="game">Guide</button><button class="btn alt" data-act="shop" data-from="game">Shop</button><button class="btn alt" data-act="drivers">Drivers</button><button class="btn alt" data-act="fitclose">Fit map</button><button class="btn alt" data-act="restartlevel">Restart level</button><button class="btn alt" data-act="home">Level select</button><button class="btn alt full" data-act="howto">How to play</button></div></div>');break;
     case'resume':hideOv();syncPlay();break;
     case'backov':{const h=ui.prevOv;ui.prevOv=null;if(h){showOv(h)}else{hideOv();syncPlay()}break}
     case'set':setOpt(el.dataset.k,el.dataset.v);break;
