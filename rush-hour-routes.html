@@ -212,6 +212,8 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
 #growbar{position:absolute;left:50%;transform:translateX(-50%);bottom:96px;display:flex;gap:12px;align-items:center;padding:8px 12px;font-weight:700;z-index:8}
 #ov.light{backdrop-filter:none;background:rgba(18,40,32,.15);align-items:flex-end;padding-bottom:84px}
 @keyframes nudge{0%,100%{transform:none}50%{transform:translateY(-6px)}}.tbtn.nudge{animation:nudge .45s 4;box-shadow:0 0 0 3px var(--accent)}
+#advisor{position:absolute;left:50%;transform:translateX(-50%);bottom:92px;width:min(560px,calc(100% - 20px));display:flex;gap:8px;align-items:center;padding:8px 10px 8px 12px;box-sizing:border-box;font-weight:700;font-size:13px;line-height:1.35;z-index:6}
+#advisor span{flex:1}#advisor button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:6px 10px;font-weight:800;white-space:nowrap}#advisor button.go{background:var(--ok);border-color:var(--ok);color:#fff}
 .legend{position:absolute;left:10px;bottom:92px;max-width:250px;padding:9px 12px;font-size:12.5px;font-weight:700;line-height:1.4;pointer-events:none}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
 @media (max-width:560px){.legend{left:8px;bottom:84px;max-width:210px;font-size:12px}}
@@ -781,6 +783,7 @@ function setOpt(k,v){
   else if(k==='vol'){PROF.vol=+v;if(AOUT)AOUT.gain.value=PROF.vol;snd('bell')}
   else if(k==='streets')PROF.streets=PROF.streets===false;
   else if(k==='skiptut')PROF.skipTut=!PROF.skipTut;
+  else if(k==='advisor')PROF.advisor=PROF.advisor===false;
   else if(k==='sound'){ui.sound=!ui.sound;syncPlay()}
   else if(k==='gfx'){const was=PROF.gfx;PROF.gfx=v;if((was==='saver')!==(v==='saver')&&G.city&&T.ok){saveProfile();applyGfx();build3D(G.city);resetDyn();return showSettings(ui.setFrom)}}
   else if(k==='diff')PROF.diff=v;
@@ -796,6 +799,7 @@ function showSettings(from){
    '<div class="set"><div><b>Ambience</b><small>City sounds that change with zoom and time of day: wind, birds, crickets, bus bells.</small></div>'+tg('amb',PROF.amb!==false)+'</div>'+
    '<div class="set"><div><b>Music</b><small>Calm by day. Faster and tense in rush hour or when riders are upset.</small></div>'+tg('music',PROF.music)+'</div>'+
    '<div class="set"><div><b>Colour-blind safe colours</b><small>Blue, yellow and orange, plus shapes on stop badges.</small></div>'+tg('cb',PROF.a11y.cb)+'</div>'+
+   '<div class="set"><div><b>Advisor tips</b><small>A small suggestion with a one-tap fix, such as adding a bus where a stop is turning red.</small></div>'+tg('advisor',PROF.advisor!==false)+'</div>'+
    '<div class="set"><div><b>Skip the tutorial</b><small>Start levels without the step-by-step first stop and route tutorial.</small></div>'+tg('skiptut',!!PROF.skipTut)+'</div>'+
    '<div class="set"><div><b>Health check</b><small>Automatic self-test and repair, and a report you can copy if something looks wrong.</small></div><div class="seg"><button data-act="diag" data-from="'+ui.setFrom+'">Open</button></div></div>'+
    '<div class="set"><div><b>Interactive tour</b><small>A quick walk through the buttons on screen.</small></div><div class="seg"><button data-act="tour">Start tour</button></div></div>'+
@@ -945,7 +949,7 @@ money:`<ul><li><b>Income</b>: every rider who arrives pays a fare ($3 to $10; ni
 <h3>Missions</h3><p>The panel under the clock shows today's missions, like delivering a number of riders before noon. They pay cash and company XP. Tap the panel on a phone to see all of them.</p>`,
 events:`<dl><dt>Road closure / Parade</dt><dd>Roads are blocked. Buses detour automatically. Check your routes still connect.</dd><dt>Accident</dt><dd>A road is blocked for a short while. A hospital helps clear it faster.</dd><dt>Storm</dt><dd>Riders lose patience faster.</dd><dt>Flooding</dt><dd>Like a storm, and low roads near water close.</dd><dt>Snow</dt><dd>In winter. A road is blocked and all buses are slower.</dd><dt>Fog</dt><dd>Buses and traffic slow down.</dd><dt>Concert</dt><dd>When it ends a big crowd heads home from the arena. Put a stop near it and add buses.</dd><dt>Breakdown</dt><dd>One bus stops for a while. Extra buses cover the gap, and depots speed up the recovery.</dd></dl>
 <div class="tip">Seasons change the look of the city and the odds of events. Events are your reason to keep a cash buffer.</div>`,
-unlocks:`<dl><dt>Company level and XP</dt><dd>You earn XP for deliveries, missions, trophies and finishing days. Levels carry over between games.</dd><dt>City Hall</dt><dd>Spend cash on permanent upgrades once your company level is high enough: arrival signs (more patient riders), depot network, electric buses (cheaper running), priority dispatch, smart traffic lights, night service, bike share and trams.</dd><dt>Garage</dt><dd>Cosmetics: bus paint, stop signs and tower styles, unlocked by level.</dd><dt>Drivers</dt><dd>Every bus has a named driver. Drivers earn experience for every rider they deliver and level up: Rookie, Steady, Pro, Veteran, Legend. Higher levels drive faster and stop quicker, and they keep their levels across games.</dd><dt>Mayor requests</dt><dd>From day 2 the mayor sometimes adds a special mission (marked with a flag): serve a landmark, link two places by bus, keep everyone happy until 09:30, or grow your fleet. They pay extra cash and XP.</dd><dt>Map expansion</dt><dd>In long games the map itself grows. From day 10 (and from day 3 on the last two campaign levels) one new row or column of blocks opens each day, alternating east and south, up to a maximum size. Your routes and stops are kept, and rider numbers go up a little with each expansion.</dd><dt>Rider stories</dt><dd>A few riders each day have names and jobs. Their stories, good and bad, appear in the day report.</dd><dt>New game plus</dt><dd>After you finish the whole campaign, a Plus difficulty appears in Settings with tougher patience, income and running costs.</dd><dt>Backup and restore</dt><dd>In Settings you can copy a backup code of your profile, drivers and saves, and paste it later on any device.</dd><dt>Trophies</dt><dd>Achievements for things like your first route, a spotless day, a loop route or a tram.</dd><dt>Levels</dt><dd>Eleven campaign maps get harder, plus Sandbox (endless, no game over), a Daily Challenge and a Weekly Challenge. Difficulty and settings are in the menu.</dd></dl>`,
+unlocks:`<dl><dt>Company level and XP</dt><dd>You earn XP for deliveries, missions, trophies and finishing days. Levels carry over between games.</dd><dt>City Hall</dt><dd>Spend cash on permanent upgrades once your company level is high enough: arrival signs (more patient riders), depot network, electric buses (cheaper running), priority dispatch, smart traffic lights, night service, bike share and trams.</dd><dt>Garage</dt><dd>Cosmetics: bus paint, stop signs and tower styles, unlocked by level.</dd><dt>Drivers</dt><dd>Every bus has a named driver. Drivers earn experience for every rider they deliver and level up: Rookie, Steady, Pro, Veteran, Legend. Higher levels drive faster and stop quicker, and they keep their levels across games.</dd><dt>Mayor requests</dt><dd>From day 2 the mayor sometimes adds a special mission (marked with a flag): serve a landmark, link two places by bus, keep everyone happy until 09:30, or grow your fleet. They pay extra cash and XP.</dd><dt>Map expansion</dt><dd>In long games the map itself grows. From day 10 (and from day 3 on the last two campaign levels) one new row or column of blocks opens each day, alternating east and south, up to a maximum size. Your routes and stops are kept, and rider numbers go up a little with each expansion.</dd><dt>Advisor</dt><dd>A small tip with a one-tap fix appears at the bottom when something needs attention: a stop about to give up (add a bus), stranded riders (show me where), or a route losing money (remove a bus or run rush hours only). You can dismiss a tip, and switch the advisor off in Settings.</dd><dt>Rider stories</dt><dd>A few riders each day have names and jobs. Their stories, good and bad, appear in the day report.</dd><dt>New game plus</dt><dd>After you finish the whole campaign, a Plus difficulty appears in Settings with tougher patience, income and running costs.</dd><dt>Backup and restore</dt><dd>In Settings you can copy a backup code of your profile, drivers and saves, and paste it later on any device.</dd><dt>Trophies</dt><dd>Achievements for things like your first route, a spotless day, a loop route or a tram.</dd><dt>Levels</dt><dd>Eleven campaign maps get harder, plus Sandbox (endless, no game over), a Daily Challenge and a Weekly Challenge. Difficulty and settings are in the menu.</dd></dl>`,
 strategy:`<h3>Build well</h3><ul><li>Put your first two stops between the biggest group of houses and the biggest group of offices. Glowing blocks are where riders appear.</li><li>Use <b>Coverage</b> map view to find blocks that have no stop. Red blocks are riders you are missing.</li><li>Long straight routes with few turns beat tangled ones. Use <b>Shape road</b> to dodge jams instead of adding more stops.</li><li>Use <b>Loop</b> for rings and downtown circuits, <b>Express</b> for long trips, and transfers for big cities (a few busy trunk routes feeding smaller local ones).</li></ul>
 <h3>Run well</h3><ul><li>Check the stops first thing in the rush. Add a bus to the route with the red stops, not to every route.</li><li>If a route is full and cannot take another bus (roads get jammed), upgrade the vehicle size.</li><li>Quiet routes: switch to <b>Rush hours only</b> or cut a bus. Busy routes: add buses before upgrading.</li><li>Turn on <b>Even spacing</b> when buses on a long route clump together.</li><li>Use <b>Priority call</b> on a single stop that is about to explode, not as a habit.</li><li>Put ramps on stops that join residential blocks to the network once wheelchair users appear.</li></ul>
 <h3>Stay safe</h3><ul><li>Keep a cash buffer of at least one or two buses. Events cost you.</li><li>Do not add night service or bike docks until your day routes are stable.</li><li>Read the day report: 'Worst moment' shows where you lost the most riders. Tap <b>Show me</b> and fix that stop.</li><li>If a day goes badly, use Retry from today and try a different plan.</li></ul>
@@ -975,6 +979,36 @@ function doImport(){
     applyA11y();toast('Backup restored.');showBackup(ui.setFrom);
   }catch(e){toast('That code is not valid.')}
 }
+/* ================= advisor ================= */
+function advise(){
+  if(!G.city||tutOn()||G.modal||G.over||G.paused&&G.t===0)return null;
+  const snz=ui.advSnooze||{},ok=k=>(snz[k]||-1)<G.t;
+  // 1. the worst red stop on a route we can still strengthen
+  let best=null;
+  for(const r of G.routes){
+    if(!r.buses.length||r.buses.length>=8)continue;
+    let red=0,at=null,w=0;for(const sid of r.stops){const st=G.stops.get(sid);if(!st)continue;if(stopStatus(st)===2){red++;if(st.waiters.length>w){w=st.waiters.length;at=st}}}
+    if(red&&(!best||red*10+w>best.score))best={r,at,w,red,score:red*10+w};
+  }
+  const price=best?BUS_MODELS[best.r.model||0].price:0;
+  if(best&&G.money>=price+100&&ok('add'+best.r.id))return{key:'add'+best.r.id,text:best.r.name+': '+nodeName(G.city.nodes[best.at.id])+' has '+best.w+' waiting and someone is about to give up.',btn:'Add a bus · '+money(price),act:'advadd',id:best.r.id};
+  // 2. strangers who cannot reach where they are going
+  let nr=0;for(const st of G.stops.values())for(const c of st.waiters)if(c.noRoute)nr++;
+  if(nr>=4&&ok('unreach'))return{key:'unreach',text:nr+' riders cannot reach their destination.',btn:'Show me where',act:'unreach'};
+  // 3. a route that keeps losing money
+  if(G.t>45)for(const r of G.routes){const t=r.stat,pf=t.rev-t.cost;if(r.buses.length>1&&pf<-40&&ok('cut'+r.id))return{key:'cut'+r.id,text:r.name+' is losing '+money(-pf)+' today with '+r.buses.length+' buses.',btn:'Remove a bus',act:'advcut',id:r.id};
+    if(r.buses.length===1&&pf<-60&&r.sched!=='peak'&&!r.night&&ok('rush'+r.id))return{key:'rush'+r.id,text:r.name+' is losing '+money(-pf)+' today. Quiet routes can run in rush hours only.',btn:'Rush hours only',act:'advrush',id:r.id}}
+  return null;
+}
+function advisorTick(){
+  let el=$('#advisor');if(!el){el=document.createElement('div');el.id='advisor';el.className='panel';el.hidden=true;$('#app').appendChild(el)}
+  const busy=!$('#stopcard').hidden||ui.sheet||ui.tour||ui.drawing||ui.shape||!$('#coach').hidden||G.modal||PROF.advisor===false;
+  const a=busy?null:advise();
+  if(!a){if(!el.hidden)el.hidden=true;ui.advKey=null;return}
+  if(ui.advKey!==a.key){ui.advKey=a.key;el.innerHTML='<span>💡 '+esc(a.text)+'</span><button class="go" data-act="'+a.act+'" data-id="'+(a.id||'')+'" data-key="'+a.key+'">'+esc(a.btn)+'</button><button data-act="advx" data-key="'+a.key+'" aria-label="Dismiss">✕</button>'}
+  el.hidden=false;
+}
+function advSnooze(key,secs){(ui.advSnooze=ui.advSnooze||{})[key]=G.t+(secs||60);ui.advKey=null;const el=$('#advisor');if(el)el.hidden=true}
 /* ================= self check ================= */
 const DIAG={log:[],checks:0,fixed:0,lastErr:[]};
 function diagNote(msg){const k=G.levelIdx+'|'+msg;if(DIAG.seen&&DIAG.seen.has(k))return;(DIAG.seen=DIAG.seen||new Set()).add(k);DIAG.log.push({d:G.day,t:Math.round(G.t||0),l:G.L?G.L.name:'',m:msg});if(DIAG.log.length>60)DIAG.log.shift()}
@@ -1470,11 +1504,6 @@ function buyEngine(){
   const c=PRICE.engine[G.engine];if(G.money<c){toast('Faster engines cost $'+c+'.');return}
   if(c>=1000&&!confirmTap('engine','Faster engines cost $'+c+'.'))return;
   G.money-=c;G.engine++;G.netVer++;toast('Faster engines: every bus is '+(G.engine*12)+'% quicker.');snd('cheer');ui.dirty=true;
-}
-function removeBus(r){
-  if(!r.buses.length)return;
-  let b=r.buses[0];for(const o of r.buses)if(o.pax.length<b.pax.length)b=o;
-  dumpBus(b,true);netChanged();
 }
 function applyPath(b,p){
   b.state='drive';b.from=p[0];b.to=p[1];b.queue=p.slice(2);b.s=0;b.dst=p[p.length-1];
@@ -3476,7 +3505,7 @@ function liveInfo(){
     const e=document.querySelector('[data-info="'+r.id+'"]');if(!e)continue;
     let w=0;for(const sid of r.stops){const st=G.stops.get(sid);if(st)w+=st.waiters.length}
     const t=r.stat,ld=t.loadN?Math.round(100*t.loadSum/t.loadN):0,wt=t.boarded?Math.round(t.waitSum/t.boarded):0,pf=t.rev-t.cost;
-    e.textContent=r.buses.length?(r.stops.length+' stops · '+w+' waiting · load '+ld+'% · wait '+wt+'s · '+money(pf)+' today'):'No buses! Add one with +  ('+money(BUS_MODELS[r.model||0].price)+')';
+    e.classList.toggle('bad',r.buses.length>0&&pf<-40);e.textContent=r.buses.length?((pf<-40?'⚠ losing money · ':'')+r.stops.length+' stops · '+w+' waiting · load '+ld+'% · wait '+wt+'s · '+money(pf)+' today'):'No buses! Add one with +  ('+money(BUS_MODELS[r.model||0].price)+')';
   }
 }
 function applyHint(){
@@ -3544,6 +3573,10 @@ document.addEventListener('click',e=>{
     case'backov':{const h=ui.prevOv;ui.prevOv=null;if(h){showOv(h)}else{hideOv();syncPlay()}break}
     case'set':setOpt(el.dataset.k,el.dataset.v);break;
     case'shop':showShop(el.dataset.from);break;
+    case'advadd':{const r=G.routes.find(x=>x.id===+el.dataset.id);if(r){pushUndo();if(addBus(r))toast('Bus added to '+r.name+'.',1800)}advSnooze(el.dataset.key,90);break}
+    case'advcut':{const r=G.routes.find(x=>x.id===+el.dataset.id);if(r){pushUndo();removeBus(r);toast('Removed a bus from '+r.name+' (half the price refunded).',2600)}advSnooze(el.dataset.key,120);break}
+    case'advrush':{const r=G.routes.find(x=>x.id===+el.dataset.id);if(r&&r.sched!=='peak'){pushUndo();toggleSched(r)}advSnooze(el.dataset.key,120);break}
+    case'advx':advSnooze(el.dataset.key,120);break
     case'diag':showDiag(el.dataset.from);break;
     case'growlook':{hideOv();ui.growOpts=ui.growOpts;let gb=$('#growbar');if(!gb){gb=document.createElement('div');gb.id='growbar';gb.className='panel';$('#app').appendChild(gb)}gb.innerHTML='<span>Spots A, B and C are marked on the map.</span><button class="btn ok" data-act="growback">Choose</button>';gb.hidden=false;break}
     case'growback':{const gb=$('#growbar');if(gb)gb.hidden=true;showGrowth(ui.growOpts||[]);break}
@@ -3719,7 +3752,7 @@ function frame(now){
     }
     uiT+=rdt;
     if(ui.dirty)refreshUI();
-    if(uiT>.25){uiT=0;if(!G.paused&&++_scT%40===0)selfCheck();ui.vibrate=true;coachTick();hud();updateStopCard(false);liveInfo();applyHint()}
+    if(uiT>.25){uiT=0;if(!G.paused&&++_scT%40===0)selfCheck();if(_scT%12===0)advisorTick();ui.vibrate=true;coachTick();hud();updateStopCard(false);liveInfo();applyHint()}
     if(ui.follow){const fb=G.buses.find(x=>x.id===ui.follow);if(!fb){ui.follow=null;ui.dirty=true}else{const k=Math.min(1,rdt*5);cam.x+=(fb.x-cam.x)*k;cam.y+=(fb.y-cam.y)*k;clampCam()}}
     if(ui.photo)cam.yaw+=rdt*.1;
     if(uiT===0)audioUpdate();
@@ -3731,7 +3764,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={meta:{expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={meta:{advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 /* boot (deferred one frame so the splash screen can paint first) */
 function bootGame(){
 performance.mark('rhr:boot');
