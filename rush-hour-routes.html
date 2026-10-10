@@ -2943,7 +2943,7 @@ function build3D(city){
       const rowR=sg_<0?0:mr,hw=city.edges.filter(e=>e.hw&&city.nodes[e.a].r===rowR).sort((a,b)=>city.nodes[a.a].x-city.nodes[b.a].x);
       if(!hw.length)continue;
       const hg=new THREE.Group();hg.userData.keep=true;
-      const rowY=city.nodes[hw[0].a].y,hy=rowY+sg_*100,x0=city.nodes[hw[0].a].x-320,x1=city.nodes[hw[hw.length-1].b].x+320;
+      const rowY=city.nodes[hw[0].a].y,hy=rowY+sg_*150,x0=city.nodes[hw[0].a].x-2800,x1=city.nodes[hw[hw.length-1].b].x+2800;
       const mk=(pts,w,y,mat)=>{const r=ribbon(pts,w,y,mat);r.userData.keep=true;hg.add(r);return r};
       mk([[x0,hy],[x1,hy]],50,.55,asph());
       const dashes=[];for(let xx=x0+10;xx<x1-14;xx+=26)dashes.push([xx,hy-1],[xx+13,hy-1]);
@@ -2952,7 +2952,7 @@ function build3D(city){
       for(let xx=x0+8;xx<x1;xx+=32)box(hg,12,3.4,1.4,xx,1.9,hy+sg_*27,rail,false);
       // off-ramp to a roundabout just outside the town edge, then a short stub into the road grid
       const nd=city.nodes[hw[Math.min(hw.length-1,Math.floor(hw.length*(sg_<0?.55:.42)))].a],xn=nd.x,cy=rowY+sg_*45,R=20;
-      const ramp=[];const P=[[xn-260,hy],[xn-70,hy],[xn-R,cy+sg_*40],[xn-R,cy]];
+      const ramp=[];const P=[[xn-300,hy],[xn-90,hy],[xn-R,cy+sg_*60],[xn-R,cy]];
       for(let k=0;k<=28;k++){const u=k/28,v=1-u;ramp.push([v*v*v*P[0][0]+3*v*v*u*P[1][0]+3*v*u*u*P[2][0]+u*u*u*P[3][0],v*v*v*P[0][1]+3*v*v*u*P[1][1]+3*v*u*u*P[2][1]+u*u*u*P[3][1]])}
       mk(ramp,26,.56,asph());
       const rdash=[];for(let k=0;k<ramp.length-1;k+=3)rdash.push(ramp[k],ramp[k+1]);mk(rdash,1.8,.63,line('#f4f1ea'));
@@ -2960,7 +2960,7 @@ function build3D(city){
       mk(ring,14,.57,asph());
       const isl=new THREE.Mesh(new THREE.CircleGeometry(R-9,24),new THREE.MeshBasicMaterial({color:lin('#4f9a45')}));isl.rotation.x=-Math.PI/2;isl.position.set(xn,.66,cy);isl.userData.keep=true;hg.add(isl);
       mk([[xn,cy],[xn,rowY]],ROAD_W,.56,asph());
-      for(let xx=x0+160;xx<x1-100;xx+=Math.max(300,(x1-x0)/3)){
+      for(let xx=x0+160;xx<x1-100;xx+=420){
         box(hg,2,30,2,xx,15,hy-27,metalMat,false);box(hg,2,30,2,xx,15,hy+23,metalMat,false);box(hg,2,2,52,xx,30,hy-2,metalMat,false);
         const sp=mkSprite(tex,44,16.5);sp.position.set(xx,24,hy-2);hg.add(sp)}
       g.add(hg);
