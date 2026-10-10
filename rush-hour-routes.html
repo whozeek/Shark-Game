@@ -2584,7 +2584,25 @@ function disposeTree(o){
   });
 }
 /* ================= landscape ================= */
+function grassCanvas(){
+  if(T.grassCv)return T.grassCv;
+  const N=512,R=rng(404),cv=document.createElement('canvas');cv.width=cv.height=N;const g=cv.getContext('2d');
+  g.fillStyle='#78a553';g.fillRect(0,0,N,N);
+  const wrap=(fn)=>{for(const ox of[-N,0,N])for(const oy of[-N,0,N])fn(ox,oy)};
+  for(let i=0;i<40;i++){
+    const bx=R()*N,by=R()*N,r=30+R()*70,c=R()<.5?'#8db764':'#628a45';
+    wrap((ox,oy)=>{const gr=g.createRadialGradient(bx+ox,by+oy,0,bx+ox,by+oy,r);gr.addColorStop(0,c);gr.addColorStop(1,'rgba(0,0,0,0)');g.globalAlpha=.26;g.fillStyle=gr;g.fillRect(bx+ox-r,by+oy-r,r*2,r*2)});
+  }
+  const cl=['#4d7433','#9bc26a','#86b25d'];g.lineWidth=1.5;
+  for(let i=0;i<5200;i++){
+    const bx=R()*N,by=R()*N,col=cl[Math.floor(R()*3)],dx=(R()-.5)*4,dy=-4-R()*5.5;g.strokeStyle=col;g.globalAlpha=.35+R()*.4;
+    wrap((ox,oy)=>{if(bx+ox<-8||bx+ox>N+8||by+oy<-12||by+oy>N+12)return;g.beginPath();g.moveTo(bx+ox,by+oy);g.lineTo(bx+ox+dx,by+oy+dy);g.stroke()});
+  }
+  g.globalAlpha=1;T.grassCv=cv;return cv;
+}
+function grassTex(rx,rz){const t=new THREE.CanvasTexture(grassCanvas());t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,rz);t.anisotropy=Math.min(8,T.r.capabilities.getMaxAnisotropy());return t}
 function buildLandscape(g,city,th,sav){
+  T.terrMats=[];
   const W_=city.w,H_=city.h,cx=W_/2,cz=H_/2,R=rng(((G.L&&G.L.seed)||7)*13+5),wet=th==='harbor'||th==='sea';
   const grass={meadow:'#6c9a47',riverbank:'#76a653',urban:'#8d9399',cobble:'#8a8d78',canal:'#6a9858',hills:'#6fa04b',forest:'#4b843a'}[th];
   // distance outside the board (0 inside)
@@ -2597,7 +2615,7 @@ function buildLandscape(g,city,th,sav){
   let gmat;
   if(wet){gmat=new THREE.MeshStandardMaterial({color:lin('#1b5b73').clone(),roughness:.08,metalness:.15,envMap:T.env,envMapIntensity:1.2,bumpMap:T.waterTex,bumpScale:.7})}
   else{
-    gmat=new THREE.MeshStandardMaterial({color:lin(grass).clone(),roughness:.97})}
+    gmat=new THREE.MeshStandardMaterial({map:grassTex((W_+3600)/200,(H_+3600)/200),color:0xffffff,roughness:.97});gmat.userData.tint=new THREE.Color(th==='urban'?'#c3c9cf':th==='cobble'?'#d4d0b8':'#ffffff');T.terrMats.push(gmat)}
   const big=new THREE.Mesh(new THREE.PlaneGeometry(W_+3600,H_+3600),gmat);big.rotation.x=-Math.PI/2;big.position.set(cx,-.9,cz);big.userData.keep=true;g.add(big);
   // soft skirt so the board melts into its surroundings
   {
@@ -2608,11 +2626,11 @@ function buildLandscape(g,city,th,sav){
   // rolling terrain ring
   if(!sav&&amp>0){
     const SEG=80,SZ=3000,geo=new THREE.PlaneGeometry(SZ+W_,SZ+H_,SEG,SEG);geo.rotateX(-Math.PI/2);
-    const pos=geo.attributes.position,col=new Float32Array(pos.count*3),lo=new THREE.Color(grass).multiplyScalar(1.05),hi=new THREE.Color(th==='hills'?'#9fae82':'#5f9547'),rk=new THREE.Color('#d8dbd2'),tmp=new THREE.Color();
+    const pos=geo.attributes.position,col=new Float32Array(pos.count*3),lo=new THREE.Color(0xffffff),hi=new THREE.Color(th==='hills'?'#bcc9a2':'#cfe3b6'),rk=new THREE.Color('#f0f0ea'),tmp=new THREE.Color();
     for(let i=0;i<pos.count;i++){const x=pos.getX(i)+cx,z=pos.getZ(i)+cz,h=hAt(x,z);pos.setY(i,h-.55);
-      const t=Math.min(1,h/amp);tmp.copy(lo).lerp(hi,t*.8+.15*nz(x*3,z*3));if(th==='hills'&&t>.85)tmp.lerp(rk,(t-.85)/.15*.8);col[i*3]=tmp.r;col[i*3+1]=tmp.g;col[i*3+2]=tmp.b}
+      const t=Math.min(1,h/amp);tmp.copy(lo).lerp(hi,t*.7+.12*nz(x*3,z*3));if(th==='hills'&&t>.85)tmp.lerp(rk,(t-.85)/.15*.6);tmp.multiplyScalar(.88+.2*nz(x*.7+500,z*.7));col[i*3]=tmp.r;col[i*3+1]=tmp.g;col[i*3+2]=tmp.b}
     geo.setAttribute('color',new THREE.BufferAttribute(col,3));geo.computeVertexNormals();
-    const terr=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.97}));terr.position.set(cx,0,cz);terr.userData.keep=true;g.add(terr);
+    const tmat=new THREE.MeshStandardMaterial({map:grassTex((SZ+W_)/200,(SZ+H_)/200),vertexColors:true,roughness:.97});tmat.userData.tint=new THREE.Color('#ffffff');T.terrMats.push(tmat);const terr=new THREE.Mesh(geo,tmat);terr.position.set(cx,0,cz);terr.userData.keep=true;g.add(terr);
     // trees on the slopes
     const n=th==='forest'?700:th==='hills'?420:220,cone=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.95,emissive:new THREE.Color(0x0e1a0a)}),n*2),trunk=new THREE.InstancedMesh(new THREE.CylinderGeometry(.12,.16,1,5),M('#5b4128',{roughness:1}),n),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),c1=new THREE.Color();
     const GR=th==='forest'?['#2f6a2c','#3b7a33','#2a5d2a','#477f34']:['#3f7a34','#4f8b3c','#356f30','#5c9444'];let k=0,j=0;
@@ -2621,8 +2639,8 @@ function buildLandscape(g,city,th,sav){
       const h=hAt(x,z);if(amp&&h>amp*.82)continue;
       const H=26+R()*(th==='forest'?34:24),w=H*.34;
       sc.set(.9,H*.34,.9);ps.set(x,h+H*.17,z);m4.compose(ps,q.identity(),sc);trunk.setMatrixAt(k,m4);
-      sc.set(w,H*.62,w);ps.set(x,h+H*.5,z);m4.compose(ps,q,sc);cone.setMatrixAt(j,m4);cone.setColorAt(j++,c1.set(GR[Math.floor(R()*4)]));
-      sc.set(w*.74,H*.5,w*.74);ps.set(x,h+H*.78,z);m4.compose(ps,q,sc);cone.setMatrixAt(j,m4);cone.setColorAt(j++,c1.set(GR[Math.floor(R()*4)]));k++}
+      sc.set(w,H*.62,w);ps.set(x,h+H*.5,z);m4.compose(ps,q,sc);cone.setMatrixAt(j,m4);cone.setColorAt(j++,c1.copy(lin(GR[Math.floor(R()*4)])));
+      sc.set(w*.74,H*.5,w*.74);ps.set(x,h+H*.78,z);m4.compose(ps,q,sc);cone.setMatrixAt(j,m4);cone.setColorAt(j++,c1.copy(lin(GR[Math.floor(R()*4)])));k++}
     cone.count=j;trunk.count=k;cone.userData.keep=true;trunk.userData.keep=true;g.add(cone);g.add(trunk);
   }
   if(!sav&&(th==='urban'||th==='cobble')){
@@ -3206,6 +3224,7 @@ function syncMeta(u,now){
 function syncSeason(now){
   const sg=SEASON_GROUND[G.season]||SEASON_GROUND.summer;
   if(T.groundMat){T.groundMat.color.copy(lin(sg[0]));T.groundMat.emissive.copy(lin('#ffffff'));T.groundMat.emissiveIntensity=G.season==='winter'?.1:0}
+  if(T.terrMats)for(const m of T.terrMats){m.color.copy(lin(sg[0]));if(m.userData.tint)m.color.multiply(m.userData.tint);m.emissive.copy(lin('#ffffff'));m.emissiveIntensity=G.season==='winter'?.1:0}
   if(T.far)T.far.material.color.copy(lin(sg[1]));
   if(!T.snow){
     const N=500,g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(N*3),3));T.snowBase=[];for(let i=0;i<N;i++)T.snowBase.push([Math.random()*2-1,Math.random(),Math.random()*2-1,Math.random()*6.28]);
