@@ -1723,7 +1723,7 @@ function tutState(){
 }
 function netChanged(){
   G.netVer++;rebuildVis();refreshDepots();ui.dirty=true;
-  if(tutOn()){const t=tutState();if(t.home&&t.work&&!G.routes.length&&!ui.tutBoth){ui.tutBoth=true;if(ui.tool!=='route'){setTool('route');toast('Both stops are placed. Now connect them: tap one, then the other.',3600)}}if(!(t.home&&t.work))ui.tutBoth=false}
+  if(tutOn()){const t=tutState();if(t.home&&t.work&&!G.routes.length&&!ui.tutBoth){ui.tutBoth=true;if(ui.tool!=='route')toast('Both stops are placed. Whenever you are ready, pick Route and tap one stop, then the other. Keep adding stops first if you like.',4200)}if(!(t.home&&t.work))ui.tutBoth=false}
 }
 const newStat=()=>({boarded:0,waitSum:0,rev:0,cost:0,loadSum:0,loadN:0});
 function newRoute(stops){
