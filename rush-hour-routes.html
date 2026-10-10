@@ -3025,7 +3025,7 @@ function buildLandscape(g,city,th,sav){
   let gmat;
   if(wet){gmat=new THREE.MeshStandardMaterial({color:lin('#1b5b73').clone(),roughness:.08,metalness:.15,envMap:T.env,envMapIntensity:1.2,bumpMap:T.waterTex,bumpScale:.7})}
   else{
-    gmat=new THREE.MeshStandardMaterial({map:grassTex((W_+3600)/200,(H_+3600)/200),color:0xffffff,roughness:.97});gmat.userData.tint=new THREE.Color(th==='urban'?'#c3c9cf':th==='cobble'?'#d4d0b8':'#ffffff');T.terrMats.push(gmat)}
+    gmat=new THREE.MeshStandardMaterial({map:grassTex((W_+3600)/200,(H_+3600)/200),color:0xffffff,roughness:.97});gmat.userData.tint=new THREE.Color(th==='cobble'?'#d4d0b8':'#f1f1ee');T.terrMats.push(gmat)}
   const big=new THREE.Mesh(new THREE.PlaneGeometry(W_+3600,H_+3600),gmat);big.rotation.x=-Math.PI/2;big.position.set(cx,-.9,cz);big.userData.keep=true;g.add(big);
   // soft skirt: only needed where the surroundings are sand (the sea maps)
   if(wet){
@@ -3040,7 +3040,7 @@ function buildLandscape(g,city,th,sav){
     for(let i=0;i<pos.count;i++){const x=pos.getX(i)+cx,z=pos.getZ(i)+cz,h=hAt(x,z);pos.setY(i,h-.55);
       const t=Math.min(1,h/amp);tmp.copy(lo).lerp(hi,t*.7+.12*nz(x*3,z*3));if(th==='hills'&&t>.85)tmp.lerp(rk,(t-.85)/.15*.6);tmp.multiplyScalar(.88+.2*nz(x*.7+500,z*.7));col[i*3]=tmp.r;col[i*3+1]=tmp.g;col[i*3+2]=tmp.b}
     geo.setAttribute('color',new THREE.BufferAttribute(col,3));geo.computeVertexNormals();
-    const tmat=new THREE.MeshStandardMaterial({map:grassTex((SZ+W_)/200,(SZ+H_)/200),vertexColors:true,roughness:.97});tmat.userData.tint=new THREE.Color('#ffffff');T.terrMats.push(tmat);const terr=new THREE.Mesh(geo,tmat);terr.position.set(cx,0,cz);terr.userData.keep=true;g.add(terr);
+    const tmat=new THREE.MeshStandardMaterial({map:grassTex((SZ+W_)/200,(SZ+H_)/200),vertexColors:true,roughness:.97});tmat.userData.tint=new THREE.Color('#f1f1ee');T.terrMats.push(tmat);const terr=new THREE.Mesh(geo,tmat);terr.position.set(cx,0,cz);terr.userData.keep=true;g.add(terr);
     // trees on the slopes
     const n=th==='forest'?1100:th==='hills'?700:520,cone=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.95,fog:false}),n*2),trunk=new THREE.InstancedMesh(new THREE.CylinderGeometry(.12,.16,1,5),M('#5b4128',{roughness:1}),n),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),c1=new THREE.Color();
     const GR=['#1f4d22','#275a27','#1b4420','#2d6529'];let k=0,j=0;
