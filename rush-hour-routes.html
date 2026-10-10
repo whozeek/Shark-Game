@@ -495,8 +495,8 @@ const APTS=['#e9d5b8','#d6c4e3','#c9dcd0','#f0cfc4'];
 const GLASS=['#a4c8e8','#b8d4ea','#8fb6dc','#a9cfe4','#c2d8ea'];
 
 function markHighway(city){
-  let n=0;const on=typeof has==='function'&&has('highway');
-  for(const e of city.edges){const A=city.nodes[e.a],B=city.nodes[e.b];e.hw=!!(on&&A.c===0&&B.c===0);if(e.hw)n++}
+  let n=0;const on=typeof has==='function'&&has('highway');let mc=0;for(const nd of city.nodes)if(nd.c>mc)mc=nd.c;
+  for(const e of city.edges){const A=city.nodes[e.a],B=city.nodes[e.b];e.hw=!!(on&&A.c===B.c&&(A.c===0||A.c===mc));if(e.hw)n++}
   city.hwCount=n;return n;
 }
 function buildCity(L){
@@ -1111,7 +1111,7 @@ const SHOP=[
  {id:'cash1',name:'Pocket Change',desc:'$10,000 of in-game cash.',price:'$0.99',cash:10000},
  {id:'cash2',name:'Cash Drop',desc:'$40,000 of in-game cash.',price:'$2.99',cash:40000},
  {id:'cash3',name:'Money Bags',desc:'$150,000 of in-game cash.',price:'$7.99',cash:150000},
- {id:'pass',name:'Head Start Pass',desc:'Unlock Night service, Bike share, Trams and the West Highway right now in every game, with no waiting for company levels.',price:'$4.99',pass:true}];
+ {id:'pass',name:'Head Start Pass',desc:'Unlock Night service, Bike share, Trams and the Highways right now in every game, with no waiting for company levels.',price:'$4.99',pass:true}];
 function applyHighwayNow(){
   if(!G.city)return;markHighway(G.city);
   if(T.ok){build3D(G.city);resetDyn()}
@@ -2933,9 +2933,12 @@ function build3D(city){
   tg2.visible=false;T.scene.add(tg2);
   // landscape around the city, different for every map
   buildLandscape(g,city,(G.L&&G.L.theme)||THEME_OF[G.levelIdx]||['meadow','riverbank','urban','forest'][(G.L&&G.L.seed||0)%4],PROF.gfx==='saver');
-  // west highway
-  if(city.hwCount){
-    const hg=new THREE.Group();hg.userData.keep=true;const x=MARGIN-12,hw=city.edges.filter(e=>e.hw).sort((a,b)=>city.nodes[a.a].y-city.nodes[b.a].y);
+  // highways: west and east edges
+  if(city.hwCount)for(const sg_ of[-1,1]){
+    let mc=0;for(const nd of city.nodes)if(nd.c>mc)mc=nd.c;
+    const colC=sg_<0?0:mc,hw=city.edges.filter(e=>e.hw&&city.nodes[e.a].c===colC).sort((a,b)=>city.nodes[a.a].y-city.nodes[b.a].y);
+    if(!hw.length)continue;
+    const hg=new THREE.Group();hg.userData.keep=true;const x=city.nodes[hw[0].a].x+sg_*12;
     const y0=city.nodes[hw[0].a].y,y1=city.nodes[hw[hw.length-1].b].y;
     const road=ribbon([[x,y0],[x,y1]],50,.55,new THREE.MeshBasicMaterial({color:lin('#2b2f34')}));road.userData.keep=true;hg.add(road);
     const dashes=[];for(let yy=y0+10;yy<y1-14;yy+=26)dashes.push([x-1,yy],[x-1,yy+13]);
@@ -2943,13 +2946,13 @@ function build3D(city){
     const edge=ribbon([[x-22,y0],[x-22,y1]],2.4,.62,new THREE.MeshBasicMaterial({color:lin('#f4f1ea')}));edge.userData.keep=true;hg.add(edge);
     const edge2=ribbon([[x+22,y0],[x+22,y1]],2.4,.62,new THREE.MeshBasicMaterial({color:lin('#f4f1ea')}));edge2.userData.keep=true;hg.add(edge2);
     const rail=M('#cfd5da',{roughness:.5,metalness:.5});
-    for(let yy=y0+8;yy<y1;yy+=32){box(hg,1.4,3.4,12,x-27,1.9,yy,rail,false)}
+    for(let yy=y0+8;yy<y1;yy+=32){box(hg,1.4,3.4,12,x+sg_*27,1.9,yy,rail,false)}
     const tex=spriteTex('hwsign',256,96,(c,w,h)=>{c.fillStyle='#1f7a46';rrect(c,4,4,w-8,h-8,16);c.fill();c.strokeStyle='#fff';c.lineWidth=5;rrect(c,10,10,w-20,h-20,12);c.stroke();c.fillStyle='#fff';c.font='800 40px Outfit,Arial,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('HIGHWAY',w/2,h/2+2)});
     for(let k=0;k<hw.length;k+=3){const yy=city.nodes[hw[k].a].y+S/2;
-      box(hg,2,30,2,x-27,15,yy-22,metalMat,false);box(hg,2,30,2,x+23,15,yy-22,metalMat,false);box(hg,52,2,2,x-2,30,yy-22,metalMat,false);
+      box(hg,2,30,2,x+sg_*27,15,yy-22,metalMat,false);box(hg,2,30,2,x-sg_*23,15,yy-22,metalMat,false);box(hg,52,2,2,x-2,30,yy-22,metalMat,false);
       const sg=mkSprite(tex,44,16.5);sg.position.set(x-2,24,yy-22);hg.add(sg)}
-    // approach road: sweeps in from the far west and joins the top-left corner (as sketched)
-    {const ap=[];for(let k=0;k<=24;k++){const u=k/24,a=[x-430,y0-70],c=[x-150,y0-110],b=[x,y0];ap.push([(1-u)*(1-u)*a[0]+2*u*(1-u)*c[0]+u*u*b[0],(1-u)*(1-u)*a[1]+2*u*(1-u)*c[1]+u*u*b[1]])}
+    // approach road: sweeps in from far outside and joins the top corner (as sketched)
+    {const ap=[];for(let k=0;k<=24;k++){const u=k/24,a=[x+sg_*430,y0-70],c=[x+sg_*150,y0-110],b=[x,y0];ap.push([(1-u)*(1-u)*a[0]+2*u*(1-u)*c[0]+u*u*b[0],(1-u)*(1-u)*a[1]+2*u*(1-u)*c[1]+u*u*b[1]])}
       const ar=ribbon(ap,50,.55,new THREE.MeshBasicMaterial({color:lin('#2b2f34')}));ar.userData.keep=true;hg.add(ar);
       const ad=[];for(let k=0;k<ap.length-1;k+=2)ad.push(ap[k],ap[k+1]);
       const am=ribbon(ad,2.2,.62,new THREE.MeshBasicMaterial({color:lin('#f2c94c')}));am.userData.keep=true;hg.add(am)}
