@@ -263,6 +263,37 @@ body.rm *{animation:none!important;transition:none!important}
 #missions:not(.open) .m:nth-child(n+2):not(.goal){display:none}#missions{cursor:pointer}#missions:not(.open):has(.m:nth-child(2))::after{content:'Click or tap to see all missions';font-size:11px;color:var(--muted);font-weight:700}
 @media (max-width:560px){#missions:not(.open)::after{content:"Tap for all missions";font-size:11px;color:var(--muted);font-weight:700}body.big #top,body.big #bottom,body.big #ov .card{zoom:1.1}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* shop */
+.card.shopc{width:min(1000px,100%);text-align:left}
+.shophd{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.wallet{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.wal{background:#fff3cf;color:#7a5600;font:800 14px var(--font-display);border-radius:99px;padding:7px 13px;white-space:nowrap;border:0}
+.wal.cash{background:#e1f5e8;color:#1d6b3a}.wal.itemsb{background:var(--accent);color:#fff;min-height:36px}
+.shopchips{display:flex;gap:6px;overflow-x:auto;position:sticky;top:-16px;z-index:3;background:#fff;padding:10px 0 8px;margin-top:6px;scrollbar-width:none}
+.shopchips::-webkit-scrollbar{display:none}
+.shopchips button{flex:0 0 auto;border:2px solid var(--line);background:#fff;border-radius:99px;padding:0 15px;height:40px;font-weight:800;font-size:13px;color:var(--ink)}
+.shopchips button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.tixnote{font-size:12px;margin:2px 0 4px}
+.shoph3{font-family:var(--font-display);font-size:17px;margin:18px 0 8px;color:var(--ink)}
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sitem{position:relative;display:flex;flex-direction:column;gap:4px;border:2px solid var(--line);border-radius:16px;padding:12px;background:#fff;min-width:0}
+.sitem.owned{background:#f1f9f4;border-color:#bfe3cb}.sitem.eqd{border-color:var(--ok)}
+.sitem .ico{font-size:30px;line-height:1;height:38px;display:flex;align-items:center}
+.sitem .ico.swc{width:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--line)}
+.sitem b{font-family:var(--font-display);font-size:15px;line-height:1.2}
+.sitem small{color:var(--muted);font-weight:600;font-size:12px;line-height:1.35}
+.sitem small.inc{color:#34424f}
+.sitem .own{font-size:11px;background:#e6edf1;border-radius:99px;padding:1px 7px;font-weight:800;color:var(--ink)}
+.sitem .foot{margin-top:auto;padding-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+.sb{flex:1 1 auto;min-height:42px;border-radius:12px;border:0;background:var(--accent-soft);color:var(--accent);font:800 14px var(--font-display);padding:0 10px}
+.sb.buy{background:var(--accent);color:#fff}.sb.buy.arm{background:var(--ok);animation:pulse .6s infinite alternate}
+.sb.eq{background:var(--ok);color:#fff}.sb.use{background:#ffe9a8;color:#7a5600;flex:0 0 auto}.sb:disabled{opacity:.6;background:#e6edf1;color:var(--muted)}
+.arm-note{font-size:11px!important}
+.bdgs{position:absolute;top:-9px;right:8px;display:flex;gap:4px}
+.sitem.hasb{padding-top:22px}.bdg{white-space:nowrap;font-style:normal;font:800 11px var(--font-display);border-radius:99px;padding:3px 9px;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.bdg.save{background:#e2483d;color:#fff}.bdg.gold{background:#ffc83d;color:#5a3d00}.bdg.ltd{background:#8a5cf6;color:#fff}
+@media (max-width:560px){.shopgrid{gap:8px}.sitem{padding:10px}.shophd h2{font-size:22px}.shopchips{top:-12px}}
 </style>
 
 <div id="boot" style="position:fixed;inset:0;display:grid;place-items:center;text-align:center;background:linear-gradient(#7fbd62,#4f8f47);z-index:99;font-family:system-ui,sans-serif;color:#fff;font-weight:800;font-size:26px;transition:opacity .35s">Rush Hour Routes<br><small style="font-weight:600;opacity:.9;font-size:15px">Building the city…</small></div>
@@ -456,11 +487,18 @@ const PAINTS=[{id:'#f1f3f5',name:'Pearl',lvl:1},{id:'#f4e9c9',name:'Cream',lvl:2
 const SIGNS=[{id:'round',name:'Round',lvl:1},{id:'square',name:'Square',lvl:4},{id:'hex',name:'Hex',lvl:8}];
 const TOWERS=[{id:'cool',name:'Cool glass',lvl:1},{id:'warm',name:'Sandstone',lvl:6},{id:'teal',name:'Harbour teal',lvl:9}];
 const RANKS=[[1,'Route Rookie'],[3,'Line Planner'],[5,'Fleet Chief'],[8,'Transit Tycoon'],[12,'Mayor of Motion']];
-const PROF_DEF=()=>({v:1,xp:0,unlocked:[],cos:{paint:'#f1f3f5',sign:'round',tower:'cool'},best:{},ach:{},stat:{clears:0,delivered:0,pushed:0,cleanStreak:0},story:{},coach:{},a11y:{cb:false,big:false,rm:false},music:true,gfx:'auto',diff:'standard',slot:1});
+const DEFAULT_COS={paint:'#f1f3f5',sign:'round',tower:'cool',signCol:'#ffffff',decal:'none',hat:'none',horn:'classic',music:'default',filter:'none',confetti:'off'};
+const PROF_DEF=()=>({v:1,xp:0,tix:30,shop:{own:{},inv:{},bank:0},unlocked:[],cos:Object.assign({},DEFAULT_COS),best:{},ach:{},stat:{clears:0,delivered:0,pushed:0,cleanStreak:0},story:{},coach:{},a11y:{cb:false,big:false,rm:false},music:true,gfx:'auto',diff:'standard',slot:1});
 let PROF=(function(){try{const d=JSON.parse(localStorage.getItem('rhr.profile')||'null');if(d&&d.v===1){const base=PROF_DEF();for(const k in base)if(d[k]===undefined)d[k]=base[k];d.cos=Object.assign(base.cos,d.cos||{});d.a11y=Object.assign(base.a11y,d.a11y||{});d.stat=Object.assign(base.stat,d.stat||{});return d}}catch(e){}return PROF_DEF()})();
+function normProf(){
+  PROF.cos=Object.assign({},DEFAULT_COS,PROF.cos||{});
+  const s=PROF.shop=PROF.shop||{};s.own=s.own||{};s.inv=s.inv||{};s.bank=s.bank|0;
+  if(typeof PROF.tix!=='number')PROF.tix=30;
+}
+normProf();
 function ach(id){
   if(PROF.ach[id])return;const a=ACH.find(x=>x.id===id);if(!a)return;
-  PROF.ach[id]=true;saveProfile();toast('Trophy unlocked: '+a.name,3600);snd('cheer');addXp(25);
+  PROF.ach[id]=true;PROF.tix=(PROF.tix|0)+5;saveProfile();toast('Trophy unlocked: '+a.name+'  +5 tickets',3600);snd('cheer');addXp(25);
 }
 let profT=0;
 function saveProfile(){try{localStorage.setItem('rhr.profile',JSON.stringify(PROF))}catch(e){}}
@@ -469,10 +507,11 @@ function levelOf(xp){let l=1;while(xp>=xpFor(l))l++;return l}
 const rankOf=l=>{let r=RANKS[0][1];for(const[n,t]of RANKS)if(l>=n)r=t;return r};
 const has=id=>PROF.unlocked.includes(id);
 function setPhases(){PH=has('night')?PHASES.concat([NIGHT_PH]):PHASES;DAY_LEN=PH.reduce((a,p)=>a+p.len,0)}
-function addXp(n){
+function addXp(n,raw){
+  if(!raw&&bo('xp'))n*=2;
   const before=levelOf(PROF.xp);PROF.xp+=n;const after=levelOf(PROF.xp);
   if(after>=5)ach('lv5');
-  if(after>before){snd('cheer');toast('Company level '+after+'! '+rankOf(after)+'. Check City Hall and the Garage for new unlocks.',4200);saveProfile()}
+  if(after>before){PROF.tix=(PROF.tix|0)+10*(after-before);snd('cheer');toast('Company level '+after+'! '+rankOf(after)+'. +'+10*(after-before)+' tickets. Check City Hall, the Garage and the Shop.',4200);saveProfile()}
   else if(performance.now()-profT>4000){profT=performance.now();saveProfile()}
 }
 
@@ -714,6 +753,7 @@ function snd(k){
   else if(k==='alert2'){tone(740,.1,'triangle',.05);tone(587,.16,'triangle',.05,.1)}
   else if(k==='full')tone(180,.12,'square',.03);
   else if(k==='door')doorSound();
+  else if(k==='horn')hornSound(PROF.cos.horn);
 }
 let AOUT=null;
 function ensureAudio(){try{if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(C){AC=new C();AOUT=AC.createGain();AOUT.gain.value=PROF.vol==null?.8:PROF.vol;AOUT.connect(AC.destination);audioStart()}}if(AC&&AC.state==='suspended')AC.resume()}catch(e){}}
@@ -755,7 +795,7 @@ function musicTick(){
   MUS.gain.gain.setTargetAtTime(on?(menu?.55:G.paused?.35:1):0,AC.currentTime,.7);
   if(!on||(G.paused&&!menu))return;
   const t=AC.currentTime;if(MUS.next<t)MUS.next=t+.05;
-  const se=G.season||'spring',rush=!menu&&phaseAt(G.t).p.rush,tense=!menu&&sat()<.62,beat=menu?.85:tense?.34:rush?.4:SEA_BEAT[se]||.55,chords=tense?CH_TENSE:(SEA_CH[se]||CH_CALM),root=menu?48:tense?45:SEA_ROOT[se]||48;
+  const se=G.season||'spring',rush=!menu&&phaseAt(G.t).p.rush,tense=!menu&&sat()<.62,beat=(menu?.85:tense?.34:rush?.4:SEA_BEAT[se]||.55)*(PROF.cos.music==='lofi'?1.35:PROF.cos.music==='chip'?.8:1),chords=tense?CH_TENSE:(SEA_CH[se]||CH_CALM),root=menu?48:tense?45:SEA_ROOT[se]||48;
   while(MUS.next<t+1.4){
     const w=MUS.next-t,stp=MUS.step%8,ch=chords[Math.floor(MUS.step/8)%4];
     if(stp===0){ch.forEach((n,i)=>mtone(mf(root+n),beat*8.5,'sine',menu?.011:.014,w,.5));mtone(mf(root+ch[0]-12),beat*3,'triangle',menu?.018:.03,w,.05)}
@@ -765,6 +805,8 @@ function musicTick(){
     else if(stp===2||stp===6)mtone(mf(root+12+ch[(stp>>1)%4]),beat*2.5,'sine',.009,w,.02);
     if(!menu&&se==='winter'&&(stp===1||stp===5))mtone(mf(root+24+ch[(stp+2)%4]),beat*2,'sine',.005,w,.005);
     if(!menu&&se==='summer'&&stp===3)mtone(mf(root+19+ch[1]),beat*1.2,'triangle',.006,w,.01);
+    if(!menu&&PROF.cos.music==='chip')mtone(mf(root+24+ch[stp%4]),beat*.9,'square',.005,w,.005);
+    else if(PROF.cos.music==='lofi'&&stp%2===1)mtone(mf(root+7+ch[(stp>>1)%4]),beat*1.6,'triangle',menu?.005:.008,w,.03);
     MUS.step++;MUS.next+=beat;
   }
 }
@@ -974,7 +1016,7 @@ money:`<ul><li><b>Income</b>: every rider who arrives pays a fare ($3 to $10; ni
 <h3>Missions</h3><p>The panel under the clock shows today's missions, like delivering a number of riders before noon. They pay cash and company XP. Tap the panel on a phone to see all of them.</p>`,
 events:`<dl><dt>Road closure / Parade</dt><dd>Roads are blocked. Buses detour automatically. Check your routes still connect.</dd><dt>Accident</dt><dd>A road is blocked for a short while. A hospital helps clear it faster.</dd><dt>Storm</dt><dd>Riders lose patience faster.</dd><dt>Flooding</dt><dd>Like a storm, and low roads near water close.</dd><dt>Snow</dt><dd>In winter. A road is blocked and all buses are slower.</dd><dt>Fog</dt><dd>Buses and traffic slow down.</dd><dt>Concert</dt><dd>When it ends a big crowd heads home from the arena. Put a stop near it and add buses.</dd><dt>Breakdown</dt><dd>One bus stops for a while. Extra buses cover the gap, and depots speed up the recovery.</dd></dl>
 <div class="tip">Seasons change the look of the city and the odds of events. Events are your reason to keep a cash buffer.</div>`,
-unlocks:`<dl><dt>Company level and XP</dt><dd>You earn XP for deliveries, missions, trophies and finishing days. Levels carry over between games.</dd><dt>City Hall</dt><dd>Spend cash on permanent upgrades once your company level is high enough: arrival signs (more patient riders), depot network, electric buses (cheaper running), priority dispatch, smart traffic lights, night service, bike share and trams.</dd><dt>Garage</dt><dd>Cosmetics: bus paint, stop signs and tower styles, unlocked by level.</dd><dt>Drivers</dt><dd>Every bus has a named driver. Drivers earn experience for every rider they deliver and level up: Rookie, Steady, Pro, Veteran, Legend. Higher levels drive faster and stop quicker, and they keep their levels across games.</dd><dt>Mayor requests</dt><dd>From day 2 the mayor sometimes adds a special mission (marked with a flag): serve a landmark, link two places by bus, keep everyone happy until 09:30, or grow your fleet. They pay extra cash and XP.</dd><dt>Map expansion</dt><dd>In long games the map itself grows. From day 10 (and from day 3 on the last two campaign levels) one new row or column of blocks opens each day, alternating east and south, up to a maximum size. Your routes and stops are kept, and rider numbers go up a little with each expansion.</dd><dt>Highways</dt><dd>A City Hall unlock (company level 7). Highways appear north and south of town, each with an off-ramp and roundabout into the street grid. The top and bottom edge avenues become fast: buses drive 80% faster on them, they never jam, and routes prefer them. Run a route along the top or bottom edge to use them, and branch off with other routes.</dd><dt>Advisor</dt><dd>A small tip with a one-tap fix appears at the bottom when something needs attention: a stop about to give up (add a bus), stranded riders (show me where), or a route losing money (remove a bus or run rush hours only). You can dismiss a tip, and switch the advisor off in Settings.</dd><dt>Rider stories</dt><dd>A few riders each day have names and jobs. Their stories, good and bad, appear in the day report.</dd><dt>New game plus</dt><dd>After you finish the whole campaign, a Plus difficulty appears in Settings with tougher patience, income and running costs.</dd><dt>Backup and restore</dt><dd>In Settings you can copy a backup code of your profile, drivers and saves, and paste it later on any device.</dd><dt>Trophies</dt><dd>Achievements for things like your first route, a spotless day, a loop route or a tram.</dd><dt>Levels</dt><dd>Eleven campaign maps get harder, plus Sandbox (endless, no game over), a Daily Challenge and a Weekly Challenge. Difficulty and settings are in the menu.</dd></dl>`,
+unlocks:`<dl><dt>Company level and XP</dt><dd>You earn XP for deliveries, missions, trophies and finishing days. Levels carry over between games.</dd><dt>City Hall</dt><dd>Spend cash on permanent upgrades once your company level is high enough: arrival signs (more patient riders), depot network, electric buses (cheaper running), priority dispatch, smart traffic lights, night service, bike share and trams.</dd><dt>Garage</dt><dd>Cosmetics: bus paint, stop signs and tower styles, unlocked by level.</dd><dt>Shop and Items</dt><dd>Open the Shop from the home menu or the pause menu. Transit Tickets (🎟) are the shop money: you start with 30 and earn more from finished days (+3), company levels and cleared levels (+10) and trophies (+5). Filter chips (All, Small, Boosts, Looks, Drivers, Packs, Bundles, Big) sort the cards. Buying is two taps: tap the price, then tap again to confirm. <b>Small</b> items are one-shot helpers you carry as Items: Coffee Vouchers, Priority Pings, umbrellas, snack carts, tune-up kits, Road Crew and Clear Skies calls, plus small permanent perks like Cup Holders and Spare Tyres. <b>Boosts</b> last one game day. <b>Looks</b> are bus paints, stop sign colours, skylines, decals, horns, music, map filters and a confetti trail (tap Equip; tap again to unequip). <b>Drivers</b> has Training Days, Pro and Veteran hires and roof hats. Bundles save money and show their saving. Packs, premium bundles, the Head Start Pass and the Ultimate Edition show a dollar price as a preview only: payments are not switched on, so nothing is ever charged. Use your Items from the pause menu, the Buses panel or a selected stop's Items button.</dd><dt>Drivers</dt><dd>Every bus has a named driver. Drivers earn experience for every rider they deliver and level up: Rookie, Steady, Pro, Veteran, Legend. Higher levels drive faster and stop quicker, and they keep their levels across games.</dd><dt>Mayor requests</dt><dd>From day 2 the mayor sometimes adds a special mission (marked with a flag): serve a landmark, link two places by bus, keep everyone happy until 09:30, or grow your fleet. They pay extra cash and XP.</dd><dt>Map expansion</dt><dd>In long games the map itself grows. From day 10 (and from day 3 on the last two campaign levels) one new row or column of blocks opens each day, alternating east and south, up to a maximum size. Your routes and stops are kept, and rider numbers go up a little with each expansion.</dd><dt>Highways</dt><dd>A City Hall unlock (company level 7). Highways appear north and south of town, each with an off-ramp and roundabout into the street grid. The top and bottom edge avenues become fast: buses drive 80% faster on them, they never jam, and routes prefer them. Run a route along the top or bottom edge to use them, and branch off with other routes.</dd><dt>Advisor</dt><dd>A small tip with a one-tap fix appears at the bottom when something needs attention: a stop about to give up (add a bus), stranded riders (show me where), or a route losing money (remove a bus or run rush hours only). You can dismiss a tip, and switch the advisor off in Settings.</dd><dt>Rider stories</dt><dd>A few riders each day have names and jobs. Their stories, good and bad, appear in the day report.</dd><dt>New game plus</dt><dd>After you finish the whole campaign, a Plus difficulty appears in Settings with tougher patience, income and running costs.</dd><dt>Backup and restore</dt><dd>In Settings you can copy a backup code of your profile, drivers and saves, and paste it later on any device.</dd><dt>Trophies</dt><dd>Achievements for things like your first route, a spotless day, a loop route or a tram.</dd><dt>Levels</dt><dd>Eleven campaign maps get harder, plus Sandbox (endless, no game over), a Daily Challenge and a Weekly Challenge. Difficulty and settings are in the menu.</dd></dl>`,
 strategy:`<h3>Build well</h3><ul><li>Put your first two stops between the biggest group of houses and the biggest group of offices. Glowing blocks are where riders appear.</li><li>Use <b>Coverage</b> map view to find blocks that have no stop. Red blocks are riders you are missing.</li><li>Long straight routes with few turns beat tangled ones. Use <b>Shape road</b> to dodge jams instead of adding more stops.</li><li>Use <b>Loop</b> for rings and downtown circuits, <b>Express</b> for long trips, and transfers for big cities (a few busy trunk routes feeding smaller local ones).</li></ul>
 <h3>Run well</h3><ul><li>Check the stops first thing in the rush. Add a bus to the route with the red stops, not to every route.</li><li>If a route is full and cannot take another bus (roads get jammed), upgrade the vehicle size.</li><li>Quiet routes: switch to <b>Rush hours only</b> or cut a bus. Busy routes: add buses before upgrading.</li><li>Turn on <b>Even spacing</b> when buses on a long route clump together.</li><li>Use <b>Priority call</b> on a single stop that is about to explode, not as a habit.</li><li>Put ramps on stops that join residential blocks to the network once wheelchair users appear.</li></ul>
 <h3>Stay safe</h3><ul><li>Keep a cash buffer of at least one or two buses. Events cost you.</li><li>Do not add night service or bike docks until your day routes are stable.</li><li>Read the day report: 'Worst moment' shows where you lost the most riders. Tap <b>Show me</b> and fix that stop.</li><li>If a day goes badly, use Retry from today and try a different plan.</li></ul>
@@ -998,7 +1040,7 @@ function doImport(){
   const t=($('#bkin').value||'').trim();if(!t){toast('Paste a backup code first.');return}
   try{
     const d=JSON.parse(decodeURIComponent(escape(atob(t))));if(!d||d.v!=='rhr-backup'||!d.profile||d.profile.v!==1)throw 0;
-    for(const k of Object.keys(PROF))delete PROF[k];Object.assign(PROF,PROF_DEF(),d.profile);saveProfile();
+    for(const k of Object.keys(PROF))delete PROF[k];Object.assign(PROF,PROF_DEF(),d.profile);normProf();saveProfile();applyLooks();
     d.saves.forEach((raw,i)=>{try{if(raw)localStorage.setItem(slotKey(i+1),raw)}catch(e){}});
     try{if(d.stars)localStorage.setItem('rhr.stars',d.stars)}catch(e){}
     applyA11y();toast('Backup restored.');showBackup(ui.setFrom);
@@ -1107,41 +1149,278 @@ function endTour(){
 }
 /* ================= shop ================= */
 const PAY_LINKS={};
+const SHOP_CATS=[['all','All'],['small','Small'],['boost','Boosts'],['look','Looks'],['driver','Drivers'],['pack','Packs'],['bundle','Bundles'],['big','Big']];
+const SHOP_SECT=[['small','Small things'],['boost','Day boosters (last one game day)'],['look','Looks'],['driver','Drivers'],['pack','Cash, XP and ticket packs'],['bundle','Bundles'],['big','The big stuff']];
+const usdN=s=>parseFloat(String(s||'').replace(/[^0-9.]/g,''))||0;
+const bo=k=>!!(G.boosts&&G.boosts[k]===G.day);
+const sp=k=>!!(PROF.shop&&PROF.shop.own[k]);
+const BOOST_KEY={b_fare:'fare',b_tonic:'tonic',b_fuel:'fuel',b_speed:'speed',b_xp:'xp',b_lucky:'lucky'};
+const lk=(id,ico,name,desc,t,slot,val,x)=>Object.assign({id,cat:'look',kind:'look',ico,name,desc,t,slot,val},x||{});
+const pnt=(id,name,hex,t,x)=>lk(id,'',name,'A new bus paint colour. Equip it and every bus is repainted.',t,'paint',hex,Object.assign({sw:hex},x||{}));
 const SHOP=[
- {id:'cash1',name:'Pocket Change',desc:'$10,000 of in-game cash.',price:'$0.99',cash:10000},
- {id:'cash2',name:'Cash Drop',desc:'$40,000 of in-game cash.',price:'$2.99',cash:40000},
- {id:'cash3',name:'Money Bags',desc:'$150,000 of in-game cash.',price:'$7.99',cash:150000},
- {id:'pass',name:'Head Start Pass',desc:'Unlock Night service, Bike share, Trams and the Highways right now in every game, with no waiting for company levels.',price:'$4.99',pass:true}];
+ /* small consumables */
+ {id:'pop',cat:'small',kind:'use',ico:'🎉',name:'Confetti Pop',desc:'A burst of confetti over the map. Pure fun.',t:2},
+ {id:'coffee',cat:'small',kind:'use',ico:'☕',name:'Coffee Voucher',desc:'Calms one stop: everyone waiting there regains 40% patience. Uses the selected stop, or the most upset one.',t:3},
+ {id:'ping',cat:'small',kind:'use',ico:'📣',name:'Priority Ping',desc:'A priority call on one stop with no cooldown. Uses the selected stop, or the most upset one.',t:3},
+ {id:'umbrella',cat:'small',kind:'use',ico:'☂️',name:'Umbrella Handout',desc:'During a storm or flood, rain stops draining patience faster for 45 seconds.',t:4},
+ {id:'snack',cat:'small',kind:'use',ico:'🍪',name:'Snack Cart',desc:'Every rider on the map regains 20% patience.',t:4},
+ {id:'tuneup',cat:'small',kind:'use',ico:'🔧',name:'Tune-up Kit',desc:'Instantly repairs every broken-down bus.',t:5},
+ {id:'roadcrew',cat:'small',kind:'use',ico:'🚧',name:'Road Crew Call',desc:'A crew clears a closure, accident, flood, snow or parade at once.',t:6},
+ {id:'skies',cat:'small',kind:'use',ico:'🌤️',name:'Clear Skies',desc:'Ends a storm or fog on the spot.',t:6},
+ {id:'tipjar',cat:'small',kind:'use',ico:'💰',name:'Tip Jar',desc:'Adds $600 to your cash right now.',t:6},
+ /* small permanent perks */
+ {id:'pmap',cat:'small',kind:'perk',ico:'🗺️',name:'Pocket Map',desc:'Priority calls recharge 15% faster. Permanent.',t:20},
+ {id:'tyres',cat:'small',kind:'perk',ico:'🛞',name:'Spare Tyres',desc:'Broken-down buses are fixed 20% faster. Permanent.',t:25},
+ {id:'cups',cat:'small',kind:'perk',ico:'🥤',name:'Cup Holders',desc:'Riders are 4% more patient. Permanent.',t:30},
+ {id:'rain',cat:'small',kind:'perk',ico:'🧥',name:'Rain Gear',desc:'Storms and floods drain patience less (x1.4 instead of x1.6). Permanent.',t:30},
+ {id:'printer',cat:'small',kind:'perk',ico:'🖨️',name:'Ticket Printer',desc:'Fares are 10% higher. Permanent.',t:40},
+ {id:'piggy',cat:'small',kind:'perk',ico:'🐷',name:'Piggy Bank',desc:'Start every new level with $400 extra cash. Permanent.',t:40},
+ /* boosts */
+ {id:'b_tonic',cat:'boost',kind:'use',ico:'🧪',name:'Patience Tonic',desc:'Riders who appear today are 10% more patient.',t:6},
+ {id:'b_fuel',cat:'boost',kind:'use',ico:'⛽',name:'Fuel Saver',desc:'Running costs are 15% lower for today.',t:6},
+ {id:'b_fare',cat:'boost',kind:'use',ico:'💵',name:'Fare Boost',desc:'Fares are 20% higher for today.',t:8},
+ {id:'b_speed',cat:'boost',kind:'use',ico:'⚡',name:'Rush Helper',desc:'Buses drive 8% faster for today.',t:8},
+ {id:'b_lucky',cat:'boost',kind:'use',ico:'🍀',name:'Lucky Day',desc:'Mission cash rewards are 50% bigger today.',t:8},
+ {id:'b_xp',cat:'boost',kind:'use',ico:'⭐',name:'Double XP Day',desc:'All XP you earn today counts double.',t:10},
+ /* looks: paints */
+ pnt('p_sunset','Sunset Orange','#f08a4b',6),pnt('p_lav','Lavender','#c9b6f2',6),pnt('p_cherry','Cherry Red','#d6403a',6),pnt('p_ocean','Ocean Teal','#1f8fa8',7),pnt('p_mid','Midnight Navy','#1f2a4a',8),
+ pnt('p_maple','Maple (seasonal)','#c9622b',8,{hidden:true}),pnt('p_blossom','Blossom (seasonal)','#f4b6d0',8,{hidden:true}),pnt('p_sun','Sunshine (seasonal)','#ffd84a',8,{hidden:true}),pnt('p_frost','Frost (seasonal)','#dff1ff',8,{hidden:true}),pnt('p_gold','Supporter Gold','#e8b923',10,{hidden:true}),
+ /* looks: signs, towers, decals */
+ lk('s_gold','🟡','Gold Stop Signs','Stop signs with a golden plate.',4,'signCol','#ffd24d'),lk('s_rose','🌸','Rose Stop Signs','Stop signs with a rose plate.',4,'signCol','#ff9db8'),lk('s_sky','🔵','Sky Stop Signs','Stop signs with a sky blue plate.',4,'signCol','#8ccdf5'),
+ lk('tw_sunset','🌇','Sunset Skyline','Warm brick and plaster towers across the city.',10,'tower','sunset'),lk('tw_mono','🏙️','Steel Skyline','Cool grey office towers.',10,'tower','mono'),
+ lk('dc_stripes','🏎️','Racing Stripes','Two white stripes along every bus roof.',6,'decal','stripes'),lk('dc_flag','🚩','Roof Flag','A little red flag on the back of every bus.',6,'decal','flag'),lk('dc_check','🏁','Checker Band','A black and white checker band along both sides.',8,'decal','check'),
+ /* looks: sound, music, screen */
+ lk('hn_retro','📯','Retro Horn','An old-fashioned ahooga horn.',4,'horn','retro'),lk('hn_duck','🦆','Duck Horn','A squeaky quack for priority calls.',4,'horn','duck'),lk('hn_train','🚂','Train Whistle','A deep two-tone whistle.',5,'horn','train'),lk('hn_jingle','🍦','Ice-cream Jingle','A cheerful five-note jingle.',6,'horn','jingle'),
+ lk('mu_lofi','🎧','Lo-fi Track','Slower, softer background music.',10,'music','lofi'),lk('mu_chip','🎮','Chiptune Track','Bouncy arcade-style background music.',10,'music','chip'),
+ lk('fl_vivid','🌈','Vivid Map','Richer colours on the map.',6,'filter','vivid'),lk('fl_vintage','📷','Vintage Map','A warm, faded photo look.',6,'filter','vintage'),lk('fl_dusk','🌆','Dusk Map','A cool, moody tint.',6,'filter','dusk'),
+ lk('cf_on','🎊','Confetti Trail','Confetti bursts on streaks and when you clear a level.',3,'confetti','on'),
+ /* drivers */
+ {id:'d_train',cat:'driver',kind:'use',ico:'🎓',name:'Training Day',desc:'Every driver on your roster earns 6 experience.',t:8},
+ {id:'d_pro',cat:'driver',kind:'use',ico:'🧑‍✈️',name:'Hire a Pro',desc:'A new Pro driver (30 riders of experience) joins your roster and takes the next new bus.',t:18},
+ {id:'d_vet',cat:'driver',kind:'use',ico:'🏅',name:'Hire a Veteran',desc:'A new Veteran driver (70 riders of experience) joins your roster.',t:40},
+ lk('hat_cap','🧢','Driver Cap','Drivers wear a blue cap, shown on the bus roof.',5,'hat','cap',{cat:'driver'}),lk('hat_top','🎩','Top Hat','A very dignified roof hat.',8,'hat','top',{cat:'driver'}),lk('hat_crown','👑','Golden Crown','The crown of the road.',14,'hat','crown',{cat:'driver'}),
+ /* packs (dollar placeholders) */
+ {id:'cash0',cat:'pack',kind:'pack',ico:'🪙',name:'Loose Coins',desc:'$3,000 of in-game cash.',usd:'$0.49',give:{cash:3000}},
+ {id:'cash1',cat:'pack',kind:'pack',ico:'💵',name:'Pocket Change',desc:'$10,000 of in-game cash.',usd:'$0.99',price:'$0.99',cash:10000,give:{cash:10000}},
+ {id:'cash2',cat:'pack',kind:'pack',ico:'💸',name:'Cash Drop',desc:'$40,000 of in-game cash.',usd:'$2.99',price:'$2.99',cash:40000,give:{cash:40000}},
+ {id:'cash3',cat:'pack',kind:'pack',ico:'💰',name:'Money Bags',desc:'$150,000 of in-game cash.',usd:'$7.99',price:'$7.99',cash:150000,give:{cash:150000}},
+ {id:'cash4',cat:'pack',kind:'pack',ico:'🏦',name:'Armoured Truck',desc:'$400,000 of in-game cash.',usd:'$14.99',give:{cash:400000}},
+ {id:'xp1',cat:'pack',kind:'pack',ico:'📘',name:'Study Notes',desc:'250 company XP.',usd:'$0.99',give:{xp:250}},
+ {id:'xp2',cat:'pack',kind:'pack',ico:'📚',name:'Night School',desc:'900 company XP.',usd:'$2.99',give:{xp:900}},
+ {id:'xp3',cat:'pack',kind:'pack',ico:'🎓',name:'Executive MBA',desc:'2,500 company XP.',usd:'$6.99',give:{xp:2500}},
+ {id:'tix1',cat:'pack',kind:'pack',ico:'🎟️',name:'Handful of Tickets',desc:'25 Transit Tickets.',usd:'$0.99',give:{tix:25}},
+ {id:'tix2',cat:'pack',kind:'pack',ico:'🎫',name:'Roll of Tickets',desc:'80 Transit Tickets.',usd:'$2.99',give:{tix:80}},
+ {id:'tix3',cat:'pack',kind:'pack',ico:'📒',name:'Book of Tickets',desc:'220 Transit Tickets.',usd:'$6.99',give:{tix:220}},
+ {id:'thanks',cat:'pack',kind:'pack',once:true,ico:'💛',name:'Thank-You Pack',desc:'There are no ads to remove, so this is a pure thank-you: 40 tickets, $5,000, the exclusive Supporter Gold paint and a supporter badge.',usd:'$2.99',give:{tix:40,cash:5000,items:{p_gold:1},supporter:true}},
+ {id:'kit',cat:'pack',kind:'pack',once:true,ico:'🧰',name:'Campaign Kit',desc:'Every new level starts with $2,500 extra cash. Permanent.',usd:'$2.99',give:{tix:5}},
+ /* ticket bundles */
+ {id:'bn_care',cat:'bundle',kind:'bundle',ico:'🧺',name:'Rider Care Kit',desc:'Keep the waiting crowds happy.',t:18,give:{items:{coffee:3,umbrella:2,snack:2}}},
+ {id:'bn_day',cat:'bundle',kind:'bundle',ico:'🌞',name:'Perfect Day Trio',desc:'Fare Boost, Patience Tonic and Fuel Saver.',t:14,give:{items:{b_fare:1,b_tonic:1,b_fuel:1}}},
+ {id:'bn_fix',cat:'bundle',kind:'bundle',ico:'🛠️',name:'Fix-It Crew',desc:'For breakdowns and blocked roads.',t:20,give:{items:{tuneup:2,roadcrew:2,skies:1}}},
+ {id:'bn_paint',cat:'bundle',kind:'bundle',ico:'🎨',name:'Paint Box',desc:'Sunset, Lavender and Cherry paints.',t:13,give:{items:{p_sunset:1,p_lav:1,p_cherry:1}}},
+ {id:'bn_sound',cat:'bundle',kind:'bundle',ico:'🔊',name:'Sound Check',desc:'Two horns, a music track and confetti.',t:16,give:{items:{hn_retro:1,hn_jingle:1,mu_lofi:1,cf_on:1}}},
+ {id:'bn_driver',cat:'bundle',kind:'bundle',ico:'🧑‍🔧',name:'Driver Day',desc:'A Pro, two training days and two hats.',t:32,give:{items:{d_pro:1,d_train:2,hat_cap:1,hat_top:1}}},
+ {id:'bn_gold',cat:'bundle',kind:'bundle',ico:'🥇',name:'Golden Fleet',desc:'Midnight paint, crown, stripes, gold signs, whistle, confetti, vivid map and sunset skyline.',t:60,give:{items:{p_mid:1,hat_crown:1,dc_stripes:1,s_gold:1,hn_train:1,cf_on:1,fl_vivid:1,tw_sunset:1}}},
+ /* dollar bundles */
+ {id:'bn_starter',cat:'bundle',kind:'bundle',ico:'🎁',name:'Starter Bundle',desc:'A friendly head start.',usd:'$1.99',worth:4.99,give:{cash:10000,tix:40,items:{coffee:5,tuneup:3,p_sunset:1}}},
+ {id:'bn_builder',cat:'bundle',kind:'bundle',ico:'🏗️',name:'City Builder Bundle',desc:'Cash, XP and boosters for a growing network.',usd:'$4.99',worth:9.97,give:{cash:40000,xp:900,tix:100,items:{b_fare:1,b_tonic:1,b_xp:1,pmap:1}}},
+ {id:'bn_mega',cat:'bundle',kind:'bundle',ico:'👑',name:'Mega Mayor Bundle',desc:'Everything a mayor could want, plus all five paints and the Garage Master Key.',usd:'$12.99',worth:31.99,best:true,give:{cash:150000,xp:2500,tix:300,items:{coffee:5,umbrella:5,ping:5,tuneup:5,roadcrew:5,skies:5,snack:5,p_sunset:1,p_lav:1,p_cherry:1,p_ocean:1,p_mid:1,garagekey:1}}},
+ {id:'sn_spring',cat:'bundle',kind:'bundle',limited:true,season:'spring',ico:'🌷',name:'Spring Bloom',desc:'Limited: Blossom paint, roof flag, 30 tickets and coffee.',usd:'$2.99',worth:5.99,give:{tix:30,items:{p_blossom:1,dc_flag:1,coffee:3}}},
+ {id:'sn_summer',cat:'bundle',kind:'bundle',limited:true,season:'summer',ico:'🌻',name:'Summer Festival',desc:'Limited: Sunshine paint, confetti trail, duck horn, snacks.',usd:'$2.99',worth:5.99,give:{tix:30,items:{p_sun:1,cf_on:1,hn_duck:1,snack:3}}},
+ {id:'sn_autumn',cat:'bundle',kind:'bundle',limited:true,season:'autumn',ico:'🍂',name:'Autumn Harvest',desc:'Limited: Maple paint, driver cap, 30 tickets and umbrellas.',usd:'$2.99',worth:5.99,give:{tix:30,items:{p_maple:1,hat_cap:1,umbrella:3}}},
+ {id:'sn_winter',cat:'bundle',kind:'bundle',limited:true,season:'winter',ico:'⛄',name:'Winter Lights',desc:'Limited: Frost paint, dusk map, 30 tickets and tune-up kits.',usd:'$2.99',worth:5.99,give:{tix:30,items:{p_frost:1,fl_dusk:1,tuneup:3}}},
+ /* big */
+ {id:'garagekey',cat:'big',kind:'perk',ico:'🗝️',name:'Garage Master Key',desc:'Every Garage paint, sign and tower style is open, whatever your company level.',usd:'$5.99'},
+ {id:'pass',cat:'big',kind:'pack',ico:'🚀',name:'Head Start Pass',desc:'Unlock Night service, Bike share, Trams and the Highways right now in every game, with no waiting for company levels.',usd:'$4.99',price:'$4.99',pass:true,give:{pass:true}},
+ {id:'ultimate',cat:'big',kind:'bundle',once:true,best:true,ico:'🏆',name:'Ultimate Edition',desc:'The Head Start Pass, every look and perk, the Campaign Kit, the Garage Master Key, 500 tickets, $500,000 and 2,500 XP.',usd:'$29.99',worth:99.99,give:{pass:true,cash:500000,xp:2500,tix:500,items:{kit:1,garagekey:1}}}
+];
+{const u=SHOP.find(x=>x.id==='ultimate');for(const it of SHOP)if(it.kind==='look'||(it.kind==='perk'&&it.cat==='small'))u.give.items[it.id]=1}
+const shopItem=id=>SHOP.find(x=>x.id===id);
+const itemName=id=>{const i=shopItem(id);return i?i.name:id};
+const isOwned=it=>it.pass?!!PROF.pass:((it.kind==='look'||it.kind==='perk'||it.once)&&!!PROF.shop.own[it.id]);
+const homeMode=()=>!!ui.shopHome;
+function worthOf(it){
+  if(it.worth)return it.worth;
+  let w=0;const g=it.give||{};for(const k in g.items||{}){const i=shopItem(k);if(i&&i.t)w+=i.t*g.items[k]}return w;
+}
+function savePct(it){if(it.kind!=='bundle')return 0;const w=worthOf(it),p=it.usd?usdN(it.usd):it.t;return w>p?Math.round(100*(1-p/w)):0}
+function realSeason(){const m=new Date().getMonth();return m>=2&&m<=4?'spring':m>=5&&m<=7?'summer':m>=8&&m<=10?'autumn':'winter'}
+function addCash(n){if(homeMode()){PROF.shop.bank=(PROF.shop.bank|0)+n;return false}G.money+=n;return true}
+function applyBank(){const b=PROF.shop.bank|0;if(b>0){G.money+=b;PROF.shop.bank=0;saveProfile();setTimeout(()=>toast('+'+money(b)+' banked from the shop added to your cash.',3200),600)}}
+function startBonus(){const n=(sp('piggy')?400:0)+(sp('kit')?2500:0);if(n)G.money+=n;applyBank()}
 function applyHighwayNow(){
   if(!G.city)return;markHighway(G.city);
   if(T.ok){build3D(G.city);resetDyn()}
   for(const r of G.routes)recalcRoute(r);
   netChanged();toast('Highways open! The top and bottom avenues are now fast roads with no traffic.',4200);
 }
-function grantPurchase(id){
-  const it=SHOP.find(x=>x.id===id);if(!it)return;
-  if(it.cash){G.money+=it.cash;toast('+'+money(it.cash)+' added to your cash.')}
-  if(it.pass){for(const k of['night','bikes','tram','highway'])if(!has(k))PROF.unlocked.push(k);PROF.pass=true;setPhases();buildTimeline();applyHighwayNow();toast('Head Start Pass active. Night service, bike share, trams and the Highway unlocked.')}
-  saveProfile();ui.dirty=true;
+function grantItem(id,n){
+  const it=shopItem(id);if(!it)return;const S=PROF.shop;
+  if(it.kind==='use')S.inv[id]=Math.min(99,(S.inv[id]||0)+(n||1));else S.own[id]=1;
 }
-function showShop(from){
-  ui.setFrom=from||'game';
-  showOv('<div class="card small"><h2>Shop</h2><p class="sub">Skip the wait or top up your cash. Everything here is optional, and the whole game stays fully playable for free.</p>'+
-   SHOP.map(it=>'<div class="set"><div><b>'+esc(it.name)+'</b><small>'+esc(it.desc)+'</small></div><div class="seg"><button data-act="buy" data-sid="'+it.id+'"'+(it.pass&&PROF.pass?' disabled':'')+'>'+(it.pass&&PROF.pass?'Owned':it.price)+'</button></div></div>').join('')+
-   '<p class="sub" style="font-size:12px;margin-top:10px">Payments are not switched on in this version yet, so nothing can be bought or charged for now.</p>'+
-   '<div class="btnrow"><button class="btn ok" data-act="'+(ui.setFrom==='howto'?'howto':'resume')+'">'+(ui.setFrom==='howto'?'Back':'Back to game')+'</button></div></div>');
+function grantGive(g){
+  const out=[],S=PROF.shop;g=g||{};
+  if(g.cash){const now=addCash(g.cash);out.push(money(g.cash)+(now?'':' (banked for your next level)'))}
+  if(g.xp){addXp(g.xp,true);out.push(g.xp+' XP')}
+  if(g.tix){PROF.tix=(PROF.tix|0)+g.tix;out.push(g.tix+' tickets')}
+  for(const k in g.items||{}){grantItem(k,g.items[k]);out.push((g.items[k]>1?g.items[k]+' x ':'')+itemName(k))}
+  if(g.supporter)PROF.supporter=true;
+  if(g.pass){for(const k of['night','bikes','tram','highway'])if(!has(k))PROF.unlocked.push(k);PROF.pass=true;setPhases();buildTimeline();applyHighwayNow();out.push('Head Start Pass')}
+  return out;
+}
+/* grantPurchase is what a real checkout would call after a successful payment */
+function grantPurchase(id){
+  const it=shopItem(id);if(!it)return false;
+  const out=grantGive(it.give||{items:{[id]:1}});
+  if(it.once||it.kind==='perk'||it.kind==='look')PROF.shop.own[id]=1;
+  saveProfile();ui.dirty=true;snd('cheer');
+  toast(it.pass?'Head Start Pass active. Night service, bike share, trams and the Highway unlocked.':'Added: '+(out.length?out.join(', '):it.name)+'.',3600);
+  return true;
+}
+function allOwned(it){
+  const g=it.give||{};if(g.cash||g.xp||g.tix||g.pass)return false;
+  const ks=Object.keys(g.items||{});return ks.length>0&&ks.every(k=>{const i=shopItem(k);return i&&i.kind!=='use'&&PROF.shop.own[k]});
+}
+function buyShop(id){
+  const it=shopItem(id),S=PROF.shop;if(!it||it.usd)return false;
+  if(isOwned(it)||(it.kind==='bundle'&&allOwned(it))){toast('You already own '+(it.kind==='bundle'?'everything in ':'')+it.name+'.');return false}
+  if(it.kind==='use'&&(S.inv[id]||0)>=99){toast('You are already carrying plenty of those.');return false}
+  if((PROF.tix|0)<it.t){toast('Not enough tickets: '+it.name+' costs '+it.t+'. Finish days and levels to earn more.',3400);return false}
+  PROF.tix-=it.t;
+  const out=grantGive(it.give||{items:{[id]:1}});
+  if(it.kind==='perk'||it.kind==='look')S.own[id]=1;
+  saveProfile();ui.dirty=true;snd('cheer');
+  toast(it.name+(it.kind==='use'?' added to your items.':it.kind==='bundle'?' opened: '+out.join(', ')+'.':' is yours.'),3400);
+  return true;
 }
 function buyItem(id){
   const link=PAY_LINKS[id];
   if(link){window.open(link,'_blank','noopener');toast('Checkout opened in a new tab.');return}
   toast('Payments are not switched on yet. Nothing was charged.',3200);
 }
+const LOOK_SLOTS=['paint','signCol','tower','decal','hat'];
+const MAP_FILTERS={vivid:'saturate(1.28) contrast(1.05)',vintage:'sepia(.35) saturate(.9) contrast(.96)',dusk:'hue-rotate(-14deg) saturate(1.08) brightness(.93)'};
+function applyLooks(slot){
+  try{$('#cv').style.filter=MAP_FILTERS[PROF.cos.filter]||''}catch(e){}
+  if(slot&&T.ok&&G.city&&LOOK_SLOTS.includes(slot)){if(slot==='tower')build3D(G.city);resetDyn()}
+}
+function equipLook(id){
+  const it=shopItem(id);if(!it||it.kind!=='look'||!PROF.shop.own[id])return false;
+  const c=PROF.cos,def=DEFAULT_COS[it.slot];
+  c[it.slot]=c[it.slot]===it.val?def:it.val;
+  saveProfile();applyLooks(it.slot);
+  if(it.slot==='horn'&&c.horn!==def)snd('horn');
+  if(it.slot==='confetti'&&c.confetti==='on')fx.confetti(cam.x,cam.y);
+  return true;
+}
+function hornSound(h){
+  if(h==='retro'){tone(300,.28,'sawtooth',.05,0,180);tone(200,.35,'sawtooth',.05,.3,420)}
+  else if(h==='train'){tone(440,.7,'sawtooth',.035);tone(554,.7,'sawtooth',.03)}
+  else if(h==='jingle'){[523,659,784,659,523].forEach((f,i)=>tone(f,.12,'triangle',.05,i*.12))}
+  else if(h==='duck'){tone(520,.1,'square',.04,0,380);tone(520,.14,'square',.04,.14,360)}
+  else{tone(392,.16,'square',.035);tone(330,.26,'square',.035,.18)}
+}
+/* ---- using items ---- */
+function neediest(){
+  let best=null,bs=-1;
+  for(const st of G.stops.values()){if(!st.waiters.length)continue;let s=0;for(const c of st.waiters)s+=1-c.p/c.pm;if(s>bs){bs=s;best=st}}
+  return best;
+}
+function targetStop(){return(ui.sel&&ui.sel.type==='stop'&&G.stops.get(ui.sel.id))||neediest()}
+const EVENT_ROAD=['closure','parade','accident','flood','snow'];
+const USE={
+ pop(){fx.confetti(cam.x,cam.y);snd('cheer');return true},
+ coffee(){const st=targetStop();if(!st||!st.waiters.length)return'Nobody is waiting at a stop right now.';for(const c of st.waiters)c.p=Math.min(c.pm,c.p+c.pm*.4);fx.ring(st.x,st.y,'#8a5a3a',50);snd('bell');toast('Coffee served: riders at '+nodeName(G.city.nodes[st.id])+' calm down.');return true},
+ ping(){const st=targetStop();if(!st)return'Place a stop first.';st.prio=Math.max(st.prio||0,has('dispatch')?18:12);fx.ring(st.x,st.y,'#2a7de1',48);snd('alert');toast('Priority ping: riders calm down and buses hurry to this stop.');return true},
+ umbrella(){if(!(G.event&&(G.event.type==='storm'||G.event.type==='flood')))return'There is no rain to shelter from right now.';G.umbrellaT=45;toast('Umbrellas out: rain will not hurt patience for 45 seconds.');snd('cheer');return true},
+ snack(){let n=0;for(const c of G.citizens)if(c.state==='wait'||c.state==='walk'){c.p=Math.min(c.pm,c.p+c.pm*.2);n++}if(!n)return'Nobody is waiting or walking to a stop.';snd('cheer');toast('Snack cart: '+n+' riders cheer up.');return true},
+ tuneup(){const bad=G.buses.filter(b=>b.broke>0);if(!bad.length)return'No bus is broken down right now.';if(G.event&&G.event.type==='breakdown')endEvent();for(const b of bad)b.broke=0;snd('cheer');toast('Tune-up done: '+bad.length+' bus'+(bad.length>1?'es':'')+' back on the road.');return true},
+ roadcrew(){if(!(G.event&&EVENT_ROAD.includes(G.event.type)))return'No road is blocked right now.';endEvent();snd('cheer');return true},
+ skies(){if(!(G.event&&(G.event.type==='storm'||G.event.type==='fog')))return'There is no storm or fog right now.';endEvent();toast('The sky clears up.');snd('cheer');return true},
+ tipjar(){G.money+=600;toast('+$600 from the tip jar.');snd('deliver');return true},
+ d_train(){const ds=PROF.drivers||[];if(!ds.length)return'No drivers yet. Add a bus first.';for(const d of ds)d.xp+=6;toast('Training Day: every driver gained experience.');snd('cheer');return true},
+ d_pro(){return hireDriver(30,'Pro')},
+ d_vet(){return hireDriver(70,'Veteran')}
+};
+function hireDriver(xp,t){PROF.drivers=PROF.drivers||[];const taken=new Set(PROF.drivers.map(x=>x.name));const d={name:DRV_NAMES.find(n=>!taken.has(n))||('Driver '+(PROF.drivers.length+1)),xp};PROF.drivers.push(d);toast(d.name+' joins as a '+t+' driver and will take the next new bus.',3600);snd('cheer');return true}
+for(const k in BOOST_KEY)USE[k]=function(){const bk=BOOST_KEY[k];if(bo(bk))return'That booster is already running today.';G.boosts=G.boosts||{};G.boosts[bk]=G.day;snd('cheer');toast(itemName(k)+' is active for day '+G.day+'.');ui.dirty=true;return true};
+function useItem(id){
+  const S=PROF.shop;if(!(S.inv[id]>0)){toast('You do not have that item.');return false}
+  if(!USE[id])return false;
+  const r=USE[id]();
+  if(r!==true){toast(r,2600);return false}
+  S.inv[id]--;if(S.inv[id]<=0)delete S.inv[id];saveProfile();ui.dirty=true;return true;
+}
+const boostIcons=()=>{let s='';for(const k in BOOST_KEY)if(bo(BOOST_KEY[k]))s+=shopItem(k).ico;return s};
+const invCount=()=>{let n=0;for(const it of SHOP)if(it.kind==='use'&&(PROF.shop.inv[it.id]|0)>0)n+=PROF.shop.inv[it.id];return n};
+function showItems(){
+  ui.setFrom='game';ui.shopHome=false;const S=PROF.shop,list=SHOP.filter(it=>it.kind==='use'&&(S.inv[it.id]|0)>0);
+  showOv('<div class="card small"><h2>Items</h2><p class="sub">Tap Use to use an item. Items that need a stop use the one you selected, or the most upset stop.</p>'+
+   (list.length?list.map(it=>'<div class="set"><div><b>'+it.ico+' '+esc(it.name)+' <span class="own">x'+S.inv[it.id]+'</span></b><small>'+esc(it.desc)+'</small></div><div class="seg"><button class="on" data-act="useitem" data-id="'+it.id+'" data-where="tray">Use</button></div></div>').join(''):'<p class="sub" style="margin:16px 0">You have no items yet. Coffee, umbrellas, tune-up kits and day boosters are in the shop, bought with Transit Tickets ('+(PROF.tix|0)+' in your wallet).</p>')+
+   '<div class="btnrow"><button class="btn alt" data-act="shop" data-from="game">Open shop</button><button class="btn ok" data-act="resume">Back to game</button></div></div>');
+}
+/* ---- shop screen ---- */
+const sortKey=it=>it.t!=null?it.t:usdN(it.usd)*10;
+function inFilter(it,f){
+  if(it.hidden&&!PROF.shop.own[it.id])return false;
+  if(it.season&&it.season!==realSeason())return false;
+  if(f==='all')return true;
+  if(f==='small')return it.cat==='small'||(it.cat!=='bundle'&&it.cat!=='big'&&((it.t!=null&&it.t<=5)||(it.usd&&usdN(it.usd)<=.99)));
+  return it.cat===f;
+}
+function contentsOf(it){
+  const g=it.give;if(!g||it.kind!=='bundle')return'';const p=[];
+  if(g.cash)p.push(money(g.cash));if(g.xp)p.push(g.xp.toLocaleString('en-US')+' XP');if(g.tix)p.push(g.tix+' tickets');if(g.pass)p.push('Head Start Pass');
+  if(it.id==='ultimate')return'Includes: '+p.join(', ')+', every look, every perk, Campaign Kit, Garage Master Key.';
+  for(const k in g.items||{})p.push((g.items[k]>1?g.items[k]+' x ':'')+itemName(k));
+  return'Includes: '+p.join(', ')+'.';
+}
+function shopCard(it){
+  const S=PROF.shop,own=isOwned(it),n=S.inv[it.id]|0,eq=it.kind==='look'&&PROF.cos[it.slot]===it.val;
+  const armed=ui.shopArm&&ui.shopArm.id===it.id&&performance.now()-ui.shopArm.t<5000,sv=savePct(it);
+  const price=it.usd?it.usd:'🎟 '+it.t,bd=[];
+  if(it.best)bd.push('<i class="bdg gold">Best value</i>');
+  if(sv>0)bd.push('<i class="bdg save">Save '+sv+'%</i>');
+  if(it.limited)bd.push('<i class="bdg ltd">Limited</i>');
+  let btn;
+  if(it.kind==='look'&&S.own[it.id])btn='<button class="sb'+(eq?' eq':'')+'" data-act="shopequip" data-id="'+it.id+'">'+(eq?'Equipped ✓':'Equip')+'</button>';
+  else if(own)btn='<button class="sb" disabled>Owned ✓</button>';
+  else btn='<button class="sb buy'+(armed?' arm':'')+'" data-act="shopbuy" data-id="'+it.id+'">'+(armed?'Tap to confirm':esc(price))+'</button>';
+  const use=(it.kind==='use'&&n>0&&!homeMode())?'<button class="sb use" data-act="useitem" data-id="'+it.id+'" data-where="shop">Use</button>':'';
+  const ico=it.sw?'<div class="ico swc" style="background:'+it.sw+'"></div>':'<div class="ico">'+it.ico+'</div>';
+  return'<div class="sitem'+(bd.length?' hasb':'')+(own||(it.kind==='look'&&S.own[it.id])?' owned':'')+(eq?' eqd':'')+'" data-sid="'+it.id+'">'+(bd.length?'<div class="bdgs">'+bd.join('')+'</div>':'')+ico+'<b>'+esc(it.name)+(n>0?' <span class="own">x'+n+'</span>':'')+'</b><small>'+esc(it.desc)+'</small>'+(it.kind==='bundle'?'<small class="inc">'+esc(contentsOf(it))+'</small>':'')+
+   '<div class="foot">'+btn+use+'</div>'+(armed&&it.usd?'<small class="arm-note">Preview only: nothing is charged.</small>':'')+'</div>';
+}
+function showShop(from,tab){
+  if(from!=null){ui.setFrom=from;ui.shopHome=(from==='howto');ui.shopArm=null}
+  if(tab)ui.shopTab=tab;const f=ui.shopTab||'all';
+  const list=SHOP.filter(it=>inFilter(it,f)).sort((a,b)=>sortKey(a)-sortKey(b));
+  let body;
+  if(f==='all')body=SHOP_SECT.map(([c,title])=>{const l=list.filter(it=>it.cat===c);return l.length?'<h3 class="shoph3">'+title+'</h3><div class="shopgrid">'+l.map(shopCard).join('')+'</div>':''}).join('');
+  else body='<div class="shopgrid" style="margin-top:8px">'+list.map(shopCard).join('')+'</div>';
+  const bank=PROF.shop.bank|0;
+  showOv('<div class="card shopc"><div class="shophd"><div><h2>Shop</h2><p class="sub" style="margin:0">Small treats to big bundles. Everything is optional and the whole game stays fully playable for free.</p></div><div class="wallet"><span class="wal" title="Transit Tickets">🎟 <b>'+(PROF.tix|0)+'</b></span>'+(homeMode()?(bank?'<span class="wal cash">Banked '+money(bank)+'</span>':''):'<span class="wal cash">'+money(G.money)+'</span>')+(invCount()&&!homeMode()?'<button class="wal itemsb" data-act="items">Items '+invCount()+'</button>':'')+'</div></div>'+
+   '<div class="shopchips" role="tablist">'+SHOP_CATS.map(c=>'<button class="'+(c[0]===f?'on':'')+'" data-act="shoptab" data-tab="'+c[0]+'" role="tab">'+c[1]+'</button>').join('')+'</div>'+
+   '<p class="sub tixnote">Transit Tickets (🎟) are earned by playing: +3 per finished day, +10 per company level and cleared level, +5 per trophy. Dollar prices are a preview only: payments are not switched on in this version, so nothing can be charged.</p>'+body+
+   '<div class="btnrow"><button class="btn ok" data-act="'+(ui.setFrom==='howto'?'howto':'resume')+'">'+(ui.setFrom==='howto'?'Back':'Back to game')+'</button></div></div>');
+}
+function shopRender(){const c=$('#ov .card'),sy=c?c.scrollTop:0;showShop();const c2=$('#ov .card');if(c2)c2.scrollTop=sy}
+function shopTap(id){
+  const it=shopItem(id);if(!it)return;const now=performance.now();
+  if(!(ui.shopArm&&ui.shopArm.id===id&&now-ui.shopArm.t<5000)){
+    ui.shopArm={id,t:now};shopRender();
+    setTimeout(()=>{if(ui.shopArm&&ui.shopArm.id===id&&performance.now()-ui.shopArm.t>=4900&&$('#ov .shopc')){ui.shopArm=null;shopRender()}},5100);return;
+  }
+  ui.shopArm=null;if(it.usd)buyItem(id);else buyShop(id);
+  if($('#ov .shopc'))shopRender();
+}
 
 /* ================= fx ================= */
 const fx={
   text(x,y,t,c){G.parts.push({k:'text',x,y,t,c,a:0,life:1.1})},
   ring(x,y,c,r){G.parts.push({k:'ring',x,y,c,r,a:0,life:.8})},
-  fly(x0,y0,x1,y1,c){G.parts.push({k:'fly',x:x0,y:y0,x0,y0,x1,y1,c,a:0,life:.35})}
+  fly(x0,y0,x1,y1,c){G.parts.push({k:'fly',x:x0,y:y0,x0,y0,x1,y1,c,a:0,life:.35})},
+  confetti(x,y){const cs=['#e2483d','#f2b632','#3fb868','#2a7de1','#e0509a','#8a5cf6'];for(let i=0;i<16;i++)G.parts.push({k:'text',x:x+(Math.random()-.5)*190,y:y+(Math.random()-.5)*110,t:'★',c:cs[i%6],a:0,life:1.4})}
 };
 
 /* ================= road graph ================= */
@@ -1166,7 +1445,7 @@ function roadPath(a,b,avoid){
 }
 
 /* ================= transit planning ================= */
-const busSpeed=r=>BUS_SPEED*(r.express?1.7:1)*BUS_MODELS[r.model||0].spd*(1+.12*G.engine)*(G.fogMult||1)*(G.season==='winter'?.9:1);
+const busSpeed=r=>BUS_SPEED*(r.express?1.7:1)*BUS_MODELS[r.model||0].spd*(1+.12*G.engine)*(G.fogMult||1)*(G.season==='winter'?.9:1)*(bo('speed')?1.08:1);
 const rushNow=()=>!!phaseAt(G.t).p.rush;
 function routeActive(r){const p=phaseAt(G.t).p;return p.night?!!r.night:(r.sched!=='peak'||!!p.rush)}
 function isServed(r,sid){const i=r.stops.indexOf(sid);return i>=0&&(!r.express||i===0||i===r.stops.length-1)}
@@ -1245,7 +1524,7 @@ function spawnCitizen(orig,destList){
     else if(type==='student'&&lm.uni&&stopNear(lm.uni.x,lm.uni.y,260)&&rnd()<.6)list=[lm.uni];
   }
   if(false){G.lostRival++;G.dayLost++;fx.text(orig.x,orig.y-8,'→ Rival','#e08a2b');return}
-  const dst=list[Math.floor(rnd()*list.length)],pm=G.L.patience*R_.pm*(has('signs')?1.12:1)*(1+.03*Math.min(5,G.parkBonus||0)),fare=Math.max(1,Math.round(R_.fare*(G.fareMult||1)));
+  const dst=list[Math.floor(rnd()*list.length)],pm=G.L.patience*R_.pm*(has('signs')?1.12:1)*(1+.03*Math.min(5,G.parkBonus||0))*(sp('cups')?1.04:1)*(bo('tonic')?1.1:1),fare=Math.max(1,Math.round(R_.fare*(G.fareMult||1)*(sp('printer')?1.1:1)*(bo('fare')?1.2:1)));
   const dk=dst.type==='landmark'?dst.kind:(dst.type==='venue'?'venue':'work'),nt=!!phaseAt(G.t).p.night;
   const c={id:++G.nid,type,fare:nt?Math.round(fare*1.6):fare,state:'walk',x:orig.x,y:orig.y,dest:{x:dst.x,y:dst.y},dk,p:nt?pm*1.3:pm,pm:nt?pm*1.3:pm,stop:null,plan:null,planVer:-1,noRoute:false,retry:0,alight:null,seed:rnd(),wstart:0,lastRoute:null,ob:blockKey(orig.x,orig.y),db:blockKey(dst.x,dst.y)};
   if(rnd()<.08){const jb=R_JOBS[type]||['resident'];c.story={name:R_NAMES[Math.floor(rnd()*R_NAMES.length)],job:jb[Math.floor(rnd()*jb.length)]}}
@@ -1305,7 +1584,7 @@ function deliver(c){
   if(c.lastBus&&c.lastBus.drv)drvXp(c.lastBus.drv);
   if(c.story){addStory(true,c.story.name+', '+an(c.story.job)+', arrived '+(G.t-c.wstart>14?'after waiting '+Math.round(G.t-c.wstart)+'s. Thank you!':'without a fuss.'));if(rnd()<.5)fx.text(c.dest.x,c.dest.y-34,'Thanks, '+c.story.name+'!','#e0509a')}
   G.delivered++;G.dayDel++;if(c.xfer)G.xferDelivered=(G.xferDelivered||0)+1;outcome(true);
-  G.combo=(G.combo||0)+1;if(G.combo%12===0){const bn=20+G.combo;G.money+=bn;G.rev+=bn;fx.text(c.dest.x,c.dest.y-24,'Streak '+G.combo+'! +$'+bn,'#e0509a');if(G.combo>=50)ach('combo50')}
+  G.combo=(G.combo||0)+1;if(G.combo%12===0){const bn=20+G.combo;G.money+=bn;G.rev+=bn;fx.text(c.dest.x,c.dest.y-24,'Streak '+G.combo+'! +$'+bn,'#e0509a');if(G.combo>=50)ach('combo50');if(PROF.cos.confetti==='on')fx.confetti(c.dest.x,c.dest.y)}
   G.money+=c.fare;G.rev+=c.fare;G.dayRev+=c.fare;G.mDel++;G.mDest[c.dk]=(G.mDest[c.dk]||0)+1;addXp(1);PROF.stat.delivered++;if(PROF.stat.delivered>=5000)ach('tycoon');
   if(G.t-c.wstart>14)react(c.x,c.y,'Thanks!','#e0509a',.35);else react(c.x,c.y,'♥','#e0509a',.05);
   const r=c.lastRoute;if(r&&G.routes.includes(r))r.stat.rev+=c.fare;
@@ -1341,7 +1620,7 @@ function thinkTick(dt){
   else if(c.type==='wheel'&&!G.wheelSeen){G.wheelSeen=true;toast('A wheelchair user needs a step-free stop. Upgrade a stop with a ramp.',4200)}
 }
 function updCitizens(dt){
-  const m=G.stormMult;
+  const m=G.umbrellaT>0?1:G.stormMult;
   for(let i=G.citizens.length-1;i>=0;i--){
     const c=G.citizens[i];
     if(c.state==='ride')continue;
@@ -1767,7 +2046,7 @@ function startEvent(ev){
   if(type==='breakdown'){
     const bs=G.buses.filter(b=>b.state!=='parked');
     if(!bs.length)type='storm';
-    else{const b=bs[Math.floor(rnd()*bs.length)];b.broke=b.route.depot?11:22;G.event={type:'breakdown',t:0,dur:b.broke,bus:b,label:'A bus on '+b.route.name+' has broken down. A tow truck is on the way.'};toast('Breakdown! Add another bus to cover the gap.')}
+    else{const b=bs[Math.floor(rnd()*bs.length)];b.broke=(b.route.depot?11:22)*(sp('tyres')?.8:1);G.event={type:'breakdown',t:0,dur:b.broke,bus:b,label:'A bus on '+b.route.name+' has broken down. A tow truck is on the way.'};toast('Breakdown! Add another bus to cover the gap.')}
   }
   if(type==='parade'){
     const ctr={x:city.w/2,y:city.h/2},nodes=city.nodes.filter(n=>n.alive).sort((a,b)=>Math.hypot(a.x-ctr.x,a.y-ctr.y)-Math.hypot(b.x-ctr.x,b.y-ctr.y)).slice(0,8);
@@ -1778,7 +2057,7 @@ function startEvent(ev){
   }
   if(type==='fog'){G.event={type:'fog',t:0,dur:40,label:'Dense fog. Buses and traffic slow down.'};G.fogMult=.82}
   if(type==='storm')G.event={type:'storm',t:0,dur:35,label:'Heavy rain. Riders lose patience faster.'};
-  G.stormMult=G.event&&(G.event.type==='storm'||G.event.type==='flood')?1.6:1;
+  G.stormMult=G.event&&(G.event.type==='storm'||G.event.type==='flood')?(sp('rain')?1.4:1.6):1;
   snd('alert');ui.dirty=true;
 }
 function endEvent(){
@@ -1831,13 +2110,13 @@ function step(dt){
   const ev=G.event;
   if(ev){ev.t+=dt;if(ev.t>=ev.dur)endEvent()}
   updCitizens(dt);thinkTick(dt);rivalTick(dt);
-  const eco=(has('electric')?.7:1);
+  const eco=(has('electric')?.7:1)*(bo('fuel')?.85:1);
   for(const b of G.buses){
     updBus(b,dt);
     if(b.state!=='parked'){const c=BUS_MODELS[b.route.model||0].cost*dt*eco*(b.route.depot?.85:1)*(ph.p.night?1.25:1)*(G.costMult||1);G.money-=c;G.cost+=c;G.dayCost+=c;b.route.stat.cost+=c}
   }
   for(const r of G.routes){if(r.buses.length){let f=0;for(const b of r.buses)f+=b.pax.length/b.cap;r.stat.loadSum+=f/r.buses.length*dt;r.stat.loadN+=dt}}
-  if(G.prioCD>0)G.prioCD-=dt;
+  if(G.prioCD>0)G.prioCD-=dt;if(G.umbrellaT>0)G.umbrellaT-=dt;
   for(const st of G.stops.values()){if(st.cheer>0)st.cheer-=dt;if(st.missed>0)st.missed-=dt;if(st.prio>0)st.prio-=dt}
   for(const k in G.gaveBlock){G.gaveBlock[k]*=1-dt*.012;if(G.gaveBlock[k]<.05)delete G.gaveBlock[k]}
   for(let i=G.parts.length-1;i>=0;i--){const p=G.parts[i];p.a+=dt/p.life;if(p.a>=1)G.parts.splice(i,1)}
@@ -1894,7 +2173,7 @@ function mayorRequest(){
   const n=Math.min(30,G.buses.length+2);return Object.assign(base,{id:'my_fleet',text:'Mayor: have '+n+' buses on the road by noon',byT:54,prog:()=>G.buses.length>=n?1:0});
 }
 function completeMission(m){
-  m.done=true;G.money+=m.reward;addXp(m.xp);G.xpDay+=m.xp;snd('cheer');toast('Mission complete: '+m.text+'  +$'+m.reward+' · +'+m.xp+' XP',4200);ui.dirty=true;
+  m.done=true;const rw=Math.round(m.reward*(bo('lucky')?1.5:1));G.money+=rw;addXp(m.xp);G.xpDay+=m.xp;snd('cheer');toast('Mission complete: '+m.text+'  +$'+rw+' · +'+m.xp+' XP',4200);ui.dirty=true;
 }
 function tickMissions(){
   if(!G.missions.length||tutOn())return;
@@ -1921,7 +2200,7 @@ function finishMissions(){
 function callPriority(id){
   const st=G.stops.get(id);if(!st)return;
   if(G.prioCD>0){toast('Priority is recharging ('+Math.ceil(G.prioCD)+'s).');return}
-  st.prio=has('dispatch')?18:12;G.prioCD=has('dispatch')?25:50;fx.ring(st.x,st.y,'#2a7de1',48);snd('alert');
+  st.prio=has('dispatch')?18:12;G.prioCD=(has('dispatch')?25:50)*(sp('pmap')?.85:1);fx.ring(st.x,st.y,'#2a7de1',48);snd(PROF.cos.horn!=='classic'?'horn':'alert');
   toast('Priority call: riders calm down and buses hurry to this stop.');ui.dirty=true;
 }
 function refreshDepots(){for(const r of G.routes){r.depot=false;for(const sid of r.stops){const st=G.stops.get(sid);if(!st)continue;for(const d of G.depots.values())if(Math.hypot(d.x-st.x,d.y-st.y)<260)r.depot=true}}}
@@ -2042,7 +2321,7 @@ function dayReport(){
 }
 function endOfDay(){
   G.paused=true;G.modal=true;syncPlay();
-  const grant=400+G.dayDel;G.money+=grant;G.dayGrant=grant;
+  const grant=400+G.dayDel;G.money+=grant;G.dayGrant=grant;PROF.tix=(PROF.tix|0)+3;
   finishMissions();addXp(50);G.xpDay+=50;
   if(G.dayGave===0&&G.dayDel>=40){ach('clean_day');PROF.stat.cleanStreak++;if(PROF.stat.cleanStreak>=7)ach('week_clean')}else PROF.stat.cleanStreak=0;
   if(G.money>=50000)ach('rich');
@@ -2052,6 +2331,7 @@ function endOfDay(){
   if(last){
     const gl=goalsList(),st=gl.filter(g=>g.ok).length;
     let bestNote='';
+    if(st&&!G.L.daily&&!G.L.weekly){PROF.tix=(PROF.tix|0)+10;if(PROF.cos.confetti==='on')fx.confetti(cam.x,cam.y)}
     if(G.L.daily||G.L.weekly){const k=(G.L.weekly?'w':'d')+challengeKey(!!G.L.weekly),pf=Math.round(G.rev-G.cost),old=PROF.best[k];if(!old||pf>old.profit){PROF.best[k]={profit:pf,stars:st};bestNote='<p class="sub" style="text-align:center;color:var(--ok)">New personal best: '+money(pf)+' profit!</p>'}else bestNote='<p class="sub" style="text-align:center">Your best: '+money(old.profit)+' profit.</p>';addXp(100);saveProfile()}
     try{const k='rhr.stars',o=JSON.parse(localStorage.getItem(k)||'{}');if(!G.L.daily&&!G.L.weekly)o[G.levelIdx]=Math.max(o[G.levelIdx]||0,st);if(G.levelIdx===CAMPAIGN[CAMPAIGN.length-1]&&CAMPAIGN.every(k=>(o[k]||0)>=1))ach('citywide');localStorage.setItem(k,JSON.stringify(o))}catch(e){}
     showOv('<div class="card"><div class="stars" style="text-align:center">'+starStr(st)+'</div><h2 style="text-align:center">'+(st?'Level complete':'Not quite there')+'</h2><p class="sub" style="text-align:center">'+esc(G.L.name)+' kept moving for '+G.L.days+' days. '+(st?'':'No goals were met, so this level is not cleared yet. Try again with more buses on busy routes. ')+'Cash: '+money(G.money)+'.</p>'+bestNote+((st&&STORY[G.levelIdx]&&STORY[G.levelIdx].outro)?'<p class="quote">'+esc(STORY[G.levelIdx].outro)+'</p>':'')+
@@ -2311,6 +2591,7 @@ function applySave(d){
   G.season=seasonFor(G.day);
   ui.tut=false;netChanged();planEvents();makeMissions();ui.sheet=false;setTool('select');ui.dirty=true;G.snap=d;
   if(T.ok){build3D(G.city);resetDyn()}
+  applyBank();
 }
 function loadSave(n){
   const d=readSave(n);if(!d)return false;
@@ -2323,7 +2604,7 @@ function retryDay(){
 
 /* ================= level setup ================= */
 function resetState(){
-  G.parkBonus=0;G.hist={};G.histT=0;G.stories=[];G.dayEnding=false;G.warned=false;G.stops=new Map();G.routes=[];G.buses=[];G.citizens=[];G.parts=[];G.day=1;G.t=0;G.acc=0;G.over=false;G.netVer++;
+  G.parkBonus=0;G.boosts={};G.umbrellaT=0;ui.shopHome=false;ui.shopArm=null;G.hist={};G.histT=0;G.stories=[];G.dayEnding=false;G.warned=false;G.stops=new Map();G.routes=[];G.buses=[];G.citizens=[];G.parts=[];G.day=1;G.t=0;G.acc=0;G.over=false;G.netVer++;
   G.bubbles=[];G.thinkMem=[];G.thinkT=20;G.thinkSeen=false;G.wheelSeen=false;G.xferDelivered=0;G.delivered=0;G.gaveUp=0;G.dayDel=0;G.dayGave=0;G.win=[];G.event=null;G.stormMult=1;G.routeCount=0;G.lastEv='';G.flashSat=0;
   G.gaveBlock={};G.depots=new Map();G.rival={stops:[],routes:[]};G.missions=[];G.mDel=0;G.mClears=0;G.mDest={};G.prioCD=0;G.lostRival=0;G.dayLost=0;G.snap=null;G.xpDay=0;G.lmT=0;G.fogMult=1;G.rev=0;G.cost=0;G.dayRev=0;G.dayCost=0;G.engine=0;G.pendingNext=false;G.congT=0;G.lastPhase='';
   ui.drawing=null;ui.sel=null;ui.tool='select';ui.sheet=false;ui.moving=null;ui.view='off';ui.follow=null;ui.undo=[];ui.undoSig='';ui.shape=null;
@@ -2337,7 +2618,7 @@ function loadLevel(i,opts){
   {const D=DIFFS[PROF.diff]||DIFFS.standard;L=Object.assign({},L,{patience:L.patience*D.pat,perDay:L.perDay*D.day,cash:Math.round(L.cash*D.cash),goals:L.goals?{sat:L.goals.sat,gave:L.goals.gave,profit:Math.round(L.goals.profit*D.goal)}:L.goals});G.fareMult=D.fare;G.costMult=D.cost||1}
   G.L=L;resetState();rnd=chal?rng(L.seed*31+7):Math.random;G.season=seasonFor(1);
   G.city=city||buildCity(L);
-  G.money=L.cash;
+  G.money=L.cash;if(!opts.skipTut&&!opts.noBonus)startBonus();
   if(T.ok){build3D(G.city);resetDyn()}
   G.season=seasonFor(1);planEvents();
   ui.tut=!opts.skipTut&&!PROF.skipTut&&PROF.stat.delivered<150;ui.tutBoth=false;
@@ -2859,7 +3140,7 @@ function build3D(city){
       continue;
     }
     if(b.type==='work'){
-      const H=b.h*1.55,kind=({cool:['glassA','glassB','office','glassA'],warm:['office','plaster','office','brick'],teal:['glassB','glassB','glassA','glassB']}[PROF.cos.tower]||['glassA'])[Math.abs(Math.round(b.x*7+b.y*3))%4];
+      const H=b.h*1.55,kind=({cool:['glassA','glassB','office','glassA'],warm:['office','plaster','office','brick'],teal:['glassB','glassB','glassA','glassB'],sunset:['plaster','brick','plaster','office'],mono:['office','glassB','office','glassB']}[PROF.cos.tower]||['glassA'])[Math.abs(Math.round(b.x*7+b.y*3))%4];
       facadeBox(g,b.w,H,b.d,b.x,H/2,b.y,kind,roofMat);
       if(b.h>30){facadeBox(g,b.w*.62,H*.16,b.d*.62,b.x,H+H*.08,b.y,kind,roofMat);
         const a=new THREE.Mesh(T.gCyl,metalMat);a.scale.set(.5,12,.5);a.position.set(b.x,H+H*.16+6,b.y);a.castShadow=true;g.add(a);
@@ -3109,7 +3390,7 @@ function ensureStop(st){
   let o=T.stops.get(st.id);if(o)return o;
   const g=new THREE.Group();g.position.set(st.x,0,st.y);
   const pole=new THREE.Mesh(T.gCyl,M('#59636d',{roughness:.4,metalness:.8}));pole.scale.set(.9,22,.9);pole.position.y=11;pole.castShadow=true;g.add(pole);
-  const sg0=PROF.cos.sign,plate=new THREE.Mesh(sg0==='square'?T.gBox:sg0==='hex'?T.gHex:T.gCyl,M('#ffffff',{roughness:.4}));if(sg0==='square')plate.scale.set(14.5,1.6,14.5);else plate.scale.set(sg0==='hex'?9.6:8.5,1.6,sg0==='hex'?9.6:8.5);plate.position.y=22.8;plate.castShadow=true;g.add(plate);
+  const sg0=PROF.cos.sign,plate=new THREE.Mesh(sg0==='square'?T.gBox:sg0==='hex'?T.gHex:T.gCyl,M(PROF.cos.signCol||'#ffffff',{roughness:.4}));if(sg0==='square')plate.scale.set(14.5,1.6,14.5);else plate.scale.set(sg0==='hex'?9.6:8.5,1.6,sg0==='hex'?9.6:8.5);plate.position.y=22.8;plate.castShadow=true;g.add(plate);
   const ringMat=basic('#3fb868',{transparent:true,opacity:.95});const ring=new THREE.Mesh(T.gRing,ringMat);ring.scale.setScalar(9);ring.position.y=.9;g.add(ring);
   const haloMat=basic('#e2483d',{transparent:true,opacity:.25,depthWrite:false});const halo=new THREE.Mesh(T.gDisc,haloMat);halo.scale.setScalar(13);halo.position.y=.8;halo.visible=false;g.add(halo);
   // shelter on the corner
@@ -3167,6 +3448,14 @@ function ensureBus(b){
   const roof=box(g,21,.5,6.4,0,10.45,0,liv,false);
   box(g,6,1.2,4,-5,11.1,0,M('#aeb6bd',{roughness:.5,metalness:.5}));
   const bar=box(g,1,.6,1.6,-9,10.9,0,M('#3fb868',{emissive:'#3fb868',eBase:1}),false);
+  {const dc=PROF.cos.decal,wht=M('#ffffff',{roughness:.4}),blk=M('#20262c',{roughness:.5});
+   if(dc==='stripes'){for(const z of[-1.3,1.3])box(g,20,.14,.8,0,10.78,z,wht,false)}
+   else if(dc==='flag'){box(g,.3,5,.3,-10,13.2,0,M('#59636d',{roughness:.4}),false);box(g,3.4,2.2,.25,-8.2,14.6,0,M('#e2483d',{roughness:.5}),false)}
+   else if(dc==='check'){for(const z of[-4.02,4.02])for(let i=0;i<17;i++)box(g,1.3,.9,.12,-10.4+i*1.3,4.9,z,i%2?wht:blk,false)}
+   const ht=PROF.cos.hat;
+   if(ht==='cap'){box(g,3,.9,3.4,9,11.2,0,M('#2b6cb0',{roughness:.5}),false);box(g,1.5,.25,3.4,10.7,10.9,0,M('#1f4f84',{roughness:.5}),false)}
+   else if(ht==='top'){box(g,3.8,.3,3.8,9,10.85,0,blk,false);box(g,2.4,3,2.4,9,12.4,0,blk,false);box(g,2.5,.5,2.5,9,11.5,0,M('#c0392b',{roughness:.5}),false)}
+   else if(ht==='crown'){const gd=M('#f2c200',{roughness:.3,metalness:.6});box(g,3.2,1.2,3.2,9,11.3,0,gd,false);for(const[x,z]of[[-1.2,-1.2],[1.2,-1.2],[-1.2,1.2],[1.2,1.2]])box(g,.7,1.2,.7,9+x,12.5,z,gd,false)}}
   const tireM=M('#14171a',{roughness:.9}),hub=M('#aab2b9',{roughness:.3,metalness:.9});
   for(const x of[-7.4,7.4])for(const z of[-3.4,3.4]){const w=new THREE.Mesh(T.gCyl,tireM);w.scale.set(2.2,1.7,2.2);w.rotation.x=Math.PI/2;w.position.set(x,2.2,z);w.castShadow=true;g.add(w);const h=new THREE.Mesh(T.gCyl,hub);h.scale.set(1.1,1.78,1.1);h.rotation.x=Math.PI/2;h.position.set(x,2.2,z);g.add(h)}
   const stripeY=box(g,23.6,.5,8.05,0,2.6,0,M('#ffd24d',{roughness:.4}),false);
@@ -3542,7 +3831,7 @@ function refreshUI(){
   const sh=$('#sheet');sh.hidden=!ui.sheet;
   if(ui.sheet){
     const eng=G.engine>=2?'Engines maxed':'Faster engines +12% · '+money(PRICE.engine[G.engine]);
-    let html='<div class="shead"><b>Fleet · '+G.buses.length+' buses</b><button class="mini" data-act="cityhall">City Hall</button><button class="mini" data-act="engine"'+(G.engine>=2?' disabled':'')+'>'+eng+'</button></div>';
+    let html='<div class="shead"><b>Fleet · '+G.buses.length+' buses</b><button class="mini" data-act="cityhall">City Hall</button><button class="mini" data-act="items">Items'+(invCount()?' '+invCount():'')+'</button><button class="mini" data-act="engine"'+(G.engine>=2?' disabled':'')+'>'+eng+'</button></div>';
     if(!G.routes.length)html+='<div class="empty">No routes yet. Pick the Route tool and tap stops in order.</div>';
     else html+=G.routes.map(r=>{
       const sel=ui.sel&&ui.sel.type==='route'&&ui.sel.id===r.id,m=BUS_MODELS[r.model||0];
@@ -3596,7 +3885,7 @@ function updateStopCard(build){
   const who=riderSummary(st);
   const html='<div class="si"><b>Stop at '+esc(nodeName(n))+(st.access?' · step-free':'')+'</b><span data-sl>'+esc(line)+'</span><span data-sw>'+esc(who)+'</span><span>'+(rs.length?'Routes: '+rs.map(r=>esc(r.name)).join(', '):'Not on a route yet')+'</span></div>'+
     '<button data-act="prio" data-pc>'+(G.prioCD>0?'Priority ('+Math.ceil(G.prioCD)+'s)':'Priority call')+'</button><button data-act="movestop">Move $'+PRICE.move+'</button>'+(has('depot')?'<button data-act="depot"'+(G.depots.has(st.id)?' disabled':'')+'>'+(G.depots.has(st.id)?'Depot ✓':'Depot $800')+'</button>':'')+(G.L.riders.includes('wheel')?'<button data-act="ramp"'+(st.access?' disabled':'')+'>'+(st.access?'Step-free ✓':'Ramp $'+PRICE.ramp)+'</button>':'')+(has('bikes')?'<button data-act="bike"'+(st.bike?' disabled':'')+'>'+(st.bike?'Bike dock ✓':'Bike dock $450')+'</button>':'')+
-    '<button class="danger" data-act="rmstop">Remove</button><button data-act="closecard">Close</button>';
+    (invCount()?'<button data-act="items">Items</button>':'')+'<button class="danger" data-act="rmstop">Remove</button><button data-act="closecard">Close</button>';
   if(build){sc.innerHTML=html}else{const pc=sc.querySelector('[data-pc]');if(pc)pc.textContent=G.prioCD>0?'Priority ('+Math.ceil(G.prioCD)+'s)':'Priority call';const e=sc.querySelector('[data-sl]');if(e)e.textContent=line;const w=sc.querySelector('[data-sw]');if(w)w.textContent=who}
 }
 function liveInfo(){
@@ -3633,7 +3922,7 @@ function hud(){
   $('#cDel').textContent=G.delivered;$('#cGave').textContent=G.gaveUp;{const tt=G.dayDel+G.dayGave;$('#cToday').textContent='Today '+(tt?Math.round(100*G.dayDel/tt):100)+'%'}const cc=$('#cCash');cc.textContent=money(G.money);cc.classList.toggle('neg',G.money<0);
   const h=clockHour(G.t),hh=Math.floor(h),mm=Math.floor((h-hh)*60);
   $('#clock').textContent=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
-  $('#dayLbl').textContent='Day '+G.day+(isFinite(G.L.days)?'/'+G.L.days:'')+' · '+G.season[0].toUpperCase()+G.season.slice(1);
+  $('#dayLbl').textContent='Day '+G.day+(isFinite(G.L.days)?'/'+G.L.days:'')+' · '+G.season[0].toUpperCase()+G.season.slice(1)+(G.boosts?(' '+boostIcons()).trimEnd():'');
   {const lv=levelOf(PROF.xp),a=xpFor(lv-1),b=xpFor(lv);$('#cLvl').textContent='Lv '+lv+' · '+rankOf(lv);$('#xpFill').style.width=Math.round(100*(PROF.xp-a)/(b-a))+'%'}
   {const mp=$('#missions');let h='';
    if(!tutOn()){for(const m of G.missions){const pr=m.prog?Math.min(m.goal,Math.floor(m.prog())):0;h+='<div class="m '+(m.done?'done':m.failed?'fail':m.mayor?'mayor':'')+'"><b>'+(m.done?'✓':m.failed?'✕':m.mayor?'⚑':'◻')+'</b><span>'+esc(m.text)+(!m.done&&!m.failed&&['arena','uni','air','hosp','mall','school'].includes(m.pin||m.id)?' <button class="pin" data-act="msnpin" data-k="'+(m.pin||m.id)+'">Show me</button>':'')+'</span><em>'+(m.special?(m.special==='pm'?(G.gaveMark>=0?(G.dayGave-G.gaveMark)+' gave up · ':''):m.special==='happy'?((G.dayDel+G.dayGave)?Math.round(100*G.dayDel/(G.dayDel+G.dayGave))+'% · ':''):''):pr+'/'+m.goal+' · ')+'$'+m.reward+'</em></div>'}
@@ -3662,16 +3951,21 @@ document.addEventListener('click',e=>{
   const route=id?G.routes.find(r=>r.id===id):null;
   switch(act){
     case'play':if(G.modal||G.over)return;if(ui.expAnim){return}if(G.pendingNext){nextDay();return}
-      if(G.paused&&G.t===0&&!ui.growOpts){G.snap=serialize();if(!G.missions.length)makeMissions()}if(G.paused&&!G.routes.length&&G.t===0){toast('Place stops and draw a route first.');const sb=document.querySelector('.tbtn[data-tool="stop"]');if(sb){sb.classList.add('nudge');setTimeout(()=>sb.classList.remove('nudge'),2200)}return}G.paused=!G.paused;syncPlay();break;
+      if(G.paused&&G.t===0&&!ui.growOpts){G.snap=serialize();if(!G.missions.length)makeMissions()}if(G.paused&&!G.routes.length&&G.t===0){toast('Place stops and draw a route first.');const sb=document.querySelector('.tbtn[data-tool="stop"]');if(sb){sb.classList.add('nudge');setTimeout(()=>sb.classList.remove('nudge'),2200)}return}if(G.paused&&G.t===0&&PROF.cos.horn!=='classic')snd('horn');G.paused=!G.paused;syncPlay();break;
     case'speed':G.speed=G.speed%3+1;syncPlay();break;
     case'sound':ui.sound=!ui.sound;syncPlay();if(el.closest('#ov'))el.textContent=ui.sound?'Sound: on':'Sound: off';break;
     case'fitclose':hideOv();fitCam(true);break;
     case'fit':fitCam(true);break;
-    case'menu':if(G.modal){if(ui.growOpts)toast('Choose where the city grows first, or tap Not today.',2400);return}G.paused=true;syncPlay();showOv('<div class="card small"><h2>Paused</h2><div class="menugrid"><button class="btn ok full" data-act="resume">Resume</button><button class="btn alt" data-act="retryday"'+(G.snap?'':' disabled')+'>Restart today</button><button class="btn alt" data-act="cityhall">City Hall</button><button class="btn alt" data-act="garage">Garage</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="goals">Goals</button><button class="btn alt" data-act="photo">Photo mode</button><button class="btn alt" data-act="sound">'+(ui.sound?'Sound: on':'Sound: off')+'</button><button class="btn alt" data-act="settings" data-from="game">Settings</button><button class="btn alt" data-act="trophies" data-from="game">Trophies</button><button class="btn alt" data-act="slots" data-from="game">Save slots</button><button class="btn alt" data-act="guide" data-from="game">Guide</button><button class="btn alt" data-act="shop" data-from="game">Shop</button><button class="btn alt" data-act="drivers">Drivers</button><button class="btn alt" data-act="fitclose">Fit map</button><button class="btn alt" data-act="restartlevel">Restart level</button><button class="btn alt" data-act="home">Level select</button><button class="btn alt full" data-act="howto">How to play</button></div></div>');break;
+    case'menu':if(G.modal){if(ui.growOpts)toast('Choose where the city grows first, or tap Not today.',2400);return}G.paused=true;syncPlay();showOv('<div class="card small"><h2>Paused</h2><div class="menugrid"><button class="btn ok full" data-act="resume">Resume</button><button class="btn alt full" data-act="items">Items'+(invCount()?' ('+invCount()+')':'')+'</button><button class="btn alt" data-act="retryday"'+(G.snap?'':' disabled')+'>Restart today</button><button class="btn alt" data-act="cityhall">City Hall</button><button class="btn alt" data-act="garage">Garage</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="goals">Goals</button><button class="btn alt" data-act="photo">Photo mode</button><button class="btn alt" data-act="sound">'+(ui.sound?'Sound: on':'Sound: off')+'</button><button class="btn alt" data-act="settings" data-from="game">Settings</button><button class="btn alt" data-act="trophies" data-from="game">Trophies</button><button class="btn alt" data-act="slots" data-from="game">Save slots</button><button class="btn alt" data-act="guide" data-from="game">Guide</button><button class="btn alt" data-act="shop" data-from="game">Shop</button><button class="btn alt" data-act="drivers">Drivers</button><button class="btn alt" data-act="fitclose">Fit map</button><button class="btn alt" data-act="restartlevel">Restart level</button><button class="btn alt" data-act="home">Level select</button><button class="btn alt full" data-act="howto">How to play</button></div></div>');break;
     case'resume':hideOv();syncPlay();break;
     case'backov':{const h=ui.prevOv;ui.prevOv=null;if(h){showOv(h)}else{hideOv();syncPlay()}break}
     case'set':setOpt(el.dataset.k,el.dataset.v);break;
     case'shop':showShop(el.dataset.from);break;
+    case'shoptab':ui.shopArm=null;showShop(null,el.dataset.tab);{const c=$('#ov .card');if(c)c.scrollTop=0}break;
+    case'shopbuy':shopTap(el.dataset.id);break;
+    case'shopequip':if(equipLook(el.dataset.id))shopRender();break;
+    case'useitem':if(useItem(el.dataset.id)){if(el.dataset.where==='tray'){hideOv();syncPlay()}else shopRender()}break;
+    case'items':showItems();break;
     case'advadd':{const r=G.routes.find(x=>x.id===+el.dataset.id);if(r){pushUndo();if(addBus(r))toast('Bus added to '+r.name+'.',1800)}advSnooze(el.dataset.key,90);break}
     case'advcut':{const r=G.routes.find(x=>x.id===+el.dataset.id);if(r){pushUndo();removeBus(r);toast('Removed a bus from '+r.name+' (half the price refunded).',2600)}advSnooze(el.dataset.key,120);break}
     case'advrush':{const r=G.routes.find(x=>x.id===+el.dataset.id);if(r&&r.sched!=='peak'){pushUndo();toggleSched(r)}advSnooze(el.dataset.key,120);break}
@@ -3787,7 +4081,7 @@ function buyUnlock(id){
 }
 function showGarage(){
   const lv=levelOf(PROF.xp),c=PROF.cos;
-  const row=(k,list,render)=>'<div class="lbl">'+k+'</div><div class="swatches">'+list.map(o=>{const lock=lv<o.lvl,on=c[k==='Bus paint'?'paint':k==='Stop sign'?'sign':'tower']===o.id;
+  const row=(k,list,render)=>'<div class="lbl">'+k+'</div><div class="swatches">'+list.map(o=>{const lock=lv<o.lvl&&!sp('garagekey'),on=c[k==='Bus paint'?'paint':k==='Stop sign'?'sign':'tower']===o.id;
     return'<button class="sw2 '+(on?'on':'')+'" data-act="setcos" data-k="'+(k==='Bus paint'?'paint':k==='Stop sign'?'sign':'tower')+'" data-v="'+o.id+'"'+(lock?' disabled':'')+render(o)+'>'+(lock?'Lv '+o.lvl:(k==='Bus paint'?'':esc(o.name)))+'</button>'}).join('')+'</div>';
   showOv('<div class="card"><h2>Garage</h2><p class="sub">Company level '+lv+'. Higher levels unlock more looks.</p>'+
     row('Bus paint',PAINTS,o=>' style="background:'+o.id+'" title="'+o.name+'"')+row('Stop sign',SIGNS,o=>'')+row('Tower style',TOWERS,o=>'')+
@@ -3935,7 +4229,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={meta:{showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={meta:{showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,shopTap,buyShop,useItem,equipLook,showItems,applyBank,shopItem,savePct,realSeason,bo,sp,boostIcons,invCount,applyLooks,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 /* boot (deferred one frame so the splash screen can paint first) */
 function bootGame(){
 performance.mark('rhr:boot');
@@ -3945,8 +4239,8 @@ performance.mark('rhr:init3d');
 resize();
 $('#missions').addEventListener('click',e=>e.currentTarget.classList.toggle('open'));
 if(PROF.autoGfx===undefined){PROF.autoGfx=true;try{const lowMem=navigator.deviceMemory&&navigator.deviceMemory<=4,lowCpu=navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4,coarse=matchMedia('(pointer:coarse)').matches;if(PROF.gfx==='auto'&&coarse&&(lowMem||lowCpu)){PROF.gfx='saver';ui.saverNote=true}saveProfile()}catch(e){}}
-performance.mark('rhr:prefs');applyA11y();applyGfx();initOffline();
-loadLevel(0);performance.mark('rhr:level');if(ui.saverNote)setTimeout(()=>toast('Battery saver graphics are on for this device. Change it in Settings.',4200),1500);syncPlay();showHomeMenu();
+performance.mark('rhr:prefs');applyA11y();applyGfx();applyLooks();initOffline();
+loadLevel(0,{noBonus:true});performance.mark('rhr:level');if(ui.saverNote)setTimeout(()=>toast('Battery saver graphics are on for this device. Change it in Settings.',4200),1500);syncPlay();showHomeMenu();
 performance.mark('rhr:ready');requestAnimationFrame(frame);
 {const bt=document.getElementById('boot');if(bt){bt.style.opacity=0;setTimeout(()=>bt.remove(),400)}}
 window.__rhrReady=true;
