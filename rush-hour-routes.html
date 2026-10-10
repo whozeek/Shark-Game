@@ -481,7 +481,7 @@ const UNLOCKS=[
  {id:'smartlights',name:'Smart traffic lights',desc:'Traffic slows your buses 25% less.',cost:4500,lvl:4},
  {id:'night',name:'Night service',desc:'Adds a night shift to every day. Switch routes to night service for higher fares, at higher running costs.',cost:3500,lvl:4},
  {id:'bikes',name:'Bike share',desc:'Lets you add bike docks to stops. Docks pull in riders from much farther away.',cost:6000,lvl:6},
- {id:'highway',name:'Highways',desc:'Builds highways north and south of town with off-ramps and roundabouts. Buses drive 80% faster on the top and bottom edge avenues and never get stuck in traffic. Routes along those edges become express lines.',cost:6500,lvl:7},
+ {id:'highway',name:'Highways',desc:'Builds a highway along the north and south edge of the map, with ramps that curve into roundabouts at the town edge. Buses really drive on it: 80% faster and never stuck in traffic. Routes between far apart stops prefer it automatically.',cost:6500,lvl:7},
  {id:'tram',name:'Trams',desc:'A fifth vehicle: trams carry 40 riders, are fast, and ignore traffic jams.',cost:9000,lvl:8}];
 const PAINTS=[{id:'#f1f3f5',name:'Pearl',lvl:1},{id:'#f4e9c9',name:'Cream',lvl:2},{id:'#cfe8f5',name:'Sky',lvl:3},{id:'#d3efd9',name:'Mint',lvl:5},{id:'#3a4048',name:'Charcoal',lvl:7},{id:'#f2c94c',name:'Taxi gold',lvl:10}];
 const SIGNS=[{id:'round',name:'Round',lvl:1},{id:'square',name:'Square',lvl:4},{id:'hex',name:'Hex',lvl:8}];
@@ -533,10 +533,47 @@ const ROOFS=['#8a4b3a','#6d4a3d','#4d535c','#5b3f33','#7a5a45','#3f464f'];
 const APTS=['#e9d5b8','#d6c4e3','#c9dcd0','#f0cfc4'];
 const GLASS=['#a4c8e8','#b8d4ea','#8fb6dc','#a9cfe4','#c2d8ea'];
 
+/* Highways: real nodes and edges appended after the grid nodes (flagged hwNode / e.syn). Grid ids r*(cols+1)+c never change.
+   Per side (north and south): a long highway chain, and at a few columns a roundabout just outside the town with a ramp from each direction.
+   Buses follow these nodes like any other road, so the drawn road and the bus path are the same line. Rebuilt from scratch on every call. */
+const HW_OFF=130, HW_RUN=150, HW_R=26, HW_RC=55, HW_END=2800, HW_LANE=7.5;
 function markHighway(city){
-  let n=0;const on=typeof has==='function'&&has('highway');let mc=0;for(const nd of city.nodes)if(nd.r>mc)mc=nd.r;
-  for(const e of city.edges){const A=city.nodes[e.a],B=city.nodes[e.b];e.hw=!!(on&&A.r===B.r&&(A.r===0||A.r===mc));if(e.hw)n++}
-  city.hwCount=n;return n;
+  if(city.gridN==null){city.gridN=city.nodes.length;city.gridE=city.edges.length}
+  city.nodes.length=city.gridN;city.edges.length=city.gridE;
+  for(const nd of city.nodes)if(nd.adj.some(a=>a.e.syn))nd.adj=nd.adj.filter(a=>!a.e.syn);
+  for(const[k,e]of Array.from(city.edgeMap))if(e.syn)city.edgeMap.delete(k);
+  for(const e of city.edges)e.hw=false;
+  city.hw=null;city.hwCount=0;
+  if(!(typeof has==='function'&&has('highway')))return 0;
+  const N=city.nodes,E=city.edges,cols=city.cols,rows=city.rows,cid=(c,r)=>r*(cols+1)+c;
+  const addN=(x,y)=>{const nd={id:N.length,c:-1,r:-1,x,y,adj:[],alive:false,hwNode:true};N.push(nd);return nd.id};
+  const link=(a,b,fast,name,lane)=>{const A=N[a],B=N[b],e={id:E.length,a,b,len:Math.hypot(A.x-B.x,A.y-B.y),closed:false,name,syn:true,hw:fast,lane};E.push(e);A.adj.push({to:b,e});B.adj.push({to:a,e});city.edgeMap.set(a*4096+b,e);city.edgeMap.set(b*4096+a,e);return e};
+  const cs=cols>=8?[1,Math.round(cols/2),cols-1]:cols>=5?[1,cols-1]:[Math.round(cols/2)];
+  const sides=[];let n=0;
+  for(const sg of[-1,1]){
+    const rowR=sg<0?0:rows,rowY=N[cid(0,rowR)].y,hy=rowY+sg*HW_OFF,jn=[],ramps=[];
+    for(const c of cs){
+      const xn=N[cid(c,rowR)].x,cy=rowY+sg*HW_RC,ring=[];
+      for(let k=0;k<12;k++){const ph=(-90+30*k)*Math.PI/180;ring.push(addN(xn+HW_R*Math.cos(ph),rowY+sg*(HW_RC+HW_R*Math.sin(ph))))}
+      for(let k=0;k<12;k++)link(ring[k],ring[(k+1)%12],false,'Roundabout',6);
+      link(ring[0],cid(c,rowR),false,'Ramp',6);
+      for(const dir of[-1,1]){
+        const ent=ring[dir<0?9:3],P=[[HW_RUN,HW_OFF],[HW_RUN-50,HW_OFF],[HW_R+45,HW_RC+10],[HW_R,HW_RC]].map(q=>[xn+dir*q[0],rowY+sg*q[1]]);
+        const pts=[],ids=[];const M=10;
+        for(let k=0;k<=M;k++){const u=k/M,v=1-u,x=v*v*v*P[0][0]+3*v*v*u*P[1][0]+3*v*u*u*P[2][0]+u*u*u*P[3][0],y=v*v*v*P[0][1]+3*v*v*u*P[1][1]+3*v*u*u*P[2][1]+u*u*u*P[3][1];
+          pts.push([x,y]);ids.push(k===M?ent:addN(x,y))}
+        for(let k=0;k<M;k++)link(ids[k],ids[k+1],true,'Highway ramp',6);
+        jn.push(ids[0]);ramps.push({pts,xn,cy,dir});
+      }
+      ramps.push({ring:true,xn,cy});
+    }
+    jn.sort((a,b)=>N[a].x-N[b].x);
+    const e0=addN(N[jn[0]].x-HW_END,hy),e1=addN(N[jn[jn.length-1]].x+HW_END,hy),chain=[e0].concat(jn,[e1]);
+    for(let k=0;k<chain.length-1;k++)link(chain[k],chain[k+1],true,'Highway',HW_LANE);
+    sides.push({sg,rowY,hy,x0:N[e0].x,x1:N[e1].x,ramps});
+  }
+  for(const e of E)if(e.syn&&e.hw)n++;
+  city.hw={sides};city.hwCount=n;return n;
 }
 function buildCity(L){
   const rows=L.map.length, cols=L.map[0].length, R=rng(L.seed);
@@ -695,11 +732,12 @@ function renderStatic(city){
     for(let i=0;i<120;i++){a.fillStyle='rgba(120,120,110,.18)';a.fillRect(R()*w,R()*h,1.5,1.5)}}),'repeat');
   const N=city.nodes;
   g.lineCap='round';g.lineJoin='round';
-  for(const e of city.edges){const A=N[e.a],B=N[e.b];g.strokeStyle=pave;g.lineWidth=ROAD_W+10;g.beginPath();g.moveTo(A.x,A.y);g.lineTo(B.x,B.y);g.stroke()}
-  for(const e of city.edges){const A=N[e.a],B=N[e.b];g.strokeStyle='#8f918c';g.lineWidth=ROAD_W+3;g.beginPath();g.moveTo(A.x,A.y);g.lineTo(B.x,B.y);g.stroke()}
-  for(const e of city.edges){const A=N[e.a],B=N[e.b];g.strokeStyle=asphalt;g.lineWidth=ROAD_W;g.beginPath();g.moveTo(A.x,A.y);g.lineTo(B.x,B.y);g.stroke()}
+  for(const e of city.edges){if(e.syn)continue;const A=N[e.a],B=N[e.b];g.strokeStyle=pave;g.lineWidth=ROAD_W+10;g.beginPath();g.moveTo(A.x,A.y);g.lineTo(B.x,B.y);g.stroke()}
+  for(const e of city.edges){if(e.syn)continue;const A=N[e.a],B=N[e.b];g.strokeStyle='#8f918c';g.lineWidth=ROAD_W+3;g.beginPath();g.moveTo(A.x,A.y);g.lineTo(B.x,B.y);g.stroke()}
+  for(const e of city.edges){if(e.syn)continue;const A=N[e.a],B=N[e.b];g.strokeStyle=asphalt;g.lineWidth=ROAD_W;g.beginPath();g.moveTo(A.x,A.y);g.lineTo(B.x,B.y);g.stroke()}
   g.lineCap='butt';
   for(const e of city.edges){
+    if(e.syn)continue;
     const A=N[e.a],B=N[e.b],dx=B.x-A.x,dy=B.y-A.y,l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l,nx=-uy,ny=ux,s0=15,s1=l-15;
     g.strokeStyle='rgba(15,16,18,.20)';g.lineWidth=3.4;
     for(const o of[-5.5,5.5]){g.beginPath();g.moveTo(A.x+ux*s0+nx*o,A.y+uy*s0+ny*o);g.lineTo(A.x+ux*s1+nx*o,A.y+uy*s1+ny*o);g.stroke()}
@@ -713,6 +751,7 @@ function renderStatic(city){
   // crosswalks
   for(const n of N){if(!n.alive)continue;
     for(const a of n.adj){
+      if(a.e.syn)continue;
       const B=N[a.to],dx=B.x-n.x,dy=B.y-n.y,l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l,nx=-uy,ny=ux,cx=n.x+ux*(ROAD_W/2+8),cy=n.y+uy*(ROAD_W/2+8);
       g.strokeStyle='rgba(245,245,240,.9)';g.lineWidth=1.5;
       for(let k=-4;k<=4;k++){const ox=nx*k*2.45,oy=ny*k*2.45;g.beginPath();g.moveTo(cx+ox-ux*3.4,cy+oy-uy*3.4);g.lineTo(cx+ox+ux*3.4,cy+oy+uy*3.4);g.stroke()}
@@ -1016,7 +1055,7 @@ money:`<ul><li><b>Income</b>: every rider who arrives pays a fare ($3 to $10; ni
 <h3>Missions</h3><p>The panel under the clock shows today's missions, like delivering a number of riders before noon. They pay cash and company XP. Tap the panel on a phone to see all of them.</p>`,
 events:`<dl><dt>Road closure / Parade</dt><dd>Roads are blocked. Buses detour automatically. Check your routes still connect.</dd><dt>Accident</dt><dd>A road is blocked for a short while. A hospital helps clear it faster.</dd><dt>Storm</dt><dd>Riders lose patience faster.</dd><dt>Flooding</dt><dd>Like a storm, and low roads near water close.</dd><dt>Snow</dt><dd>In winter. A road is blocked and all buses are slower.</dd><dt>Fog</dt><dd>Buses and traffic slow down.</dd><dt>Concert</dt><dd>When it ends a big crowd heads home from the arena. Put a stop near it and add buses.</dd><dt>Breakdown</dt><dd>One bus stops for a while. Extra buses cover the gap, and depots speed up the recovery.</dd></dl>
 <div class="tip">Seasons change the look of the city and the odds of events. Events are your reason to keep a cash buffer.</div>`,
-unlocks:`<dl><dt>Company level and XP</dt><dd>You earn XP for deliveries, missions, trophies and finishing days. Levels carry over between games.</dd><dt>City Hall</dt><dd>Spend cash on permanent upgrades once your company level is high enough: arrival signs (more patient riders), depot network, electric buses (cheaper running), priority dispatch, smart traffic lights, night service, bike share and trams.</dd><dt>Garage</dt><dd>Cosmetics: bus paint, stop signs and tower styles, unlocked by level.</dd><dt>Shop and Items</dt><dd>Open the Shop from the home menu or the pause menu. Transit Tickets (🎟) are the shop money: you start with 30 and earn more from finished days (+3), company levels and cleared levels (+10) and trophies (+5). Filter chips (All, Small, Boosts, Looks, Drivers, Packs, Bundles, Big) sort the cards. Buying is two taps: tap the price, then tap again to confirm. <b>Small</b> items are one-shot helpers you carry as Items: Coffee Vouchers, Priority Pings, umbrellas, snack carts, tune-up kits, Road Crew and Clear Skies calls, plus small permanent perks like Cup Holders and Spare Tyres. <b>Boosts</b> last one game day. <b>Looks</b> are bus paints, stop sign colours, skylines, decals, horns, music, map filters and a confetti trail (tap Equip; tap again to unequip). <b>Drivers</b> has Training Days, Pro and Veteran hires and roof hats. Bundles save money and show their saving. Packs, premium bundles, the Head Start Pass and the Ultimate Edition show a dollar price as a preview only: payments are not switched on, so nothing is ever charged. Use your Items from the pause menu, the Buses panel or a selected stop's Items button.</dd><dt>Drivers</dt><dd>Every bus has a named driver. Drivers earn experience for every rider they deliver and level up: Rookie, Steady, Pro, Veteran, Legend. Higher levels drive faster and stop quicker, and they keep their levels across games.</dd><dt>Mayor requests</dt><dd>From day 2 the mayor sometimes adds a special mission (marked with a flag): serve a landmark, link two places by bus, keep everyone happy until 09:30, or grow your fleet. They pay extra cash and XP.</dd><dt>Map expansion</dt><dd>In long games the map itself grows. From day 10 (and from day 3 on the last two campaign levels) one new row or column of blocks opens each day, alternating east and south, up to a maximum size. Your routes and stops are kept, and rider numbers go up a little with each expansion.</dd><dt>Highways</dt><dd>A City Hall unlock (company level 7). Highways appear north and south of town, each with an off-ramp and roundabout into the street grid. The top and bottom edge avenues become fast: buses drive 80% faster on them, they never jam, and routes prefer them. Run a route along the top or bottom edge to use them, and branch off with other routes.</dd><dt>Advisor</dt><dd>A small tip with a one-tap fix appears at the bottom when something needs attention: a stop about to give up (add a bus), stranded riders (show me where), or a route losing money (remove a bus or run rush hours only). You can dismiss a tip, and switch the advisor off in Settings.</dd><dt>Rider stories</dt><dd>A few riders each day have names and jobs. Their stories, good and bad, appear in the day report.</dd><dt>New game plus</dt><dd>After you finish the whole campaign, a Plus difficulty appears in Settings with tougher patience, income and running costs.</dd><dt>Backup and restore</dt><dd>In Settings you can copy a backup code of your profile, drivers and saves, and paste it later on any device.</dd><dt>Trophies</dt><dd>Achievements for things like your first route, a spotless day, a loop route or a tram.</dd><dt>Levels</dt><dd>Eleven campaign maps get harder, plus Sandbox (endless, no game over), a Daily Challenge and a Weekly Challenge. Difficulty and settings are in the menu.</dd></dl>`,
+unlocks:`<dl><dt>Company level and XP</dt><dd>You earn XP for deliveries, missions, trophies and finishing days. Levels carry over between games.</dd><dt>City Hall</dt><dd>Spend cash on permanent upgrades once your company level is high enough: arrival signs (more patient riders), depot network, electric buses (cheaper running), priority dispatch, smart traffic lights, night service, bike share and trams.</dd><dt>Garage</dt><dd>Cosmetics: bus paint, stop signs and tower styles, unlocked by level.</dd><dt>Shop and Items</dt><dd>Open the Shop from the home menu or the pause menu. Transit Tickets (🎟) are the shop money: you start with 30 and earn more from finished days (+3), company levels and cleared levels (+10) and trophies (+5). Filter chips (All, Small, Boosts, Looks, Drivers, Packs, Bundles, Big) sort the cards. Buying is two taps: tap the price, then tap again to confirm. <b>Small</b> items are one-shot helpers you carry as Items: Coffee Vouchers, Priority Pings, umbrellas, snack carts, tune-up kits, Road Crew and Clear Skies calls, plus small permanent perks like Cup Holders and Spare Tyres. <b>Boosts</b> last one game day. <b>Looks</b> are bus paints, stop sign colours, skylines, decals, horns, music, map filters and a confetti trail (tap Equip; tap again to unequip). <b>Drivers</b> has Training Days, Pro and Veteran hires and roof hats. Bundles save money and show their saving. Packs, premium bundles, the Head Start Pass and the Ultimate Edition show a dollar price as a preview only: payments are not switched on, so nothing is ever charged. Use your Items from the pause menu, the Buses panel or a selected stop's Items button.</dd><dt>Drivers</dt><dd>Every bus has a named driver. Drivers earn experience for every rider they deliver and level up: Rookie, Steady, Pro, Veteran, Legend. Higher levels drive faster and stop quicker, and they keep their levels across games.</dd><dt>Mayor requests</dt><dd>From day 2 the mayor sometimes adds a special mission (marked with a flag): serve a landmark, link two places by bus, keep everyone happy until 09:30, or grow your fleet. They pay extra cash and XP.</dd><dt>Map expansion</dt><dd>In long games the map itself grows. From day 10 (and from day 3 on the last two campaign levels) one new row or column of blocks opens each day, alternating east and south, up to a maximum size. Your routes and stops are kept, and rider numbers go up a little with each expansion.</dd><dt>Highways</dt><dd>A City Hall unlock (company level 7). A highway runs along the north and south edge of the map, far past both ends. At a few points ramps leave it and curve into a roundabout just outside town, which joins the top or bottom street. Buses drive on the highway for real: 80% faster than town streets and never stuck in traffic. You cannot put stops on the highway; place stops on the town streets and the bus takes the highway by itself when that is quicker, for example between two stops far apart on the top street. Other cars drive in from beyond the map along it.</dd><dt>Advisor</dt><dd>A small tip with a one-tap fix appears at the bottom when something needs attention: a stop about to give up (add a bus), stranded riders (show me where), or a route losing money (remove a bus or run rush hours only). You can dismiss a tip, and switch the advisor off in Settings.</dd><dt>Rider stories</dt><dd>A few riders each day have names and jobs. Their stories, good and bad, appear in the day report.</dd><dt>New game plus</dt><dd>After you finish the whole campaign, a Plus difficulty appears in Settings with tougher patience, income and running costs.</dd><dt>Backup and restore</dt><dd>In Settings you can copy a backup code of your profile, drivers and saves, and paste it later on any device.</dd><dt>Trophies</dt><dd>Achievements for things like your first route, a spotless day, a loop route or a tram.</dd><dt>Levels</dt><dd>Eleven campaign maps get harder, plus Sandbox (endless, no game over), a Daily Challenge and a Weekly Challenge. Difficulty and settings are in the menu.</dd></dl>`,
 strategy:`<h3>Build well</h3><ul><li>Put your first two stops between the biggest group of houses and the biggest group of offices. Glowing blocks are where riders appear.</li><li>Use <b>Coverage</b> map view to find blocks that have no stop. Red blocks are riders you are missing.</li><li>Long straight routes with few turns beat tangled ones. Use <b>Shape road</b> to dodge jams instead of adding more stops.</li><li>Use <b>Loop</b> for rings and downtown circuits, <b>Express</b> for long trips, and transfers for big cities (a few busy trunk routes feeding smaller local ones).</li></ul>
 <h3>Run well</h3><ul><li>Check the stops first thing in the rush. Add a bus to the route with the red stops, not to every route.</li><li>If a route is full and cannot take another bus (roads get jammed), upgrade the vehicle size.</li><li>Quiet routes: switch to <b>Rush hours only</b> or cut a bus. Busy routes: add buses before upgrading.</li><li>Turn on <b>Even spacing</b> when buses on a long route clump together.</li><li>Use <b>Priority call</b> on a single stop that is about to explode, not as a habit.</li><li>Put ramps on stops that join residential blocks to the network once wheelchair users appear.</li></ul>
 <h3>Stay safe</h3><ul><li>Keep a cash buffer of at least one or two buses. Events cost you.</li><li>Do not add night service or bike docks until your day routes are stable.</li><li>Read the day report: 'Worst moment' shows where you lost the most riders. Tap <b>Show me</b> and fix that stop.</li><li>If a day goes badly, use Retry from today and try a different plan.</li></ul>
@@ -1252,7 +1291,7 @@ function applyHighwayNow(){
   if(!G.city)return;markHighway(G.city);
   if(T.ok){build3D(G.city);resetDyn()}
   for(const r of G.routes)recalcRoute(r);
-  netChanged();toast('Highways open! The top and bottom avenues are now fast roads with no traffic.',4200);
+  netChanged();toast('Highways open! Buses now use the ramps and roundabouts to drive the fast highway north and south of town.',4200);
 }
 function grantItem(id,n){
   const it=shopItem(id);if(!it)return;const S=PROF.shop;
@@ -1918,7 +1957,8 @@ function placeBus(b){
   const N=G.city.nodes,A=N[b.from],B=N[b.to],t=b.elen?clamp(b.s/b.elen,0,1):1;
   const dx=B.x-A.x,dy=B.y-A.y,l=Math.hypot(dx,dy);
   if(l>0){b.ang=Math.atan2(dy,dx);b.nx=-dy/l;b.ny=dx/l}
-  b.x=A.x+dx*t+b.nx*5.5;b.y=A.y+dy*t+b.ny*5.5;
+  const le=edgeBetween(b.from,b.to),lo=(le&&le.lane)||5.5;
+  b.x=A.x+dx*t+b.nx*lo;b.y=A.y+dy*t+b.ny*lo;
 }
 function updBus(b,dt){
   if(b.flash>0)b.flash-=dt;
@@ -1942,7 +1982,7 @@ function updBus(b,dt){
 
 /* ================= stops ================= */
 function stopCorner(city,nd){
-  const has=(dx,dy)=>nd.adj.some(a=>{const B=city.nodes[a.to];return Math.sign(B.x-nd.x)===dx&&Math.sign(B.y-nd.y)===dy});
+  const has=(dx,dy)=>nd.adj.some(a=>{if(a.e.syn)return false;const B=city.nodes[a.to];return Math.sign(B.x-nd.x)===dx&&Math.sign(B.y-nd.y)===dy});
   const order=[[1,1],[-1,1],[1,-1],[-1,-1]];let best=order[0],bs=-1;
   for(const[sx,sy]of order){const sc=(has(sx,0)?1:0)+(has(0,sy)?1:0);if(sc>bs){bs=sc;best=[sx,sy]}}
   return best;
@@ -2018,7 +2058,7 @@ function startEvent(ev){
     const used=new Set();
     for(const r of G.routes)for(const p of r.segs)for(let k=0;k<p.length-1;k++){const e=edgeBetween(p[k],p[k+1]);if(e)used.add(e)}
     let pool=[...used];if(!pool.length)pool=city.edges.filter(e=>{const a=city.nodes[e.a];return a.c>=3&&a.c<=6});
-    pool=pool.filter(e=>connectedWithout(e));
+    pool=pool.filter(e=>!e.syn&&connectedWithout(e));
     if(!pool.length)type='storm';
     else{const e=pool[Math.floor(rnd()*pool.length)];e.closed=true;G.event={type:'closure',t:0,dur:G.L.closureDur,edge:e,label:'Road closed on '+e.name};toast('Road closed. Buses will detour.')}
   }
@@ -2028,7 +2068,7 @@ function startEvent(ev){
     let pool=[...used];if(!pool.length)pool=city.edges.filter(e=>{const a=city.nodes[e.a];return a.c>=2&&a.c<=7});
     const M_=G.L.map,wet=n=>{for(const[dc,dr]of[[-1,-1],[0,-1],[-1,0],[0,0]]){const r=n.r+dr,c=n.c+dc;if(M_[r]&&M_[r][c]==='W')return true}return false};
     if(type==='flood'){const w=pool.filter(e=>wet(city.nodes[e.a])||wet(city.nodes[e.b]));if(w.length)pool=w}
-    pool=pool.filter(e=>connectedWithout(e));
+    pool=pool.filter(e=>!e.syn&&connectedWithout(e));
     if(!pool.length)type='storm';
     else{
       const e=pool[Math.floor(rnd()*pool.length)],edges=[e];e.closed=true;
@@ -2051,7 +2091,7 @@ function startEvent(ev){
   if(type==='parade'){
     const ctr={x:city.w/2,y:city.h/2},nodes=city.nodes.filter(n=>n.alive).sort((a,b)=>Math.hypot(a.x-ctr.x,a.y-ctr.y)-Math.hypot(b.x-ctr.x,b.y-ctr.y)).slice(0,8);
     const nd=nodes[Math.floor(rnd()*nodes.length)],closed=[];
-    for(const a of nd.adj){if(closed.length>=2)break;if(connectedWithout(a.e)){a.e.closed=true;closed.push(a.e)}}
+    for(const a of nd.adj){if(closed.length>=2)break;if(!a.e.syn&&connectedWithout(a.e)){a.e.closed=true;closed.push(a.e)}}
     if(!closed.length)type='storm';
     else{G.event={type:'parade',t:0,dur:G.L.closureDur,edges:closed,label:'A parade is blocking '+closed.map(e=>e.name).join(' and ')+'.'};toast('Parade! Buses will detour.')}
   }
@@ -2085,7 +2125,7 @@ function updCong(){
   }
   const cnt=new Map();
   for(const b of G.buses){const e=edgeBetween(b.from,b.to);if(e)cnt.set(e,(cnt.get(e)||0)+1)}
-  for(const e of C.edges)e.cong=e.hw?0:clamp(rf*.42*Math.pow(1-e.dn,1.3)+e.cb*rf+Math.max(0,(cnt.get(e)||0)-1)*.1,0,.65);
+  for(const e of C.edges)e.cong=(e.hw||e.syn)?0:clamp(rf*.42*Math.pow(1-e.dn,1.3)+e.cb*rf+Math.max(0,(cnt.get(e)||0)-1)*.1,0,.65);
 }
 function step(dt){
   if(G.over)return;
@@ -2440,6 +2480,7 @@ function remapIds(os,ns){
   const st2=new Map();for(const[k,st]of G.stops){st.id=f(k);st2.set(st.id,st)}G.stops=st2;
   for(const r of G.routes){r.stops=r.stops.map(f);const nv={};for(const key in(r.via||{})){const p=key.split('>').map(Number);nv[f(p[0])+'>'+f(p[1])]=r.via[key].map(f)}r.via=nv}
   const dp=new Map();for(const[k,d]of G.depots){d.id=f(k);dp.set(d.id,d)}G.depots=dp;
+  if(G.rival){G.rival.stops=G.rival.stops.map(f);G.rival.routes=[]}
   const hs={};for(const k in(G.hist||{}))hs[f(+k)]=G.hist[k];G.hist=hs;
   for(const c of G.citizens){if(c.alight!=null)c.alight=f(c.alight);if(c.plan&&c.plan.alight!=null)c.plan.alight=f(c.plan.alight)}
   G.thinkMem=[];ui.undo=[];ui.undoSig='';ui.sel=null;ui.drawing=null;ui.moving=null;ui.shape=null;
@@ -2455,7 +2496,7 @@ function expandMap(){
   L.map=grid.map(a=>a.join(''));G.expN=(G.expN||0)+1;L.perDay=Math.round(L.perDay*1.07);
   const oldRect={x0:MARGIN,y0:MARGIN,x1:MARGIN+cols*S,y1:MARGIN+rows*S},neuRect=side==='E'?{x0:MARGIN+cols*S,y0:MARGIN,x1:MARGIN+(cols+1)*S,y1:MARGIN+rows*S}:{x0:MARGIN,y0:MARGIN+rows*S,x1:MARGIN+cols*S,y1:MARGIN+(rows+1)*S};
   if(side==='E')remapIds(cols+1,cols+2);
-  G.city=buildCity(L);
+  G.city=buildCity(L);if(G.rival)G.rival.routes=[];
   for(const r of G.routes)recalcRoute(r);
   for(const b of G.buses){
     const nid=b.route.stops[Math.min(b.tIdx,b.route.stops.length-1)],n=G.city.nodes[nid];
@@ -3180,7 +3221,7 @@ function build3D(city){
   // street lamps + night halos
   const lampPos=[];
   for(const nd of city.nodes){if(!nd.alive)continue;const[cx,cy]=stopCorner(city,nd);lampPos.push([nd.x-cx*14,nd.y-cy*14],[nd.x+cx*14,nd.y-cy*14])}
-  city.edges.forEach((e,i)=>{const A=city.nodes[e.a],B=city.nodes[e.b],dx=B.x-A.x,dy=B.y-A.y,l=Math.hypot(dx,dy),s=(i%2?1:-1)*(ROAD_W/2+3);lampPos.push([(A.x+B.x)/2-dy/l*s,(A.y+B.y)/2+dx/l*s])});
+  city.edges.forEach((e,i)=>{if(e.syn)return;const A=city.nodes[e.a],B=city.nodes[e.b],dx=B.x-A.x,dy=B.y-A.y,l=Math.hypot(dx,dy),s=(i%2?1:-1)*(ROAD_W/2+3);lampPos.push([(A.x+B.x)/2-dy/l*s,(A.y+B.y)/2+dx/l*s])});
   const pole=new THREE.InstancedMesh(new THREE.CylinderGeometry(.4,.6,1,6),metalMat,lampPos.length),head=new THREE.InstancedMesh(T.gBox,M('#dfe3e6',{emissive:'#ffe2a8',eBase:3.2}),lampPos.length);
   const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),hp=new Float32Array(lampPos.length*3);
   lampPos.forEach((p,i)=>{sc.set(1,16,1);ps.set(p[0],8,p[1]);m4.compose(ps,q.identity(),sc);pole.setMatrixAt(i,m4);sc.set(4,.7,1.6);ps.set(p[0],16,p[1]);m4.compose(ps,q,sc);head.setMatrixAt(i,m4);hp[i*3]=p[0];hp[i*3+1]=15.2;hp[i*3+2]=p[1]});
@@ -3193,7 +3234,7 @@ function build3D(city){
   for(const b of city.blocks)if(b.t==='H'||b.t==='B'){const m=new THREE.Mesh(pg,T.tutMats[b.t==='H'?'home':'work']);m.position.set(b.x+S/2,.45,b.y+S/2);m.renderOrder=2;m.userData.k=b.t==='H'?'home':'work';tg.add(m)}
   T.scene.add(tg);
   // traffic signals (visual)
-  const sigNodes=city.nodes.filter(n=>n.alive&&n.adj.length>=3);
+  const sigNodes=city.nodes.filter(n=>n.alive&&n.adj.filter(a=>!a.e.syn).length>=3);
   T.sigNodes=sigNodes;
   if(sigNodes.length){
     const sp=new THREE.InstancedMesh(new THREE.CylinderGeometry(.35,.45,1,6),metalMat,sigNodes.length),sh=new THREE.InstancedMesh(T.gBox,new THREE.MeshBasicMaterial({color:0xffffff}),sigNodes.length);
@@ -3209,47 +3250,50 @@ function build3D(city){
   hGrp.visible=false;T.scene.add(hGrp);
   if(T.trafG){T.scene.remove(T.trafG);disposeTree(T.trafG)}
   const tg2=new THREE.Group();T.traf=[];T.trafG=tg2;
-  for(const e of city.edges){const A=city.nodes[e.a],B=city.nodes[e.b];
+  for(const e of city.edges){if(e.syn)continue;const A=city.nodes[e.a],B=city.nodes[e.b];
     const m=ribbon([[A.x,A.y],[B.x,B.y]],16,.45,basic('#3fb868',{transparent:true,opacity:.3,depthWrite:false}));tg2.add(m);T.traf.push({m,e})}
   tg2.visible=false;T.scene.add(tg2);
   // landscape around the city, different for every map
   buildLandscape(g,city,(G.L&&G.L.theme)||THEME_OF[G.levelIdx]||['meadow','riverbank','urban','forest'][(G.L&&G.L.seed||0)%4],PROF.gfx==='saver');
-  // highways: north and south of the town, each with an off-ramp and a roundabout into the town grid
-  if(city.hwCount){
-    let mr=0;for(const nd of city.nodes)if(nd.r>mr)mr=nd.r;
+  // highways: north and south of the town. Everything here is drawn from the same nodes the buses drive on (city.hw, built by markHighway).
+  if(city.hwCount&&city.hw){
     const asph=()=>new THREE.MeshBasicMaterial({color:lin('#2b2f34')}),line=(c)=>new THREE.MeshBasicMaterial({color:lin(c)});
     const rail=M('#cfd5da',{roughness:.5,metalness:.5});
     const tex=spriteTex('hwsign',256,96,(c,w,h)=>{c.fillStyle='#1f7a46';rrect(c,4,4,w-8,h-8,16);c.fill();c.strokeStyle='#fff';c.lineWidth=5;rrect(c,10,10,w-20,h-20,12);c.stroke();c.fillStyle='#fff';c.font='800 40px Outfit,Arial,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('HIGHWAY',w/2,h/2+2)});
-    for(const sg_ of[-1,1]){
-      const rowR=sg_<0?0:mr,hw=city.edges.filter(e=>e.hw&&city.nodes[e.a].r===rowR).sort((a,b)=>city.nodes[a.a].x-city.nodes[b.a].x);
-      if(!hw.length)continue;
+    const HWW=56;
+    for(const sd of city.hw.sides){
+      const sg_=sd.sg,rowY=sd.rowY,hy=sd.hy,x0=sd.x0,x1=sd.x1;
       const hg=new THREE.Group();hg.userData.keep=true;
-      const rowY=city.nodes[hw[0].a].y,hy=rowY+sg_*150,x0=city.nodes[hw[0].a].x-2800,x1=city.nodes[hw[hw.length-1].b].x+2800;
       const mk=(pts,w,y,mat)=>{const r=ribbon(pts,w,y,mat);r.userData.keep=true;hg.add(r);return r};
-      mk([[x0,hy],[x1,hy]],50,.55,asph());
-      const dashes=[];for(let xx=x0+10;xx<x1-14;xx+=26)dashes.push([xx,hy-1],[xx+13,hy-1]);
-      mk(dashes,2.2,.62,line('#f2c94c'));
-      mk([[x0,hy-22],[x1,hy-22]],2.4,.62,line('#f4f1ea'));mk([[x0,hy+22],[x1,hy+22]],2.4,.62,line('#f4f1ea'));
-      for(let xx=x0+8;xx<x1;xx+=32)box(hg,12,3.4,1.4,xx,1.9,hy+sg_*27,rail,false);
-      // off-ramp to a roundabout just outside the town edge, then a short stub into the road grid
-      const nd=city.nodes[hw[Math.min(hw.length-1,Math.floor(hw.length*(sg_<0?.55:.42)))].a],xn=nd.x,cy=rowY+sg_*45,R=20;
-      const ramp=[];const P=[[xn-300,hy],[xn-90,hy],[xn-R,cy+sg_*60],[xn-R,cy]];
-      for(let k=0;k<=28;k++){const u=k/28,v=1-u;ramp.push([v*v*v*P[0][0]+3*v*v*u*P[1][0]+3*v*u*u*P[2][0]+u*u*u*P[3][0],v*v*v*P[0][1]+3*v*v*u*P[1][1]+3*v*u*u*P[2][1]+u*u*u*P[3][1]])}
-      mk(ramp,26,.56,asph());
-      const rdash=[];for(let k=0;k<ramp.length-1;k+=3)rdash.push(ramp[k],ramp[k+1]);mk(rdash,1.8,.63,line('#f4f1ea'));
-      const ring=[];for(let k=0;k<=36;k++){const t=k/36*Math.PI*2;ring.push([xn+Math.cos(t)*R,cy+Math.sin(t)*R])}
-      mk(ring,14,.57,asph());
-      const isl=new THREE.Mesh(new THREE.CircleGeometry(R-9,24),new THREE.MeshBasicMaterial({color:lin('#4f9a45')}));isl.rotation.x=-Math.PI/2;isl.position.set(xn,.66,cy);isl.userData.keep=true;hg.add(isl);
-      mk([[xn,cy],[xn,rowY]],ROAD_W,.56,asph());
+      const chain=(pts)=>{const sgm=[];for(let k=0;k+1<pts.length;k++)sgm.push(pts[k],pts[k+1]);return sgm};
+      mk([[x0,hy],[x1,hy]],HWW,.55,asph());
+      const d2=[];for(let xx=x0+10;xx<x1-14;xx+=26){d2.push([xx,hy-14],[xx+13,hy-14],[xx,hy+14],[xx+13,hy+14])}
+      mk(d2,2,.62,line('#f4f1ea'));
+      mk([[x0,hy-1.4],[x1,hy-1.4]],1.5,.62,line('#f2c94c'));mk([[x0,hy+1.4],[x1,hy+1.4]],1.5,.62,line('#f2c94c'));
+      mk([[x0,hy-HWW/2+2.5],[x1,hy-HWW/2+2.5]],2.4,.62,line('#f4f1ea'));mk([[x0,hy+HWW/2-2.5],[x1,hy+HWW/2-2.5]],2.4,.62,line('#f4f1ea'));
+      for(let xx=x0+8;xx<x1;xx+=32)box(hg,12,3.4,1.4,xx,1.9,hy+sg_*(HWW/2+3),rail,false);
+      for(const rp of sd.ramps){
+        const xn=rp.xn,cy=rp.cy,R=HW_R;
+        if(rp.ring){
+          const ring=[];for(let k=0;k<=36;k++){const t=k/36*Math.PI*2;ring.push([xn+Math.cos(t)*R,rowY+sg_*(HW_RC+Math.sin(t)*R)])}
+          mk(chain(ring),16,.57,asph());
+          const rd=[];for(let k=0;k<36;k+=2)rd.push(ring[k],ring[k+1]);mk(rd,1.2,.63,line('#f4f1ea'));
+          const isl=new THREE.Mesh(new THREE.CircleGeometry(R-10,24),new THREE.MeshBasicMaterial({color:lin('#4f9a45')}));isl.rotation.x=-Math.PI/2;isl.position.set(xn,.66,cy);isl.userData.keep=true;hg.add(isl);
+          mk([[xn,rowY+sg_*(HW_RC-R)],[xn,rowY]],ROAD_W,.56,asph());
+        }else{
+          mk(chain(rp.pts),32,.56,asph());
+          const rdash=[];for(let k=0;k<rp.pts.length-1;k+=2)rdash.push(rp.pts[k],rp.pts[k+1]);mk(rdash,1.6,.63,line('#f4f1ea'));
+        }
+      }
       for(let xx=x0+160;xx<x1-100;xx+=420){
-        box(hg,2,30,2,xx,15,hy-27,metalMat,false);box(hg,2,30,2,xx,15,hy+23,metalMat,false);box(hg,2,2,52,xx,30,hy-2,metalMat,false);
+        box(hg,2,30,2,xx,15,hy-HWW/2-3,metalMat,false);box(hg,2,30,2,xx,15,hy+HWW/2+3,metalMat,false);box(hg,2,2,HWW+8,xx,30,hy,metalMat,false);
         const sp=mkSprite(tex,44,16.5);sp.position.set(xx,24,hy-2);hg.add(sp)}
       g.add(hg);
     }
   }
   // street name labels painted on the asphalt
   {
-    const byName=new Map();for(const e of city.edges){if(!byName.has(e.name))byName.set(e.name,[]);byName.get(e.name).push(e)}
+    const byName=new Map();for(const e of city.edges){if(e.syn)continue;if(!byName.has(e.name))byName.set(e.name,[]);byName.get(e.name).push(e)}
     const sg=new THREE.Group();sg.userData.keep=true;
     for(const[name,list]of byName){
       list.sort((a,b)=>(city.nodes[a.a].x+city.nodes[a.a].y)-(city.nodes[b.a].x+city.nodes[b.a].y));
@@ -3276,14 +3320,14 @@ function build3D(city){
   T.cityC={x:city.w/2,z:city.h/2,r:Math.max(city.w,city.h)*.62};
   const sh=T.sun.shadow.camera,r=T.cityC.r;sh.left=-r;sh.right=r;sh.top=r;sh.bottom=-r;sh.near=50;sh.far=2600;sh.updateProjectionMatrix();
   // ambient traffic
-  const nc=Math.max(10,Math.round(city.edges.length*.22));
+  const gEd=city.edges.filter(e=>!e.syn),hEd=city.edges.filter(e=>e.syn&&e.lane===HW_LANE),nh=hEd.length?12:0,nc=Math.max(10,Math.round(gEd.length*.22))+nh;
   T.carBody=new THREE.InstancedMesh(T.gBox,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.35,metalness:.55,envMap:T.env,envMapIntensity:.9}),nc);
   T.carCab=new THREE.InstancedMesh(T.gBox,M('#1f2a36',{roughness:.1,metalness:.7,envMapIntensity:1}),nc);
   T.carBody.setColorAt(0,lin('#fff'));T.carBody.castShadow=T.carCab.castShadow=true;T.carBody.frustumCulled=T.carCab.frustumCulled=false;
   const pal=['#f3f4f5','#c7ccd1','#22262b','#a8232b','#2c5da8','#2f6b4b','#d8b44a','#7b8088'];
   for(let i=0;i<nc;i++){
-    const e=city.edges[Math.floor(Math.random()*city.edges.length)],fw=Math.random()<.5;
-    T.cars.push({a:fw?e.a:e.b,b:fw?e.b:e.a,s:Math.random()*S,v:58+Math.random()*24,x:0,y:0,ang:0});
+    const hwc=i>=nc-nh,e=hwc?hEd[Math.floor(Math.random()*hEd.length)]:gEd[Math.floor(Math.random()*gEd.length)],fw=Math.random()<.5;
+    T.cars.push({a:fw?e.a:e.b,b:fw?e.b:e.a,s:Math.random()*(hwc?Math.min(e.len,900):S),v:58+Math.random()*24,x:0,y:0,ang:0,out:Math.random()<.5});
     T.carBody.setColorAt(i,lin(pal[Math.floor(Math.random()*pal.length)]));
   }
   T.carBody.count=T.carCab.count=nc;T.dyn.add(T.carBody);T.dyn.add(T.carCab);
@@ -3293,8 +3337,8 @@ function updCars(dt){
   const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),sc=new THREE.Vector3(),ps=new THREE.Vector3();
   T.cars.forEach((c,i)=>{
     const A=C.nodes[c.a],B=C.nodes[c.b],dx=B.x-A.x,dy=B.y-A.y,l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l,nx=-uy,ny=ux;
-    let v=c.v;{const ce=edgeBetween(c.a,c.b);if(ce)v*=1-(ce.cong||0)*.9}
-    c.x=A.x+ux*c.s+nx*5.5;c.y=A.y+uy*c.s+ny*5.5;c.ang=Math.atan2(uy,ux);
+    let v=c.v,lo=5.5;{const ce=edgeBetween(c.a,c.b);if(ce){v*=1-(ce.cong||0)*.9;if(ce.hw)v*=1.5;if(ce.lane)lo=ce.lane===HW_LANE&&c.out?20.5:ce.lane}}
+    c.x=A.x+ux*c.s+nx*lo;c.y=A.y+uy*c.s+ny*lo;c.ang=Math.atan2(uy,ux);
     for(const b of G.buses){const rx=b.x-c.x,ry=b.y-c.y,fwd=rx*ux+ry*uy,lat=Math.abs(rx*nx+ry*ny);if(fwd>0&&fwd<26&&lat<6){v=fwd<16?0:Math.min(v,52)}}
     c.s+=v*dt;
     if(c.s>=l){
