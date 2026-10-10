@@ -210,6 +210,24 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
 .pin{border:0;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:11px;border-radius:8px;padding:2px 7px;margin-left:4px}
 #rbubble{position:absolute;width:220px;padding:8px 11px;border-left:5px solid var(--ok);font-size:13px;line-height:1.35;z-index:7;pointer-events:none}#rbubble b{display:block;font-family:var(--font-display)}
 #growbar{position:absolute;left:50%;transform:translateX(-50%);bottom:96px;display:flex;gap:12px;align-items:center;padding:8px 12px;font-weight:700;z-index:8}
+#ov.homeov{backdrop-filter:none;background:#14183c;padding:0;overflow:hidden}
+#hbg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hm{position:relative;z-index:1;text-align:center;color:#fff;width:min(400px,90%);max-height:100%;overflow:auto;padding:8px 0;font-family:var(--font-display)}
+.hm h1{margin:0;font-size:clamp(34px,9vw,58px);line-height:1.02;letter-spacing:.5px;text-shadow:0 4px 24px rgba(0,0,0,.55),0 0 30px rgba(255,190,110,.35)}
+.hm h1 .l{display:inline-block;animation:hmrise .8s cubic-bezier(.2,.9,.3,1.2) both}
+.hm h1 .w{display:block}
+.hm h1 .w2{font-size:.72em;color:#ffd27a}
+.hm .tag{margin:10px 0 22px;font-weight:700;font-size:15px;color:#dfe6ff;opacity:.95;animation:hmfade 1s 1.9s both}
+.hm .btn{display:block;width:100%;margin:9px 0;height:58px;font-size:19px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);color:#fff;animation:hmup .6s both;transition:transform .12s,background .12s}
+.hm .btn:hover{background:rgba(255,255,255,.24);transform:translateY(-2px)}
+.hm .btn.main{background:linear-gradient(#52d27f,#2fa45a);border-color:#9bf0b8;box-shadow:0 8px 26px rgba(63,184,104,.45)}
+.hm .btn.sm{display:inline-block;width:auto;height:42px;font-size:14px;padding:0 16px;margin:6px 4px}
+.hm:not(.ready) .btn{pointer-events:none}
+.hm.quick *{animation:none!important}
+.hm small.ver{display:block;margin-top:14px;font-size:12px;opacity:.6;font-weight:600;animation:hmfade 1s 3.4s both}
+@keyframes hmrise{from{opacity:0;transform:translateY(34px) scale(.6) rotate(-6deg);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+@keyframes hmfade{from{opacity:0}to{opacity:1}}
+@keyframes hmup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 #ov.light{backdrop-filter:none;background:rgba(18,40,32,.15);align-items:flex-end;padding-bottom:84px}
 @keyframes nudge{0%,100%{transform:none}50%{transform:translateY(-6px)}}.tbtn.nudge{animation:nudge .45s 4;box-shadow:0 0 0 3px var(--accent)}
 #advisor{position:absolute;left:50%;transform:translateX(-50%);bottom:92px;width:min(560px,calc(100% - 20px));display:flex;gap:8px;align-items:center;padding:8px 10px 8px 12px;box-sizing:border-box;font-weight:700;font-size:13px;line-height:1.35;z-index:6}
@@ -2930,6 +2948,11 @@ function build3D(city){
     for(let k=0;k<hw.length;k+=3){const yy=city.nodes[hw[k].a].y+S/2;
       box(hg,2,30,2,x-27,15,yy-22,metalMat,false);box(hg,2,30,2,x+23,15,yy-22,metalMat,false);box(hg,52,2,2,x-2,30,yy-22,metalMat,false);
       const sg=mkSprite(tex,44,16.5);sg.position.set(x-2,24,yy-22);hg.add(sg)}
+    // approach road: sweeps in from the far west and joins the top-left corner (as sketched)
+    {const ap=[];for(let k=0;k<=24;k++){const u=k/24,a=[x-430,y0-70],c=[x-150,y0-110],b=[x,y0];ap.push([(1-u)*(1-u)*a[0]+2*u*(1-u)*c[0]+u*u*b[0],(1-u)*(1-u)*a[1]+2*u*(1-u)*c[1]+u*u*b[1]])}
+      const ar=ribbon(ap,50,.55,new THREE.MeshBasicMaterial({color:lin('#2b2f34')}));ar.userData.keep=true;hg.add(ar);
+      const ad=[];for(let k=0;k<ap.length-1;k+=2)ad.push(ap[k],ap[k+1]);
+      const am=ribbon(ad,2.2,.62,new THREE.MeshBasicMaterial({color:lin('#f2c94c')}));am.userData.keep=true;hg.add(am)}
     g.add(hg);
   }
   // street name labels painted on the asphalt
@@ -3462,7 +3485,7 @@ function toast(msg,ms){
   while($('#toasts').children.length>2)$('#toasts').firstChild.remove();
   setTimeout(()=>d.remove(),ms||2800);
 }
-function showOv(html){const o=$('#ov');{const c=$('#coach');if(c&&!c.hidden){c.hidden=true}}o.classList.remove('light');o.innerHTML=html;o.hidden=false;G.modal=true}
+function showOv(html){const o=$('#ov');{const c=$('#coach');if(c&&!c.hidden){c.hidden=true}}o.classList.remove('light','homeov');o.innerHTML=html;o.hidden=false;G.modal=true}
 function hideOv(){$('#ov').hidden=true;G.modal=false}
 const ICON_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 const ICON_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
@@ -3666,7 +3689,8 @@ document.addEventListener('click',e=>{
     case'slots':showSlots(el.dataset.from);break;
     case'loadslot':hideOv();loadSave(+el.dataset.n);syncPlay();break;
     case'useslot':PROF.slot=+el.dataset.n;saveProfile();saveGame();toast('Saving to slot '+PROF.slot+'.');showSlots('game');break;
-    case'howto':showHowTo();break;
+    case'howto':showHomeMenu();break;
+    case'newgame':showHowTo();break;
     case'home':showHome();break;
     case'level':startLevel(+el.dataset.i);break;
     case'nextday':nextDay();break;
@@ -3779,10 +3803,80 @@ function shareCard(){
     if(url){const img=new Image();img.onload=()=>{const r=Math.max(W2/img.width,600/img.height),w=img.width*r,h=img.height*r;g.save();rrect(g,0,0,W2,600,0);g.clip();g.drawImage(img,(W2-w)/2,(600-h)/2,w,h);g.restore();const sh=g.createLinearGradient(0,420,0,600);sh.addColorStop(0,'rgba(14,27,42,0)');sh.addColorStop(1,'rgba(14,27,42,1)');g.fillStyle=sh;g.fillRect(0,420,W2,181);done()};img.onerror=done;img.src=url}else done();
   };
 }
+
+/* ================= home page ================= */
+const HS=(()=>{let a=7;const r=()=>(a=(a*16807)%2147483647)/2147483647;const L=[];
+  for(let k=0;k<2;k++){const b=[];let x=-.02;while(x<1.05){const w=.03+r()*.05;b.push({x,w,h:(k?.14:.2)+r()*(k?.16:.2),s:r()*99});x+=w+(k?.004:.002)}L.push(b)}
+  const st=[];for(let i=0;i<90;i++)st.push({x:r(),y:r()*.5,p:r()*6,s:.5+r()*1.3});return{L,st}})();
+function homeScene(cv){
+  const x=cv.getContext('2d');let W=0,H=0;const t0=performance.now();
+  const fit=()=>{const d=Math.min(devicePixelRatio||1,1.5);W=cv.clientWidth;H=cv.clientHeight;cv.width=Math.max(1,W*d);cv.height=Math.max(1,H*d);x.setTransform(d,0,0,d,0,0)};
+  fit();const saver=PROF.gfx==='saver';let last=0;
+  const buses=[{y:0,sp:.045,o:0,c:'#ffc83d',dir:1},{y:1,sp:.03,o:.5,c:'#4aa3ff',dir:-1},{y:0,sp:.06,o:.8,c:'#ff6a5c',dir:1}];
+  const stopsP=[[.12,.62],[.3,.5],[.5,.57],[.7,.45],[.88,.55]];
+  function frame(now){
+    if(!cv.isConnected||$('#ov').hidden)return;
+    requestAnimationFrame(frame);
+    if(saver&&now-last<33)return;last=now;
+    if(cv.clientWidth!==W||cv.clientHeight!==H)fit();
+    const t=(now-t0)/1000;
+    const g=x.createLinearGradient(0,0,0,H);const m=.5+.5*Math.sin(t*.12);
+    g.addColorStop(0,'#10133a');g.addColorStop(.5,'rgb('+Math.round(70+60*m)+',40,'+Math.round(110-20*m)+')');g.addColorStop(.78,'rgb(255,'+Math.round(130+50*m)+','+Math.round(100+20*m)+')');g.addColorStop(1,'#ffd9a0');
+    x.fillStyle=g;x.fillRect(0,0,W,H);
+    for(const s of HS.st){x.globalAlpha=(.35+.65*Math.abs(Math.sin(t*s.s+s.p)))*(1-m*.5);x.fillStyle='#fff';x.fillRect(s.x*W,s.y*H,1.6,1.6)}x.globalAlpha=1;
+    const sx=W*.78,sy=H*(.5-.04*Math.sin(t*.12)),sg=x.createRadialGradient(sx,sy,2,sx,sy,H*.35);sg.addColorStop(0,'rgba(255,230,170,.95)');sg.addColorStop(.12,'rgba(255,200,130,.5)');sg.addColorStop(1,'rgba(255,160,100,0)');x.fillStyle=sg;x.fillRect(0,0,W,H);
+    const base=H*.8,rise=Math.min(1,t/1.6);
+    for(let k=0;k<2;k++){x.fillStyle=k?'#0d1530':'#222a55';
+      for(const b of HS.L[k]){const hh=b.h*H*(k?1:.92)*Math.min(1,Math.max(0,rise*1.4-b.x*.5)),bx=b.x*W,bw=b.w*W;x.fillRect(bx,base-hh,bw,hh+4);
+        if(hh>20){const cols=Math.max(1,Math.floor(bw/9)),rows=Math.floor(hh/12);
+          for(let i=0;i<cols;i++)for(let j=1;j<rows;j++){const on=Math.sin(b.s*13+i*7.3+j*3.1)>(k?-.2:.1);if(!on)continue;const fl=Math.sin(t*.4+b.s+i*j)>.96?.35:1;x.fillStyle=k?'rgba(255,214,130,'+(.85*fl)+')':'rgba(255,214,150,'+(.4*fl)+')';x.fillRect(bx+3+i*9,base-hh+j*12-4,4,5)}x.fillStyle=k?'#0d1530':'#222a55'}}}
+    x.fillStyle='#0a0f26';x.fillRect(0,base,W,H-base);
+    x.fillStyle='#1b2146';x.fillRect(0,base+H*.03,W,H*.07);
+    x.fillStyle='rgba(255,230,160,.55)';for(let i=-1;i<W/46+1;i++)x.fillRect(((i*46+t*20)%(W+46))-46+46,base+H*.065,22,2);
+    // route line
+    const draw=Math.min(1,Math.max(0,(t-1.2)/2.2));
+    const P=stopsP.map(p=>[p[0]*W,p[1]*H*.9]);
+    x.save();x.lineWidth=4;x.lineCap='round';x.lineJoin='round';x.shadowColor='#6fe3ff';x.shadowBlur=14;x.strokeStyle='#6fe3ff';
+    let tot=0;const seg=[];for(let i=1;i<P.length;i++){const d=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);seg.push(d);tot+=d}
+    let rem=tot*draw;x.beginPath();x.moveTo(P[0][0],P[0][1]);
+    for(let i=1;i<P.length&&rem>0;i++){const f=Math.min(1,rem/seg[i-1]);x.lineTo(P[i-1][0]+(P[i][0]-P[i-1][0])*f,P[i-1][1]+(P[i][1]-P[i-1][1])*f);rem-=seg[i-1]}x.stroke();
+    x.shadowBlur=0;
+    for(let i=0;i<P.length;i++){const a=Math.min(1,Math.max(0,(draw*P.length-i)));if(a<=0)continue;x.globalAlpha=a;x.fillStyle='#fff';x.beginPath();x.arc(P[i][0],P[i][1],8+Math.sin(t*3+i)*1.2,0,6.283);x.fill();x.fillStyle='#2a7de1';x.beginPath();x.arc(P[i][0],P[i][1],4.5,0,6.283);x.fill()}x.globalAlpha=1;
+    if(draw>=1){const u=(t*.12)%2,uu=u<1?u:2-u;let d=uu*tot,i=0;while(i<seg.length-1&&d>seg[i]){d-=seg[i];i++}const f=d/seg[i],bx=P[i][0]+(P[i+1][0]-P[i][0])*f,by=P[i][1]+(P[i+1][1]-P[i][1])*f;x.fillStyle='#ffc83d';x.beginPath();x.arc(bx,by,7,0,6.283);x.fill();x.strokeStyle='rgba(255,200,60,.5)';x.lineWidth=2;x.beginPath();x.arc(bx,by,11+Math.sin(t*6)*2,0,6.283);x.stroke()}
+    x.restore();
+    // buses on the road
+    for(const b of buses){const lane=base+H*(b.y?.075:.045),bw=Math.max(54,W*.07),bh=bw*.38;let px=((t*b.sp+b.o)%1.3)*W*1.3-bw;if(b.dir<0)px=W-px-bw;
+      x.save();x.translate(px,lane);if(b.dir<0){x.translate(bw,0);x.scale(-1,1)}
+      const hl=x.createLinearGradient(bw,0,bw+bw*1.6,0);hl.addColorStop(0,'rgba(255,240,180,.55)');hl.addColorStop(1,'rgba(255,240,180,0)');x.fillStyle=hl;x.beginPath();x.moveTo(bw-2,-bh*.2);x.lineTo(bw+bw*1.6,-bh*.9);x.lineTo(bw+bw*1.6,bh*.5);x.lineTo(bw-2,bh*.1);x.fill();
+      x.fillStyle=b.c;x.beginPath();x.roundRect?x.roundRect(0,-bh,bw,bh,6):x.rect(0,-bh,bw,bh);x.fill();
+      x.fillStyle='#bfe6ff';for(let i=0;i<4;i++)x.fillRect(5+i*(bw-10)/4,-bh+4,(bw-10)/4-4,bh*.38);
+      x.fillStyle='#111';x.beginPath();x.arc(bw*.2,0,bh*.2,0,6.283);x.arc(bw*.78,0,bh*.2,0,6.283);x.fill();x.restore()}
+    // vignette
+    const vg=x.createRadialGradient(W/2,H*.55,H*.2,W/2,H*.55,H*.95);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(5,8,25,.55)');x.fillStyle=vg;x.fillRect(0,0,W,H);
+  }
+  requestAnimationFrame(frame);
+}
+let homeIntroDone=false;
+function showHomeMenu(){
+  const quick=homeIntroDone;homeIntroDone=true;
+  let best=null,bn=0;for(let n=1;n<=3;n++){const d=readSave(n);if(d&&(!best||n===(PROF.slot||1))){best=d;bn=n}}
+  const word=(w,d0)=>'<span class="w">'+[...w].map((c,i)=>'<span class="l" style="animation-delay:'+(d0+i*.07).toFixed(2)+'s">'+(c===' '?'&nbsp;':c)+'</span>').join('')+'</span>';
+  let i=0;const bd=()=>'style="animation-delay:'+(2.3+(i++)*.14).toFixed(2)+'s"';
+  showOv('<canvas id="hbg"></canvas><div class="hm'+(quick?' quick ready':'')+'"><h1>'+word('Rush Hour',.3)+'<span class="w w2">'+[...'Routes'].map((c,k)=>'<span class="l" style="animation-delay:'+(1.0+k*.07).toFixed(2)+'s">'+c+'</span>').join('')+'</span></h1>'+
+   '<p class="tag">Run the buses. Keep the city moving.</p>'+
+   (best?'<button class="btn main" data-act="loadslot" data-n="'+bn+'" '+bd()+'>Continue<br><small style="font-weight:600;font-size:12px;opacity:.9">'+slotInfo(bn)+'</small></button>':'')+
+   '<button class="btn'+(best?'':' main')+'" data-act="newgame" '+bd()+'>New Game</button>'+
+   '<button class="btn" data-act="slots" data-from="howto" '+bd()+'>Saved Games</button>'+
+   '<button class="btn" data-act="settings" data-from="howto" '+bd()+'>Settings</button>'+
+   '<div><button class="btn sm" data-act="guide" data-from="howto" '+bd()+'>Guide</button><button class="btn sm" data-act="trophies" data-from="howto" '+bd()+'>Trophies</button><button class="btn sm" data-act="shop" data-from="howto" '+bd()+'>Shop</button></div></div>');
+  const o=$('#ov');o.classList.add('homeov');const hm=o.querySelector('.hm');
+  if(!quick){const go=()=>{hm.classList.add('quick','ready')};hm.addEventListener('click',()=>{if(!hm.classList.contains('ready'))go()},true);setTimeout(()=>{if(hm.isConnected)hm.classList.add('ready')},3900)}
+  homeScene($('#hbg'));
+}
 function startLevel(i){hideOv();loadLevel(i);syncPlay()}
 function getStars(){try{return JSON.parse(localStorage.getItem('rhr.stars')||'{}')}catch(e){return{}}}
 function showHowTo(){
-  showOv('<div class="card"><h1>Rush Hour Routes</h1><p class="sub">You run the buses. Get everyone to work and back home before they lose patience.</p>'+
+  showOv('<div class="card"><h1>New Game</h1><p class="sub">You run the buses. Get everyone to work and back home before they lose patience.</p>'+
    (PROF.stat.delivered>0?'':'<button class="btn ok full" data-act="level" data-i="0" style="margin:4px 0 8px">Play: Maple Hollow</button>')+'<details class="howd"'+(PROF.stat.delivered>0?'':' open')+'><summary style="font-weight:800;cursor:pointer;margin:6px 0">How to play</summary><div class="how">'+
    '<div><b>1 · Place stops</b>Pick <u>Stops</u> and tap road junctions. Citizens walk to the nearest useful stop and wait.</div>'+
    '<div><b>2 · Draw routes</b>Pick <u>Route</u>, then tap stops in order. Buses run back and forth. Press Done to finish.</div>'+
@@ -3794,7 +3888,7 @@ function showHowTo(){
    '<div><b>8 · Grow the city</b>Schools, malls and hospitals open as you deliver more riders. Night service, bike docks and trams unlock at higher company levels.</div>'+
    '<div><b>Controls</b>Drag to pan. Pinch or scroll to zoom. Twist two fingers (or right-drag) to rotate. Tap or click to place. Pause any time to edit.</div>'+
    '<div><b>Full guide</b>Every button, every rule and the best strategies are in the Guide. Open it any time from the menu or the buttons below.</div>'+
-   '</div></details><div class="btnrow" style="margin:0 0 12px"><button class="btn alt" data-act="settings" data-from="howto">Settings</button><button class="btn alt" data-act="trophies" data-from="howto">Trophies</button><button class="btn alt" data-act="slots" data-from="howto">Save slots</button><button class="btn alt" data-act="guide" data-from="howto">Guide</button><button class="btn alt" data-act="shop" data-from="howto">Shop</button></div><div class="lbl" style="margin-bottom:8px">Choose a level</div>'+levelCards()+'</div>');
+   '</div></details><div class="lbl" style="margin:10px 0 8px">Choose a level</div>'+levelCards()+'<div class="btnrow" style="margin-top:12px"><button class="btn alt" data-act="howto">Back</button></div></div>');
 }
 function levelCards(){
   const st=getStars();let cont='';
@@ -3804,7 +3898,7 @@ function levelCards(){
     '<div class="chips"><span class="chip">'+(isFinite(L.days)?L.days+' days':'Endless')+'</span><span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>'+(i===1?'<span class="chip new">Express routes</span>':'')+(i===2?'<span class="chip new">Transfers · step-free stops</span>':'')+(i===3?'<span class="chip new">Bridges</span>':'')+(i===7?'<span class="chip new">Narrow streets</span>':'')+(i===8?'<span class="chip new">Canals</span>':'')+(i===9?'<span class="chip new">Hill detours</span>':'')+(i===10?'<span class="chip new">Lake</span>':'')+(i===11?'<span class="chip new">Coast</span>':'')+(i===12?'<span class="chip new">Ring road</span>':'')+(i===13?'<span class="chip new">Finale</span>':'')+(L.sandbox?'<span class="chip new">No game over</span>':'')+(L.daily?'<span class="chip new">Today only</span>':'')+(L.weekly?'<span class="chip new">This week only</span>':'')+'</div>'+
     (ci>=0?'<div class="stars">'+starStr(st[i]||0)+'</div>':'')+'</button>'}).join('')+'</div>';
 }
-function showHome(){showOv('<div class="card"><h1>Choose a level</h1><p class="sub">Each level adds more people, less patience and new tools.</p><div style="height:12px"></div>'+levelCards()+'<div class="btnrow"><button class="btn alt" data-act="howto">How to play</button><button class="btn ok" data-act="resume">Back to game</button></div></div>')}
+function showHome(){showOv('<div class="card"><h1>Choose a level</h1><p class="sub">Each level adds more people, less patience and new tools.</p><div style="height:12px"></div>'+levelCards()+'<div class="btnrow"><button class="btn alt" data-act="newgame">How to play</button><button class="btn ok" data-act="resume">Back to game</button></div></div>')}
 
 /* ================= main loop ================= */
 let last=performance.now(),uiT=0;
@@ -3830,7 +3924,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={meta:{markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={meta:{showHomeMenu,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 /* boot (deferred one frame so the splash screen can paint first) */
 function bootGame(){
 performance.mark('rhr:boot');
@@ -3841,7 +3935,7 @@ resize();
 $('#missions').addEventListener('click',e=>e.currentTarget.classList.toggle('open'));
 if(PROF.autoGfx===undefined){PROF.autoGfx=true;try{const lowMem=navigator.deviceMemory&&navigator.deviceMemory<=4,lowCpu=navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4,coarse=matchMedia('(pointer:coarse)').matches;if(PROF.gfx==='auto'&&coarse&&(lowMem||lowCpu)){PROF.gfx='saver';ui.saverNote=true}saveProfile()}catch(e){}}
 performance.mark('rhr:prefs');applyA11y();applyGfx();initOffline();
-loadLevel(0);performance.mark('rhr:level');if(ui.saverNote)setTimeout(()=>toast('Battery saver graphics are on for this device. Change it in Settings.',4200),1500);syncPlay();showHowTo();
+loadLevel(0);performance.mark('rhr:level');if(ui.saverNote)setTimeout(()=>toast('Battery saver graphics are on for this device. Change it in Settings.',4200),1500);syncPlay();showHomeMenu();
 performance.mark('rhr:ready');requestAnimationFrame(frame);
 {const bt=document.getElementById('boot');if(bt){bt.style.opacity=0;setTimeout(()=>bt.remove(),400)}}
 window.__rhrReady=true;
