@@ -4521,10 +4521,8 @@ function showHowToPlay(){
   showOv('<div class="card"><h1>How to play</h1><p class="sub">You run the buses. Get everyone to work and back home before they lose patience.</p><div class="how">'+howSteps()+'</div><div class="btnrow" style="margin-top:14px"><button class="btn alt" data-act="guide" data-from="howto">Full guide</button><button class="btn ok" data-act="howto">Back</button></div></div>');
 }
 function showHowTo(){
-  showOv('<div class="card"><h1>New Game</h1><p class="sub">You run the buses. Get everyone to work and back home before they lose patience.</p>'+
-   (PROF.stat.delivered>0?'':'<button class="btn ok full" data-act="level" data-i="0" style="margin:4px 0 8px">Play: Maple Hollow</button>')+'<details class="howd"'+(PROF.stat.delivered>0?'':' open')+'><summary style="font-weight:800;cursor:pointer;margin:6px 0">How to play</summary><div class="how">'+
-   howSteps()+
-   '</div></details><div class="lbl" style="margin:10px 0 8px">Choose a level</div>'+levelCards()+'<div class="btnrow" style="margin-top:12px"><button class="btn alt" data-act="howto">Back</button></div></div>');
+  showOv('<div class="card"><h1>New Game</h1><p class="sub">Pick a map to start. Each level adds more people, less patience and new tools.</p>'+
+   (PROF.stat.delivered>0?'':'<button class="btn ok full" data-act="level" data-i="0" style="margin:4px 0 8px">Play: Maple Hollow</button>')+'<div class="lbl" style="margin:10px 0 8px">Choose a level</div>'+levelCards()+'<div class="btnrow" style="margin-top:12px"><button class="btn alt" data-act="howto">Back</button></div></div>');
 }
 function levelCards(){
   const st=getStars();let cont='';
@@ -4534,7 +4532,7 @@ function levelCards(){
     '<div class="chips"><span class="chip">'+(isFinite(L.days)?L.days+' days':'Endless')+'</span><span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>'+(i===1?'<span class="chip new">Express routes</span>':'')+(i===2?'<span class="chip new">Transfers · step-free stops</span>':'')+(i===3?'<span class="chip new">Bridges</span>':'')+(i===7?'<span class="chip new">Narrow streets</span>':'')+(i===8?'<span class="chip new">Canals</span>':'')+(i===9?'<span class="chip new">Hill detours</span>':'')+(i===10?'<span class="chip new">Lake</span>':'')+(i===11?'<span class="chip new">Coast</span>':'')+(i===12?'<span class="chip new">Ring road</span>':'')+(i===13?'<span class="chip new">Finale</span>':'')+(L.sandbox?'<span class="chip new">No game over</span>':'')+(L.daily?'<span class="chip new">Today only</span>':'')+(L.weekly?'<span class="chip new">This week only</span>':'')+'</div>'+
     (ci>=0?'<div class="stars">'+starStr(st[i]||0)+'</div>':'')+'</button>'}).join('')+'</div>';
 }
-function showHome(){showOv('<div class="card"><h1>Choose a level</h1><p class="sub">Each level adds more people, less patience and new tools.</p><div style="height:12px"></div>'+levelCards()+'<div class="btnrow"><button class="btn alt" data-act="newgame">How to play</button><button class="btn ok" data-act="resume">Back to game</button></div></div>')}
+function showHome(){showOv('<div class="card"><h1>Choose a level</h1><p class="sub">Each level adds more people, less patience and new tools.</p><div style="height:12px"></div>'+levelCards()+'<div class="btnrow"><button class="btn alt" data-act="guide" data-from="game">Guide</button><button class="btn ok" data-act="resume">Back to game</button></div></div>')}
 
 /* ================= main loop ================= */
 let last=performance.now(),uiT=0;
