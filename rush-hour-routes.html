@@ -450,33 +450,42 @@ const HN=['Maple','Oak','Cedar','Pine','Birch','Elm','Willow','Aspen','Linden'];
 const SN=r=>HN[r%HN.length]+(r>=HN.length?' '+(Math.floor(r/HN.length)+1):'');
 const ord=n=>n+(['th','st','nd','rd'][(n%100>10&&n%100<14)?0:(n%10<4?n%10:0)]);
 
+/* Every campaign map has a REGION (building style, ground, landscape) and a CLIMATE ('mild' = the normal seasons, 'snow' | 'rain' | 'hot' = locked weather).
+   Difficulty rises with the CAMPAIGN order below: patience falls, riders per day and goals rise, cash per rider shrinks, and events get more frequent (midProb adds a third event).
+   Indices are stable (stars and saves use them): new maps are appended at the end and only CAMPAIGN is ordered. */
 const LEVELS=[
- {name:'Maple Hollow',blurb:'A small town with one busy centre. Learn the ropes.',days:3,patience:62,perDay:130,seed:11,express:false,transfer:false,cash:7200,riders:['commuter','student'],
+ {name:'Maple Hollow',region:'maple',climate:'mild',blurb:'A small town with one busy centre. Learn the ropes.',days:3,patience:62,perDay:130,seed:11,express:false,transfer:false,cash:7200,riders:['commuter','student'],
   map:['HHP..BB.','HH..BBBH','....BB.H','PWW.....','HWW.CPHH','HH..P.HH'],concert:14,closureDur:30,amProb:0,goals:{sat:.8,gave:45,profit:1500}},
- {name:'Riverside',blurb:'More homes, tighter patience. Express routes unlock. Tourists and rush-hour regulars appear.',days:3,patience:52,perDay:230,seed:23,express:true,transfer:false,cash:10400,riders:['commuter','student','tourist','rush'],
+ {name:'Riverside',region:'maple',climate:'mild',blurb:'More homes, tighter patience. Express routes unlock. Tourists and rush-hour regulars appear.',days:3,patience:52,perDay:230,seed:23,express:true,transfer:false,cash:10400,riders:['commuter','student','tourist','rush'],
   map:['HH.PP..BB.','HHH..BBBBH','....BBB..H','P.WW.BB..H','H.WW...PHH','HH..CP..H.','HHH..P....'],concert:26,closureDur:40,amProb:.5,goals:{sat:.75,gave:90,profit:2800}},
- {name:'Metro Heights',blurb:'A big city. Transfer stops unlock. Wheelchair riders need accessible stops.',days:4,patience:44,perDay:330,seed:37,express:true,transfer:true,cash:14000,riders:['commuter','student','tourist','rush','wheel'],
+ {name:'Metro Heights',region:'maple',climate:'mild',blurb:'A big city. Transfer stops unlock. Wheelchair riders need accessible stops.',days:4,patience:44,perDay:330,seed:37,express:true,transfer:true,cash:14000,riders:['commuter','student','tourist','rush','wheel'],
   map:['HHH.P..BB.HH','HH...BBBB.HH','...P.BBBB..H','HP....BB....','H.WW.....P.H','H.WW.CP...HH','HH......H.HH','HHH.P...HH.H'],concert:36,closureDur:45,amProb:1,goals:{sat:.72,gave:150,profit:4800}},
- {name:'Harborview',blurb:'A river splits the city. Only two bridges carry the whole rush.',days:4,patience:42,perDay:360,seed:41,express:true,transfer:true,cash:15000,riders:['commuter','student','tourist','rush','wheel'],
+ {name:'Harborview',region:'harbor',climate:'mild',blurb:'A harbour town split by a river. Only two bridges carry the whole rush.',days:4,patience:42,perDay:360,seed:41,express:true,transfer:true,cash:15000,riders:['commuter','student','tourist','rush','wheel'],
   map:['HH.P.WW.BB.H','HHH..WW.BBBH','H.P..P..CBBH','HH...WW...HH','H.P..WW.P..H','HH.......BBH','HHH..WW...HH','HHH.P.WW.P.H'],concert:40,closureDur:45,amProb:1,goals:{sat:.70,gave:170,profit:6000}},
- {name:'Endless City',blurb:'Sandbox. No game over, and the city keeps growing every day.',days:Infinity,sandbox:true,patience:50,perDay:300,seed:53,express:true,transfer:true,cash:24000,riders:['commuter','student','tourist','rush','wheel'],
+ {name:'Endless City',region:'maple',climate:'mild',blurb:'Sandbox. No game over, and the city keeps growing every day.',days:Infinity,sandbox:true,patience:50,perDay:300,seed:53,express:true,transfer:true,cash:24000,riders:['commuter','student','tourist','rush','wheel'],
   map:['HHH.P..BB.HH','HH...BBBB.HH','...P.BBBB..H','HP....BB....','H.WW.....P.H','H.WW.CP...HH','HH......H.HH','HHH.P...HH.H'],concert:30,closureDur:40,amProb:.6},
- {name:'Daily Challenge',blurb:'A fresh city every day. Everyone gets the same one.',days:3,daily:true,patience:48,perDay:260,seed:1,express:true,transfer:true,cash:11000,riders:['commuter','student','tourist','rush','wheel'],concert:26,closureDur:38,amProb:.7,goals:{sat:.72,gave:100,profit:2800}},
- {name:'Weekly Challenge',blurb:'A bigger city for the whole week. Everyone gets the same one.',days:4,weekly:true,patience:44,perDay:340,seed:2,express:true,transfer:true,cash:16000,riders:['commuter','student','tourist','rush','wheel'],concert:36,closureDur:42,amProb:1,goals:{sat:.7,gave:150,profit:5000}}
- ,{name:'Old Town',blurb:'Dense, busy streets and very little patience. Every stop counts.',days:4,patience:38,perDay:420,seed:61,express:true,transfer:true,cash:12000,riders:['commuter','student','tourist','rush','wheel'],
-  map:['HHBHHBHHBH','HBBHHBBHHB','HHHBHHHBHH','BHHHBBHHHB','HHBHHBHHBH','HBBHCPBBHB','HHHHHHHHHH'],concert:40,closureDur:45,amProb:1,goals:{sat:.7,gave:200,profit:7000}},
- {name:'Canal District',blurb:'Water cuts the city into four quarters. Mind the bridges.',days:4,patience:40,perDay:400,seed:67,express:true,transfer:true,cash:13000,riders:['commuter','student','tourist','rush','wheel'],
-  map:['HHHP.WW.BBHH','HHH..WW.BBBH','H.P.......HH','WWW.WWWWW.WW','HH..HWW..BHH','HHP..WW.CBBH','HHH......BBH','HHHP.WW.PHHH'],concert:40,closureDur:45,amProb:1,goals:{sat:.7,gave:190,profit:6500}},
- {name:'Hilltop',blurb:'A big green hill forces long detours. Plan your routes around it.',days:5,patience:38,perDay:440,seed:71,express:true,transfer:true,cash:14000,riders:['commuter','student','tourist','rush','wheel'],
-  map:['HHH.PPPP.BBH','HH..PPPP..BH','H...PPPPC.BH','HH.........H','HHHP.BB.PHHH','HH..BBBB..HH','HHH.BBBB.HHH','HHHH.PP.HHHH'],concert:44,closureDur:45,amProb:1,goals:{sat:.72,gave:230,profit:9000}}
- ,{name:'Lakeside',blurb:'A big lake in the middle. Everyone wants to get round it.',days:5,patience:38,perDay:470,seed:73,express:true,transfer:true,cash:15000,riders:['commuter','student','tourist','rush','wheel'],
-  map:['HHHKPP.BBHHH','HHB.WWW.BBHH','HH..WWWW..HH','PH.WWWWWW.HP','HH..WWWW..HH','HBB.WWW.BHHH','HHH.PP.CBHHH'],concert:44,closureDur:45,amProb:1,goals:{sat:.72,gave:240,profit:9500}},
- {name:'Harbor Bay',blurb:'A long coastal strip. Hospitals, a mall and lots of tourists.',days:5,patience:37,perDay:480,seed:79,express:true,transfer:true,cash:15500,riders:['commuter','student','tourist','rush','wheel'],
-  map:['WWWWWWWWWWWWWW','HHHBBHH.BBHHHW','HHHBBHHPBBMHHH','HP.HHBB.HHBBHH','HHHH.BBCH.BBHH','HHOH.HHH.PHHHH'],concert:46,closureDur:45,amProb:1,goals:{sat:.72,gave:250,profit:10000}},
- {name:'Ring City',blurb:'A circular city around a central park. Rings, spokes and long loops.',days:5,patience:36,perDay:500,seed:83,express:true,transfer:true,cash:16000,riders:['commuter','student','tourist','rush','wheel'],
-  map:['HHHBBHHBBHHH','HBB......BBH','HB.PPPPPP.BH','HHKPPCPPPAHH','HB.PPPPPP.BH','HBB......BBH','HHHBBHHBBHHH'],concert:48,closureDur:46,amProb:1,goals:{sat:.72,gave:260,profit:11000}},
- {name:'Grand Central',blurb:'The finale. A huge city with everything: arena, campus, airport, hospital and mall.',days:6,patience:35,perDay:560,seed:89,express:true,transfer:true,cash:18000,riders:['commuter','student','tourist','rush','wheel'],
-  map:['HHHHBBBBHHHHH','HBBHHBCBBHHUH','HHBH..P..BHHH','PHHH.WW.HHBBH','HHB..AWW..BBH','HBBH.PP.HHHOH','HHHHBBBMHHHHH'],concert:50,closureDur:48,amProb:1,goals:{sat:.72,gave:300,profit:14000}}
+ {name:'Daily Challenge',region:'maple',climate:'mild',blurb:'A fresh city every day. Everyone gets the same one.',days:3,daily:true,patience:48,perDay:260,seed:1,express:true,transfer:true,cash:11000,riders:['commuter','student','tourist','rush','wheel'],concert:26,closureDur:38,amProb:.7,goals:{sat:.72,gave:100,profit:2800}},
+ {name:'Weekly Challenge',region:'maple',climate:'mild',blurb:'A bigger city for the whole week. Everyone gets the same one.',days:4,weekly:true,patience:44,perDay:340,seed:2,express:true,transfer:true,cash:16000,riders:['commuter','student','tourist','rush','wheel'],concert:36,closureDur:42,amProb:1,goals:{sat:.7,gave:150,profit:5000}}
+ ,{name:'Old Town',region:'europe',climate:'mild',blurb:'A European old town: pitched roofs, a church spire and very impatient people. Every stop counts.',days:4,patience:40,perDay:400,seed:61,express:true,transfer:true,cash:14400,riders:['commuter','student','tourist','rush','wheel'],
+  map:['HHBHHBHHBH','HBBHHBBHHB','HHHBHHHBHH','BHHHBBHHHB','HHBHHBHHBH','HBBHCPBBHB','HHHHHHHHHH'],concert:42,closureDur:45,amProb:1,midProb:0,goals:{sat:.7,gave:190,profit:7000}},
+ {name:'Canal District',region:'europe',climate:'mild',blurb:'Water cuts the old city into four quarters. Mind the bridges.',days:4,patience:39,perDay:430,seed:67,express:true,transfer:true,cash:14700,riders:['commuter','student','tourist','rush','wheel'],
+  map:['HHHP.WW.BBHH','HHH..WW.BBBH','H.P.......HH','WWW.WWWWW.WW','HH..HWW..BHH','HHP..WW.CBBH','HHH......BBH','HHHP.WW.PHHH'],concert:44,closureDur:45,amProb:1,midProb:.2,goals:{sat:.7,gave:205,profit:7800}},
+ {name:'Hilltop',region:'maple',climate:'mild',blurb:'A big green hill forces long detours. Plan your routes around it.',days:5,patience:38,perDay:460,seed:71,express:true,transfer:true,cash:14900,riders:['commuter','student','tourist','rush','wheel'],
+  map:['HHH.PPPP.BBH','HH..PPPP..BH','H...PPPPC.BH','HH.........H','HHHP.BB.PHHH','HH..BBBB..HH','HHH.BBBB.HHH','HHHH.PP.HHHH'],concert:44,closureDur:45,amProb:1,midProb:.35,goals:{sat:.72,gave:240,profit:9000}}
+ ,{name:'Lakeside',region:'alpine',climate:'mild',blurb:'Wooden chalets and pines around a big lake. Everyone wants to get round it.',days:5,patience:36,perDay:520,seed:73,express:true,transfer:true,cash:15600,riders:['commuter','student','tourist','rush','wheel'],
+  map:['HHHKPP.BBHHH','HHB.WWW.BBHH','HH..WWWW..HH','PH.WWWWWW.HP','HH..WWWW..HH','HBB.WWW.BHHH','HHH.PP.CBHHH'],concert:46,closureDur:46,amProb:1,midProb:.5,goals:{sat:.72,gave:270,profit:10500}},
+ {name:'Harbor Bay',region:'harbor',climate:'rain',blurb:'A rainy port city on a long coastal strip. Wet roads, umbrellas, a hospital, a mall and lots of tourists.',days:5,patience:35,perDay:550,seed:79,express:true,transfer:true,cash:16000,riders:['commuter','student','tourist','rush','wheel'],
+  map:['WWWWWWWWWWWWWW','HHHBBHH.BBHHHW','HHHBBHHPBBMHHH','HP.HHBB.HHBBHH','HHHH.BBCH.BBHH','HHOH.HHH.PHHHH'],concert:48,closureDur:47,amProb:1,midProb:.6,goals:{sat:.72,gave:285,profit:11200}},
+ {name:'Ring City',region:'europe',climate:'mild',blurb:'A circular city around a central park, with a cathedral in the middle. Rings, spokes and long loops.',days:5,patience:32,perDay:670,seed:83,express:true,transfer:true,cash:18400,riders:['commuter','student','tourist','rush','wheel'],
+  map:['HHHBBHHBBHHH','HBB......BBH','HB.PPPPPP.BH','HHKPPCPPPAHH','HB.PPPPPP.BH','HBB......BBH','HHHBBHHBBHHH'],concert:52,closureDur:49,amProb:1,midProb:.8,goals:{sat:.74,gave:335,profit:14500}},
+ {name:'Grand Central',region:'metro',climate:'mild',blurb:'The finale. A huge glass-and-steel city with everything: arena, campus, airport, hospital and mall.',days:6,patience:31,perDay:720,seed:89,express:true,transfer:true,cash:19800,riders:['commuter','student','tourist','rush','wheel'],
+  map:['HHHHBBBBHHHHH','HBBHHBCBBHHUH','HHBH..P..BHHH','PHHH.WW.HHBBH','HHB..AWW..BBH','HBBH.PP.HHHOH','HHHHBBBMHHHHH'],concert:54,closureDur:50,amProb:1,midProb:1,goals:{sat:.75,gave:340,profit:16500}}
+ ,{name:'Alpine Village',region:'alpine',climate:'snow',blurb:'A snowbound mountain village. Falling snow, slow roads and a little school on the hill.',days:5,patience:37,perDay:490,seed:97,express:true,transfer:true,cash:15200,riders:['commuter','student','tourist','rush','wheel'],
+  map:['HHH.PP.HHHHH','HH.BBBB..HHH','H..BBBBC.HH.','HHP.BB..WWHH','HHH....WWWHH','HH.PP.HHH.HH','HHHH.HK.HHHH'],concert:44,closureDur:46,amProb:1,midProb:.45,goals:{sat:.72,gave:255,profit:9800}},
+ {name:'Tokyo Crossing',region:'tokyo',climate:'mild',blurb:'A dense neon district: slim towers, glowing signs and tiny streets packed with riders.',days:5,patience:34,perDay:590,seed:101,express:true,transfer:true,cash:16800,riders:['commuter','student','tourist','rush','wheel'],
+  map:['HHBBHHBBHHBBH','HBBBHHBBBHHBH','HHHP.HHBBPHHH','BBHHHBBHHHHBB','BBH.PBBACHHBB','HHHHHBBHHHBBH','HBBHHHPHHBBHH','HHBBHHHHHBBHH'],concert:50,closureDur:48,amProb:1,midProb:.7,goals:{sat:.73,gave:300,profit:12200}},
+ {name:'Dubai Skyline',region:'dubai',climate:'hot',blurb:'A desert metropolis of glass and gold. Scorching heat makes riders lose patience faster.',days:5,patience:33,perDay:630,seed:103,express:true,transfer:true,cash:17600,riders:['commuter','student','tourist','rush','wheel'],
+  map:['WW..HH.BB.HHHH','WWH.HHBBBB.HHH','WWHH..BBBB.PHH','HH.H.PBBBB..HH','HHH.CPBB.HHHHH','.HHH.MHH.HHHH.','..HH.O.H.HH...'],concert:52,closureDur:48,amProb:1,midProb:.8,goals:{sat:.73,gave:315,profit:13200}}
 ];
 function weekKey(){const d=new Date(),t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())),dn=(t.getUTCDay()+6)%7;t.setUTCDate(t.getUTCDate()-dn+3);const fy=t.getUTCFullYear(),j4=new Date(Date.UTC(fy,0,4));return fy*100+1+Math.round(((t-j4)/864e5-3+((j4.getUTCDay()+6)%7))/7)}
 function dayKey(){const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()}
@@ -495,25 +504,33 @@ function dailyLevel(tries,weekly){
     if(m[r][c]!=='B'&&m[r][c+1]!=='B'&&m[r+1][c]!=='B'&&m[r+1][c+1]!=='B'){m[r][c]=m[r][c+1]=m[r+1][c]=m[r+1][c+1]='W';break}}
   for(let k=0;k<30;k++){const c=Math.floor(R()*cols),r=Math.floor(R()*rows);if(m[r][c]==='P'||m[r][c]==='.'){m[r][c]='C';break}}
   const base=LEVELS[weekly?6:5];
-  return Object.assign({},base,{map:m.map(row=>row.join('')),seed:key+tries});
+  const RG=['maple','europe','tokyo','dubai','alpine','metro','harbor'],CL=['mild','mild','mild','mild','snow','rain','hot'],ri=Math.abs(key*7+(weekly?3:0))%RG.length,region=RG[ri],climate=region==='dubai'?'hot':region==='tokyo'?'mild':CL[Math.abs(key+(weekly?5:0))%CL.length];
+  return Object.assign({},base,{map:m.map(row=>row.join('')),seed:key+tries,region,climate});
 }
 
 /* ================= profile ================= */
 const SEASONS=['spring','summer','autumn','winter'];
-const THEME_OF={0:'meadow',1:'riverbank',2:'urban',3:'harbor',4:'meadow',7:'cobble',8:'canal',9:'hills',10:'forest',11:'sea',12:'urban',13:'urban'};
-const CAMPAIGN=[0,1,2,3,7,8,9,10,11,12,13];
+const THEME_OF={0:'meadow',1:'riverbank',2:'urban',3:'harbor',4:'meadow',7:'cobble',8:'canal',9:'hills',10:'forest',11:'sea',12:'urban',13:'urban',14:'alpine',15:'urban',16:'desert'};
+/* Campaign order, easiest to hardest: Maple Hollow, Riverside, Metro Heights, Harborview, Old Town (Europe), Canal District (Europe), Hilltop, Alpine Village (snow), Lakeside (alpine chalets),
+   Harbor Bay (rain), Tokyo Crossing, Dubai Skyline (heat), Ring City (Europe), Grand Central (metro). Stars are stored by LEVELS index, so new maps are appended to LEVELS. */
+const CAMPAIGN=[0,1,2,3,7,8,9,14,10,11,15,16,12,13];
+const CLIMATE_NAME={snow:'Snowy',rain:'Rainy',hot:'Hot'};
+const seasonLabel=()=>{const c=G.L&&G.L.climate;return CLIMATE_NAME[c]||(G.season[0].toUpperCase()+G.season.slice(1))};
 const STORY={
  0:{intro:'Welcome to Maple Hollow. Our buses are a mess, and half the town drives to work. Put one stop by the homes and one downtown, join them with a route, and show me what a good bus line can do.',outro:'You did it. Folks are leaving their cars at home. Next up: Riverside, where the crowds are bigger and so is the budget.'},
  1:{intro:'Riverside has grown fast. Tourists, students and commuters all want a seat. Express routes are now yours to use. Mind the money and the patience of the crowd.',outro:'Riverside is humming. Metro Heights has been asking for you by name.'},
  2:{intro:'Metro Heights is a real city. Transfers let one bus feed another, and some riders need step-free stops. Treat every rider well.',outro:'Metro Heights runs on your buses. The harbour is next, and the river there only has two bridges.'},
- 3:{intro:'Harborview is split by a river and everyone wants to cross at the same time. Two bridges, one rush hour. Good luck.',outro:'Two bridges, thousands of riders, and nobody stranded. The old town has been waiting for this.'},
- 7:{intro:'Old Town has narrow, crowded streets and very impatient people. There is no room for waste here. Every stop counts.',outro:'You tamed Old Town. The canal district is next, and it is all about bridges.'},
- 8:{intro:'The canals cut this district into four quarters. Plan which bridges carry which routes, or the whole network will jam.',outro:'Four quarters, one network. One last test awaits on the hill.'},
- 10:{intro:'Lakeside is all about going round the water. Plan bridges and long loops, and keep the school run on time.',outro:'The lake no longer divides the town. Harbor Bay is calling.'},
- 11:{intro:'Harbor Bay is a long coastal strip with a busy hospital and a big mall. Tourists arrive all day.',outro:'The bay hums with buses. Ring City is next.'},
- 12:{intro:'Ring City circles a huge central park. Rings, spokes and loops all work here.',outro:'Rings and spokes, in perfect rhythm. One city left.'},
- 13:{intro:'Grand Central has everything: arena, campus, airport, hospital and mall. This is the big one. Bring your whole toolbox.',outro:'You did it. The whole country now rides your buses.'},
- 9:{intro:'Hilltop is the last piece. The big green hill forces long detours, and the rush is the biggest yet. Make it a network the whole city can be proud of.',outro:'The hill is no longer a barrier. Every district in the city is now connected by your buses. Welcome to the Citywide Network.'}};
+ 3:{intro:'Harborview is split by a river and everyone wants to cross at the same time. Two bridges, one rush hour. Good luck.',outro:'Two bridges, thousands of riders, and nobody stranded. Now for something older: a proper European old town.'},
+ 7:{intro:'Welcome to the Old Town. Cobbled lanes, pitched roofs and a church spire over the square. The streets are narrow and the people are very impatient. Every stop counts.',outro:'You tamed the Old Town. The canal district is next, and it is all about bridges.'},
+ 8:{intro:'The canals cut this district into four quarters. Plan which bridges carry which routes, or the whole network will jam.',outro:'Four quarters, one network. Next, a big green hill that does not care about your timetable.'},
+ 9:{intro:'Hilltop has a big green hill in the middle, which forces long detours. The rush is bigger than ever. Plan your routes around it.',outro:'The hill is no longer a barrier. Pack a warm coat: the mountains are next.'},
+ 14:{intro:'Alpine Village is buried in snow. It keeps falling all day, the roads are slow, and half the riders are tourists in ski gear. Keep the buses running.',outro:'The village never stopped, even in the snow. The lake country is next.'},
+ 10:{intro:'Lakeside is all about going round the water. Plan bridges and long loops, and keep the school run on time.',outro:'The lake no longer divides the town. Harbor Bay is calling, and it is raining there.'},
+ 11:{intro:'Harbor Bay is a long coastal strip, and it never stops drizzling. Wet roads, umbrellas everywhere, a busy hospital and a big mall. Tourists arrive all day.',outro:'The bay hums with buses, rain or shine. The neon lights of Tokyo are next.'},
+ 15:{intro:'Tokyo Crossing never sleeps. Slim towers, glowing signs, tiny streets and a train station that pours riders onto your stops. The tightest city yet.',outro:'Rivers of riders, and every one of them delivered. The desert is calling.'},
+ 16:{intro:'Dubai Skyline rises out of the sand. Glass and gold towers, a gulf to the west and heat that makes everyone short of patience. Keep the crowds cool.',outro:'In forty degrees of heat nobody gave up on your buses. Only two cities left.'},
+ 12:{intro:'Ring City circles a huge central park with a cathedral in the middle. Rings, spokes and loops all work here.',outro:'Rings and spokes, in perfect rhythm. One city left.'},
+ 13:{intro:'Grand Central has everything: arena, campus, airport, hospital and mall. This is the big one. Bring your whole toolbox.',outro:'You did it. The whole country now rides your buses. Welcome to the Citywide Network.'}};
 const DIFFS={relaxed:{label:'Relaxed',pat:1.25,cash:1.3,day:.85,fare:1.1,goal:.85},standard:{label:'Standard',pat:1,cash:1,day:1,fare:1,goal:1},plus:{label:'Plus',pat:.7,cash:.75,day:1.3,fare:.95,goal:1.3,cost:1.4},hard:{label:'Hard',pat:.8,cash:.8,day:1.15,fare:.95,goal:1.2}};
 const ACH=[
  {id:'first_route',name:'First Line',desc:'Open your first bus route.'},
@@ -706,8 +723,48 @@ function noiseTile(R,size,base,amt,alpha){
     g.putImageData(id,0,0);
   });
 }
+/* ---- ground palettes per region (the painted base map under the 3D buildings), tinted by climate ---- */
+const GPAL={
+ maple:{base:'#6b974b',bl:['#82ad5a','#587f3d','#8fb566','#6a8f45'],bd:['#4d7433','#86b25d','#9bbd6e','#5b8740'],lot:'#78a553',lotBl:['#8db764','#628a45'],lotBd:['#4d7433','#9bc26a','#86b25d'],hedge:'#4c7a37',hedgeIn:'rgba(30,60,25,.35)',
+  plaza:'#b9bec3',plazaLn:'rgba(90,98,106,.55)',plazaSq:'#5f8f47',park:'#5e9446',parkBl:['#74a955','#4d8038','#86b566'],parkBd:['#3f6b2c','#8fc063','#6fa24a'],path:'#d6c9a4',empty:'#6f9a4d',emptyBd:['#4d7433','#a6a06a','#86b25d'],
+  asph:'#3a3f45',asphSp:['#4b5158','#2f3338','#555b62','#33383d'],pave:'#c9c9c2',paveLn:'#a9a9a2',flowers:['#f4e04d','#f28fb3','#fff','#c68be8']},
+ europe:{base:'#5f8a45',bl:['#78a050','#4e7438','#86ad5c','#5a8040'],bd:['#44683a','#7fa656','#93b568','#53793c'],lot:'#8f8d7d',lotBl:['#a09e8e','#7c7b6d'],lotBd:['#76746a','#b0ad9c','#8a8878'],hedge:'#a8a290',hedgeIn:'rgba(60,55,40,.4)',
+  plaza:'#cdbfa5',plazaLn:'rgba(120,105,80,.5)',plazaSq:'#5f8f47',park:'#5a8d44',parkBl:['#6f9f52','#4a7c37','#7fae5f'],parkBd:['#3f6b2c','#8fc063','#6fa24a'],path:'#e6dab8',empty:'#6d9348',emptyBd:['#4d7433','#a6a06a','#86b25d'],
+  asph:'#5c574d',asphSp:['#746e63','#656057','#7b756a','#5f5a51'],pave:'#dcd3c0',paveLn:'#b6ac94',cobble:true,noLane:true,flowers:['#f4e04d','#f28fb3','#fff','#e8657a']},
+ tokyo:{base:'#6e7178',bl:['#7a7d84','#62656c','#85888f','#585b62'],bd:['#5a5d64','#8c8f96'],lot:'#898d94',lotBl:['#989ca3','#777b82'],lotBd:['#6f737a','#a1a5ac'],hedge:'#555a62',hedgeIn:'rgba(20,24,30,.4)',
+  plaza:'#3b404c',plazaLn:'rgba(120,200,255,.28)',plazaSq:'#2d323c',park:'#5b9a52',parkBl:['#74ad66','#4a8340','#86bd78'],parkBd:['#3f6b2c','#8fc063','#6fa24a'],path:'#ddd5c6',empty:'#7c8087',emptyBd:['#5a5d64','#9a9da4'],
+  asph:'#2b2e34',asphSp:['#3a3d44','#22252a','#44474e','#2e3137'],pave:'#bcbfc5',paveLn:'#9b9fa6',neon:true,flowers:['#f7b8d0','#fbd3e2','#fff','#f28fb3'],blossom:true},
+ dubai:{base:'#d6bc88',bl:['#e6cf9f','#c9ac76','#e2c98f','#d2b77f'],bd:['#b99a66','#efdcae','#c8aa73'],lot:'#e4d0a2',lotBl:['#efdcb2','#d6bf8d'],lotBd:['#c8b07e','#f2e4bd'],hedge:'#cdb582',hedgeIn:'rgba(120,95,50,.3)',
+  plaza:'#ece3cc',plazaLn:'rgba(150,130,90,.5)',plazaSq:'#6fa04a',park:'#5e9a47',parkBl:['#74ad55','#4d8a3a','#86bd66'],parkBd:['#3f7a2c','#8fc063','#6fa24a'],path:'#f0e4c0',empty:'#d9c08c',emptyBd:['#b99a66','#efdcae'],
+  asph:'#3a3a3d',asphSp:['#4a4a4e','#2e2e31','#58585c','#6b6458'],pave:'#eadfc2',paveLn:'#cdbb92',sandy:true,flowers:['#ffd84a','#fff','#f28fb3','#ff9a62']},
+ alpine:{base:'#5f8b45',bl:['#76a052','#4c7438','#84ad5e','#58803e'],bd:['#44683a','#7fa656','#93b568'],lot:'#6e9a4d',lotBl:['#82ad5c','#5a8240'],lotBd:['#4d7433','#9bc26a','#86b25d'],hedge:'#7a5a38',hedgeIn:'rgba(40,25,10,.4)',
+  plaza:'#aaa79c',plazaLn:'rgba(80,80,70,.5)',plazaSq:'#5f8f47',park:'#4f8a45',parkBl:['#639b52','#3f7336','#73a863'],parkBd:['#355f2c','#7fb055','#5f9a42'],path:'#cdbf9d',empty:'#678f48',emptyBd:['#4d7433','#a6a06a','#86b25d'],
+  asph:'#3f434a',asphSp:['#50555c','#33373c','#5a6068','#383c42'],pave:'#bdbdb5',paveLn:'#9d9d95',flowers:['#f4e04d','#fff','#c68be8','#e2483d']},
+ harbor:{base:'#6b974b',bl:['#82ad5a','#587f3d','#8fb566','#6a8f45'],bd:['#4d7433','#86b25d','#9bbd6e','#5b8740'],lot:'#7a9f5a',lotBl:['#8db764','#628a45'],lotBd:['#4d7433','#9bc26a','#86b25d'],hedge:'#4c7a37',hedgeIn:'rgba(30,60,25,.35)',
+  plaza:'#a2a9ae',plazaLn:'rgba(70,80,90,.55)',plazaSq:'#5f8f47',park:'#5e9446',parkBl:['#74a955','#4d8038','#86b566'],parkBd:['#3f6b2c','#8fc063','#6fa24a'],path:'#d6c9a4',empty:'#6f9a4d',emptyBd:['#4d7433','#a6a06a','#86b25d'],
+  asph:'#383d43',asphSp:['#4b5158','#2f3338','#555b62','#33383d'],pave:'#c3c6c4',paveLn:'#a3a6a4',flowers:['#f4e04d','#f28fb3','#fff','#c68be8']}
+};
+GPAL.metro=Object.assign({},GPAL.maple,{plaza:'#a0a6ac',plazaLn:'rgba(70,78,88,.55)',lot:'#76a251',asph:'#373c42'});
+function mixHex(a,b,t){const A=hex2rgb(a),B=hex2rgb(b);return'#'+[0,1,2].map(i=>Math.round(A[i]+(B[i]-A[i])*t).toString(16).padStart(2,'0')).join('')}
+function groundPal(L){
+  const rg=(L&&L.region)||'maple',cl=(L&&L.climate)||'mild',P=JSON.parse(JSON.stringify(GPAL[rg]||GPAL.maple));
+  if(cl==='mild')return P;
+  const GREEN=['base','bl','bd','lot','lotBl','lotBd','park','parkBl','parkBd','empty','emptyBd','plazaSq'],HARD=['plaza','pave','paveLn','path','hedge','asph'];
+  const f=(k,fn)=>{const v=P[k];if(typeof v==='string'&&v[0]==='#')P[k]=fn(v);else if(Array.isArray(v))P[k]=v.map(x=>typeof x==='string'&&x[0]==='#'?fn(x):x)};
+  if(cl==='snow'){
+    for(const k of GREEN)f(k,c=>mixHex(c,'#eef3f8',.8));
+    f('plaza',c=>mixHex(c,'#f3f6f9',.55));f('pave',c=>mixHex(c,'#ffffff',.85));f('paveLn',c=>mixHex(c,'#c9d3dc',.7));f('path',c=>mixHex(c,'#ffffff',.6));f('hedge',c=>mixHex(c,'#ffffff',.5));
+    P.plazaLn='rgba(110,125,140,.45)';P.flowers=['#ffffff','#dfe9f2'];P.snow=true;
+  }else if(cl==='rain'){
+    for(const k of GREEN.concat(HARD))f(k,c=>mixHex(mixHex(c,'#000000',.16),'#52606c',.12));
+    P.rain=true;
+  }else if(cl==='hot'&&!P.sandy){
+    for(const k of GREEN)f(k,c=>mixHex(c,'#b0a05a',.5));P.hot=true;
+  }
+  return P;
+}
 function renderStatic(city){
-  const sc=Math.min(2.6,3600/city.w,3200/city.h),cv=document.createElement('canvas');
+  const sc=Math.min(2.6,3600/city.w,3200/city.h),cv=document.createElement('canvas'),P=groundPal(city.L);
   cv.width=Math.ceil(city.w*sc);cv.height=Math.ceil(city.h*sc);
   const g=cv.getContext('2d');g.scale(sc,sc);
   const R=rng(city.seed*7+3),map=city.L.map,rows=city.rows,cols=city.cols;
@@ -728,47 +785,51 @@ function renderStatic(city){
     g.restore();
   }
   // ground
-  g.fillStyle='#6b974b';g.fillRect(0,0,city.w,city.h);
-  blotches(0,0,city.w,city.h,['#82ad5a','#587f3d','#8fb566','#6a8f45'],Math.round(city.w*city.h/9000),50,140,.35);
-  blades(0,0,city.w,city.h,Math.round(city.w*city.h/9),['#4d7433','#86b25d','#9bbd6e','#5b8740']);
+  g.fillStyle=P.base;g.fillRect(0,0,city.w,city.h);
+  blotches(0,0,city.w,city.h,P.bl,Math.round(city.w*city.h/9000),50,140,.35);
+  blades(0,0,city.w,city.h,Math.round(city.w*city.h/(P.sandy?24:9)),P.bd);
+  if(P.sandy){ // wind ripples in the sand
+    g.save();g.lineWidth=.7;for(let i=0;i<Math.round(city.w*city.h/700);i++){const x=R()*city.w,y=R()*city.h,l=14+R()*30;g.strokeStyle=R()<.5?'rgba(150,115,65,.25)':'rgba(255,240,200,.3)';g.beginPath();g.moveTo(x,y);g.quadraticCurveTo(x+l/2,y-2-R()*2,x+l,y);g.stroke()}g.restore();
+  }
   grainOver(0,0,city.w,city.h,.5);
   // blocks
   for(const b of city.blocks){
     const x=b.x,y=b.y;
     if(b.t==='H'){
-      g.fillStyle='#78a553';g.fillRect(x+10,y+10,S-20,S-20);
-      blotches(x,y,S,S,['#8db764','#628a45'],5,15,40,.4);
-      blades(x+10,y+10,S-20,S-20,500,['#4d7433','#9bc26a','#86b25d']);
-      g.strokeStyle='#4c7a37';g.lineWidth=2;g.strokeRect(x+14.5,y+14.5,S-29,S-29); // hedge
-      g.strokeStyle='rgba(30,60,25,.35)';g.lineWidth=1;g.strokeRect(x+16,y+16,S-32,S-32);
+      g.fillStyle=P.lot;g.fillRect(x+10,y+10,S-20,S-20);
+      blotches(x,y,S,S,P.lotBl,5,15,40,.4);
+      blades(x+10,y+10,S-20,S-20,500,P.lotBd);
+      g.strokeStyle=P.hedge;g.lineWidth=2;g.strokeRect(x+14.5,y+14.5,S-29,S-29); // hedge, wall or fence
+      g.strokeStyle=P.hedgeIn;g.lineWidth=1;g.strokeRect(x+16,y+16,S-32,S-32);
+      if(P.cobble){g.save();g.beginPath();g.rect(x+17,y+17,S-34,S-34);g.clip();g.strokeStyle='rgba(70,64,52,.22)';g.lineWidth=.6;for(let k=17;k<S-17;k+=5){g.beginPath();g.moveTo(x+k,y+17);g.lineTo(x+k,y+S-17);g.moveTo(x+17,y+k);g.lineTo(x+S-17,y+k);g.stroke()}g.restore()}
     }else if(b.t==='B'||LMK[b.t]){
-      g.fillStyle='#b9bec3';g.fillRect(x+6,y+6,S-12,S-12);
-      g.strokeStyle='rgba(90,98,106,.55)';g.lineWidth=.5;
+      g.fillStyle=P.plaza;g.fillRect(x+6,y+6,S-12,S-12);
+      g.strokeStyle=P.plazaLn;g.lineWidth=.5;
       for(let k=6;k<=S-6;k+=8){g.beginPath();g.moveTo(x+k,y+6);g.lineTo(x+k,y+S-6);g.moveTo(x+6,y+k);g.lineTo(x+S-6,y+k);g.stroke()}
-      g.fillStyle='#5f8f47';for(const[px,py]of[[10,10],[S-22,10],[10,S-22],[S-22,S-22]])g.fillRect(x+px,y+py,12,12);
+      if(P.neon){for(let k=0;k<26;k++){g.fillStyle=['rgba(255,60,150,.35)','rgba(40,220,255,.35)','rgba(255,230,70,.3)'][k%3];g.fillRect(x+8+R()*(S-18),y+8+R()*(S-18),2+R()*3,1.2)}}
+      g.fillStyle=P.plazaSq;for(const[px,py]of[[10,10],[S-22,10],[10,S-22],[S-22,S-22]])g.fillRect(x+px,y+py,12,12);
       grainOver(x,y,S,S,.35);
     }else if(b.t==='P'||b.t==='C'){
-      g.fillStyle='#5e9446';g.fillRect(x,y,S,S);
-      blotches(x,y,S,S,['#74a955','#4d8038','#86b566'],8,15,45,.45);
-      blades(x,y,S,S,900,['#3f6b2c','#8fc063','#6fa24a']);
+      g.fillStyle=P.park;g.fillRect(x,y,S,S);
+      blotches(x,y,S,S,P.parkBl,8,15,45,.45);
+      blades(x,y,S,S,900,P.parkBd);
       if(b.t==='P'){
-        g.strokeStyle='#d6c9a4';g.lineWidth=3.6;g.lineCap='round';g.beginPath();g.moveTo(x+4,y+30+R()*40);g.bezierCurveTo(x+30,y+10,x+60,y+90,x+S-4,y+30+R()*40);g.stroke();
+        g.strokeStyle=P.path;g.lineWidth=3.6;g.lineCap='round';g.beginPath();g.moveTo(x+4,y+30+R()*40);g.bezierCurveTo(x+30,y+10,x+60,y+90,x+S-4,y+30+R()*40);g.stroke();
         g.strokeStyle='rgba(120,105,70,.5)';g.lineWidth=.8;g.stroke();
-        for(let k=0;k<26;k++){g.fillStyle=['#f4e04d','#f28fb3','#fff','#c68be8'][k%4];g.beginPath();g.arc(x+8+R()*84,y+8+R()*84,.9,0,6.3);g.fill()}
+        const nf=P.blossom?70:26;for(let k=0;k<nf;k++){g.fillStyle=P.flowers[k%P.flowers.length];g.beginPath();g.arc(x+8+R()*84,y+8+R()*84,P.blossom?1.3:.9,0,6.3);g.fill()}
       }
     }else if(b.t==='W'){
-      const sides=[[0,-1],[0,1],[-1,0],[1,0]];
-      g.fillStyle='#1d5b73';g.fillRect(x,y,S,S);
-      g.fillStyle='#a3a49c';
+      g.fillStyle=P.rain?'#1a4a5e':'#1d5b73';g.fillRect(x,y,S,S);
+      g.fillStyle=P.pave==='#c9c9c2'?'#a3a49c':mixHex(P.pave,'#707070',.35);
       const c=b.c,r=b.r;
       if(bt(c,r-1)!=='W')g.fillRect(x,y,S,5);
       if(bt(c,r+1)!=='W')g.fillRect(x,y+S-5,S,5);
       if(bt(c-1,r)!=='W')g.fillRect(x,y,5,S);
       if(bt(c+1,r)!=='W')g.fillRect(x+S-5,y,5,S);
     }else{
-      g.fillStyle='#6f9a4d';g.fillRect(x,y,S,S);
-      g.fillStyle='rgba(133,112,76,.5)';g.beginPath();g.ellipse(x+30+R()*40,y+30+R()*40,16+R()*18,10+R()*12,R()*3,0,6.3);g.fill();
-      blades(x,y,S,S,500,['#4d7433','#a6a06a','#86b25d']);
+      g.fillStyle=P.empty;g.fillRect(x,y,S,S);
+      g.fillStyle=P.sandy?'rgba(160,125,75,.35)':'rgba(133,112,76,.5)';g.beginPath();g.ellipse(x+30+R()*40,y+30+R()*40,16+R()*18,10+R()*12,R()*3,0,6.3);g.fill();
+      blades(x,y,S,S,500,P.emptyBd);
     }
   }
   // driveways & pads for houses, parking beside arena
@@ -793,16 +854,19 @@ function renderStatic(city){
   }
   g.restore();
   // roads
-  const asphalt=g.createPattern(mkCanvas(128,128,(a,w,h)=>{a.fillStyle='#3a3f45';a.fillRect(0,0,w,h);
-    for(let i=0;i<900;i++){a.fillStyle=['#4b5158','#2f3338','#555b62','#33383d'][i%4];a.globalAlpha=.5;a.fillRect(R()*w,R()*h,1+R()*1.4,1+R()*1.4)}
+  const asphalt=g.createPattern(mkCanvas(128,128,(a,w,h)=>{a.fillStyle=P.asph;a.fillRect(0,0,w,h);
+    if(P.cobble){ // cobblestones
+      for(let y=0;y<h;y+=8){for(let x=((y/8)%2)*5;x<w+10;x+=10){a.fillStyle=P.asphSp[Math.floor(R()*4)];a.globalAlpha=.9;rrect(a,x+.6,y+.6,8.6,6.6,2);a.fill()}}
+      a.globalAlpha=.25;a.fillStyle='#2a2620';for(let i=0;i<60;i++)a.fillRect(R()*w,R()*h,1,1);a.globalAlpha=1;return}
+    for(let i=0;i<900;i++){a.fillStyle=P.asphSp[i%4];a.globalAlpha=.5;a.fillRect(R()*w,R()*h,1+R()*1.4,1+R()*1.4)}
     a.globalAlpha=.22;a.strokeStyle='#22262a';a.lineWidth=.6;for(let i=0;i<5;i++){a.beginPath();a.moveTo(R()*w,R()*h);a.lineTo(R()*w,R()*h);a.stroke()}}),'repeat');
-  const pave=g.createPattern(mkCanvas(64,64,(a,w,h)=>{a.fillStyle='#c9c9c2';a.fillRect(0,0,w,h);a.strokeStyle='#a9a9a2';a.lineWidth=1;
+  const pave=g.createPattern(mkCanvas(64,64,(a,w,h)=>{a.fillStyle=P.pave;a.fillRect(0,0,w,h);a.strokeStyle=P.paveLn;a.lineWidth=1;
     for(let i=0;i<=w;i+=16){a.beginPath();a.moveTo(i,0);a.lineTo(i,h);a.moveTo(0,i);a.lineTo(w,i);a.stroke()}
     for(let i=0;i<120;i++){a.fillStyle='rgba(120,120,110,.18)';a.fillRect(R()*w,R()*h,1.5,1.5)}}),'repeat');
   const N=city.nodes;
   g.lineCap='round';g.lineJoin='round';
   for(const e of city.edges){if(e.syn)continue;const A=N[e.a],B=N[e.b];g.strokeStyle=pave;g.lineWidth=ROAD_W+10;g.beginPath();g.moveTo(A.x,A.y);g.lineTo(B.x,B.y);g.stroke()}
-  for(const e of city.edges){if(e.syn)continue;const A=N[e.a],B=N[e.b];g.strokeStyle='#8f918c';g.lineWidth=ROAD_W+3;g.beginPath();g.moveTo(A.x,A.y);g.lineTo(B.x,B.y);g.stroke()}
+  for(const e of city.edges){if(e.syn)continue;const A=N[e.a],B=N[e.b];g.strokeStyle=P.snow?'#d9e2ea':P.cobble?'#9c9482':'#8f918c';g.lineWidth=ROAD_W+3;g.beginPath();g.moveTo(A.x,A.y);g.lineTo(B.x,B.y);g.stroke()}
   for(const e of city.edges){if(e.syn)continue;const A=N[e.a],B=N[e.b];g.strokeStyle=asphalt;g.lineWidth=ROAD_W;g.beginPath();g.moveTo(A.x,A.y);g.lineTo(B.x,B.y);g.stroke()}
   g.lineCap='butt';
   for(const e of city.edges){
@@ -810,12 +874,20 @@ function renderStatic(city){
     const A=N[e.a],B=N[e.b],dx=B.x-A.x,dy=B.y-A.y,l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l,nx=-uy,ny=ux,s0=15,s1=l-15;
     g.strokeStyle='rgba(15,16,18,.20)';g.lineWidth=3.4;
     for(const o of[-5.5,5.5]){g.beginPath();g.moveTo(A.x+ux*s0+nx*o,A.y+uy*s0+ny*o);g.lineTo(A.x+ux*s1+nx*o,A.y+uy*s1+ny*o);g.stroke()}
-    g.strokeStyle='rgba(235,235,225,.55)';g.lineWidth=.8;
-    for(const o of[-(ROAD_W/2-1.6),ROAD_W/2-1.6]){g.beginPath();g.moveTo(A.x+ux*s0+nx*o,A.y+uy*s0+ny*o);g.lineTo(A.x+ux*s1+nx*o,A.y+uy*s1+ny*o);g.stroke()}
-    g.strokeStyle='rgba(245,245,238,.88)';g.lineWidth=1.3;g.setLineDash([9,11]);
-    g.beginPath();g.moveTo(A.x+ux*s0,A.y+uy*s0);g.lineTo(A.x+ux*s1,A.y+uy*s1);g.stroke();g.setLineDash([]);
+    if(!P.noLane){
+      g.strokeStyle='rgba(235,235,225,.55)';g.lineWidth=.8;
+      for(const o of[-(ROAD_W/2-1.6),ROAD_W/2-1.6]){g.beginPath();g.moveTo(A.x+ux*s0+nx*o,A.y+uy*s0+ny*o);g.lineTo(A.x+ux*s1+nx*o,A.y+uy*s1+ny*o);g.stroke()}
+      g.strokeStyle='rgba(245,245,238,.88)';g.lineWidth=1.3;g.setLineDash([9,11]);
+      g.beginPath();g.moveTo(A.x+ux*s0,A.y+uy*s0);g.lineTo(A.x+ux*s1,A.y+uy*s1);g.stroke();g.setLineDash([]);
+    }else{ // old-town lanes: a faint worn centre line only
+      g.strokeStyle='rgba(245,240,225,.38)';g.lineWidth=1;g.setLineDash([6,14]);
+      g.beginPath();g.moveTo(A.x+ux*s0,A.y+uy*s0);g.lineTo(A.x+ux*s1,A.y+uy*s1);g.stroke();g.setLineDash([]);
+    }
     const mx=A.x+ux*l*(.3+R()*.4)+nx*(R()-.5)*8,my=A.y+uy*l*(.3+R()*.4)+ny*(R()-.5)*8;
     g.fillStyle='#2a2d31';g.beginPath();g.arc(mx,my,1.7,0,6.3);g.fill();g.strokeStyle='rgba(120,125,130,.5)';g.lineWidth=.4;g.stroke();
+    if(P.neon&&R()<.8){ // neon sign glow reflected on the tarmac
+      for(let k=0;k<5;k++){const t=.12+R()*.76,o=(R()-.5)*14;g.fillStyle=['rgba(255,60,150,.22)','rgba(40,220,255,.22)','rgba(255,230,70,.18)'][k%3];g.beginPath();g.ellipse(A.x+ux*l*t+nx*o,A.y+uy*l*t+ny*o,3+R()*5,1.2+R()*1.6,Math.atan2(uy,ux),0,6.3);g.fill()}
+    }
   }
   // crosswalks
   for(const n of N){if(!n.alive)continue;
@@ -827,7 +899,8 @@ function renderStatic(city){
       g.lineWidth=1.8;g.beginPath();g.moveTo(cx+ux*7.2+nx*-ROAD_W/2,cy+uy*7.2+ny*-ROAD_W/2);g.lineTo(cx+ux*7.2+nx*ROAD_W/2,cy+uy*7.2+ny*ROAD_W/2);g.stroke();
     }
   }
-  {const TINTS=['#ffe9a8','#a8d8ff','#ffd0c8','#c8f0b8','#e8d0ff'];for(const b of city.blocks){if(b.t==='W'||b.t==='B'||LMK[b.t])continue;const R2=rng(city.seed*53+b.c*17+b.r*5+3);if(R2()<.7){g.globalAlpha=.05+R2()*.08;g.fillStyle=TINTS[Math.floor(R2()*5)];g.fillRect(b.x+10,b.y+10,S-20,S-20);g.globalAlpha=1}}}
+  {const TINTS=['#ffe9a8','#a8d8ff','#ffd0c8','#c8f0b8','#e8d0ff'];for(const b of city.blocks){if(b.t==='W'||b.t==='B'||LMK[b.t])continue;const R2=rng(city.seed*53+b.c*17+b.r*5+3);if(R2()<.7){g.globalAlpha=(.05+R2()*.08)*(P.sandy||P.snow?.4:1);g.fillStyle=TINTS[Math.floor(R2()*5)];g.fillRect(b.x+10,b.y+10,S-20,S-20);g.globalAlpha=1}}}
+  if(P.rain){g.fillStyle='rgba(40,60,80,.10)';g.fillRect(0,0,city.w,city.h)}
   return cv;
 }
 
@@ -885,14 +958,14 @@ function audioUpdate(){
   musicTick();
   const on=ui.sound&&!G.modal,t=AC.currentTime,run=on&&!G.paused;
   let moving=0;for(const b of G.buses)if(b.state==='drive')moving++;
-  const z=clamp(((typeof cam!=='undefined'?cam.zoom:1)-.5)/2.2,0,1),hh=clockHour(G.t),dayT=hh>=6.4&&hh<19,nightT=hh>=19.6,wet=!!(G.event&&(G.event.type==='storm'||G.event.type==='flood')),am=PROF.amb!==false;
+  const z=clamp(((typeof cam!=='undefined'?cam.zoom:1)-.5)/2.2,0,1),hh=clockHour(G.t),dayT=hh>=6.4&&hh<19,nightT=hh>=19.6,wet=!!(G.event&&(G.event.type==='storm'||G.event.type==='flood'))||(G.L&&G.L.climate==='rain'),am=PROF.amb!==false;
   AUD.amb.gain.setTargetAtTime(on?((G.paused?.02:.03)+(am?.045*z:0)):0,t,.3);
   AUD.wind.gain.setTargetAtTime(on&&am?(1-z)*(wet?.045:G.season==='winter'?.034:.022)*(G.paused?.4:1):0,t,.5);
   if(run&&am){
     if(dayT&&z>.35&&!wet&&(G.season==='spring'||G.season==='summer')&&Math.random()<.14){const f=2500+Math.random()*900;tone(f,.07,'sine',.012,0,f*1.4);tone(f*1.1,.06,'sine',.01,.1,f*1.5)}
     if(nightT&&z>.2&&Math.random()<.4){for(let k=0;k<3;k++)tone(4300,.035,'sine',.005,k*.07)}
   }
-  AUD.rain.gain.setTargetAtTime(run&&G.event&&(G.event.type==='storm'||G.event.type==='flood')?.05:0,t,.4);
+  AUD.rain.gain.setTargetAtTime(run&&G.event&&(G.event.type==='storm'||G.event.type==='flood')?.05:run&&G.L&&G.L.climate==='rain'?.03:0,t,.4);
   AUD.eng.gain.setTargetAtTime(run?Math.min(.035,moving*.006)*(.6+.8*z)+(ui.follow?.012:0):0,t,.3);
   AUD.eo.frequency.setTargetAtTime(54+Math.min(14,moving*2),t,.4);
 }
@@ -1145,8 +1218,8 @@ riders:`<dl><dt>Commuters</dt><dd>The bulk of your riders. Home to work in the m
 money:`<ul><li><b>Income</b>: every rider who arrives pays a fare ($3 to $10; night fares are higher). You also get a grant at the end of each day and mission rewards.</li><li><b>Costs</b>: stops, buses, upgrades, and a running cost for each moving bus (bigger vehicles cost more). Running costs are why too many buses on a quiet route loses money.</li><li><b>Faster engines</b>: speeds every bus up 12% (twice available). Costs a lot, so wait until you have spare cash.</li><li><b>Bankruptcy</b>: below -$800 you lose. If you get stuck, 'Retry from today' restores the start of the day with a small relief grant.</li></ul>
 <div class="tip">The end-of-day report shows fares, running costs and profit per route. Cut or shorten any route that loses money.</div>
 <h3>Missions</h3><p>The panel under the clock shows today's missions, like delivering a number of riders before noon. They pay cash and company XP. Tap the panel on a phone to see all of them.</p>`,
-events:`<dl><dt>Road closure / Parade</dt><dd>Roads are blocked. Buses detour automatically. Check your routes still connect.</dd><dt>Accident</dt><dd>A road is blocked for a short while. A hospital helps clear it faster.</dd><dt>Storm</dt><dd>Riders lose patience faster.</dd><dt>Flooding</dt><dd>Like a storm, and low roads near water close.</dd><dt>Snow</dt><dd>In winter. A road is blocked and all buses are slower.</dd><dt>Fog</dt><dd>Buses and traffic slow down.</dd><dt>Concert</dt><dd>When it ends a big crowd heads home from the arena. Put a stop near it and add buses.</dd><dt>Breakdown</dt><dd>One bus stops for a while. Extra buses cover the gap, and depots speed up the recovery.</dd></dl>
-<div class="tip">Seasons change the look of the city and the odds of events. Events are your reason to keep a cash buffer.</div>`,
+events:`<dl><dt>Road closure / Parade</dt><dd>Roads are blocked. Buses detour automatically. Check your routes still connect.</dd><dt>Accident</dt><dd>A road is blocked for a short while. A hospital helps clear it faster.</dd><dt>Storm</dt><dd>Riders lose patience faster.</dd><dt>Flooding</dt><dd>Like a storm, and low roads near water close.</dd><dt>Snow</dt><dd>In winter. A road is blocked and all buses are slower.</dd><dt>Fog</dt><dd>Buses and traffic slow down.</dd><dt>Concert</dt><dd>When it ends a big crowd heads home from the arena. Put a stop near it and add buses.</dd><dt>Breakdown</dt><dd>One bus stops for a while. Extra buses cover the gap, and depots speed up the recovery.</dd><dt>Regions and climates</dt><dd>Every campaign map has its own look: small-town houses, European old towns with pitched roofs and a church spire, Alpine chalets, neon Tokyo towers or the glass and gold of Dubai. Later maps get harder: less patience, more riders and more events. Some maps have permanent weather instead of seasons. <b>Snow</b>: it never stops falling and buses are slower. <b>Rain</b>: wet roads and umbrellas, and buses are slightly slower. <b>Heat</b>: more riders and they lose patience faster. The label next to the day shows it (Snowy, Rainy or Hot).</dd></dl>
+<div class="tip">On normal maps the seasons change the look of the city and the odds of events. Events are your reason to keep a cash buffer.</div>`,
 unlocks:`<dl><dt>Company level and XP</dt><dd>You earn XP for deliveries, missions, trophies and finishing days. Levels carry over between games.</dd><dt>City Hall</dt><dd>Spend cash on permanent upgrades once your company level is high enough: arrival signs (more patient riders), depot network, electric buses (cheaper running), priority dispatch, smart traffic lights, night service, bike share and trams.</dd><dt>Garage</dt><dd>Cosmetics: bus paint, stop signs and tower styles, unlocked by level.</dd><dt>Shop and Items</dt><dd>Open the Shop from the home menu or the pause menu. Transit Tickets (🎟) are the shop money: you start with 30 and earn more from finished days (+3), company levels and cleared levels (+10) and trophies (+5). Filter chips (All, Small, Boosts, Looks, Drivers, Packs, Bundles, Big) sort the cards. Buying is two taps: tap the price, then tap again to confirm. <b>Small</b> items are one-shot helpers you carry as Items: Coffee Vouchers, Priority Pings, umbrellas, snack carts, tune-up kits, Road Crew and Clear Skies calls, plus small permanent perks like Cup Holders and Spare Tyres. <b>Boosts</b> last one game day. <b>Looks</b> are bus paints, stop sign colours, skylines, decals, horns, music, map filters and a confetti trail (tap Equip; tap again to unequip). <b>Drivers</b> has Training Days, Pro and Veteran hires and roof hats. Bundles save money and show their saving. Packs, premium bundles, the Head Start Pass and the Ultimate Edition show a dollar price as a preview only: payments are not switched on, so nothing is ever charged. Use your Items from the pause menu, the Buses panel or a selected stop's Items button.</dd><dt>Drivers</dt><dd>Every bus has a named driver. Drivers earn experience for every rider they deliver and level up: Rookie, Steady, Pro, Veteran, Legend. Higher levels drive faster and stop quicker, and they keep their levels across games.</dd><dt>Mayor requests</dt><dd>From day 2 the mayor sometimes adds a special mission (marked with a flag): serve a landmark, link two places by bus, keep everyone happy until 09:30, or grow your fleet. They pay extra cash and XP.</dd><dt>Map expansion</dt><dd>In long games the map itself grows. From day 10 (and from day 3 on the last two campaign levels) one new row or column of blocks opens each day, alternating east and south, up to a maximum size. Your routes and stops are kept, and rider numbers go up a little with each expansion.</dd><dt>Highways</dt><dd>A City Hall unlock (company level 7). A highway runs along the north and south edge of the map, far past both ends. At a few points ramps leave it and curve into a roundabout just outside town, which joins the top or bottom street. Buses drive on the highway for real: 80% faster than town streets and never stuck in traffic. You cannot put stops on the highway; place stops on the town streets and the bus takes the highway by itself when that is quicker, for example between two stops far apart on the top street. Other cars drive in from beyond the map along it.</dd><dt>Advisor</dt><dd>A small tip with a one-tap fix appears at the bottom when something needs attention: a stop about to give up (add a bus), stranded riders (show me where), or a route losing money (remove a bus or run rush hours only). You can dismiss a tip, and switch the advisor off in Settings.</dd><dt>Rider stories</dt><dd>A few riders each day have names and jobs. Their stories, good and bad, appear in the day report.</dd><dt>New game plus</dt><dd>After you finish the whole campaign, a Plus difficulty appears in Settings with tougher patience, income and running costs.</dd><dt>Backup and restore</dt><dd>In Settings you can copy a backup code of your profile, drivers and saves, and paste it later on any device.</dd><dt>Trophies</dt><dd>Achievements for things like your first route, a spotless day, a loop route or a tram.</dd><dt>Levels</dt><dd>Eleven campaign maps get harder, plus Sandbox (endless, no game over), a Daily Challenge and a Weekly Challenge. Difficulty and settings are in the menu.</dd></dl>`,
 strategy:`<h3>Build well</h3><ul><li>Put your first two stops between the biggest group of houses and the biggest group of offices. Glowing blocks are where riders appear.</li><li>Use <b>Coverage</b> map view to find blocks that have no stop. Red blocks are riders you are missing.</li><li>Long straight routes with few turns beat tangled ones. Use <b>Shape road</b> to dodge jams instead of adding more stops.</li><li>Use <b>Loop</b> for rings and downtown circuits, <b>Express</b> for long trips, and transfers for big cities (a few busy trunk routes feeding smaller local ones).</li></ul>
 <h3>Run well</h3><ul><li>Check the stops first thing in the rush. Add a bus to the route with the red stops, not to every route.</li><li>If a route is full and cannot take another bus (roads get jammed), upgrade the vehicle size.</li><li>Quiet routes: switch to <b>Rush hours only</b> or cut a bus. Busy routes: add buses before upgrading.</li><li>Turn on <b>Even spacing</b> when buses on a long route clump together.</li><li>Use <b>Priority call</b> on a single stop that is about to explode, not as a habit.</li><li>Put ramps on stops that join residential blocks to the network once wheelchair users appear.</li></ul>
@@ -1584,7 +1657,7 @@ function roadPath(a,b,avoid){
 }
 
 /* ================= transit planning ================= */
-const busSpeed=r=>BUS_SPEED*(r.express?1.7:1)*BUS_MODELS[r.model||0].spd*(1+.12*G.engine)*(G.fogMult||1)*(G.season==='winter'?.9:1)*(bo('speed')?1.08:1);
+const busSpeed=r=>BUS_SPEED*(r.express?1.7:1)*BUS_MODELS[r.model||0].spd*(1+.12*G.engine)*(G.fogMult||1)*(G.season==='winter'?.9:1)*(G.L&&G.L.climate==='rain'?.95:1)*(bo('speed')?1.08:1);
 const rushNow=()=>!!phaseAt(G.t).p.rush;
 function routeActive(r){const p=phaseAt(G.t).p;return p.night?!!r.night:(r.sched!=='peak'||!!p.rush)}
 function isServed(r,sid){const i=r.stops.indexOf(sid);return i>=0&&(!r.express||i===0||i===r.stops.length-1)}
@@ -1663,7 +1736,7 @@ function spawnCitizen(orig,destList){
     else if(type==='student'&&lm.uni&&stopNear(lm.uni.x,lm.uni.y,260)&&rnd()<.6)list=[lm.uni];
   }
   if(false){G.lostRival++;G.dayLost++;fx.text(orig.x,orig.y-8,'→ Rival','#e08a2b');return}
-  const dst=list[Math.floor(rnd()*list.length)],pm=G.L.patience*R_.pm*(has('signs')?1.12:1)*(1+.03*Math.min(5,G.parkBonus||0))*(sp('cups')?1.04:1)*(bo('tonic')?1.1:1),fare=Math.max(1,Math.round(R_.fare*(G.fareMult||1)*(sp('printer')?1.1:1)*(bo('fare')?1.2:1)));
+  const dst=list[Math.floor(rnd()*list.length)],pm=G.L.patience*R_.pm*(G.L.climate==='hot'?.93:1)*(has('signs')?1.12:1)*(1+.03*Math.min(5,G.parkBonus||0))*(sp('cups')?1.04:1)*(bo('tonic')?1.1:1),fare=Math.max(1,Math.round(R_.fare*(G.fareMult||1)*(sp('printer')?1.1:1)*(bo('fare')?1.2:1)));
   const dk=dst.type==='landmark'?dst.kind:(dst.type==='venue'?'venue':'work'),nt=!!phaseAt(G.t).p.night;
   const c={id:++G.nid,type,fare:nt?Math.round(fare*1.6):fare,state:'walk',x:orig.x,y:orig.y,dest:{x:dst.x,y:dst.y},dk,p:nt?pm*1.3:pm,pm:nt?pm*1.3:pm,stop:null,plan:null,planVer:-1,noRoute:false,retry:0,alight:null,seed:rnd(),wstart:0,lastRoute:null,ob:blockKey(orig.x,orig.y),db:blockKey(dst.x,dst.y)};
   if(rnd()<.08){const jb=R_JOBS[type]||['resident'];c.story={name:R_NAMES[Math.floor(rnd()*R_NAMES.length)],job:jb[Math.floor(rnd()*jb.length)]}}
@@ -2148,7 +2221,10 @@ function planEvents(){
   if(G.day>=2||L.days>3){pool.push('accident');pool.push(G.season==='winter'?'snow':'flood')}
   const types=pool.filter(t=>t!==G.lastEv);
   let t1=types[Math.floor(rnd()*types.length)];if(G.season==='spring'&&types.includes('storm')&&rnd()<.35)t1='storm';
+  if(L.climate==='snow'&&types.includes('flood'))types.splice(types.indexOf('flood'),1);
+  if(L.climate==='rain'&&rnd()<.4&&types.includes('flood'))t1='flood';
   G.evPlan.push({phase:'pm',at:3+rnd()*8,type:t1});G.lastEv=t1;
+  if(rnd()<(L.midProb||0)){const md=['closure','breakdown','parade','accident'].filter(t=>pool.includes(t)&&t!==t1);if(md.length)G.evPlan.push({phase:'mid',at:4+rnd()*14,type:md[Math.floor(rnd()*md.length)]})}
   if(rnd()<L.amProb){const am=['closure','storm','breakdown','fog'].filter(t=>pool.includes(t));G.evPlan.push({phase:'am',at:6+rnd()*10,type:am[Math.floor(rnd()*am.length)]})}
 }
 function startEvent(ev){
@@ -2265,7 +2341,7 @@ function step(dt){
   if(!L.sandbox&&!G.noOver&&G.money<-800&&!G.over){gameOver('bankrupt');return}
   if(G.t>=DAY_LEN&&!G.over&&!G.dayEnding){G.dayEnding=true;endOfDay()}
 }
-function seasonFor(day){return SEASONS[(day-1+((G.L.daily||G.L.weekly)?((G.L.seed||0)%4):0))%4]}
+function seasonFor(day){const cl=G.L&&G.L.climate;if(cl==='snow')return'winter';if(cl==='hot')return'summer';if(cl==='rain')return'spring';return SEASONS[(day-1+((G.L.daily||G.L.weekly)?((G.L.seed||0)%4):0))%4]}
 /* ---- missions ---- */
 function makeMissions(){
   const exp=Math.round(G.L.perDay*(1+.12*(G.day-1))*(G.season==='summer'?1.12:1)),lm=G.city.landmarks||{};
@@ -2506,7 +2582,7 @@ function nextDay(){
   planEvents();makeMissions();hideOv();G.modal=false;G.paused=true;syncPlay();ui.dirty=true;
   if(expd){toast('The city has expanded to the '+expd.side+'! New blocks and new streets are open.',4800);if(!ui.rm)startExpandAnim(expd,camBefore)}
   if(gch.length){if(expd&&!ui.rm){ui.pendingGrowth=gch;setTimeout(()=>{if(ui.pendingGrowth&&!G.modal&&!G.over){const g2=ui.pendingGrowth;ui.pendingGrowth=null;showGrowth(g2)}},3700)}else showGrowth(gch)}
-  toast((grown?'Day '+G.day+' · '+G.season+'. New blocks opened: '+grown+'.':'Day '+G.day+' · '+G.season+'. Press play when ready.'),3800);
+  toast((grown?'Day '+G.day+' · '+seasonLabel().toLowerCase()+'. New blocks opened: '+grown+'.':'Day '+G.day+' · '+seasonLabel().toLowerCase()+'. Press play when ready.'),3800);
   saveGame();
 }
 function gameOver(why){
@@ -2579,7 +2655,7 @@ function undo(){
   snd('pop');ui.dirty=true;
 }
 /* ================= map expansion ================= */
-function expandStart(){return CAMPAIGN.indexOf(G.levelIdx)>=9?3:10}
+function expandStart(){return CAMPAIGN.indexOf(G.levelIdx)>=CAMPAIGN.length-2?3:10}
 function canExpand(){const L=G.L;return !!(L&&G.city&&!L.daily&&!L.weekly&&L.growth!==false&&G.day>=expandStart()&&(L.map[0].length<24||L.map.length<16))}
 function remapIds(os,ns){
   const f=id=>Math.floor(id/os)*ns+(id%os);
@@ -2977,9 +3053,9 @@ function wxRefresh(){for(const m of WX.mats)m.needsUpdate=true}
 const wxEase=(c,t,dt,up,dn)=>c+(t-c)*Math.min(1,dt*(t>c?up:dn));
 function wxUpdate(now){
   const dt=WX.last?Math.min(.1,Math.max(0,(now-WX.last)/1000)):0;WX.last=now;WX.dt=dt;
-  const ev=G.event&&G.event.type,F=WX.force,wi=G.season==='winter';
-  const rainT=F&&F.rain!=null?F.rain:(ev==='storm'||ev==='flood')?1:0,snowT=F&&F.snow!=null?F.snow:ev==='snow'?1:wi?.45:0,
-    fogT=F&&F.fog!=null?F.fog:ev==='fog'?1:0,dustT=F&&F.dust!=null?F.dust:ev==='snow'?1:wi?.75:0,stormT=(ev==='storm'||ev==='flood'||ev==='snow'||rainT>0)?1:0;
+  const ev=G.event&&G.event.type,F=WX.force,wi=G.season==='winter',cl=G.L&&G.L.climate;
+  const rainT=F&&F.rain!=null?F.rain:(ev==='storm'||ev==='flood')?1:cl==='rain'?.75:0,snowT=F&&F.snow!=null?F.snow:ev==='snow'?1:cl==='snow'?.8:wi?.45:0,
+    fogT=F&&F.fog!=null?F.fog:ev==='fog'?1:cl==='rain'?.18:0,dustT=F&&F.dust!=null?F.dust:ev==='snow'?1:cl==='snow'?.95:wi?.75:0,stormT=(ev==='storm'||ev==='flood'||ev==='snow'||(F&&rainT>0))?1:cl==='rain'?.75:cl==='snow'?.4:0;
   if(WX.snap){WX.rain=rainT;WX.snow=snowT;WX.fog=fogT;WX.dust=dustT;WX.storm=stormT;WX.wet=rainT>0?1:0;WX.snap=false}
   else{WX.rain=wxEase(WX.rain,rainT,dt,.6,.4);WX.snow=wxEase(WX.snow,snowT,dt,.5,.4);WX.fog=wxEase(WX.fog,fogT,dt,.3,.25);WX.storm=wxEase(WX.storm,stormT,dt,.5,.4);
     WX.wet=wxEase(WX.wet,rainT>0?1:0,dt,.35,.035);WX.dust=wxEase(WX.dust,dustT,dt,.12,.03)}
@@ -3066,12 +3142,12 @@ function initPost(){
     const comp=new THREE.EffectComposer(T.r,rt);comp.setPixelRatio(dpr);comp.setSize(W,H);
     comp.addPass(new THREE.RenderPass(T.scene,T.camera));
     T.bloom=new THREE.UnrealBloomPass(new THREE.Vector2(W,H),.4,.55,.9);comp.addPass(T.bloom);
-    const fin=new THREE.ShaderPass({uniforms:{tDiffuse:{value:null},exposure:{value:1},time:{value:0}},
+    const fin=new THREE.ShaderPass({uniforms:{tDiffuse:{value:null},exposure:{value:1},time:{value:0},heat:{value:0},ht:{value:0}},
       vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-      fragmentShader:'uniform sampler2D tDiffuse;uniform float exposure,time;varying vec2 vUv;'+
+      fragmentShader:'uniform sampler2D tDiffuse;uniform float exposure,time,heat,ht;varying vec2 vUv;'+
       'vec3 fit(vec3 v){vec3 a=v*(v+0.0245786)-0.000090537;vec3 b=v*(0.983729*v+0.4329510)+0.238081;return a/b;}'+
       'float hash(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233))+time)*43758.5453);}'+
-      'void main(){vec3 c=texture2D(tDiffuse,vUv).rgb*exposure/0.6;'+
+      'void main(){vec2 uv=vUv;uv.x+=(sin(vUv.y*70.+ht)+.5*sin(vUv.y*170.-ht*1.7))*heat*.0011*(.35+vUv.y);vec3 c=texture2D(tDiffuse,uv).rgb*exposure/0.6;'+
       'mat3 im=mat3(vec3(0.59719,0.07600,0.02840),vec3(0.35458,0.90834,0.13383),vec3(0.04823,0.01566,0.83777));'+
       'mat3 om=mat3(vec3(1.60475,-0.10208,-0.00327),vec3(-0.53108,1.10813,-0.07276),vec3(-0.07367,-0.00605,1.07602));'+
       'c=clamp(om*fit(im*c),0.,1.);'+
@@ -3093,18 +3169,40 @@ const qTex=()=>spriteTex('q',64,64,(g)=>{g.fillStyle='#5d6b78';g.beginPath();g.a
 function box(g,w,h,d,x,y,z,mat,cast){const m=new THREE.Mesh(T.gBox,mat);m.scale.set(w,h,d);m.position.set(x,y,z);m.castShadow=cast!==false;m.receiveShadow=true;g.add(m);return m}
 
 /* ---- procedural facades & roofs ---- */
+const FAC_ST={
+  glassA:{wall:'#2c4560',gl:['#4f7fa6','#6fa0c4'],frame:'#1c2a3a',lit:.55,rough:.22,met:.55,glass:true},
+  glassB:{wall:'#2b5560',gl:['#4f9a9a','#76b9b6'],frame:'#1d3338',lit:.5,rough:.22,met:.55,glass:true},
+  office:{wall:'#cfc9bd',gl:['#37506a','#5f86a8'],frame:'#f2efe8',lit:.42,rough:.7,met:.05},
+  brick:{wall:'#a65f47',gl:['#2e4258','#58799a'],frame:'#f3efe6',lit:.4,rough:.9,met:0,brick:true},
+  plaster:{wall:'#e8dfcf',gl:['#34495f','#5a7d9d'],frame:'#ffffff',lit:.4,rough:.9,met:0},
+  // Europe: pastel plaster with tall framed windows and coloured shutters
+  euroA:{wall:'#eadfc6',gl:['#2f4a63','#5d86a8'],frame:'#fffaf0',lit:.38,rough:.9,met:0,mx:15,my:6,sh:'#55805e'},
+  euroB:{wall:'#efd596',gl:['#2f4a63','#5d86a8'],frame:'#fffaf0',lit:.38,rough:.9,met:0,mx:15,my:6,sh:'#8a3b30'},
+  euroC:{wall:'#e6b9a9',gl:['#2f4a63','#5d86a8'],frame:'#fffaf0',lit:.38,rough:.9,met:0,mx:15,my:6,sh:'#3f6180'},
+  euroD:{wall:'#c9d8c5',gl:['#2f4a63','#5d86a8'],frame:'#fffaf0',lit:.38,rough:.9,met:0,mx:15,my:6,sh:'#efe9dc'},
+  // Tokyo: concrete and tile with wide window bands, dark glass with many lit rooms
+  tokA:{wall:'#8d939b',em:1.1,gl:['#27384a','#58809f'],frame:'#cfd4da',lit:.62,rough:.8,met:.05,mx:3,my:17,lits:['#ffd98f','#fff0c8','#e8f4ff','#ffe0f0']},
+  tokB:{wall:'#e6e6e2',em:1.1,gl:['#3b536b','#6f95b5'],frame:'#c5c9ce',lit:.55,rough:.7,met:.05,mx:3,my:17,lits:['#fff0c8','#e8f4ff','#ffd98f']},
+  tokC:{wall:'#1c2a3b',em:1.1,gl:['#3b6a96','#8cc3e8'],frame:'#101a26',lit:.72,rough:.25,met:.5,glass:true,lits:['#fff0c8','#e8f4ff','#ffd0f0','#d0ffff']},
+  // Dubai: gold and blue glass, white stone with fins, sandstone
+  dubG:{wall:'#5e4a1c',gl:['#d4a94a','#f4dc92'],frame:'#7a5f20',lit:.5,rough:.2,met:.75,glass:true},
+  dubB:{wall:'#16435a',gl:['#4fb0d4','#a5e2f3'],frame:'#cdd8de',lit:.5,rough:.2,met:.65,glass:true},
+  dubW:{wall:'#e8e3d6',gl:['#3f7d92','#8cc4d6'],frame:'#fbf8f0',lit:.42,rough:.55,met:.2,fins:true},
+  dubS:{wall:'#e5d1a2',gl:['#6d5d45','#a08f6c'],frame:'#f6ecd2',lit:.32,rough:.95,met:0,mx:16,my:11},
+  // Alps: timber chalets
+  timber:{wall:'#8f5f3b',gl:['#34495f','#7aa0c0'],frame:'#efe4cf',lit:.55,rough:.95,met:0,planks:true,sh:'#3d5d3c',mx:14,my:10}};
+const LOOK_TINT={cool:null,warm:'#ffe3c0',teal:'#c4eee8',sunset:'#ffcfbf',mono:'#cfd3d8'};
 function facadeSet(kind){
   if(T.fac[kind])return T.fac[kind];
-  const W=256,Hh=512,bays=4,floors=8,bw=W/bays,fh=Hh/floors,R=rng(kind.charCodeAt(0)*131+kind.length);
-  const st={glassA:{wall:'#2c4560',gl:['#4f7fa6','#6fa0c4'],frame:'#1c2a3a',lit:.55,rough:.22,met:.55,glass:true},
-    glassB:{wall:'#2b5560',gl:['#4f9a9a','#76b9b6'],frame:'#1d3338',lit:.5,rough:.22,met:.55,glass:true},
-    office:{wall:'#cfc9bd',gl:['#37506a','#5f86a8'],frame:'#f2efe8',lit:.42,rough:.7,met:.05},
-    brick:{wall:'#a65f47',gl:['#2e4258','#58799a'],frame:'#f3efe6',lit:.4,rough:.9,met:0,brick:true},
-    plaster:{wall:'#e8dfcf',gl:['#34495f','#5a7d9d'],frame:'#ffffff',lit:.4,rough:.9,met:0}}[kind];
+  const k0=kind.split('@')[0],tint=kind.split('@')[1];
+  if(tint){const b=facadeSet(k0),side=b.side.clone();side.color.copy(lin(tint));T.emis.push({m:side,base:FAC_ST[k0].em||1.9});return T.fac[kind]={side,bay:b.bay,floor:b.floor}}
+  const W=256,Hh=512,bays=4,floors=8,bw=W/bays,fh=Hh/floors,R=rng(['glassA','glassB','office','brick','plaster'].includes(k0)?k0.charCodeAt(0)*131+k0.length:k0.charCodeAt(0)*131+k0.length*7+k0.charCodeAt(k0.length-1));
+  const st=FAC_ST[k0];
   const lit=[];
   const color=mkCanvas(W,Hh,(g)=>{
     g.fillStyle=st.wall;g.fillRect(0,0,W,Hh);
     if(st.brick){g.strokeStyle='rgba(60,25,15,.35)';g.lineWidth=1;for(let y=0;y<Hh;y+=6){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();for(let x=((y/6)%2)*8;x<W;x+=16){g.beginPath();g.moveTo(x,y);g.lineTo(x,y+6);g.stroke()}}}
+    if(st.planks){g.strokeStyle='rgba(40,20,8,.35)';g.lineWidth=1;for(let y=0;y<Hh;y+=8){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke()}}
     for(let j=0;j<floors;j++)for(let i=0;i<bays;i++){
       const x=i*bw,y=j*fh;
       if(st.glass){
@@ -3114,12 +3212,16 @@ function facadeSet(kind){
         g.fillStyle='rgba(255,255,255,.14)';g.beginPath();g.moveTo(x+2,y+5);g.lineTo(x+bw*.55,y+5);g.lineTo(x+2,y+fh*.7);g.fill();
         g.fillStyle='rgba(20,30,45,.55)';g.fillRect(x,y+fh-7,bw,7);
       }else{
-        const mx=9,my=9,ww=bw-mx*2,wh=fh-my*2-3;
+        const mx=st.mx||9,my=st.my||9,ww=bw-mx*2,wh=fh-my*2-3;
+        if(st.sh){g.fillStyle=st.sh;g.fillRect(x+mx-9,y+my,7,wh);g.fillRect(x+bw-mx+2,y+my,7,wh)}
         g.fillStyle=st.frame;g.fillRect(x+mx-2,y+my-2,ww+4,wh+4);
         const gr=g.createLinearGradient(x,y+my,x+ww,y+my+wh);gr.addColorStop(0,st.gl[1]);gr.addColorStop(1,st.gl[0]);
         g.fillStyle=gr;g.fillRect(x+mx,y+my,ww,wh);
         g.fillStyle=st.frame;g.fillRect(x+mx+ww/2-.7,y+my,1.4,wh);
+        if(st.sh)g.fillRect(x+mx,y+my+wh*.45,ww,1.3);
         g.fillStyle='rgba(0,0,0,.18)';g.fillRect(x+mx-3,y+my+wh+2,ww+6,2.5);
+        if(st.fins){g.fillStyle='rgba(120,110,90,.35)';for(let q=0;q<5;q++)g.fillRect(x+q*bw/5,y,2,fh)}
+        if(st.mx===3){g.fillStyle='rgba(30,35,45,.28)';g.fillRect(x,y+fh-6,bw,2)}
       }
       lit.push(R()<st.lit);
     }
@@ -3128,23 +3230,32 @@ function facadeSet(kind){
     g.fillStyle='#000';g.fillRect(0,0,W,Hh);let k=0;
     for(let j=0;j<floors;j++)for(let i=0;i<bays;i++,k++){
       if(!lit[k])continue;const x=i*bw,y=j*fh;
-      g.fillStyle=R()<.5?'#ffd98f':'#fff0c8';
-      if(st.glass)g.fillRect(x+2,y+5,bw-4,fh-12);else g.fillRect(x+9,y+9,bw-18,fh-21);
+      g.fillStyle=st.lits?st.lits[Math.floor(R()*st.lits.length)]:R()<.5?'#ffd98f':'#fff0c8';
+      if(st.glass)g.fillRect(x+2,y+5,bw-4,fh-12);else g.fillRect(x+(st.mx||9),y+(st.my||9),bw-(st.mx||9)*2,fh-(st.my||9)*2-3);
     }
   });
   const side=new THREE.MeshStandardMaterial({map:srgbTex(color,true),emissiveMap:srgbTex(emi,true),emissive:lin('#ffffff').clone(),emissiveIntensity:0,roughness:st.rough,metalness:st.met,envMap:T.env,envMapIntensity:st.glass?1.1:.35});
-  T.emis.push({m:side,base:1.9});
+  T.emis.push({m:side,base:st.em||1.9});
   return T.fac[kind]={side,bay:bw/4*1.6,floor:6};
 }
-function facadeBox(g,w,h,d,x,y,z,kind,topMat){
+/* o={bw,fh}: wanted window-bay width and floor height in world units; the texture repeats a whole number of times so windows are never cut */
+function facadeBox(g,w,h,d,x,y,z,kind,topMat,o){
   const fs=facadeSet(kind),geo=new THREE.BoxGeometry(w,h,d),uv=geo.attributes.uv,tw=fs.bay*4,th=fs.floor*8;
+  const nf=o&&o.fh?Math.max(1,Math.round(h/o.fh)):0;
   for(let f=0;f<6;f++){
     if(f===2||f===3)continue;
-    const dimW=(f<2)?d:w;
-    for(let v=0;v<4;v++){const i=f*4+v;uv.setXY(i,uv.getX(i)*dimW/tw,uv.getY(i)*h/th)}
+    const dimW=(f<2)?d:w,nb=o&&o.bw?Math.max(1,Math.round(dimW/o.bw)):0;
+    for(let v=0;v<4;v++){const i=f*4+v;uv.setXY(i,uv.getX(i)*(nb?nb/4:dimW/tw),uv.getY(i)*(nf?nf/8:h/th))}
   }
   uv.needsUpdate=true;
   const m=new THREE.Mesh(geo,[fs.side,fs.side,topMat,topMat,fs.side,fs.side]);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;g.add(m);return m;
+}
+/* round tower clad in a facade (tapering, for the Dubai skyline) */
+function cylFacade(g,r0,r1,h,x,y,z,kind,topMat,o){
+  const fs=facadeSet(kind),geo=new THREE.CylinderGeometry(r1,r0,h,18,1),uv=geo.attributes.uv,nf=Math.max(1,Math.round(h/((o&&o.fh)||4.4))),nb=Math.max(2,Math.round(2*Math.PI*r0/((o&&o.bw)||7.5)));
+  for(let i=0;i<uv.count;i++){uv.setXY(i,uv.getX(i)*nb/4,uv.getY(i)*nf/8)}
+  uv.needsUpdate=true;
+  const m=new THREE.Mesh(geo,[fs.side,topMat,topMat]);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;g.add(m);return m;
 }
 function shingle(col){
   if(T.roofs[col])return T.roofs[col];
@@ -3170,6 +3281,7 @@ function gableGeo(w,d,h,ov){
   return{slopes:g,ends};
 }
 function lampTex(){return spriteTex('lamp',64,64,(g)=>{const gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,230,170,1)');gr.addColorStop(.25,'rgba(255,214,140,.5)');gr.addColorStop(1,'rgba(255,200,120,0)');g.fillStyle=gr;g.fillRect(0,0,64,64)})}
+function leafPlain(){return T.leafP||(T.leafP=srgbTex(mkCanvas(128,128,(g)=>{const R=rng(6);g.fillStyle='#f4f4f4';g.fillRect(0,0,128,128);for(let i=0;i<500;i++){g.fillStyle=['#e2e2e2','#ffffff','#d6d6d6','#fafafa'][i%4];g.globalAlpha=.55;g.beginPath();g.arc(R()*128,R()*128,1.5+R()*3,0,6.3);g.fill()}}),true))}
 function leafTex(){return T.leaf||(T.leaf=srgbTex(mkCanvas(128,128,(g)=>{const R=rng(5);g.fillStyle='#4b7d33';g.fillRect(0,0,128,128);for(let i=0;i<500;i++){g.fillStyle=['#38662a','#6c9d45','#2d5724','#7fae52'][i%4];g.globalAlpha=.55;g.beginPath();g.arc(R()*128,R()*128,1.5+R()*3,0,6.3);g.fill()}}),true))}
 
 const SEASON_TREES={
@@ -3189,70 +3301,414 @@ function disposeTree(o){
   });
 }
 /* ================= landscape ================= */
-function grassCanvas(){
-  if(T.grassCv)return T.grassCv;
-  const N=512,R=rng(404),cv=document.createElement('canvas');cv.width=cv.height=N;const g=cv.getContext('2d');
-  g.fillStyle='#78a553';g.fillRect(0,0,N,N);
+function groundCanvas(kind){
+  T.gcv=T.gcv||{};if(T.gcv[kind])return T.gcv[kind];
+  const N=512,R=rng(404+(kind==='grass'?0:kind.length*31)),cv=document.createElement('canvas');cv.width=cv.height=N;const g=cv.getContext('2d');
   const wrap=(fn)=>{for(const ox of[-N,0,N])for(const oy of[-N,0,N])fn(ox,oy)};
-  for(let i=0;i<40;i++){
-    const bx=R()*N,by=R()*N,r=30+R()*70,c=R()<.5?'#8db764':'#628a45';
+  const D={grass:{base:'#78a553',bl:['#8db764','#628a45'],bd:['#4d7433','#9bc26a','#86b25d'],nb:40,nd:5200},
+    sand:{base:'#dcc590',bl:['#efdcae','#c9ac76'],bd:null,nb:46},
+    snow:{base:'#e8eff6',bl:['#ffffff','#cdd9e8'],bd:null,nb:46},
+    city:{base:'#6e7178',bl:['#7a7d84','#5e6168'],bd:null,nb:40}}[kind];
+  g.fillStyle=D.base;g.fillRect(0,0,N,N);
+  for(let i=0;i<D.nb;i++){
+    const bx=R()*N,by=R()*N,r=30+R()*70,c=R()<.5?D.bl[0]:D.bl[1];
     wrap((ox,oy)=>{const gr=g.createRadialGradient(bx+ox,by+oy,0,bx+ox,by+oy,r);gr.addColorStop(0,c);gr.addColorStop(1,'rgba(0,0,0,0)');g.globalAlpha=.26;g.fillStyle=gr;g.fillRect(bx+ox-r,by+oy-r,r*2,r*2)});
   }
-  const cl=['#4d7433','#9bc26a','#86b25d'];g.lineWidth=1.5;
-  for(let i=0;i<5200;i++){
-    const bx=R()*N,by=R()*N,col=cl[Math.floor(R()*3)],dx=(R()-.5)*4,dy=-4-R()*5.5;g.strokeStyle=col;g.globalAlpha=.35+R()*.4;
-    wrap((ox,oy)=>{if(bx+ox<-8||bx+ox>N+8||by+oy<-12||by+oy>N+12)return;g.beginPath();g.moveTo(bx+ox,by+oy);g.lineTo(bx+ox+dx,by+oy+dy);g.stroke()});
+  if(kind==='grass'){
+    const cl=D.bd;g.lineWidth=1.5;
+    for(let i=0;i<D.nd;i++){
+      const bx=R()*N,by=R()*N,col=cl[Math.floor(R()*3)],dx=(R()-.5)*4,dy=-4-R()*5.5;g.strokeStyle=col;g.globalAlpha=.35+R()*.4;
+      wrap((ox,oy)=>{if(bx+ox<-8||bx+ox>N+8||by+oy<-12||by+oy>N+12)return;g.beginPath();g.moveTo(bx+ox,by+oy);g.lineTo(bx+ox+dx,by+oy+dy);g.stroke()});
+    }
+  }else if(kind==='sand'){ // wind ripples
+    g.lineWidth=1.4;
+    for(let i=0;i<650;i++){const bx=R()*N,by=R()*N,l=24+R()*60,c=R()<.5?'#b99a66':'#f6e8c0';g.strokeStyle=c;g.globalAlpha=.22+R()*.2;
+      wrap((ox,oy)=>{if(bx+ox<-80||bx+ox>N+80||by+oy<-10||by+oy>N+10)return;g.beginPath();g.moveTo(bx+ox,by+oy);g.quadraticCurveTo(bx+ox+l/2,by+oy-3-R()*3,bx+ox+l,by+oy);g.stroke()})}
+  }else if(kind==='snow'){ // sparkles and soft drifts
+    for(let i=0;i<900;i++){const bx=R()*N,by=R()*N;g.fillStyle=R()<.6?'#ffffff':'#bccde2';g.globalAlpha=.4+R()*.5;wrap((ox,oy)=>{if(bx+ox<-4||bx+ox>N+4||by+oy<-4||by+oy>N+4)return;g.fillRect(bx+ox,by+oy,1.5+R()*1.5,1.2)})}
+  }else{ // concrete city edge
+    for(let i=0;i<2600;i++){const bx=R()*N,by=R()*N;g.fillStyle=R()<.5?'#5a5d64':'#8c8f96';g.globalAlpha=.25+R()*.3;wrap((ox,oy)=>{if(bx+ox<-4||bx+ox>N+4||by+oy<-4||by+oy>N+4)return;g.fillRect(bx+ox,by+oy,1+R()*2,1+R()*2)})}
+    g.strokeStyle='rgba(30,34,40,.35)';g.lineWidth=1;g.globalAlpha=1;for(let k=0;k<=N;k+=128){g.beginPath();g.moveTo(k,0);g.lineTo(k,N);g.moveTo(0,k);g.lineTo(N,k);g.stroke()}
   }
-  g.globalAlpha=1;T.grassCv=cv;return cv;
+  g.globalAlpha=1;T.gcv[kind]=cv;return cv;
 }
-function grassTex(rx,rz){const t=new THREE.CanvasTexture(grassCanvas());t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,rz);t.anisotropy=Math.min(8,T.r.capabilities.getMaxAnisotropy());return t}
+function groundTex(rx,rz,kind){const t=new THREE.CanvasTexture(groundCanvas(kind||'grass'));t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,rz);t.anisotropy=Math.min(8,T.r.capabilities.getMaxAnisotropy());return t}
+const grassTex=(rx,rz)=>groundTex(rx,rz,'grass');
+/* distant skyline of instanced boxes clad in a facade (Tokyo, Dubai, metro) */
+function skylineRing(g,o){
+  const R=o.R,per=new Map(),nb=3,list=[];
+  for(let i=0;i<o.n;i++){
+    let p=null;for(let t=0;t<30&&!p;t++){const x=-1500+R()*(o.W+3000),z=-1500+R()*(o.H+3000),d=o.dOut(x,z);if(d>=o.dMin&&d<=o.dMax)p={x,z,d}}
+    if(!p)continue;
+    const fall=1-.45*(p.d-o.dMin)/(o.dMax-o.dMin),h=(o.hMin+(o.hMax-o.hMin)*Math.pow(R(),1.7))*fall,bi=Math.min(nb-1,Math.floor((h-o.hMin)/Math.max(1,(o.hMax-o.hMin))*nb)),kind=o.kinds[Math.floor(R()*o.kinds.length)];
+    const k=kind+'|'+bi;if(!per.has(k))per.set(k,{kind,bi,items:[]});per.get(k).items.push({x:p.x,z:p.z,h,w:o.w*(.75+.7*R()),d:o.w*(.75+.7*R()),spire:R()<o.spire});list.push(1);
+  }
+  const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),gold=[];
+  for(const e of per.values()){
+    const hb=o.hMin+(o.hMax-o.hMin)*(e.bi+.5)/nb,geo=new THREE.BoxGeometry(1,1,1),uv=geo.attributes.uv,nbay=Math.max(2,Math.round(o.w/8)),nfl=Math.max(2,Math.round(hb/5.4));
+    for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*nbay/4,uv.getY(i)*nfl/8);
+    const im=new THREE.InstancedMesh(geo,facadeSet(e.kind).side,e.items.length);im.frustumCulled=false;im.userData.keep=true;
+    e.items.forEach((b,i)=>{sc.set(b.w,b.h,b.d);ps.set(b.x,b.h/2-1,b.z);m4.compose(ps,q.identity(),sc);im.setMatrixAt(i,m4);if(b.spire)gold.push(b)});
+    g.add(im);
+  }
+  if(gold.length){
+    const sp=new THREE.InstancedMesh(T.gPyr,o.spireMat,gold.length);sp.frustumCulled=false;sp.userData.keep=true;
+    gold.forEach((b,i)=>{const hh=b.h*.28+10;sc.set(b.w*.2,hh,b.d*.2);ps.set(b.x,b.h+hh/2-1,b.z);m4.compose(ps,q.identity(),sc);sp.setMatrixAt(i,m4)});g.add(sp);
+  }
+}
+/* distant European roofline: pastel houses with clay roofs and a few church spires */
+function townRing(g,o){
+  const R=o.R,n=o.n,wall=new THREE.InstancedMesh(T.gBox,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.95}),n),roof=new THREE.InstancedMesh(T.gPyr,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.9}),n);
+  const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),c1=new THREE.Color();
+  const WC=['#eadfc6','#efd596','#e6b9a9','#c9d8c5','#e9e2d2'],RC=['#b4573a','#a64d34','#5a626c','#8f4a33'],spires=[];
+  let k=0;
+  for(let i=0;i<n*4&&k<n;i++){
+    const x=-1400+R()*(o.W+2800),z=-1400+R()*(o.H+2800),d=o.dOut(x,z);if(d<o.dMin||d>o.dMax)continue;
+    const w=14+R()*14,dd=14+R()*12,h=10+R()*14*(1-.5*(d-o.dMin)/(o.dMax-o.dMin)),rh=8+R()*6;
+    sc.set(w,h,dd);ps.set(x,h/2-1,z);m4.compose(ps,q.identity(),sc);wall.setMatrixAt(k,m4);wall.setColorAt(k,c1.copy(lin(WC[Math.floor(R()*5)])));
+    sc.set(w*.74,rh,dd*.74);ps.set(x,h+rh/2-1,z);m4.compose(ps,q,sc);roof.setMatrixAt(k,m4);roof.setColorAt(k,c1.copy(lin(RC[Math.floor(R()*4)])));
+    if(R()<.035)spires.push([x,z]);k++;
+  }
+  wall.count=roof.count=k;for(const m of[wall,roof]){m.frustumCulled=false;m.userData.keep=true;g.add(m)}
+  if(spires.length){
+    const tw=new THREE.InstancedMesh(T.gBox,new THREE.MeshStandardMaterial({color:lin('#d8d0bd').clone(),roughness:.95}),spires.length),sp=new THREE.InstancedMesh(T.gPyr,new THREE.MeshStandardMaterial({color:lin('#4b6a63').clone(),roughness:.8}),spires.length);
+    spires.forEach((s,i)=>{sc.set(10,52,10);ps.set(s[0],25,s[1]);m4.compose(ps,q.identity(),sc);tw.setMatrixAt(i,m4);sc.set(9,34,9);ps.set(s[0],52+17,s[1]);m4.compose(ps,q,sc);sp.setMatrixAt(i,m4)});
+    for(const m of[tw,sp]){m.frustumCulled=false;m.userData.keep=true;g.add(m)}
+  }
+}
+/* a container port across the water: quay, stacked containers and gantry cranes (harbour regions) */
+function portFar(g,o){
+  const R=o.R,m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),c1=new THREE.Color(),PC=['#c0392b','#2f6fbf','#e0a21f','#2f8f5a','#e8e8e6','#7a4fa0','#d9692b'];
+  const quays=[[o.cx,o.H+o.pad,o.W*.9,0],[o.cx,-o.pad,o.W*.9,0],[o.W+o.pad,o.cz,0,o.H*.9]];
+  const cap=quays.length*130,cont=new THREE.InstancedMesh(T.gBox,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.75,metalness:.2}),cap);let k=0;
+  const slab=M('#8d9398',{roughness:.95}),steel=M('#d9482b',{roughness:.6,metalness:.3}),steel2=M('#e9ecee',{roughness:.6});
+  for(const[qx,qz,qw,qh]of quays){
+    const w=qw||150,d=qh||150;box(g,w,3,d,qx,1,qz,slab,false).userData.keep=true;
+    const along=qw>0;
+    for(let i=0;i<130&&k<cap;i++){
+      const u=(R()-.5)*(along?w-40:d-40),v=(R()-.5)*50+((i%3)-1)*8,x=along?qx+u:qx+v,z=along?qz+v:qz+u,h=6*(1+Math.floor(R()*3));
+      sc.set(along?16:6,h,along?6:16);ps.set(x,2.5+h/2,z);m4.compose(ps,q.identity(),sc);cont.setMatrixAt(k,m4);cont.setColorAt(k,c1.copy(lin(PC[Math.floor(R()*PC.length)])));k++}
+    for(let c=0;c<3;c++){
+      const u=(c-1)*(along?w*.3:d*.3),cx2=along?qx+u:qx,cz2=along?qz:qz+u,side=along?(qz>o.cz?-1:1):(qx>o.cx?-1:1);
+      const cr=new THREE.Group();
+      for(const s of[-14,14]){const l=box(cr,2.4,46,2.4,s,24,0,steel,false);l.userData.keep=false}
+      box(cr,34,3,3,0,47,0,steel,false);box(cr,3,3,70,0,49,side*18,steel2,false);box(cr,4,5,5,0,45,0,steel2,false);
+      cr.position.set(cx2,0,cz2);if(!along)cr.rotation.y=Math.PI/2;g.add(cr);
+    }
+  }
+  cont.count=k;cont.frustumCulled=false;cont.userData.keep=true;g.add(cont);
+}
 function buildLandscape(g,city,th,sav){
   T.terrMats=[];
-  const W_=city.w,H_=city.h,cx=W_/2,cz=H_/2,R=rng(((G.L&&G.L.seed)||7)*13+5),wet=th==='harbor'||th==='sea';
-  const grass={meadow:'#6c9a47',riverbank:'#76a653',urban:'#8d9399',cobble:'#8a8d78',canal:'#6a9858',hills:'#6fa04b',forest:'#4b843a'}[th];
+  const rg=(G.L&&G.L.region)||'maple',cl=(G.L&&G.L.climate)||'mild';
+  const W_=city.w,H_=city.h,cx=W_/2,cz=H_/2,R=rng(((G.L&&G.L.seed)||7)*13+5),wet=th==='harbor'||th==='sea',snowy=cl==='snow';
+  const gk=snowy?'snow':rg==='dubai'?'sand':rg==='tokyo'?'city':'grass';
   // distance outside the board (0 inside)
   const dOut=(x,z)=>{const dx=Math.max(-70-x,0,x-(W_+70)),dz=Math.max(-70-z,0,z-(H_+70));return Math.hypot(dx,dz)};
   const sstep=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};
   const nz=(x,z)=>{const v=Math.sin(x*.0021+1.3)*Math.cos(z*.0017+.4)+.55*Math.sin((x+z)*.0042+2)+.28*Math.sin(x*.0113)*Math.cos(z*.0097)+.14*Math.sin(x*.027+z*.023);return(v/1.97+1)/2};
-  const amp={hills:280,forest:90,meadow:52,riverbank:44,canal:38,urban:0,cobble:0}[th]||0;
-  const hAt=(x,z)=>amp*sstep(140,850,dOut(x,z))*(.3+.7*nz(x,z));
-  // ground: tiled grass texture, or open water
+  const amp={hills:280,forest:90,meadow:52,riverbank:44,canal:38,urban:0,cobble:0,alpine:400,desert:60}[th]||0;
+  const hAt=(x,z)=>{const d=dOut(x,z);
+    if(th==='alpine')return amp*sstep(120,720,d)*Math.pow(1-Math.abs(2*nz(x*1.4,z*1.4)-1),1.25)*(.4+.6*nz(x*.6+300,z*.6));
+    if(th==='desert')return amp*sstep(110,520,d)*(.3+.7*(.5+.5*Math.sin((x*.9+z*.5)*.0062+nz(x*2,z*2)*4.5)));
+    return amp*sstep(140,850,d)*(.3+.7*nz(x,z))};
+  // ground: tiled texture (grass, sand, snow or city concrete), or open water
   let gmat;
-  if(wet){gmat=new THREE.MeshStandardMaterial({color:lin('#1b5b73').clone(),roughness:.08,metalness:.15,envMap:T.env,envMapIntensity:1.2,bumpMap:T.waterTex,bumpScale:.7})}
+  const gtint=th==='cobble'?'#d4d0b8':rg==='europe'?'#e9ecde':'#f1f1ee';
+  if(wet){gmat=new THREE.MeshStandardMaterial({color:lin(snowy?'#2a5f78':cl==='rain'?'#18505f':'#1b5b73').clone(),roughness:.08,metalness:.15,envMap:T.env,envMapIntensity:1.2,bumpMap:T.waterTex,bumpScale:.7})}
   else{
-    gmat=new THREE.MeshStandardMaterial({map:grassTex((W_+3600)/200,(H_+3600)/200),color:0xffffff,roughness:.97});gmat.userData.tint=new THREE.Color(th==='cobble'?'#d4d0b8':'#f1f1ee');T.terrMats.push(gmat)}
+    gmat=new THREE.MeshStandardMaterial({map:groundTex((W_+3600)/200,(H_+3600)/200,gk),color:0xffffff,roughness:.97});gmat.userData.tint=new THREE.Color(gk==='grass'?gtint:'#ffffff');T.terrMats.push(gmat)}
   const big=new THREE.Mesh(new THREE.PlaneGeometry(W_+3600,H_+3600),gmat);big.rotation.x=-Math.PI/2;big.position.set(cx,-.9,cz);big.userData.keep=true;g.add(big);
   // soft skirt: only needed where the surroundings are sand (the sea maps)
   if(wet){
-    const pad=wet?150:260,pw=W_+pad*2,ph=H_+pad*2,cwid=1024,chei=Math.round(1024*ph/pw),k=cwid/pw,col=wet?'#d9c998':grass;
-    const skirt=srgbTex(mkCanvas(cwid,chei,(c)=>{c.shadowColor=col;c.shadowBlur=wet?26:90;c.fillStyle=col;c.fillRect((pad-30)*k,(pad-30)*k,(W_+60)*k,(H_+60)*k)}));
+    const pad=150,pw=W_+pad*2,ph=H_+pad*2,cwid=1024,chei=Math.round(1024*ph/pw),k=cwid/pw,col=snowy?'#e4ecf3':'#d9c998';
+    const skirt=srgbTex(mkCanvas(cwid,chei,(c)=>{c.shadowColor=col;c.shadowBlur=26;c.fillStyle=col;c.fillRect((pad-30)*k,(pad-30)*k,(W_+60)*k,(H_+60)*k)}));
     const sk=new THREE.Mesh(new THREE.PlaneGeometry(pw,ph),new THREE.MeshStandardMaterial({map:skirt,transparent:true,roughness:1,depthWrite:false}));sk.rotation.x=-Math.PI/2;sk.position.set(cx,-.4,cz);sk.userData.keep=true;sk.renderOrder=-1;g.add(sk);
   }
-  // rolling terrain ring
+  // rolling terrain ring (hills, mountains, dunes)
   if(!sav&&amp>0){
-    const SEG=80,SZ=3000,geo=new THREE.PlaneGeometry(SZ+W_,SZ+H_,SEG,SEG);geo.rotateX(-Math.PI/2);
-    const pos=geo.attributes.position,col=new Float32Array(pos.count*3),lo=new THREE.Color(0xffffff),hi=new THREE.Color(th==='hills'?'#bcc9a2':'#cfe3b6'),rk=new THREE.Color('#f0f0ea'),tmp=new THREE.Color();
+    const SEG=th==='alpine'?100:80,SZ=3000,geo=new THREE.PlaneGeometry(SZ+W_,SZ+H_,SEG,SEG);geo.rotateX(-Math.PI/2);
+    const pos=geo.attributes.position,col=new Float32Array(pos.count*3),lo=new THREE.Color(0xffffff),rk=new THREE.Color('#f0f0ea'),tmp=new THREE.Color();
+    const hi=new THREE.Color(th==='hills'?'#bcc9a2':th==='alpine'?(snowy?'#c9d6e4':'#9fa88f'):th==='desert'?'#f3d9a2':'#cfe3b6');
+    if(th==='alpine')rk.set('#ffffff');
     for(let i=0;i<pos.count;i++){const x=pos.getX(i)+cx,z=pos.getZ(i)+cz,h=hAt(x,z);pos.setY(i,h-.55);
-      const t=Math.min(1,h/amp);tmp.copy(lo).lerp(hi,t*.7+.12*nz(x*3,z*3));if(th==='hills'&&t>.85)tmp.lerp(rk,(t-.85)/.15*.6);tmp.multiplyScalar(.88+.2*nz(x*.7+500,z*.7));col[i*3]=tmp.r;col[i*3+1]=tmp.g;col[i*3+2]=tmp.b}
+      const t=Math.min(1,h/amp);tmp.copy(lo).lerp(hi,t*(th==='alpine'?1:.7)+.12*nz(x*3,z*3));
+      if(th==='hills'&&t>.85)tmp.lerp(rk,(t-.85)/.15*.6);
+      if(th==='alpine'&&t>.45)tmp.lerp(rk,Math.min(1,(t-.45)/.3)*(snowy?.9:.95));
+      tmp.multiplyScalar(.88+.2*nz(x*.7+500,z*.7));col[i*3]=tmp.r;col[i*3+1]=tmp.g;col[i*3+2]=tmp.b}
     geo.setAttribute('color',new THREE.BufferAttribute(col,3));geo.computeVertexNormals();
-    const tmat=new THREE.MeshStandardMaterial({map:grassTex((SZ+W_)/200,(SZ+H_)/200),vertexColors:true,roughness:.97});tmat.userData.tint=new THREE.Color('#f1f1ee');T.terrMats.push(tmat);const terr=new THREE.Mesh(geo,tmat);terr.position.set(cx,0,cz);terr.userData.keep=true;g.add(terr);
-    // trees on the slopes
-    const n=th==='forest'?1100:th==='hills'?700:520,cone=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.95,fog:false}),n*2),trunk=new THREE.InstancedMesh(new THREE.CylinderGeometry(.12,.16,1,5),M('#5b4128',{roughness:1}),n),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),c1=new THREE.Color();
-    const GR=['#1f4d22','#275a27','#1b4420','#2d6529'];let k=0,j=0;
-    for(let i=0;i<n*6&&k<n;i++){
-      const x=-1300+R()*(W_+2600),z=-1300+R()*(H_+2600),d=dOut(x,z);if(d<70||d>950)continue;
-      const h=hAt(x,z);if(amp&&h>amp*.82)continue;
-      const H=15+R()*(th==='forest'?20:14),w=H*.4;
-      sc.set(.9,H*.34,.9);ps.set(x,h+H*.17,z);m4.compose(ps,q.identity(),sc);trunk.setMatrixAt(k,m4);
-      sc.set(w,H*.62,w);ps.set(x,h+H*.5,z);m4.compose(ps,q,sc);cone.setMatrixAt(j,m4);cone.setColorAt(j++,c1.copy(lin(GR[Math.floor(R()*4)])));
-      sc.set(w*.74,H*.5,w*.74);ps.set(x,h+H*.78,z);m4.compose(ps,q,sc);cone.setMatrixAt(j,m4);cone.setColorAt(j++,c1.copy(lin(GR[Math.floor(R()*4)])));k++}
-    cone.count=j;trunk.count=k;cone.userData.keep=true;trunk.userData.keep=true;g.add(cone);g.add(trunk);
+    const tmat=new THREE.MeshStandardMaterial({map:groundTex((SZ+W_)/200,(SZ+H_)/200,gk),vertexColors:true,roughness:.97});tmat.userData.tint=new THREE.Color(gk==='grass'?'#f1f1ee':'#ffffff');T.terrMats.push(tmat);const terr=new THREE.Mesh(geo,tmat);terr.position.set(cx,0,cz);terr.userData.keep=true;g.add(terr);
+    // trees on the slopes (pines; dusted white in snow)
+    if(th!=='desert'){
+      const n=th==='forest'?1100:th==='hills'?700:th==='alpine'?800:520,cone=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.95,fog:false}),n*2),trunk=new THREE.InstancedMesh(new THREE.CylinderGeometry(.12,.16,1,5),M('#5b4128',{roughness:1}),n),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),c1=new THREE.Color();
+      const GR=snowy?['#d9e5e8','#c6d8dc','#e8f0f2','#bccdd2']:['#1f4d22','#275a27','#1b4420','#2d6529'];let k=0,j=0;
+      for(let i=0;i<n*6&&k<n;i++){
+        const x=-1300+R()*(W_+2600),z=-1300+R()*(H_+2600),d=dOut(x,z);if(d<70||d>950)continue;
+        const h=hAt(x,z);if(amp&&h>amp*(th==='alpine'?.55:.82))continue;
+        const H=15+R()*(th==='forest'||th==='alpine'?20:14),w=H*.4;
+        sc.set(.9,H*.34,.9);ps.set(x,h+H*.17,z);m4.compose(ps,q.identity(),sc);trunk.setMatrixAt(k,m4);
+        sc.set(w,H*.62,w);ps.set(x,h+H*.5,z);m4.compose(ps,q,sc);cone.setMatrixAt(j,m4);cone.setColorAt(j++,c1.copy(lin(GR[Math.floor(R()*4)])));
+        sc.set(w*.74,H*.5,w*.74);ps.set(x,h+H*.78,z);m4.compose(ps,q,sc);cone.setMatrixAt(j,m4);cone.setColorAt(j++,c1.copy(lin(GR[Math.floor(R()*4)])));k++}
+      cone.count=j;trunk.count=k;cone.frustumCulled=trunk.frustumCulled=false;cone.userData.keep=true;trunk.userData.keep=true;g.add(cone);g.add(trunk);
+    }
   }
+  // backdrop: distant skyline, old-town roofline or container port (fewer in Battery saver)
+  const sk={R,W:W_,H:H_,dOut,dMin:150,dMax:1100};
+  if(rg==='tokyo')skylineRing(g,Object.assign({},sk,{kinds:['tokA','tokB','tokC'],n:sav?70:240,hMin:50,hMax:150,w:30,spire:0,dMin:210}));
+  else if(rg==='metro')skylineRing(g,Object.assign({},sk,{kinds:['glassA','glassB','office','glassA'],n:sav?50:160,hMin:45,hMax:140,w:34,spire:0,dMin:200}));
+  else if(rg==='dubai')skylineRing(g,Object.assign({},sk,{kinds:['dubG','dubB','dubW'],n:sav?40:130,hMin:60,hMax:170,w:30,spire:.35,dMin:200,spireMat:M('#d9a93a',{metalness:.8,roughness:.3})}));
+  else if(rg==='europe')townRing(g,{R,W:W_,H:H_,dOut,n:sav?120:360,dMin:140,dMax:900});
+  if(rg==='harbor'&&wet&&!sav)portFar(g,{R,W:W_,H:H_,cx,cz,pad:300});
+}
+/* ================= regions: building styles, landmarks and trees =================
+   Each campaign map has a region (G.L.region): maple, harbor, metro, europe, tokyo, dubai or alpine. regionKit() returns the builders for that region;
+   build3D() asks K.build(b,g,C) first and falls back to the original maple buildings when it returns false. Everything is plain boxes, pyramids and cylinders
+   that mergeStatic() folds into a handful of draw calls; trees are instanced. Battery saver drops the optional detail (dormers, signs, balconies). */
+const TREE_PAL={
+  tokyo:{spring:[['#f2a8c3','#f8c9da'],['#ee9ab8','#f6bfd3'],['#f5b5cb','#fad3e0'],['#6fb04f','#8bd061']],summer:[['#4f9a45','#6cba52'],['#56a04a','#72c158'],['#3f7a38','#4d8a3f'],['#5aa84b','#78c25a']],autumn:[['#e3a22b','#f1c24a'],['#d9792b','#e8a233'],['#e8b43a','#f4cd5a'],['#c9552b','#e07a30']],winter:[['#8e8a8f','#a9a4a8'],['#9a9498','#b6b0b4'],['#aaa6a8','#c4c0c2'],['#85828a','#a09ca4']]},
+  europe:{spring:[['#7fae55','#98c668'],['#76a64e','#8fc062'],['#86b45a','#9fcb6e'],['#6f9f4c','#88b95e']],summer:[['#4a7a35','#5b8c40'],['#43722f','#548538'],['#557f38','#66924a'],['#4a7a35','#5b8c40']],autumn:[['#c98a2b','#dba838'],['#b8602b','#cf7f30'],['#d9a933','#e8c04a'],['#a85a2a','#c07a2e']],winter:[['#8c8a7e','#a5a396'],['#7e7c72','#98968b'],['#9a988c','#b2b0a5'],['#8a887c','#a3a194']]}};
+let CLOCK_TEX=null;
+const clockTex=()=>spriteTex('clock',128,128,(g)=>{g.fillStyle='#f6f1e4';g.beginPath();g.arc(64,64,60,0,6.3);g.fill();g.strokeStyle='#2c2a26';g.lineWidth=6;g.stroke();g.lineWidth=3;for(let k=0;k<12;k++){const a=k*Math.PI/6;g.beginPath();g.moveTo(64+Math.sin(a)*48,64-Math.cos(a)*48);g.lineTo(64+Math.sin(a)*55,64-Math.cos(a)*55);g.stroke()}g.lineWidth=6;g.lineCap='round';g.beginPath();g.moveTo(64,64);g.lineTo(64+Math.sin(2)*34,64-Math.cos(2)*34);g.stroke();g.lineWidth=4;g.beginPath();g.moveTo(64,64);g.lineTo(64+Math.sin(.4)*46,64-Math.cos(.4)*46);g.stroke()});
+function gableAt(par,x,y,z,w,d,h,ov,col,wallMat,rotY){
+  const gg=gableGeo(w,d,h,ov),rm=new THREE.Mesh(gg.slopes,shingle(col)),em=new THREE.Mesh(gg.ends,wallMat),rg=new THREE.Group();
+  rg.add(rm);rg.add(em);rg.position.set(x,y,z);if(rotY)rg.rotation.y=rotY;rm.castShadow=true;par.add(rg);return rg;
+}
+/* neon sign atlases for Tokyo: vertical blade signs and horizontal boards, lit at night (emissive follows the night factor) */
+function tokyoSigns(){
+  if(T.tok)return T.tok;
+  const NEON=['#ff3d9a','#27e0ff','#ffe94a','#8cff6a','#ff7a3d','#b46bff'];
+  const V=[['RAMEN',0,2],['HOTEL',1,5],['KARAOKE',2,0],['SUSHI',4,5],['BAR',3,1],['GAME',5,1],['CAFE',0,5],['24H',1,2]];
+  const Hs=[['TOKYO',0,1],['ARCADE',1,2],['IZAKAYA',2,0],['MARKET',3,1],['NIGHT',5,1],['PACHINKO',4,2],['LOUNGE',0,1],['NOODLE',1,2]];
+  const tv=srgbTex(mkCanvas(512,256,(g)=>{V.forEach((s,i)=>{const x=i*64,c=NEON[s[1]],c2=NEON[s[2]]||'#fff';g.fillStyle='#10131b';g.fillRect(x,0,64,256);g.strokeStyle=c;g.lineWidth=5;g.strokeRect(x+4,4,56,248);
+      g.shadowColor=c2;g.shadowBlur=8;g.fillStyle=c2;g.font='800 34px Outfit,Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';const st=Math.min(38,224/s[0].length);s[0].split('').forEach((ch,k)=>g.fillText(ch,x+32,128-(s[0].length-1)*st/2+k*st));g.shadowBlur=0})}));
+  const th=srgbTex(mkCanvas(512,256,(g)=>{Hs.forEach((s,i)=>{const x=(i%2)*256,y=Math.floor(i/2)*64,c=NEON[s[1]],c2=NEON[s[2]];g.fillStyle='#10131b';g.fillRect(x,y,256,64);g.strokeStyle=c;g.lineWidth=5;g.strokeRect(x+4,y+4,248,56);
+      g.shadowColor=c2;g.shadowBlur=9;g.fillStyle=c2;g.font='800 34px Outfit,Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(s[0],x+128,y+34);g.shadowBlur=0})}));
+  const mk=(t,b)=>{const m=new THREE.MeshStandardMaterial({map:t,emissiveMap:t,emissive:lin('#ffffff').clone(),emissiveIntensity:0,roughness:.55,side:THREE.DoubleSide});T.emis.push({m,base:b});return m};
+  const o={v:mk(tv,2.3),h:mk(th,2.3),vc:8,hc:8};for(const e of T.emis)if(e.m===o.v||e.m===o.h)e.min=.55;return T.tok=o;
+}
+function signQuad(g,mat,w,h,x,y,z,rotY,cell,cols,rows){
+  const geo=new THREE.PlaneGeometry(w,h),uv=geo.attributes.uv,c=cell%cols,r=Math.floor(cell/cols),u0=c/cols,u1=(c+1)/cols,v1=1-r/rows,v0=1-(r+1)/rows;
+  for(let i=0;i<uv.count;i++)uv.setXY(i,u0+uv.getX(i)*(u1-u0),v0+uv.getY(i)*(v1-v0));
+  const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.rotation.y=rotY||0;g.add(m);return m;
+}
+function regionKit(city){
+  const rg=(G.L&&G.L.region)||'maple',cl=(G.L&&G.L.climate)||'mild',sav=PROF.gfx==='saver',snowy=cl==='snow',tint=LOOK_TINT[PROF.cos.tower]?'@'+LOOK_TINT[PROF.cos.tower]:'';
+  const K={rg,cl,sav,snowy,tint,treeKind:rg==='dubai'?'palm':rg==='alpine'?'pine':'oak',treePal:TREE_PAL[rg]};
+  const rb=b=>rng(Math.round(b.x*131+b.y*17)+7),hp=b=>Math.abs(Math.round(b.x*3+b.y*5));
+  const lg=(g,b)=>{const hg=new THREE.Group();hg.position.set(b.x,0,b.y);if(!(b.w>=b.d))hg.rotation.y=Math.PI/2;g.add(hg);return hg};
+  const gold=M('#d9a93a',{metalness:.85,roughness:.28,envMapIntensity:1.1}),cream=M('#f3ecda'),metalM=M('#9aa5ae',{roughness:.4,metalness:.8,envMapIntensity:.9});
+  const EUR=['euroA','euroB','euroC','euroD'];
+  /* ----- Europe: pastel plaster, steep clay or slate roofs, chimneys, dormers, corner turrets ----- */
+  const euro=(g,b,C)=>{
+    const Rb=rb(b),big=b.type==='work'||b.kind==='apt';
+    if(b.type==='work'&&Rb()<.2){const H=b.h*1.45,k=(Rb()<.5?'glassA':'glassB')+tint;facadeBox(g,b.w,H,b.d,b.x,H/2,b.y,k,C.roofMat);box(g,b.w+1,1,b.d+1,b.x,H+.5,b.y,M('#b9bcc0'));box(g,5,2.4,4,b.x-3,H+2.2,b.y+2,C.metalMat);return true}
+    const base=EUR[hp(b)%4],FS=FAC_ST[base],hg=lg(g,b),w=Math.max(b.w,b.d)+(big?0:1),d=Math.min(b.w,b.d)+(big?0:1);
+    const H=b.type==='work'?b.h*1.3+8:b.kind==='apt'?b.h*1.15+5:b.h*1.45+4;
+    facadeBox(hg,w,H,d,0,H/2,0,base+tint,C.roofMat,{bw:big?9.5:8.2,fh:5.4});
+    const wallMat=M(FS.wall,{roughness:.95}),slate=Rb()<.4||b.type==='work',rc=slate?'#4c535c':['#b4573a','#a64d34','#c0643f'][Math.floor(Rb()*3)],roofH=big?8+Rb()*2:11+Rb()*3;
+    box(hg,w+1.2,1.1,d+1.2,0,H+.4,0,cream);
+    gableAt(hg,0,H+.9,0,w,d,roofH,1.4,rc,wallMat);
+    const ch=M('#8d4f3b');
+    for(let i=0;i<(big?2:1);i++){const cx=(i?-1:1)*w*.27;box(hg,2.6,7,2.6,cx,H+roofH*.55+2.4,-d*.12,ch);box(hg,3.3,.7,3.3,cx,H+roofH*.55+6.2,-d*.12,M('#5a4a42'))}
+    if(!sav){
+      const nd=big?3:1,rz=d*.2,ry=H+.9+roofH*(1-rz/(d/2+1.4));
+      for(let i=0;i<nd;i++){const dx=nd===1?w*.18:(i-1)*w*.28;
+        box(hg,3.8,3.4,3.6,dx,ry+1.1,rz+.9,wallMat);const py=new THREE.Mesh(T.gPyr,shingle(rc));py.scale.set(3.6,2.4,3.4);py.position.set(dx,ry+1.1+1.7+1.2,rz+.9);py.castShadow=true;hg.add(py);
+        box(hg,2,2,.3,dx,ry+1.1,rz+2.8,C.winMat,false)}
+      if(Rb()<.55){box(hg,w*.42,.5,1.7,0,H*.5,d/2+.85,M('#2f3338'));box(hg,w*.42,1.1,.2,0,H*.5+.8,d/2+1.65,M('#2f3338'))}
+      if(b.type==='work'&&Rb()<.3){const tr=hg;const cyl=new THREE.Mesh(T.gCyl,wallMat);cyl.scale.set(4.4,H+8,4.4);cyl.position.set(w/2-3,(H+8)/2,d/2-3);cyl.castShadow=true;tr.add(cyl);
+        const cp=new THREE.Mesh(T.gPyr,M('#4f8f7a',{roughness:.7}));cp.scale.set(6.8,9,6.8);cp.position.set(w/2-3,H+8+4.5,d/2-3);cp.castShadow=true;tr.add(cp)}
+    }
+    box(hg,4.6,7.4,.3,0,3.7,d/2+.05,cream,false);box(hg,3.4,6.6,.5,0,3.3,d/2+.2,C.doorMat,false);
+    return true;
+  };
+  /* church or chapel with a clock face and a tall spire (also used for the alpine village) */
+  const church=(g,x,z,alp)=>{
+    const cg=new THREE.Group();cg.position.set(x,0,z);g.add(cg);
+    const stone=M(alp?'#e8e0cf':'#d8d0bd',{roughness:.95}),dark=M('#3b2f2a'),win=M('#2a3a66',{roughness:.2,metalness:.4,emissive:'#ffc874',eBase:1}),rc=alp?'#5a3d2b':'#4b525c',spCol=alp?'#5a3d2b':'#3f6a63';
+    box(cg,18,15,38,0,7.5,-4,stone);
+    gableAt(cg,0,15,-4,38,18,9.5,1.2,rc,stone,Math.PI/2);
+    for(const s of[-1,1])for(let k=0;k<4;k++)box(cg,.5,7,2.2,s*9.1,8,-16+k*8,win,false);
+    const TH=alp?36:46;
+    box(cg,11,TH,11,0,TH/2,17.5,stone);box(cg,12.4,1.2,12.4,0,TH+.6,17.5,M('#f3ecda'));
+    for(const s of[0,1,2,3]){const a=s*Math.PI/2,nx=Math.sin(a),nz=Math.cos(a);
+      box(cg,nx?.5:3.2,6,nx?3.2:.5,nx*5.6,TH-6,17.5+nz*5.6,dark,false);
+      const ck=new THREE.Mesh(new THREE.PlaneGeometry(6.2,6.2),new THREE.MeshBasicMaterial({map:clockTex(),toneMapped:false}));ck.position.set(nx*5.78,TH-14.5,17.5+nz*5.78);ck.rotation.y=a;cg.add(ck)}
+    const sp=new THREE.Mesh(T.gPyr,M(spCol,{roughness:.7}));sp.scale.set(8,alp?24:32,8);sp.position.set(0,TH+1.2+(alp?12:16),17.5);sp.castShadow=true;cg.add(sp);
+    for(const[a,b2]of[[-1,-1],[1,-1],[1,1],[-1,1]]){const pn=new THREE.Mesh(T.gPyr,M(spCol,{roughness:.7}));pn.scale.set(2.4,6,2.4);pn.position.set(a*5,TH+1.2+3,17.5+b2*5);cg.add(pn)}
+    const ball=new THREE.Mesh(T.gSphere,gold);ball.scale.set(1,1,1);ball.position.set(0,TH+1.2+(alp?24:32)+.6,17.5);cg.add(ball);box(cg,.5,4,.5,0,TH+1.2+(alp?24:32)+3,17.5,gold);box(cg,2.4,.5,.5,0,TH+1.2+(alp?24:32)+3.4,17.5,gold);
+    box(cg,5,8,.6,0,4,23.2,dark,false);box(cg,16,1,6,0,.5,26.4,M('#bdb8ac'));
+    return 34;
+  };
+  /* Tokyo: pagoda in the park and a red torii gate at its entrance */
+  const pagoda=(g,x,z)=>{
+    const red=M('#b83a2e',{roughness:.7}),roof=M('#4f5760',{roughness:.8}),stone=M('#a8a39a');
+    box(g,30,2,30,x,1,z,stone);box(g,12,.5,8,x,.8,z+19,stone,false);
+    for(let i=0;i<5;i++){const w=22-3.4*i,y=2+i*7.4;box(g,w-4,5.2,w-4,x,y+2.6,z,red);box(g,w-3.4,.8,w-3.4,x,y+.4,z,M('#e8e0cf'));
+      const p=new THREE.Mesh(T.gPyr,roof);p.scale.set(w*.86,3.6,w*.86);p.position.set(x,y+5.2+1.8,z);p.castShadow=true;g.add(p);
+      box(g,w*1.18,.5,w*1.18,x,y+5.3,z,roof)}
+    box(g,.7,9,.7,x,2+5*7.4+4.5,z,gold);for(let k=0;k<4;k++)box(g,2.2-k*.4,.4,2.2-k*.4,x,2+5*7.4+1.5+k*1.8,z,gold,false);
+  };
+  const torii=(g,x,z)=>{
+    const red=M('#d2322d',{roughness:.6}),blk=M('#22242a');
+    for(const s of[-1,1]){const p=new THREE.Mesh(T.gCyl,red);p.scale.set(1.2,14,1.2);p.position.set(x+s*7,7,z);p.castShadow=true;g.add(p);box(g,3.2,.8,3.2,x+s*7,.4,z,blk,false)}
+    box(g,19,1.3,1.3,x,10.4,z,red);box(g,23,1.6,2.2,x,14.4,z,blk);box(g,21,.5,2,x,13.4,z,red,false);box(g,2,3,.6,x,12.2,z,M('#f4f1ea'),false);
+    for(const s of[-1,1]){box(g,1.6,3,1.6,x+s*11,1.5,z+3,M('#9d9a92'));box(g,2.2,.7,2.2,x+s*11,3.3,z+3,M('#9d9a92'))}
+  };
+  /* ----- Tokyo ----- */
+  const tokyoHouse=(g,b,C)=>{
+    const Rb=rb(b),NC=['#d6f5ff','#ffe9a8','#ffc9d6','#e8ffd0'],VC=['#7fe0ff','#ffb000','#ff6a8a','#8cff6a'];
+    for(let i=0;i<2;i++){
+      const w=b.w/2-.8,d=b.d+(Rb()-.3)*3,H=10+Rb()*9,xx=b.x+(i?1:-1)*(w/2+.9),kind=['tokB','tokA','plaster','tokB'][Math.floor(Rb()*4)]+tint;
+      facadeBox(g,w,H,d,xx,H/2,b.y,kind,C.roofMat,{bw:4.6,fh:3.8});
+      if(Rb()<.4){const rg2=gableAt(g,xx,H,b.y,w,d,3.4,.8,'#59616a',M(FAC_ST[kind.split('@')[0]].wall));rg2.rotation.y=0}
+      else{box(g,w+.6,.8,d+.6,xx,H+.4,b.y,M('#cfd3d8'));const tk=new THREE.Mesh(T.gCyl,metalM);tk.scale.set(1.5,2.6,1.5);tk.position.set(xx-1.5,H+2.1,b.y-1);g.add(tk);box(g,2.4,1.6,1.6,xx+1.8,H+1.6,b.y+2,C.metalMat)}
+      if(!sav){box(g,w*.9,.5,1.6,xx,H*.55,b.y+d/2+.8,M('#8c9299'));box(g,w*.9,1.1,.2,xx,H*.55+.8,b.y+d/2+1.55,M('#6a7077'))}
+    }
+    if(!sav){const k=Math.floor(Rb()*4);box(g,1.8,3.4,1.4,b.x+b.w/2-.2,1.7,b.y+b.d/2+2.1,M(NC[k],{emissive:VC[k],eBase:2.4}),false)}
+    return true;
+  };
+  const tokyoApt=(g,b,C)=>{
+    const Rb=rb(b),w=15,d=15,H=b.h*1.5+12,kind='tokB'+tint;
+    facadeBox(g,w,H,d,b.x,H/2,b.y,kind,C.roofMat,{bw:5.2,fh:4.2});box(g,w+.8,.8,d+.8,b.x,H+.4,b.y,M('#cfd3d8'));
+    if(!sav)for(let f=1;f<H/4.2;f+=2)box(g,w*.96,.45,1.7,b.x,f*4.2,b.y+d/2+.85,M('#8c9299'),false);
+    const tk=new THREE.Mesh(T.gCyl,metalM);tk.scale.set(2,3,2);tk.position.set(b.x+2,H+2.3,b.y-2);g.add(tk);
+    return true;
+  };
+  const tokyoWork=(g,b,C)=>{
+    const Rb=rb(b),S_=tokyoSigns(),H=30+b.h*1.9,w=13+Rb()*7,d=13+Rb()*7,kind=['tokA','tokB','tokC','tokC'][hp(b)%4]+tint,P0=8;
+    facadeBox(g,b.w-1,P0,b.d-1,b.x,P0/2,b.y,'tokA'+tint,C.roofMat,{bw:6,fh:4});
+    box(g,b.w-.4,.9,.8,b.x,P0+.45,b.y+b.d/2-.2,M('#fff6dc',{emissive:'#ffe49a',eBase:2.2}),false);
+    facadeBox(g,w,H,d,b.x,P0+H/2,b.y,kind,C.roofMat,{bw:6.3,fh:4.2});
+    box(g,w+.9,.8,d+.9,b.x,P0+H+.4,b.y,M('#9aa0a8'));box(g,w*.5,2.4,d*.4,b.x-w*.15,P0+H+2,b.y,metalM);
+    const a=new THREE.Mesh(T.gCyl,metalM);a.scale.set(.4,16,.4);a.position.set(b.x+w*.25,P0+H+8,b.y);g.add(a);const l=new THREE.Mesh(T.gSphere,C.redMat);l.position.set(b.x+w*.25,P0+H+16,b.y);g.add(l);
+    if(!sav){
+      const yb=P0+14+Rb()*H*.4,c1=Math.floor(Rb()*S_.vc),c2=(c1+3)%S_.vc,c3=Math.floor(Rb()*S_.hc),c4=(c3+3)%S_.hc;
+      signQuad(g,S_.v,6.4,25.6,b.x+w/2-1.6,yb,b.y+d/2+3.2,Math.PI/2,c1,8,1);
+      signQuad(g,S_.v,6.4,25.6,b.x+w/2+3.2,yb*.8+P0*.4,b.y-d/2+2,0,c2,8,1);
+      signQuad(g,S_.v,6.4,25.6,b.x-w/2-3.2,yb*.9+P0*.3,b.y+d/2-2,0,(c1+5)%S_.vc,8,1);
+      signQuad(g,S_.h,Math.min(w-1,17),4.3,b.x,P0+H*.28,b.y+d/2+.25,0,c3,2,4);
+      signQuad(g,S_.h,Math.min(d-1.5,15),3.8,b.x+w/2+.25,P0+H*.52,b.y,Math.PI/2,c4,2,4);
+      signQuad(g,S_.h,Math.min(b.w-3,20),4.4,b.x,P0+1.6,b.y+b.d/2-.05+.6,0,(c3+5)%S_.hc,2,4);
+      if(Rb()<.5){const rbq=signQuad(g,S_.h,17,5,b.x,P0+H+4.6,b.y-d*.2,Rb()<.5?0:Math.PI/2,(c3+2)%S_.hc,2,4);box(g,.7,3,.7,rbq.position.x-6,P0+H+1.6,rbq.position.z,metalM,false);box(g,.7,3,.7,rbq.position.x+6,P0+H+1.6,rbq.position.z,metalM,false)}
+    }
+    return true;
+  };
+  /* ----- Dubai: sand-coloured low houses; glass and gold towers with tapering spires; one very tall landmark ----- */
+  const dubai=(g,b,C)=>{
+    const Rb=rb(b);
+    if(b.type==='work'){
+      const KS=['dubG','dubB','dubW','dubG'],kind=KS[hp(b)%4]+tint,H=30+b.h*1.9,sh=hp(b)%3;
+      if(b.mega){
+        box(g,44,6,44,b.x,3,b.y,M('#e8e3d6'));box(g,46,1.2,46,b.x,6.6,b.y,gold);
+        const tiers=[[14,52],[12,46],[10,42],[8,38],[6,34],[4.4,30]];let y=6.6;
+        tiers.forEach((t,i)=>{const r=t[0],h=t[1];cylFacade(g,r,r*.93,h,b.x,y+h/2,b.y,(i%2?'dubG':'dubB')+tint,gold,{bw:6,fh:4.4});y+=h;const ring=new THREE.Mesh(T.gCyl,gold);ring.scale.set(r*.97,1.2,r*.97);ring.position.set(b.x,y,b.y);g.add(ring)});
+        const sp=new THREE.Mesh(T.gPyr,gold);sp.scale.set(4.6,60,4.6);sp.position.set(b.x,y+30,b.y);sp.castShadow=true;g.add(sp);
+        const l=new THREE.Mesh(T.gSphere,C.redMat);l.scale.set(1.4,1.4,1.4);l.position.set(b.x,y+61,b.y);g.add(l);
+        return true;
+      }
+      if(sh===0){ // stepped crown
+        const fr=[.42,.3,.2,.08];let y=0;fr.forEach((f,i)=>{const w=b.w*(1-.2*i),h=H*f;facadeBox(g,w,h,w,b.x,y+h/2,b.y,kind,gold,{bw:6.6,fh:4.4});y+=h;box(g,w+.8,.9,w+.8,b.x,y,b.y,gold,false)});
+        const sp=new THREE.Mesh(T.gPyr,gold);sp.scale.set(3.4,H*.2,3.4);sp.position.set(b.x,y+H*.1,b.y);sp.castShadow=true;g.add(sp);
+      }else if(sh===1){ // round tapering tower
+        cylFacade(g,b.w*.46,b.w*.3,H,b.x,H/2,b.y,kind,gold,{bw:6.6,fh:4.4});const ring=new THREE.Mesh(T.gCyl,gold);ring.scale.set(b.w*.31,1.2,b.w*.31);ring.position.set(b.x,H,b.y);g.add(ring);
+        const sp=new THREE.Mesh(T.gPyr,gold);sp.scale.set(2.6,H*.26,2.6);sp.position.set(b.x,H+H*.13,b.y);sp.castShadow=true;g.add(sp);
+      }else{ // slim slab with a golden crown
+        facadeBox(g,b.w*.8,H,b.w*.6,b.x,H/2,b.y,kind,gold,{bw:6.6,fh:4.4});box(g,b.w*.86,2,b.w*.66,b.x,H+1,b.y,gold);box(g,b.w*.5,3,b.w*.4,b.x,H+3.5,b.y,gold);
+        const sp=new THREE.Mesh(T.gPyr,gold);sp.scale.set(2.4,H*.18,2.4);sp.position.set(b.x,H+5+H*.09,b.y);sp.castShadow=true;g.add(sp);
+      }
+      const l=new THREE.Mesh(T.gSphere,C.redMat);l.scale.set(.9,.9,.9);l.position.set(b.x,(sh===0?H*.2:sh===1?H*1.26:H+5+H*.18)+1,b.y);g.add(l);
+      return true;
+    }
+    if(b.kind==='apt'){
+      const H=b.h*1.5+6;facadeBox(g,b.w,H,b.d,b.x,H/2,b.y,'dubW'+tint,C.roofMat,{bw:6,fh:4.6});box(g,b.w+1.2,1.2,b.d+1.2,b.x,H+.6,b.y,M('#f3ecda'));
+      if(!sav){const dm=new THREE.Mesh(T.gSphere,M('#f6f1e4'));dm.scale.set(5,3.6,5);dm.position.set(b.x-5,H+1.6,b.y);g.add(dm);box(g,.6,3,.6,b.x-5,H+5,b.y,gold,false)}
+      box(g,5,2.4,4,b.x+5,H+2.2,b.y+2,C.metalMat);return true;
+    }
+    const col=['#e8d3a8','#e0c496','#f0e0bd','#ead7b0'][hp(b)%4],H=b.h*.95+2;
+    box(g,b.w,H,b.d,b.x,H/2,b.y,M(col,{roughness:.95}));box(g,b.w+1,1.2,b.d+1,b.x,H+.6,b.y,M('#f6efdc'));
+    for(const s of[-1,1]){box(g,3.2,4.6,.5,b.x+s*b.w*.28,H*.6,b.y+b.d/2+.15,C.winMat,false);box(g,3.9,.8,.4,b.x+s*b.w*.28,H*.6+2.6,b.y+b.d/2+.1,M('#cdb98a'),false)}
+    box(g,3.2,6,.5,b.x,3,b.y+b.d/2+.15,C.doorMat,false);
+    const o=Rb();
+    if(o<.38&&!sav){const dm=new THREE.Mesh(T.gSphere,M('#f6f1e4'));dm.scale.set(4.6,3.2,4.6);dm.position.set(b.x+b.w*.2,H+1.2,b.y);dm.castShadow=true;g.add(dm)}
+    else if(o<.65){const tk=new THREE.Mesh(T.gCyl,M('#bfc4c8',{roughness:.6}));tk.scale.set(1.5,2.4,1.5);tk.position.set(b.x-b.w*.25,H+2.2,b.y-2);g.add(tk)}
+    if(Rb()<.3&&!sav){for(const sx of[-1,1])for(const sz of[-1,1])box(g,.5,6,.5,b.x+sx*(b.w/2+3.5),3,b.y+sz*5,M('#8a7a5a'),false);box(g,b.w*.5+8,.4,12,b.x,6.2,b.y,M('#2f7a8c'),false)}
+    return true;
+  };
+  /* ----- Alps: timber chalets with wide roofs and balconies, stone footings ----- */
+  const chalet=(g,b,C)=>{
+    const Rb=rb(b),hg=lg(g,b),mode=b.type==='work'?'work':b.kind==='apt'?'apt':'home';
+    const w=Math.max(b.w,b.d)+(mode==='home'?1:mode==='apt'?3:-1),d=Math.min(b.w,b.d)+(mode==='home'?1:mode==='apt'?2:0),H=mode==='home'?b.h*.95+4:mode==='apt'?b.h*1.1+9:14+b.h*.75;
+    facadeBox(hg,w,H,d,0,H/2,0,'timber'+tint,C.roofMat,{bw:8,fh:5});box(hg,w+.7,3,d+.7,0,1.5,0,M('#9b948a'));
+    const roofH=mode==='work'?9:mode==='apt'?7.5:6.5,rc=snowy?'#f2f5f8':Rb()<.55?'#6b4a35':'#8a3d2e';
+    gableAt(hg,0,H,0,w,d,roofH,3.4,rc,M('#8f5f3b',{roughness:.95}));
+    box(hg,2.8,7,2.8,w*.25,H+roofH*.5+1.6,-d*.1,M('#8c857a'));box(hg,3.4,.7,3.4,w*.25,H+roofH*.5+5.3,-d*.1,M('#6c665e'));
+    if(!sav){const fl=mode==='apt'||mode==='work'?2:1;for(let k=0;k<fl;k++){const y=H*(fl===1?.55:.38+k*.3);box(hg,w*.7,.5,2.4,0,y,d/2+1.2,M('#7a4f2f'));box(hg,w*.7,1.1,.25,0,y+.85,d/2+2.3,M('#6b4326'))}
+      if(mode==='home')box(hg,3.2,1.5,1.4,-w/2-1.4,.8,2,M('#8a6a42'),false)}
+    box(hg,3,5.6,.5,0,2.8,d/2+.2,C.doorMat,false);
+    return true;
+  };
+  K.prep=(city)=>{
+    if(rg==='dubai'){let best=null,bd=1e9;for(const b of city.works){const dd=Math.hypot(b.x-city.w/2,b.y-city.h/2);if(dd<bd){bd=dd;best=b}}if(best){best.mega=true;best.w=best.d=30}}
+    if(rg==='metro')for(const b of city.works){b._h0=b._h0||b.h;b.h=b._h0*1.35}
+  };
+  K.build=(b,g,C)=>{
+    if(rg==='europe'&&(b.type==='home'||b.type==='work'))return euro(g,b,C);
+    if(rg==='tokyo'){if(b.type==='work')return tokyoWork(g,b,C);if(b.kind==='apt')return tokyoApt(g,b,C);if(b.type==='home')return tokyoHouse(g,b,C)}
+    if(rg==='dubai'&&(b.type==='home'||b.type==='work'))return dubai(g,b,C);
+    if(rg==='alpine'&&(b.type==='home'||b.type==='work'))return chalet(g,b,C);
+    return false;
+  };
+  const parkSite=()=>{let best=null,bd=1e9;for(const b of city.blocks)if(b.t==='P'){const dd=Math.hypot(b.x+50-city.w/2,b.y+50-city.h/2);if(dd<bd){bd=dd;best=b}}return best};
+  const clear=(trees,x,z,r)=>{for(let i=trees.length-1;i>=0;i--)if(Math.hypot(trees[i].x-x,trees[i].y-z)<r)trees.splice(i,1)};
+  /* landmarks and park furniture that depend on the region; may thin out the trees around them */
+  K.extras=(g,trees)=>{
+    const site=parkSite();
+    if(site){
+      const sx=site.x+50,sz=site.y+50;
+      if(rg==='europe'||rg==='alpine'){clear(trees,sx,sz+4,38);church(g,sx,sz-6,rg==='alpine')}
+      else if(rg==='tokyo'){clear(trees,sx,sz,28);pagoda(g,sx,sz+4);torii(g,sx,site.y+14);clear(trees,sx,site.y+14,10)}
+    }
+    if(rg==='dubai'){
+      const pw=M('#2aa0c4',{roughness:.08,metalness:.2,envMapIntensity:1.3});
+      for(const b of city.blocks)if(b.t==='P'){clear(trees,b.x+50,b.y+50,20);const p=new THREE.Mesh(T.gDisc,pw);p.scale.set(15,1,11);p.position.set(b.x+50,.8,b.y+50);p.receiveShadow=true;g.add(p);
+        box(g,34,.5,26,b.x+50,.4,b.y+50,M('#efe4c0'),false)}
+    }
+    if(rg==='tokyo'){const S_=tokyoSigns();T.flick=[{m:S_.v,ph:0,sp:1},{m:S_.h,ph:2.1,sp:.8}]}
+  };
+  return K;
+}
+/* palms (Dubai) and pines (Alps), instanced */
+function buildPalms(g,trees){
+  const n=trees.length,tr=new THREE.InstancedMesh(new THREE.CylinderGeometry(.5,.95,1,6),M('#a07f52',{roughness:1}),n),NF=8,gl=new THREE.ConeGeometry(.5,1,4,1);gl.rotateZ(-Math.PI/2);
+  const fr=new THREE.InstancedMesh(gl,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.85,side:THREE.DoubleSide}),n*NF);
+  const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),qy=new THREE.Quaternion(),qz=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),v=new THREE.Vector3(),c1=new THREE.Color(),R=rng(91),ax=new THREE.Vector3(0,1,0),az=new THREE.Vector3(0,0,1);
+  const GC=['#3f8a38','#4f9a40','#35782f','#5aa648'];
+  trees.forEach((t,i)=>{
+    const Hp=(13+R()*5)*Math.max(.8,t.s)+5;sc.set(t.s*1.1,Hp,t.s*1.1);ps.set(t.x,Hp/2,t.y);m4.compose(ps,q.identity(),sc);tr.setMatrixAt(i,m4);
+    const top=new THREE.Vector3(t.x,Hp,t.y),L=(8+R()*2.5)*Math.max(.85,t.s),ph=R()*6.28;
+    for(let k=0;k<NF;k++){
+      qy.setFromAxisAngle(ax,ph+k*Math.PI*2/NF);qz.setFromAxisAngle(az,-(.32+.38*((k%2)?1:.4)));q.copy(qy).multiply(qz);
+      v.set(L*.5,0,0).applyQuaternion(q);ps.copy(top).add(v);sc.set(L,1.4,3.6);m4.compose(ps,q,sc);fr.setMatrixAt(i*NF+k,m4);fr.setColorAt(i*NF+k,c1.copy(lin(GC[(i+k)%4])));
+    }
+  });
+  tr.castShadow=true;fr.castShadow=true;fr.receiveShadow=true;g.add(tr);g.add(fr);
+}
+function buildPines(g,trees,K){
+  const n=trees.length,tr=new THREE.InstancedMesh(new THREE.CylinderGeometry(.6,1,1,6),M('#5b4128',{roughness:1}),n),cone=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,8),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.95}),n*3);
+  const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),c1=new THREE.Color(),R=rng(57);
+  const snow=K.snowy||G.season==='winter',GR=snow?['#cfe0dc','#bfd4d0','#dbe8e6','#b4cac8']:['#2a5d2e','#24512a','#32693a','#2d6529'];
+  trees.forEach((t,i)=>{
+    const H=(17+R()*7)*Math.max(.8,t.s)+4;sc.set(t.s,H*.3,t.s);ps.set(t.x,H*.15,t.y);m4.compose(ps,q.identity(),sc);tr.setMatrixAt(i,m4);
+    const col=GR[Math.floor(R()*4)];
+    [[.43,.5,.3],[.6,.4,.23],[.8,.36,.16]].forEach((o,k)=>{const w=H*o[2];sc.set(w,H*o[1],w);ps.set(t.x,H*o[0],t.y);m4.compose(ps,q,sc);cone.setMatrixAt(i*3+k,m4);cone.setColorAt(i*3+k,c1.copy(lin(col)))});
+  });
+  tr.castShadow=true;cone.castShadow=true;cone.receiveShadow=true;g.add(tr);g.add(cone);
 }
 function build3D(city){
   if(T.city){T.scene.remove(T.city);disposeTree(T.city);if(T.groundTex)T.groundTex.dispose()}
   T.cars=[];if(T.carBody){T.dyn.remove(T.carBody);T.dyn.remove(T.carCab);T.carBody.dispose();T.carCab.dispose();T.carBody.material.dispose()}
-  const g=new THREE.Group();
+  const g=new THREE.Group();T.flick=[];const K=regionKit(city);K.prep(city);
   const tex=srgbTex(city.img);tex.anisotropy=Math.min(8,T.r.capabilities.getMaxAnisotropy());T.groundTex=tex;
   T.groundMat=wxPatch(new THREE.MeshStandardMaterial({map:tex,roughness:.95,envMap:T.env,envMapIntensity:.15}),true);
   // road mask for wet / puddle / snow shading (white = asphalt), same uv layout as the ground texture
@@ -3284,7 +3740,7 @@ function build3D(city){
   if(foamP.length){const fg=new THREE.BufferGeometry();fg.setAttribute('position',new THREE.Float32BufferAttribute(foamP,3));fg.setIndex(foamI);T.foamMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.3,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});const fm=new THREE.Mesh(fg,T.foamMat);fm.userData.keep=true;fm.renderOrder=1;g.add(fm)}else T.foamMat=null;
   const roofMat=M('#7b7f84',{roughness:.9}),winMat=M('#35516d',{roughness:.12,metalness:.6,emissive:'#ffc874',eBase:.9,envMapIntensity:1}),frameMat=M('#f4f1ea'),doorMat=M('#7a4d33'),brickMat=M('#8d4f3b'),metalMat=M('#9aa5ae',{roughness:.4,metalness:.8,envMapIntensity:.9}),redMat=M('#e2483d',{emissive:'#ff3b30',eBase:1.6});
   T.blink=redMat;
-  const trees=[];
+  const trees=[],KC={roofMat,winMat,frameMat,doorMat,brickMat,metalMat,redMat};
   for(const it of city.items){
     if(it.k==='t'){trees.push(it);continue}
     const b=it.b;
@@ -3344,6 +3800,7 @@ function build3D(city){
       }
       continue;
     }
+    if(K.build(b,g,KC))continue;
     if(b.type==='work'){
       const H=b.h*1.55,kind=({cool:['glassA','glassB','office','glassA'],warm:['office','plaster','office','brick'],teal:['glassB','glassB','glassA','glassB'],sunset:['plaster','brick','plaster','office'],mono:['office','glassB','office','glassB']}[PROF.cos.tower]||['glassA'])[Math.abs(Math.round(b.x*7+b.y*3))%4];
       facadeBox(g,b.w,H,b.d,b.x,H/2,b.y,kind,roofMat);
@@ -3365,9 +3822,12 @@ function build3D(city){
       box(g,3.2,6.4,.5,b.x,3.2,b.y+b.d/2+.15,doorMat,false);
     }
   }
+  K.extras(g,trees);
   if(PROF.gfx==='saver'){for(let i=trees.length-1;i>=0;i--)if(i%2)trees.splice(i,1)}
-  if(trees.length){
-    const n=trees.length,leafMat=new THREE.MeshStandardMaterial({map:leafTex(),color:0xffffff,roughness:.95,emissive:new THREE.Color(0x182a12)});
+  if(trees.length&&K.treeKind==='palm')buildPalms(g,trees);
+  else if(trees.length&&K.treeKind==='pine')buildPines(g,trees,K);
+  else if(trees.length){
+    const n=trees.length,leafMat=new THREE.MeshStandardMaterial({map:K.rg==='tokyo'?leafPlain():leafTex(),color:0xffffff,roughness:.95,emissive:new THREE.Color(K.rg==='tokyo'?0x1a1014:0x182a12)});
     const ico=new THREE.IcosahedronGeometry(1,1),pa=ico.attributes.position;
     for(let i=0;i<pa.count;i++){const x=pa.getX(i),y=pa.getY(i),z=pa.getZ(i),k=1+.17*Math.sin(x*5.1+z*3.3)*Math.cos(y*4.7+x*2.1);pa.setXYZ(i,x*k,y*k*.9,z*k)}
     ico.computeVertexNormals();
@@ -3377,7 +3837,7 @@ function build3D(city){
     const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),sc=new THREE.Vector3(),ps=new THREE.Vector3(),R=rng(77);
     trees.forEach((t,i)=>{
       const H=17*t.s;sc.set(1,H*.55,1);sc.x=t.s;sc.z=t.s;ps.set(t.x,H*.275,t.y);m4.compose(ps,q.identity(),sc);tr.setMatrixAt(i,m4);
-      const base=(SEASON_TREES[G.season]||SEASON_TREES.summer)[Math.floor(R()*4)];
+      const base=(K.treePal?(K.treePal[G.season]||K.treePal.summer):(SEASON_TREES[G.season]||SEASON_TREES.summer))[Math.floor(R()*4)];
       off.forEach((o,k)=>{e.set(R()*3,R()*6,R()*3);q.setFromEuler(e);const r=o[3]*t.s*(.9+R()*.25);sc.set(r,r,r);ps.set(t.x+o[0]*t.s,H*o[1],t.y+o[2]*t.s);m4.compose(ps,q,sc);blobs[k].setMatrixAt(i,m4);blobs[k].setColorAt(i,lin(base[k%2]))});
     });
     tr.castShadow=true;g.add(tr);for(const b of blobs){b.castShadow=true;b.receiveShadow=true;g.add(b)}
@@ -3959,7 +4419,7 @@ function syncSeason(now){
   const sg=SEASON_GROUND[G.season]||SEASON_GROUND.summer;
   if(T.groundMat){T.groundMat.color.copy(lin(sg[0]));T.groundMat.emissive.copy(lin('#ffffff'));T.groundMat.emissiveIntensity=G.season==='winter'?.1:0}
   if(T.terrMats)for(const m of T.terrMats){m.color.copy(lin(sg[0]));if(m.userData.tint)m.color.multiply(m.userData.tint);m.emissive.copy(lin('#ffffff'));m.emissiveIntensity=G.season==='winter'?.1:0}
-  if(T.far)T.far.material.color.copy(lin(sg[1]));
+  if(T.far){const L_=G.L||{};T.far.material.color.copy(lin(L_.climate==='snow'?'#dfe8f0':L_.region==='dubai'?'#d6bd8a':L_.region==='tokyo'?'#70737a':sg[1]))}
   if(!T.snow){
     const N=900,g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(N*3),3));T.snowBase=[];for(let i=0;i<N;i++)T.snowBase.push([Math.random()*2-1,Math.random(),Math.random()*2-1,Math.random()*6.28]);
     T.snow=new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:2.6,sizeAttenuation:true,transparent:true,opacity:.85,depthWrite:false,fog:false}));T.snow.frustumCulled=false;T.scene.add(T.snow);
@@ -4011,16 +4471,20 @@ function lighting(now){
   const dir=new THREE.Vector3(Math.sin(az)*Math.cos(elev),Math.sin(elev),Math.cos(az)*Math.cos(elev)*.9).normalize();
   u.top.value.copy(k.top);u.hor.value.copy(k.hor);u.sunCol.value.copy(k.sun);u.sunDir.value.copy(dir);u.time.value=now/1000;
   let si=k.si,hi=k.hi,ex=k.ex,fogC=k.hor.clone().lerp(lin('#cfe0ee'),.25),night=k.night;
+  const cl=G.L&&G.L.climate,dayK=1-Math.min(1,night*1.2),sunC=k.sun.clone();
+  if(cl==='snow'&&dayK>0){u.top.value.lerp(lin('#8d9db0'),.55*dayK);u.hor.value.lerp(lin('#dfe6ee'),.6*dayK);fogC.lerp(lin('#dfe6ee'),.5*dayK);si*=1-.2*dayK;hi*=1+.1*dayK}
+  else if(cl==='hot'&&dayK>0){u.top.value.lerp(lin('#4f9cf2'),.35*dayK);u.hor.value.lerp(lin('#f8dba0'),.65*dayK);fogC.lerp(lin('#f3deb0'),.55*dayK);sunC.lerp(lin('#ffd08a'),.4*dayK);u.sunCol.value.copy(sunC);si*=1+.1*dayK;ex*=1+.05*dayK}
   if(sw>.002){si*=1-.55*sw;hi*=1-.15*sw;ex*=1-.08*sw;u.top.value.lerp(lin('#56606d'),.7*sw);u.hor.value.lerp(lin('#8a96a2'),.7*sw);fogC.lerp(lin('#8f9ba6'),sw)}
   if(fg>.002){si*=1-.3*fg;ex*=1-.05*fg;fogC.lerp(lin('#c9d2d8'),fg);u.top.value.lerp(fogC,.5*fg);u.hor.value.lerp(fogC,.9*fg)}
-  T.sun.color.copy(k.sun);T.sun.intensity=si;T.hemi.intensity=hi;T.hemi.color.copy(lin(night>.5?'#8a9be0':'#cfe6ff'));
+  T.sun.color.copy(sunC);T.sun.intensity=si;T.hemi.intensity=hi;T.hemi.color.copy(lin(night>.5?'#8a9be0':'#cfe6ff'));
   T.r.toneMappingExposure=ex;
-  if(T.fin){T.fin.uniforms.exposure.value=ex;T.fin.uniforms.time.value=(now/1000)%10;T.bloom.strength=(.22+.55*night)*(PROF.gfx==='ultra'?1.35:1);T.bloom.threshold=1.05-.3*night;T.bloom.radius=.55}
+  if(T.fin){T.fin.uniforms.exposure.value=ex;T.fin.uniforms.time.value=(now/1000)%10;T.fin.uniforms.heat.value=(cl==='hot'&&!ui.rm&&PROF.gfx!=='saver')?dayK:0;T.fin.uniforms.ht.value=(now/1000*3)%6.2831853;T.bloom.strength=(.22+.55*night)*(PROF.gfx==='ultra'?1.35:1);T.bloom.threshold=1.05-.3*night;T.bloom.radius=.55}
   const c=T.cityC;if(c)T.sun.position.set(c.x+dir.x*1300,dir.y*1300,c.z+dir.z*1300),T.sun.target.position.set(c.x,0,c.z),T.sun.target.updateMatrixWorld();
   T.scene.fog.color.copy(fogC);T.scene.fog.near=cam.dist*(1.7-1.25*fg);T.scene.fog.far=cam.dist*(6.6-4.95*fg);
   const emi=night,ev=1-Math.min(1,night*1.4);T.night=night;
   if(T.groundMat){const wt=WX.wet;T.groundMat.roughness=wxOn()?.95:.95-.5*wt;T.groundMat.envMapIntensity=.15+.55*wt*ev}
-  for(const e of T.emis)e.m.emissiveIntensity=e.base*emi;
+  for(const e of T.emis)e.m.emissiveIntensity=Math.max(e.base*emi,e.min||0);
+  if(T.flick&&T.flick.length&&!ui.rm&&PROF.gfx!=='saver')for(const f of T.flick){const t=now/1000*f.sp;f.m.emissiveIntensity*=.88+.12*Math.sin(t*5+f.ph)-(Math.sin(t*1.7+f.ph*3)>.985?.45:0)}
   if(T.halo)T.halo.material.opacity=Math.min(1,night*1.3);
   for(const m of T.envMats)m.envMapIntensity=1.3*ev+.25;
   T.sky.position.copy(T.camera.position);T.sky.scale.setScalar(T.camera.far*.85);
@@ -4227,7 +4691,7 @@ function hud(){
   $('#cDel').textContent=G.delivered;$('#cGave').textContent=G.gaveUp;{const tt=G.dayDel+G.dayGave;$('#cToday').textContent='Today '+(tt?Math.round(100*G.dayDel/tt):100)+'%'}const cc=$('#cCash');cc.textContent=money(G.money);cc.classList.toggle('neg',G.money<0);
   const h=clockHour(G.t),hh=Math.floor(h),mm=Math.floor((h-hh)*60);
   $('#clock').textContent=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
-  $('#dayLbl').textContent='Day '+G.day+(isFinite(G.L.days)?'/'+G.L.days:'')+' · '+G.season[0].toUpperCase()+G.season.slice(1)+(G.boosts?(' '+boostIcons()).trimEnd():'');
+  $('#dayLbl').textContent='Day '+G.day+(isFinite(G.L.days)?'/'+G.L.days:'')+' · '+seasonLabel()+(G.boosts?(' '+boostIcons()).trimEnd():'');
   {const lv=levelOf(PROF.xp),a=xpFor(lv-1),b=xpFor(lv);$('#cLvl').textContent='Lv '+lv+' · '+rankOf(lv);$('#xpFill').style.width=Math.round(100*(PROF.xp-a)/(b-a))+'%'}
   {const mp=$('#missions');let h='';
    if(!tutOn()){for(const m of G.missions){const pr=m.prog?Math.min(m.goal,Math.floor(m.prog())):0;h+='<div class="m '+(m.done?'done':m.failed?'fail':m.mayor?'mayor':'')+'"><b>'+(m.done?'✓':m.failed?'✕':m.mayor?'⚑':'◻')+'</b><span>'+esc(m.text)+(!m.done&&!m.failed&&['arena','uni','air','hosp','mall','school'].includes(m.pin||m.id)?' <button class="pin" data-act="msnpin" data-k="'+(m.pin||m.id)+'">Show me</button>':'')+'</span><em>'+(m.special?(m.special==='pm'?(G.gaveMark>=0?(G.dayGave-G.gaveMark)+' gave up · ':''):m.special==='happy'?((G.dayDel+G.dayGave)?Math.round(100*G.dayDel/(G.dayDel+G.dayGave))+'% · ':''):''):pr+'/'+m.goal+' · ')+'$'+m.reward+'</em></div>'}
@@ -4449,7 +4913,7 @@ function shareCard(){
     const done=()=>{
       const lv=levelOf(PROF.xp),tot=G.delivered+G.gaveUp,pct=tot?Math.round(100*G.delivered/tot):100,profit=G.rev-G.cost,st=goalsList().filter(x=>x.ok).length;
       g.fillStyle='#fff';g.font='800 56px Outfit,Arial,sans-serif';g.textAlign='left';g.fillText('Rush Hour Routes',48,664);
-      g.fillStyle='#5d6b78';g.font='700 30px Nunito Sans,Arial,sans-serif';g.fillText(G.L.name+' · Day '+G.day+' · '+G.season,48,708);
+      g.fillStyle='#5d6b78';g.font='700 30px Nunito Sans,Arial,sans-serif';g.fillText(G.L.name+' · Day '+G.day+' · '+seasonLabel().toLowerCase(),48,708);
       const box=(x,v,l,col)=>{g.fillStyle='rgba(255,255,255,.1)';rrect(g,x,740,262,150,22);g.fill();g.fillStyle=col||'#fff';g.font='800 56px Outfit,Arial,sans-serif';g.fillText(v,x+24,818);g.fillStyle='#9fb3c4';g.font='700 24px Nunito Sans,Arial,sans-serif';g.fillText(l,x+24,860)};
       box(48,String(G.delivered),'Delivered, level total');box(319,pct+'%','Satisfied, level total',pct>=75?'#6fe39a':pct>=55?'#ffd25c':'#ff7b6e');box(590,money(profit),'Profit, level total',profit<0?'#ff7b6e':'#fff');
       g.fillStyle='#ffd25c';g.font='800 64px Outfit,Arial,sans-serif';g.fillText('★'.repeat(st)+'☆'.repeat(Math.max(0,3-st)),48,990);
