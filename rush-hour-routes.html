@@ -127,6 +127,13 @@ body.rm .mini.loopon::after{opacity:.0}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
 .chip{font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px;background:#e6edf1}
 .chip.new{background:#ffe9a8;color:#7a5600}
+.trail{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+.tn{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:#eef3f5;font-weight:800;font-size:14px}
+.tn i{font-style:normal;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#cfd8dd;color:#3b4a53;font-size:13px;flex:none}
+.tn.done i{background:var(--ok);color:#06361a}.tn.cur{background:#e4effd;border:2px solid var(--accent)}.tn.cur i{background:var(--accent);color:#fff}
+.tn.lock{opacity:.6}.tn small{margin-left:auto;color:#5a6a73;font-weight:700}
+.seg{display:flex;gap:6px;margin:10px 0}.seg button{flex:1;min-height:46px;border-radius:12px;border:2px solid var(--line);background:#fff;font-weight:800}
+.seg button.on{border-color:var(--ok);background:#d9f3e2}
 .stars{font-size:20px;letter-spacing:2px;color:#d3a21d}
 .stars .off{color:#d6dde2}
 .card>.btnrow:last-child{box-shadow:0 -16px 14px -6px #fff;position:sticky;bottom:-22px;background:linear-gradient(rgba(255,255,255,0),#fff 28%);padding:14px 0 4px;margin-top:10px}
@@ -1774,7 +1781,7 @@ function sat(){const n=G.win.length;if(n<6)return 1;let s=0;for(const v of G.win
 function outcome(ok){
   G.win.push(ok?1:0);if(G.win.length>WIN_N)G.win.shift();
   G.flashSat=1;
-  if(G.win.length>=30&&sat()<(G.day===1?.4:.5)&&!G.over&&!G.L.sandbox)gameOver('sat');
+  if(G.win.length>=30&&sat()<(G.day===1?.4:.5)&&!G.over&&!G.L.sandbox&&!G.noOver)gameOver('sat');
 }
 
 /* ================= routes & buses ================= */
@@ -2255,7 +2262,7 @@ function step(dt){
   for(let i=G.parts.length-1;i>=0;i--){const p=G.parts[i];p.a+=dt/p.life;if(p.a>=1)G.parts.splice(i,1)}
   if(G.flashSat>0)G.flashSat-=dt*2;
   G.lmT-=dt;if(G.lmT<=0){G.lmT=2;landmarkTick();tickMissions()}
-  if(!L.sandbox&&G.money<-800&&!G.over){gameOver('bankrupt');return}
+  if(!L.sandbox&&!G.noOver&&G.money<-800&&!G.over){gameOver('bankrupt');return}
   if(G.t>=DAY_LEN&&!G.over&&!G.dayEnding){G.dayEnding=true;endOfDay()}
 }
 function seasonFor(day){return SEASONS[(day-1+((G.L.daily||G.L.weekly)?((G.L.seed||0)%4):0))%4]}
@@ -2466,16 +2473,22 @@ function endOfDay(){
     let bestNote='';
     if(st&&!G.L.daily&&!G.L.weekly){PROF.tix=(PROF.tix|0)+10;if(PROF.cos.confetti==='on')fx.confetti(cam.x,cam.y)}
     if(G.L.daily||G.L.weekly){const k=(G.L.weekly?'w':'d')+challengeKey(!!G.L.weekly),pf=Math.round(G.rev-G.cost),old=PROF.best[k];if(!old||pf>old.profit){PROF.best[k]={profit:pf,stars:st};bestNote='<p class="sub" style="text-align:center;color:var(--ok)">New personal best: '+money(pf)+' profit!</p>'}else bestNote='<p class="sub" style="text-align:center">Your best: '+money(old.profit)+' profit.</p>';addXp(100);saveProfile()}
-    try{const k='rhr.stars',o=JSON.parse(localStorage.getItem(k)||'{}');if(!G.L.daily&&!G.L.weekly)o[G.levelIdx]=Math.max(o[G.levelIdx]||0,st);if(G.levelIdx===CAMPAIGN[CAMPAIGN.length-1]&&CAMPAIGN.every(k=>(o[k]||0)>=1))ach('citywide');localStorage.setItem(k,JSON.stringify(o))}catch(e){}
-    showOv('<div class="card"><div class="stars" style="text-align:center">'+starStr(st)+'</div><h2 style="text-align:center">'+(st?'Level complete':'Not quite there')+'</h2><p class="sub" style="text-align:center">'+esc(G.L.name)+' kept moving for '+G.L.days+' days. '+(st?'':'No goals were met, so this level is not cleared yet. Try again with more buses on busy routes. ')+'Cash: '+money(G.money)+'.</p>'+bestNote+((st&&STORY[G.levelIdx]&&STORY[G.levelIdx].outro)?'<p class="quote">'+esc(STORY[G.levelIdx].outro)+'</p>':'')+
+    try{const k='rhr.stars',o=JSON.parse(localStorage.getItem(k)||'{}');if(!G.L.daily&&!G.L.weekly&&!G.free)o[G.levelIdx]=Math.max(o[G.levelIdx]||0,st);if(G.levelIdx===CAMPAIGN[CAMPAIGN.length-1]&&CAMPAIGN.every(k=>(o[k]||0)>=1))ach('citywide');localStorage.setItem(k,JSON.stringify(o))}catch(e){}
+    showOv('<div class="card"><div class="stars" style="text-align:center">'+starStr(st)+'</div><h2 style="text-align:center">'+(st?(G.free?'Map complete':'Map cleared'):'Not quite there')+'</h2><p class="sub" style="text-align:center">'+esc(G.L.name)+' kept moving for '+G.L.days+' days. '+(st?'':'No goals were met, so this map is not cleared yet. Try again with more buses on busy routes. ')+'Cash: '+money(G.money)+'.</p>'+bestNote+((st&&STORY[G.levelIdx]&&STORY[G.levelIdx].outro)?'<p class="quote">'+esc(STORY[G.levelIdx].outro)+'</p>':'')+
       '<ul class="goals">'+gl.map(g=>'<li class="'+(g.ok?'ok':'no')+'"><span>'+(g.ok?'✓':'✕')+'</span>'+esc(g.t)+'<em>'+esc(g.v)+'</em></li>').join('')+'</ul>'+dayReport()+
-      '<div class="btnrow">'+(st&&CAMPAIGN.indexOf(G.levelIdx)>=0&&CAMPAIGN.indexOf(G.levelIdx)<CAMPAIGN.length-1?'<button class="btn ok" data-act="level" data-i="'+CAMPAIGN[CAMPAIGN.indexOf(G.levelIdx)+1]+'">Next level</button>':'')+'<button class="btn alt" data-act="level" data-i="'+G.levelIdx+'">Replay</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="home">Levels</button></div></div>');
+      '<div class="btnrow">'+winButtons(st)+'</div></div>');
   }else{
     const tip=pct<70?'Tip: add buses to the busiest routes, or add stops closer to red crowds.':pct<90?'Tip: watch the amber stops. Extra buses there keep them green.':'Smooth day. Tomorrow brings more people.';
     showOv('<div class="card"><h2>Day '+G.day+' done</h2><p class="sub">'+esc(tip)+' '+G.dayDel+' delivered today and '+G.dayGave+' gave up ('+pct+'% of today\'s riders). The number that decides game over, your last 50 riders, stands at '+Math.round(sat()*100)+'%. Cash: '+money(G.money)+'.</p>'+dayReport()+
       '<p class="sub">You can edit routes now. The city grows overnight.</p>'+
       '<div class="btnrow"><button class="btn ok" data-act="nextday">Start day '+(G.day+1)+'</button><button class="btn alt" data-act="share">Share card</button></div></div>');
   }
+}
+function winButtons(st){
+  const ci=CAMPAIGN.indexOf(G.levelIdx),a=G.free?'freelevel':'level';
+  let h='';
+  if(!G.free&&st&&ci>=0){h+=ci<CAMPAIGN.length-1?'<button class="btn ok" data-act="level" data-i="'+CAMPAIGN[ci+1]+'">Next map</button>':'<button class="btn ok" data-act="mainmenu">Campaign complete!</button>'}
+  return h+'<button class="btn alt" data-act="'+a+'" data-i="'+G.levelIdx+'">Replay</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="'+(G.free?'free':'mainmenu')+'">'+(G.free?'Free Play':'Main menu')+'</button>';
 }
 function starStr(n){let s='';for(let i=0;i<3;i++)s+=i<n?'★':'<span class="off">★</span>';return s}
 function nextDay(){
@@ -2503,7 +2516,7 @@ function gameOver(why){
   const msg=why==='bankrupt'?'Running costs outgrew your fares. Cut buses on quiet routes, use rush-hour-only schedules, and aim fares at busy stops.':'Too many riders gave up waiting. Add buses where crowds turn red and make sure routes reach the business district.';
   showOv('<div class="card small"><h2>'+title+'</h2><p class="sub">'+msg+'</p>'+
     '<div class="statgrid"><div><b>'+G.delivered+'</b><span>Delivered</span></div><div><b>'+G.gaveUp+'</b><span>Gave up</span></div><div><b>Day '+G.day+'</b><span>Reached</span></div></div>'+
-    '<div class="btnrow">'+(G.snap?'<button class="btn ok" data-act="retryday">Retry from today</button>':'')+'<button class="btn" data-act="level" data-i="'+G.levelIdx+'">Restart level</button><button class="btn alt" data-act="home">Levels</button></div></div>');
+    '<div class="btnrow">'+(G.snap?'<button class="btn ok" data-act="retryday">Retry from today</button>':'')+'<button class="btn" data-act="'+(G.free?'freelevel':'level')+'" data-i="'+G.levelIdx+'">Restart map</button><button class="btn alt" data-act="home">Main menu</button></div></div>');
 }
 
 /* ================= coaching ================= */
@@ -2693,7 +2706,7 @@ function growCity(){
   return names.join(' and ');
 }
 function serialize(){
-  return{v:1,lvl:G.levelIdx,day:G.day,money:G.money,engine:G.engine,rev:G.rev,cost:G.cost,delivered:G.delivered,gaveUp:G.gaveUp,map:G.L.map.slice(),win:G.win.slice(),
+  return{v:1,lvl:G.levelIdx,free:G.free||null,day:G.day,money:G.money,engine:G.engine,rev:G.rev,cost:G.cost,delivered:G.delivered,gaveUp:G.gaveUp,map:G.L.map.slice(),win:G.win.slice(),
     stops:[...G.stops.values()].map(s=>({id:s.id,acc:!!s.access,bike:!!s.bike})),
     routes:G.routes.map(r=>({via:JSON.parse(JSON.stringify(r.via||{})),name:r.name,color:r.color,stops:r.stops.slice(),express:r.express,ep:r.expressPaid,loop:r.loop,lane:r.lane,sched:r.sched,night:!!r.night,model:r.model,spacing:!!r.spacing,buses:r.buses.length})),
     depots:[...G.depots.keys()],rival:G.rival.stops.slice()};
@@ -2711,7 +2724,7 @@ function readSave(n){
   }catch(e){return null}
 }
 function applySave(d){
-  setPhases();loadLevel(d.lvl,{skipTut:true});
+  setPhases();loadLevel(d.lvl,{skipTut:true,free:d.free||null});
   G.L.map=d.map.slice();G.city=buildCity(G.L);if(T.ok){build3D(G.city);resetDyn()}
   G.day=d.day;G.money=d.money;G.engine=d.engine||0;G.rev=d.rev||0;G.cost=d.cost||0;G.delivered=d.delivered||0;G.gaveUp=d.gaveUp||0;G.win=(d.win||[]).slice();
   for(const s of d.stops){const st=addStop(s.id,true);if(st){st.access=s.acc;st.bike=!!s.bike}}
@@ -2750,9 +2763,9 @@ function loadLevel(i,opts){
   const chal=base.daily||base.weekly;
   if(chal){for(let t=0;t<30;t++){L=dailyLevel(t,!!base.weekly);city=buildCity(L);if(city.connected&&city.homes.length>=10&&city.works.length>=6)break}}
   {const D=DIFFS[PROF.diff]||DIFFS.standard;L=Object.assign({},L,{patience:L.patience*D.pat,perDay:L.perDay*D.day,cash:Math.round(L.cash*D.cash),goals:L.goals?{sat:L.goals.sat,gave:L.goals.gave,profit:Math.round(L.goals.profit*D.goal)}:L.goals});G.fareMult=D.fare;G.costMult=D.cost||1}
-  G.L=L;resetState();rnd=chal?rng(L.seed*31+7):Math.random;G.season=seasonFor(1);
+  G.L=L;resetState();G.free=opts.free||null;G.noOver=G.free==='unlimited';rnd=chal?rng(L.seed*31+7):Math.random;G.season=seasonFor(1);
   G.city=city||buildCity(L);
-  G.money=L.cash;if(!opts.skipTut&&!opts.noBonus)startBonus();
+  G.money=L.cash;if(!opts.skipTut&&!opts.noBonus)startBonus();if(G.free==='unlimited')G.money=9999999;
   if(T.ok){build3D(G.city);resetDyn()}
   G.season=seasonFor(1);planEvents();
   ui.tut=!opts.skipTut&&!PROF.skipTut&&PROF.stat.delivered<150;ui.tutBoth=false;
@@ -4219,7 +4232,7 @@ function hud(){
   {const mp=$('#missions');let h='';
    if(!tutOn()){for(const m of G.missions){const pr=m.prog?Math.min(m.goal,Math.floor(m.prog())):0;h+='<div class="m '+(m.done?'done':m.failed?'fail':m.mayor?'mayor':'')+'"><b>'+(m.done?'✓':m.failed?'✕':m.mayor?'⚑':'◻')+'</b><span>'+esc(m.text)+(!m.done&&!m.failed&&['arena','uni','air','hosp','mall','school'].includes(m.pin||m.id)?' <button class="pin" data-act="msnpin" data-k="'+(m.pin||m.id)+'">Show me</button>':'')+'</span><em>'+(m.special?(m.special==='pm'?(G.gaveMark>=0?(G.dayGave-G.gaveMark)+' gave up · ':''):m.special==='happy'?((G.dayDel+G.dayGave)?Math.round(100*G.dayDel/(G.dayDel+G.dayGave))+'% · ':''):''):pr+'/'+m.goal+' · ')+'$'+m.reward+'</em></div>'}
      if(G.rival.stops.length)h+='<div class="m rv"><b>⚑</b><span>Rival Transit holds '+G.rival.stops.length+' stop'+(G.rival.stops.length>1?'s':'')+'</span><em>'+G.dayLost+' riders lost today</em></div>'}
-   if(!tutOn()&&G.L.goals){const g=G.L.goals,profit=Math.round(G.rev-G.cost);h+='<div class="m goal"><b>★</b><span>Level goals: gave up <u class="'+(G.gaveUp>=g.gave?'bad':'')+'">'+G.gaveUp+'/'+g.gave+'</u> · profit <u class="'+(profit>=g.profit?'ok':'')+'">$'+profit+'/$'+g.profit+'</u></span></div>'}
+   if(!tutOn()&&G.L.goals){const g=G.L.goals,profit=Math.round(G.rev-G.cost);h+='<div class="m goal"><b>★</b><span>Goals: gave up <u class="'+(G.gaveUp>=g.gave?'bad':'')+'">'+G.gaveUp+'/'+g.gave+'</u> · profit <u class="'+(profit>=g.profit?'ok':'')+'">$'+profit+'/$'+g.profit+'</u></span></div>'}
    if(h!==mp._h){mp._h=h;mp.innerHTML=h;mp.hidden=!h}}
   {const sv=sat();if(G.win.length>=15&&sv<.64&&sv>=.5&&!G.warned&&!G.over){G.warned=true;toast('Riders are getting upset ('+Math.round(sv*100)+'%). Add buses at the red stops before it drops below 50%.',4800);snd('alert')}else if(sv>=.72)G.warned=false}
   const ph=phaseAt(G.t),pp=$('#phasePill');
@@ -4248,7 +4261,7 @@ document.addEventListener('click',e=>{
     case'sound':ui.sound=!ui.sound;syncPlay();if(el.closest('#ov'))el.textContent=ui.sound?'Sound: on':'Sound: off';break;
     case'fitclose':hideOv();fitCam(true);break;
     case'fit':fitCam(true);break;
-    case'menu':if(G.modal){if(ui.growOpts)toast('Choose where the city grows first, or tap Not today.',2400);return}G.paused=true;syncPlay();showOv('<div class="card small"><h2>Paused</h2><div class="menugrid"><button class="btn ok full" data-act="resume">Resume</button><button class="btn alt full" data-act="items">Items'+(invCount()?' ('+invCount()+')':'')+'</button><button class="btn alt" data-act="retryday"'+(G.snap?'':' disabled')+'>Restart today</button><button class="btn alt" data-act="cityhall">City Hall</button><button class="btn alt" data-act="garage">Garage</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="goals">Goals</button><button class="btn alt" data-act="photo">Photo mode</button><button class="btn alt" data-act="sound">'+(ui.sound?'Sound: on':'Sound: off')+'</button><button class="btn alt" data-act="muteall">'+(PROF.a11y.mute?'Mute all: on':'Mute all: off')+'</button><button class="btn alt" data-act="settings" data-from="game">Settings</button><button class="btn alt" data-act="trophies" data-from="game">Trophies</button><button class="btn alt" data-act="slots" data-from="game">Save slots</button><button class="btn alt" data-act="guide" data-from="game">Guide</button><button class="btn alt" data-act="shop" data-from="game">Shop</button><button class="btn alt" data-act="drivers">Drivers</button><button class="btn alt" data-act="fitclose">Fit map</button><button class="btn alt" data-act="restartlevel">Restart level</button><button class="btn alt" data-act="home">Level select</button><button class="btn alt full" data-act="howto">How to play</button></div></div>');break;
+    case'menu':if(G.modal){if(ui.growOpts)toast('Choose where the city grows first, or tap Not today.',2400);return}G.paused=true;syncPlay();showOv('<div class="card small"><h2>Paused</h2><div class="menugrid"><button class="btn ok full" data-act="resume">Resume</button><button class="btn alt full" data-act="items">Items'+(invCount()?' ('+invCount()+')':'')+'</button><button class="btn alt" data-act="retryday"'+(G.snap?'':' disabled')+'>Restart today</button><button class="btn alt" data-act="cityhall">City Hall</button><button class="btn alt" data-act="garage">Garage</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="goals">Goals</button><button class="btn alt" data-act="photo">Photo mode</button><button class="btn alt" data-act="sound">'+(ui.sound?'Sound: on':'Sound: off')+'</button><button class="btn alt" data-act="muteall">'+(PROF.a11y.mute?'Mute all: on':'Mute all: off')+'</button><button class="btn alt" data-act="settings" data-from="game">Settings</button><button class="btn alt" data-act="trophies" data-from="game">Trophies</button><button class="btn alt" data-act="slots" data-from="game">Save slots</button><button class="btn alt" data-act="guide" data-from="game">Guide</button><button class="btn alt" data-act="shop" data-from="game">Shop</button><button class="btn alt" data-act="drivers">Drivers</button><button class="btn alt" data-act="fitclose">Fit map</button><button class="btn alt" data-act="restartlevel">Restart map</button><button class="btn alt" data-act="home">Main menu</button><button class="btn alt full" data-act="howto">How to play</button></div></div>');break;
     case'resume':hideOv();syncPlay();break;
     case'backov':{const h=ui.prevOv;ui.prevOv=null;if(h){showOv(h)}else{hideOv();syncPlay()}break}
     case'set':setOpt(el.dataset.k,el.dataset.v);break;
@@ -4288,9 +4301,14 @@ document.addEventListener('click',e=>{
     case'loadslot':hideOv();loadSave(+el.dataset.n);syncPlay();break;
     case'useslot':PROF.slot=+el.dataset.n;saveProfile();saveGame();toast('Saving to slot '+PROF.slot+'.');showSlots('game');break;
     case'howto':showHomeMenu();break;
-    case'newgame':showHowTo();break;
+    case'newgame':showCampaign();break;
     case'howtoplay':showHowToPlay();break;
-    case'home':showHome();break;
+    case'home':leaveConfirm();break;
+    case'mainmenu':hideOv();showHomeMenu();break;
+    case'free':showFree();break;
+    case'freelevel':startLevel(+el.dataset.i,{free:PROF.freeMoney==='limited'?'limited':'unlimited'});break;
+    case'freemoney':PROF.freeMoney=el.dataset.v;saveProfile();showFree();break;
+    case'campreset':if(confirmTap('campreset','This clears your campaign progress (not your profile or shop items).')){try{localStorage.removeItem('rhr.stars')}catch(e){}showCampaign()}break;
     case'level':startLevel(+el.dataset.i);break;
     case'nextday':nextDay();break;
     case'tool':setTool(el.dataset.tool);break;
@@ -4307,7 +4325,7 @@ document.addEventListener('click',e=>{
     case'night':if(route)toggleNight(route);break;
     case'bike':if(ui.sel&&ui.sel.type==='stop')buyBike(ui.sel.id);break;
     case'engine':buyEngine();break;
-    case'restartlevel':if(confirmTap('restart','This wipes your progress on this level.'))startLevel(G.levelIdx);break;
+    case'restartlevel':if(confirmTap('restart','This wipes your progress on this map.'))startLevel(G.levelIdx,G.free?{free:G.free}:undefined);break;
     case'color':if(route){e.stopPropagation();const RC=routeCols(),used=new Set(G.routes.map(r=>r.color)),i=RC.indexOf(route.color);let c=null;for(let k=1;k<=RC.length;k++){const t=RC[(i+k)%RC.length];if(!used.has(t)){c=t;break}}if(c){route.color=c;netChanged()}}break;
     case'follow':if(route&&route.buses.length){ui.follow=route.buses[0].id;cam.zoom=Math.max(cam.zoom,2);ui.sheet=false;ui.dirty=true}else toast('This route has no buses yet.');break;
     case'movestop':if(ui.sel&&ui.sel.type==='stop'){ui.moving=ui.sel.id;ui.sel=null;setTool('select');ui.dirty=true}break;
@@ -4505,7 +4523,8 @@ function showHomeMenu(){
   showOv('<canvas id="hbg"></canvas><div class="hm'+(quick?' quick ready':'')+'"><h1>'+word('Rush Hour',.3)+'<span class="w w2">'+[...'Routes'].map((c,k)=>'<span class="l" style="animation-delay:'+(1.0+k*.07).toFixed(2)+'s">'+c+'</span>').join('')+'</span></h1>'+
    '<p class="tag">Run the buses. Keep the city moving.</p>'+
    (best?'<button class="btn main" data-act="loadslot" data-n="'+bn+'" '+bd()+'>Continue<br><small style="font-weight:600;font-size:12px;opacity:.9">'+slotInfo(bn)+'</small></button>':'')+
-   '<button class="btn'+(best?'':' main')+'" data-act="newgame" '+bd()+'>New Game</button>'+
+   '<button class="btn'+(best?'':' main')+'" data-act="newgame" '+bd()+'>Campaign<br><small style="font-weight:600;font-size:12px;opacity:.9">'+esc(campIdx()>0||campIdx()>=CAMPAIGN.length?campLabel():'Start your journey')+'</small></button>'+
+   '<button class="btn" data-act="free" '+bd()+'>Free Play</button>'+
    (nsaves>=2?'<button class="btn" data-act="slots" data-from="howto" '+bd()+'>Saved Games</button>':'')+
    '<button class="btn" data-act="settings" data-from="howto" '+bd()+'>Settings</button>'+
    '<button class="btn" data-act="howtoplay" '+bd()+'>How to play</button>'+
@@ -4514,7 +4533,7 @@ function showHomeMenu(){
   if(!quick){const go=()=>{hm.classList.add('quick','ready')};hm.addEventListener('click',()=>{if(!hm.classList.contains('ready'))go()},true);setTimeout(()=>{if(hm.isConnected)hm.classList.add('ready')},3900)}
   homeScene($('#hbg'));
 }
-function startLevel(i){hideOv();loadLevel(i);syncPlay()}
+function startLevel(i,o){hideOv();loadLevel(i,o);syncPlay()}
 function getStars(){try{return JSON.parse(localStorage.getItem('rhr.stars')||'{}')}catch(e){return{}}}
 function howSteps(){return ''+
    '<div><b>1 · Place stops</b>Pick <u>Stops</u> and tap road junctions. Citizens walk to the nearest useful stop and wait.</div>'+
@@ -4530,19 +4549,34 @@ function howSteps(){return ''+
 function showHowToPlay(){
   showOv('<div class="card"><h1>How to play</h1><p class="sub">You run the buses. Get everyone to work and back home before they lose patience.</p><div class="how">'+howSteps()+'</div><div class="btnrow" style="margin-top:14px"><button class="btn alt" data-act="guide" data-from="howto">Full guide</button><button class="btn ok" data-act="howto">Back</button></div></div>');
 }
-function showHowTo(){
-  showOv('<div class="card"><h1>New Game</h1><p class="sub">Pick a map to start. Each level adds more people, less patience and new tools.</p>'+
-   (PROF.stat.delivered>0?'':'<button class="btn ok full" data-act="level" data-i="0" style="margin:4px 0 8px">Play: Maple Hollow</button>')+'<div class="lbl" style="margin:10px 0 8px">Choose a level</div>'+levelCards()+'<div class="btnrow" style="margin-top:12px"><button class="btn alt" data-act="howto">Back</button></div></div>');
+function campIdx(){const st=getStars();for(let k=0;k<CAMPAIGN.length;k++)if((st[CAMPAIGN[k]]||0)<1)return k;return CAMPAIGN.length}
+function campLabel(){const k=campIdx();return k>=CAMPAIGN.length?'Campaign complete':(k>0?'Map '+(k+1)+' · ':'')+LEVELS[CAMPAIGN[k]].name}
+function showCampaign(){
+  const st=getStars(),cur=campIdx(),n=CAMPAIGN.length,done=cur>=n,L=done?null:LEVELS[CAMPAIGN[cur]];
+  const trail=CAMPAIGN.map((li,k)=>{const D=LEVELS[li],c=(st[li]||0)>=1,isCur=k===cur;
+    return'<div class="tn '+(c?'done':isCur?'cur':'lock')+'"><i>'+(c?'✓':isCur?(k+1):'🔒')+'</i><span>'+(c||isCur?esc(D.name):'Map '+(k+1)+' · locked')+'</span>'+(c?'<small>'+starStr(st[li]||0)+'</small>':'')+'</div>'}).join('');
+  const chips=L?'<div class="chips" style="margin:8px 0"><span class="chip">'+(isFinite(L.days)?L.days+' days':'Endless')+'</span><span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>'+(L.region?'<span class="chip new">'+esc(L.region)+'</span>':'')+(L.climate&&L.climate!=='mild'?'<span class="chip new">'+esc({snow:'Snow all year',rain:'Always raining',hot:'Hot all year'}[L.climate]||L.climate)+'</span>':'')+'</div>':'';
+  showOv('<div class="card small"><h1>Campaign</h1><p class="sub">'+(done?'You finished every map. Replay any of them from Free Play.':'Clear a map to open the next. Every map is harder and looks different.')+'</p>'+
+    (L?'<div class="lv" style="min-height:0;border-color:var(--accent)"><div class="lbl">Map '+(cur+1)+' of '+n+'</div><b style="font-size:20px">'+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small>'+chips+'</div><button class="btn ok full" data-act="level" data-i="'+CAMPAIGN[cur]+'" style="margin:12px 0 0">'+(cur>0?'Play Map '+(cur+1):'Start')+'</button>':'<button class="btn ok full" data-act="free" style="margin:12px 0 0">Free Play</button>')+
+    '<div class="trail">'+trail+'</div><div class="btnrow"><button class="btn alt" data-act="campreset">Restart campaign</button><button class="btn alt" data-act="howto">Back</button></div></div>');
 }
-function levelCards(){
-  const st=getStars();let cont='';
-  for(let n=1;n<=3;n++){const sv=readSave(n);if(sv)cont+='<button class="lv" data-act="loadslot" data-n="'+n+'" style="border-color:var(--ok)"><b>Continue</b><small>'+slotInfo(n)+'</small><div class="chips"><span class="chip new">Slot '+n+'</span></div></button>'}
+function showFree(){
+  const m=PROF.freeMoney==='limited'?'limited':'unlimited';
+  showOv('<div class="card"><h1>Free Play</h1><p class="sub">Play any map you like. Nothing here counts toward the campaign.</p>'+
+    '<div class="seg"><button class="'+(m==='unlimited'?'on':'')+'" data-act="freemoney" data-v="unlimited">Unlimited money</button><button class="'+(m==='limited'?'on':'')+'" data-act="freemoney" data-v="limited">Limited money</button></div>'+
+    '<p class="sub" style="margin-top:0">'+(m==='unlimited'?'Build whatever you want. No game over.':'Start each map with its normal cash and the normal rules.')+'</p>'+
+    levelCards('freelevel')+'<div class="btnrow" style="margin-top:12px"><button class="btn alt" data-act="howto">Back</button></div></div>');
+}
+function leaveConfirm(){
+  showOv('<div class="card small"><h2>Back to the main menu?</h2><p class="sub">Your game is saved at the end of every day. Anything since then is lost.</p><div class="btnrow"><button class="btn ok" data-act="resume">Keep playing</button><button class="btn alt" data-act="mainmenu">Leave</button></div></div>');
+}
+function levelCards(act){act=act||'level';
+  const st=getStars(),cont='';
   const order=CAMPAIGN.concat(LEVELS.map((_,i)=>i).filter(i=>CAMPAIGN.indexOf(i)<0));
-  return'<div class="levels">'+cont+order.map(i=>{const L=LEVELS[i],ci=CAMPAIGN.indexOf(i);return'<button class="lv" data-act="level" data-i="'+i+'"><b>'+(ci>=0?(ci+1)+'. ':'')+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small>'+
+  return'<div class="levels">'+cont+order.map(i=>{const L=LEVELS[i],ci=CAMPAIGN.indexOf(i);return'<button class="lv" data-act="'+act+'" data-i="'+i+'"><b>'+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small>'+
     '<div class="chips"><span class="chip">'+(isFinite(L.days)?L.days+' days':'Endless')+'</span><span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>'+(i===1?'<span class="chip new">Express routes</span>':'')+(i===2?'<span class="chip new">Transfers · step-free stops</span>':'')+(i===3?'<span class="chip new">Bridges</span>':'')+(i===7?'<span class="chip new">Narrow streets</span>':'')+(i===8?'<span class="chip new">Canals</span>':'')+(i===9?'<span class="chip new">Hill detours</span>':'')+(i===10?'<span class="chip new">Lake</span>':'')+(i===11?'<span class="chip new">Coast</span>':'')+(i===12?'<span class="chip new">Ring road</span>':'')+(i===13?'<span class="chip new">Finale</span>':'')+(L.sandbox?'<span class="chip new">No game over</span>':'')+(L.daily?'<span class="chip new">Today only</span>':'')+(L.weekly?'<span class="chip new">This week only</span>':'')+'</div>'+
-    (ci>=0?'<div class="stars">'+starStr(st[i]||0)+'</div>':'')+'</button>'}).join('')+'</div>';
+    (ci>=0&&(st[i]||0)>0?'<div class="stars">'+starStr(st[i]||0)+'</div>':'')+'</button>'}).join('')+'</div>';
 }
-function showHome(){showOv('<div class="card"><h1>Choose a level</h1><p class="sub">Each level adds more people, less patience and new tools.</p><div style="height:12px"></div>'+levelCards()+'<div class="btnrow"><button class="btn alt" data-act="guide" data-from="game">Guide</button><button class="btn ok" data-act="resume">Back to game</button></div></div>')}
 
 /* ================= main loop ================= */
 let last=performance.now(),uiT=0;
@@ -4568,7 +4602,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={meta:{showHowToPlay,snd,toggleMute,rmOn,patHtml,routeCols,ac:()=>({ac:AC,out:AOUT}),showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,shopTap,buyShop,useItem,equipLook,showItems,applyBank,shopItem,savePct,realSeason,bo,sp,boostIcons,invCount,applyLooks,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},wx:WX,vg:VG,info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={meta:{showCampaign,showFree,campIdx,winButtons,showHowToPlay,snd,toggleMute,rmOn,patHtml,routeCols,ac:()=>({ac:AC,out:AOUT}),showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,shopTap,buyShop,useItem,equipLook,showItems,applyBank,shopItem,savePct,realSeason,bo,sp,boostIcons,invCount,applyLooks,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},wx:WX,vg:VG,info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 /* boot (deferred one frame so the splash screen can paint first) */
 function bootGame(){
 performance.mark('rhr:boot');
