@@ -4279,6 +4279,7 @@ document.addEventListener('click',e=>{
     case'useslot':PROF.slot=+el.dataset.n;saveProfile();saveGame();toast('Saving to slot '+PROF.slot+'.');showSlots('game');break;
     case'howto':showHomeMenu();break;
     case'newgame':showHowTo();break;
+    case'howtoplay':showHowToPlay();break;
     case'home':showHome();break;
     case'level':startLevel(+el.dataset.i);break;
     case'nextday':nextDay();break;
@@ -4497,6 +4498,7 @@ function showHomeMenu(){
    '<button class="btn'+(best?'':' main')+'" data-act="newgame" '+bd()+'>New Game</button>'+
    (nsaves>=2?'<button class="btn" data-act="slots" data-from="howto" '+bd()+'>Saved Games</button>':'')+
    '<button class="btn" data-act="settings" data-from="howto" '+bd()+'>Settings</button>'+
+   '<button class="btn" data-act="howtoplay" '+bd()+'>How to play</button>'+
    '<div><button class="btn sm" data-act="guide" data-from="howto" '+bd()+'>Guide</button><button class="btn sm" data-act="trophies" data-from="howto" '+bd()+'>Trophies</button><button class="btn sm" data-act="shop" data-from="howto" '+bd()+'>Shop</button></div></div>');
   const o=$('#ov');o.classList.add('homeov');const hm=o.querySelector('.hm');
   if(!quick){const go=()=>{hm.classList.add('quick','ready')};hm.addEventListener('click',()=>{if(!hm.classList.contains('ready'))go()},true);setTimeout(()=>{if(hm.isConnected)hm.classList.add('ready')},3900)}
@@ -4504,9 +4506,7 @@ function showHomeMenu(){
 }
 function startLevel(i){hideOv();loadLevel(i);syncPlay()}
 function getStars(){try{return JSON.parse(localStorage.getItem('rhr.stars')||'{}')}catch(e){return{}}}
-function showHowTo(){
-  showOv('<div class="card"><h1>New Game</h1><p class="sub">You run the buses. Get everyone to work and back home before they lose patience.</p>'+
-   (PROF.stat.delivered>0?'':'<button class="btn ok full" data-act="level" data-i="0" style="margin:4px 0 8px">Play: Maple Hollow</button>')+'<details class="howd"'+(PROF.stat.delivered>0?'':' open')+'><summary style="font-weight:800;cursor:pointer;margin:6px 0">How to play</summary><div class="how">'+
+function howSteps(){return ''+
    '<div><b>1 · Place stops</b>Pick <u>Stops</u> and tap road junctions. Citizens walk to the nearest useful stop and wait.</div>'+
    '<div><b>2 · Draw routes</b>Pick <u>Route</u>, then tap stops in order. Buses run back and forth. Press Done to finish.</div>'+
    '<div><b>3 · Add buses</b>Open <u>Buses</u> and use + and −. A full bus skips stops and flashes red, so add more where crowds grow.</div>'+
@@ -4516,7 +4516,14 @@ function showHowTo(){
    '<div><b>7 · Level up</b>Missions, landmarks, weather and surprise events keep every day different. Earn XP to unlock City Hall upgrades and Garage looks.</div>'+
    '<div><b>8 · Grow the city</b>Schools, malls and hospitals open as you deliver more riders. Night service, bike docks and trams unlock at higher company levels.</div>'+
    '<div><b>Controls</b>Drag to pan. Pinch or scroll to zoom. Twist two fingers (or right-drag) to rotate. Tap or click to place. Pause any time to edit. Keys: S, T, R, B, V, +, −, M, Space.</div>'+
-   '<div><b>Full guide</b>Every button, every rule and the best strategies are in the Guide. Open it any time from the menu or the buttons below.</div>'+
+   '<div><b>Full guide</b>Every button, every rule and the best strategies are in the Guide. Open it any time from the menu or the buttons below.</div>';}
+function showHowToPlay(){
+  showOv('<div class="card"><h1>How to play</h1><p class="sub">You run the buses. Get everyone to work and back home before they lose patience.</p><div class="how">'+howSteps()+'</div><div class="btnrow" style="margin-top:14px"><button class="btn alt" data-act="guide" data-from="howto">Full guide</button><button class="btn ok" data-act="howto">Back</button></div></div>');
+}
+function showHowTo(){
+  showOv('<div class="card"><h1>New Game</h1><p class="sub">You run the buses. Get everyone to work and back home before they lose patience.</p>'+
+   (PROF.stat.delivered>0?'':'<button class="btn ok full" data-act="level" data-i="0" style="margin:4px 0 8px">Play: Maple Hollow</button>')+'<details class="howd"'+(PROF.stat.delivered>0?'':' open')+'><summary style="font-weight:800;cursor:pointer;margin:6px 0">How to play</summary><div class="how">'+
+   howSteps()+
    '</div></details><div class="lbl" style="margin:10px 0 8px">Choose a level</div>'+levelCards()+'<div class="btnrow" style="margin-top:12px"><button class="btn alt" data-act="howto">Back</button></div></div>');
 }
 function levelCards(){
@@ -4553,7 +4560,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={meta:{snd,toggleMute,rmOn,patHtml,routeCols,ac:()=>({ac:AC,out:AOUT}),showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,shopTap,buyShop,useItem,equipLook,showItems,applyBank,shopItem,savePct,realSeason,bo,sp,boostIcons,invCount,applyLooks,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},wx:WX,vg:VG,info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={meta:{showHowToPlay,snd,toggleMute,rmOn,patHtml,routeCols,ac:()=>({ac:AC,out:AOUT}),showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,shopTap,buyShop,useItem,equipLook,showItems,applyBank,shopItem,savePct,realSeason,bo,sp,boostIcons,invCount,applyLooks,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},wx:WX,vg:VG,info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 /* boot (deferred one frame so the splash screen can paint first) */
 function bootGame(){
 performance.mark('rhr:boot');
