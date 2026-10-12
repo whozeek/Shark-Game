@@ -82,15 +82,12 @@ button{font-family:inherit;color:inherit;touch-action:manipulation;cursor:pointe
 .mini{height:46px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:#f1f5f8;font-weight:800;font-size:13px}
 .mini.on{background:#ffe9a8;border-color:#e6b93a}
 .mini.danger{color:var(--bad)}
-.mini.loopon{--rc:#3fb868;position:relative;background:linear-gradient(135deg,#eafcf1,#c6f1d7);border:2px solid var(--rc);color:#0b3d1f;box-shadow:0 0 0 2px rgba(255,255,255,.7),0 0 14px var(--rc),0 0 28px color-mix(in srgb,var(--rc) 45%,transparent);animation:loopglow 2.2s ease-in-out infinite}
+.mini.loopon{--rc:#3fb868;position:relative;background:linear-gradient(135deg,#eafcf1,#c6f1d7);border:1px solid #7fcf9c;color:#0b3d1f;box-shadow:0 0 12px rgba(63,184,104,.6);animation:loopglow 2.2s ease-in-out infinite}
 .mini.loopon i{display:inline-block;font-style:normal;margin-right:5px;animation:loopspin 2.4s linear infinite}
-.mini.loopon::after{content:"";position:absolute;inset:-4px;border-radius:15px;border:2px solid var(--rc);opacity:0;animation:loopring 2.2s ease-out infinite;pointer-events:none}
 .badges em.lp{background:linear-gradient(135deg,#eafcf1,#c6f1d7);color:#0b3d1f;box-shadow:0 0 9px rgba(63,184,104,.75);font-style:normal}
 @keyframes loopglow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.07) saturate(1.15)}}
 @keyframes loopspin{to{transform:rotate(360deg)}}
-@keyframes loopring{0%{opacity:.7;transform:scale(.96)}100%{opacity:0;transform:scale(1.12)}}
-body.rm .mini.loopon,body.rm .mini.loopon i,body.rm .mini.loopon::after{animation:none}
-body.rm .mini.loopon::after{opacity:.0}
+body.rm .mini.loopon,body.rm .mini.loopon i{animation:none}
 
 .mini.locked{opacity:.55}
 .mini:disabled{opacity:.45}
@@ -4608,7 +4605,7 @@ function refreshUI(){
         const ex=G.L.express?'<button class="mini '+(r.express?'on':'')+'" data-act="express" data-id="'+r.id+'">Express'+(r.expressPaid?'':' $'+PRICE.express)+'</button>':'<button class="mini locked" data-act="locked" data-msg="Express routes unlock at Riverside (level 2 of the campaign)">Express (L2)</button>';
         tools='<div class="rtools"><input class="rname" id="rn" maxlength="14" value="'+esc(r.name)+'" data-id="'+r.id+'" aria-label="Route name">'+
           '<button class="mini" data-act="model" data-id="'+r.id+'">'+esc(modelLine(r))+'</button>'+ex+
-          '<button class="mini '+(r.loop?'loopon':'')+'" data-act="loop" data-id="'+r.id+'" aria-pressed="'+!!r.loop+'"'+(r.loop?' style="--rc:'+r.color+'"':'')+'>'+(r.loop?'<i>⟳</i>Loop on':'Loop')+'</button>'+
+          '<button class="mini '+(r.loop?'loopon':'')+'" data-act="loop" data-id="'+r.id+'" aria-pressed="'+!!r.loop+'"'+'>'+(r.loop?'<i>⟳</i>Loop on':'Loop')+'</button>'+
           '<button class="mini" data-act="reverse" data-id="'+r.id+'">Reverse</button>'+'<button class="mini '+(r.spacing?'on':'')+'" data-act="spacing" data-id="'+r.id+'">Even spacing</button>'+
           '<button class="mini '+(r.lane?'on':'')+'" data-act="lane" data-id="'+r.id+'">'+(r.lane?'Priority lanes ✓':'Priority lanes $'+PRICE.lane)+'</button>'+
           '<button class="mini '+(r.sched==='peak'?'on':'')+'" data-act="sched" data-id="'+r.id+'">'+(r.sched==='peak'?'Rush hours only':'All day')+'</button>'+(has('night')?'<button class="mini '+(r.night?'on':'')+'" data-act="night" data-id="'+r.id+'">'+(r.night?'Night service ✓':'Night service')+'</button>':'')+
