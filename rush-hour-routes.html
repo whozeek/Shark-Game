@@ -4605,7 +4605,7 @@ function refreshUI(){
         const ex=G.L.express?'<button class="mini '+(r.express?'on':'')+'" data-act="express" data-id="'+r.id+'">Express'+(r.expressPaid?'':' $'+PRICE.express)+'</button>':'<button class="mini locked" data-act="locked" data-msg="Express routes unlock at Riverside (level 2 of the campaign)">Express (L2)</button>';
         tools='<div class="rtools"><input class="rname" id="rn" maxlength="14" value="'+esc(r.name)+'" data-id="'+r.id+'" aria-label="Route name">'+
           '<button class="mini" data-act="model" data-id="'+r.id+'">'+esc(modelLine(r))+'</button>'+ex+
-          '<button class="mini '+(r.loop?'loopon':'')+'" data-act="loop" data-id="'+r.id+'" aria-pressed="'+!!r.loop+'"'+'>'+(r.loop?'<i>⟳</i>Loop on':'Loop')+'</button>'+
+          '<button class="mini '+(r.loop?'loopon':'')+'" data-act="loop" data-id="'+r.id+'" aria-pressed="'+!!r.loop+'"'+'>'+(r.loop?'Loop on':'Loop')+'</button>'+
           '<button class="mini" data-act="reverse" data-id="'+r.id+'">Reverse</button>'+'<button class="mini '+(r.spacing?'on':'')+'" data-act="spacing" data-id="'+r.id+'">Even spacing</button>'+
           '<button class="mini '+(r.lane?'on':'')+'" data-act="lane" data-id="'+r.id+'">'+(r.lane?'Priority lanes ✓':'Priority lanes $'+PRICE.lane)+'</button>'+
           '<button class="mini '+(r.sched==='peak'?'on':'')+'" data-act="sched" data-id="'+r.id+'">'+(r.sched==='peak'?'Rush hours only':'All day')+'</button>'+(has('night')?'<button class="mini '+(r.night?'on':'')+'" data-act="night" data-id="'+r.id+'">'+(r.night?'Night service ✓':'Night service')+'</button>':'')+
