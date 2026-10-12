@@ -129,6 +129,7 @@ body.rm .mini.loopon,body.rm .mini.loopon i{animation:none}
 .tn i{font-style:normal;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#cfd8dd;color:#3b4a53;font-size:13px;flex:none}
 .tn.done i{background:var(--ok);color:#06361a}.tn.cur{background:#e4effd;border:2px solid var(--accent)}.tn.cur i{background:var(--accent);color:#fff}
 .tn.lock{opacity:.6}.tn small{margin-left:auto;color:#5a6a73;font-weight:700}
+.rate{display:block;color:#1d6b3c;font-weight:800}
 .seg{display:flex;gap:6px;margin:10px 0}.seg button{flex:1;min-height:46px;border-radius:12px;border:2px solid var(--line);background:#fff;font-weight:800}
 .seg button.on{border-color:var(--ok);background:#d9f3e2}
 .stars{font-size:20px;letter-spacing:2px;color:#d3a21d}
@@ -1358,8 +1359,8 @@ function endTour(){
 }
 /* ================= shop ================= */
 const PAY_LINKS={};
-const SHOP_CATS=[['all','All'],['small','Small'],['boost','Boosts'],['look','Looks'],['driver','Drivers'],['pack','Packs'],['bundle','Bundles'],['big','Big']];
-const SHOP_SECT=[['small','Small things'],['boost','Day boosters (last one game day)'],['look','Looks'],['driver','Drivers'],['pack','Cash, XP and ticket packs'],['bundle','Bundles'],['big','The big stuff']];
+const SHOP_CATS=[['all','All'],['cash','Game cash'],['small','Small'],['boost','Boosts'],['look','Looks'],['driver','Drivers'],['pack','Packs'],['bundle','Bundles'],['big','Big']];
+const SHOP_SECT=[['cash','Game cash'],['small','Small things'],['boost','Day boosters (last one game day)'],['look','Looks'],['driver','Drivers'],['pack','Cash, XP and ticket packs'],['bundle','Bundles'],['big','The big stuff']];
 const usdN=s=>parseFloat(String(s||'').replace(/[^0-9.]/g,''))||0;
 const bo=k=>!!(G.boosts&&G.boosts[k]===G.day);
 const sp=k=>!!(PROF.shop&&PROF.shop.own[k]);
@@ -1409,11 +1410,12 @@ const SHOP=[
  {id:'d_vet',cat:'driver',kind:'use',ico:'🏅',name:'Hire a Veteran',desc:'A new Veteran driver (70 riders of experience) joins your roster.',t:40},
  lk('hat_cap','🧢','Driver Cap','Drivers wear a blue cap, shown on the bus roof.',5,'hat','cap',{cat:'driver'}),lk('hat_top','🎩','Top Hat','A very dignified roof hat.',8,'hat','top',{cat:'driver'}),lk('hat_crown','👑','Golden Crown','The crown of the road.',14,'hat','crown',{cat:'driver'}),
  /* packs (dollar placeholders) */
- {id:'cash0',cat:'pack',kind:'pack',ico:'🪙',name:'Loose Coins',desc:'$3,000 of in-game cash.',usd:'$0.49',give:{cash:3000}},
- {id:'cash1',cat:'pack',kind:'pack',ico:'💵',name:'Pocket Change',desc:'$10,000 of in-game cash.',usd:'$0.99',price:'$0.99',cash:10000,give:{cash:10000}},
- {id:'cash2',cat:'pack',kind:'pack',ico:'💸',name:'Cash Drop',desc:'$40,000 of in-game cash.',usd:'$2.99',price:'$2.99',cash:40000,give:{cash:40000}},
- {id:'cash3',cat:'pack',kind:'pack',ico:'💰',name:'Money Bags',desc:'$150,000 of in-game cash.',usd:'$7.99',price:'$7.99',cash:150000,give:{cash:150000}},
- {id:'cash4',cat:'pack',kind:'pack',ico:'🏦',name:'Armoured Truck',desc:'$400,000 of in-game cash.',usd:'$14.99',give:{cash:400000}},
+ {id:'cash0',cat:'cash',kind:'pack',ico:'🪙',name:'Loose Coins',desc:'$5,000 of in-game cash.',usd:'$0.49',give:{cash:5000}},
+ {id:'cash1',cat:'cash',kind:'pack',ico:'💵',name:'Pocket Change',desc:'$12,000 of in-game cash.',usd:'$0.99',price:'$0.99',cash:12000,give:{cash:12000}},
+ {id:'cash2',cat:'cash',kind:'pack',ico:'💸',name:'Cash Drop',desc:'$45,000 of in-game cash.',usd:'$2.99',price:'$2.99',cash:45000,give:{cash:45000}},
+ {id:'cash3',cat:'cash',kind:'pack',ico:'💰',name:'Money Bags',desc:'$150,000 of in-game cash.',usd:'$7.99',price:'$7.99',cash:150000,give:{cash:150000}},
+ {id:'cash4',cat:'cash',kind:'pack',ico:'🏦',name:'Armoured Truck',desc:'$400,000 of in-game cash.',usd:'$14.99',give:{cash:400000}},
+ {id:'cash5',cat:'cash',kind:'pack',ico:'🏛️',name:'The Vault',desc:'$1,000,000 of in-game cash.',usd:'$24.99',give:{cash:1000000}},
  {id:'xp1',cat:'pack',kind:'pack',ico:'📘',name:'Study Notes',desc:'250 company XP.',usd:'$0.99',give:{xp:250}},
  {id:'xp2',cat:'pack',kind:'pack',ico:'📚',name:'Night School',desc:'900 company XP.',usd:'$2.99',give:{xp:900}},
  {id:'xp3',cat:'pack',kind:'pack',ico:'🎓',name:'Executive MBA',desc:'2,500 company XP.',usd:'$6.99',give:{xp:2500}},
@@ -1597,7 +1599,7 @@ function shopCard(it){
   else btn='<button class="sb buy'+(armed?' arm':'')+'" data-act="shopbuy" data-id="'+it.id+'">'+(armed?'Tap to confirm':esc(price))+'</button>';
   const use=(it.kind==='use'&&n>0&&!homeMode())?'<button class="sb use" data-act="useitem" data-id="'+it.id+'" data-where="shop">Use</button>':'';
   const ico=it.sw?'<div class="ico swc" style="background:'+it.sw+'"></div>':'<div class="ico">'+it.ico+'</div>';
-  return'<div class="sitem'+(bd.length?' hasb':'')+(own||(it.kind==='look'&&S.own[it.id])?' owned':'')+(eq?' eqd':'')+'" data-sid="'+it.id+'">'+(bd.length?'<div class="bdgs">'+bd.join('')+'</div>':'')+ico+'<b>'+esc(it.name)+(n>0?' <span class="own">x'+n+'</span>':'')+'</b><small>'+esc(it.desc)+'</small>'+(it.kind==='bundle'?'<small class="inc">'+esc(contentsOf(it))+'</small>':'')+
+  return'<div class="sitem'+(bd.length?' hasb':'')+(own||(it.kind==='look'&&S.own[it.id])?' owned':'')+(eq?' eqd':'')+'" data-sid="'+it.id+'">'+(bd.length?'<div class="bdgs">'+bd.join('')+'</div>':'')+ico+'<b>'+esc(it.name)+(n>0?' <span class="own">x'+n+'</span>':'')+'</b><small>'+esc(it.desc)+'</small>'+(it.cat==='cash'&&it.usd?'<small class="rate">≈ $'+Math.round(it.give.cash/usdN(it.usd)).toLocaleString('en-US')+' game cash for every real $1</small>':'')+(it.kind==='bundle'?'<small class="inc">'+esc(contentsOf(it))+'</small>':'')+
    '<div class="foot">'+btn+use+'</div>'+(armed&&it.usd?'<small class="arm-note">Preview only: nothing is charged.</small>':'')+'</div>';
 }
 function showShop(from,tab){
@@ -1610,7 +1612,7 @@ function showShop(from,tab){
   const bank=PROF.shop.bank|0;
   showOv('<div class="card shopc"><div class="shophd"><div><h2>Shop</h2><p class="sub" style="margin:0">Small treats to big bundles. Everything is optional and the whole game stays fully playable for free.</p></div><div class="wallet"><span class="wal" title="Transit Tickets">🎟 <b>'+(PROF.tix|0)+'</b></span>'+(homeMode()?(bank?'<span class="wal cash">Banked '+money(bank)+'</span>':''):'<span class="wal cash">'+money(G.money)+'</span>')+(invCount()&&!homeMode()?'<button class="wal itemsb" data-act="items">Items '+invCount()+'</button>':'')+'</div></div>'+
    '<div class="shopchips" role="tablist">'+SHOP_CATS.map(c=>'<button class="'+(c[0]===f?'on':'')+'" data-act="shoptab" data-tab="'+c[0]+'" role="tab">'+c[1]+'</button>').join('')+'</div>'+
-   '<p class="sub tixnote">Transit Tickets (🎟) are earned by playing: +3 per finished day, +10 per company level and cleared level, +5 per trophy. Dollar prices are a preview only: payments are not switched on in this version, so nothing can be charged.</p>'+body+
+   ''+(f==='cash'||f==='all'?'<p class="sub tixnote"><b>Game cash</b> pays for stops, buses and upgrades in the campaign. It is banked and added when you start your next map. The bigger the pack, the better the rate. Free Play already gives unlimited money.</p>':'')+'<p class="sub tixnote">Transit Tickets (🎟) are earned by playing: +3 per finished day, +10 per company level and cleared level, +5 per trophy. Dollar prices are a preview only: payments are not switched on in this version, so nothing can be charged.</p>'+body+
    '<div class="btnrow"><button class="btn ok" data-act="'+(ui.setFrom==='howto'?'howto':'resume')+'">'+(ui.setFrom==='howto'?'Back':'Back to game')+'</button></div></div>');
 }
 function shopRender(){const c=$('#ov .card'),sy=c?c.scrollTop:0;showShop();const c2=$('#ov .card');if(c2)c2.scrollTop=sy}
@@ -4767,6 +4769,7 @@ document.addEventListener('click',e=>{
     case'home':leaveConfirm();break;
     case'mainmenu':hideOv();showHomeMenu();break;
     case'free':showFree();break;
+    case'challenges':showChallenges();break;
     case'freelevel':startLevel(+el.dataset.i,{free:PROF.freeMoney==='limited'?'limited':'unlimited'});break;
     case'freemoney':PROF.freeMoney=el.dataset.v;saveProfile();showFree();break;
     case'campreset':if(confirmTap('campreset','This clears your campaign progress (not your profile or shop items).')){try{localStorage.removeItem('rhr.stars')}catch(e){}showCampaign()}break;
@@ -4989,7 +4992,7 @@ function showHomeMenu(){
    (nsaves>=2?'<button class="btn" data-act="slots" data-from="howto" '+bd()+'>Saved Games</button>':'')+
    '<button class="btn" data-act="settings" data-from="howto" '+bd()+'>Settings</button>'+
    '<button class="btn" data-act="howtoplay" '+bd()+'>How to play</button>'+
-   '<div><button class="btn sm" data-act="guide" data-from="howto" '+bd()+'>Guide</button><button class="btn sm" data-act="trophies" data-from="howto" '+bd()+'>Trophies</button><button class="btn sm" data-act="shop" data-from="howto" '+bd()+'>Shop</button></div></div>');
+   '<div><button class="btn sm" data-act="guide" data-from="howto" '+bd()+'>Guide</button><button class="btn sm" data-act="trophies" data-from="howto" '+bd()+'>Trophies</button><button class="btn sm" data-act="shop" data-from="howto" '+bd()+'>Shop</button><button class="btn sm" data-act="challenges" '+bd()+'>Challenges</button></div></div>');
   const o=$('#ov');o.classList.add('homeov');const hm=o.querySelector('.hm');
   if(!quick){const go=()=>{hm.classList.add('quick','ready')};hm.addEventListener('click',()=>{if(!hm.classList.contains('ready'))go()},true);setTimeout(()=>{if(hm.isConnected)hm.classList.add('ready')},3900)}
   homeScene($('#hbg'));
@@ -5022,21 +5025,25 @@ function showCampaign(){
     (L?'<div class="lv" style="min-height:0;border-color:var(--accent)"><div class="lbl">Map '+(cur+1)+' of '+n+'</div><b style="font-size:20px">'+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small>'+chips+'</div><button class="btn ok full" data-act="level" data-i="'+CAMPAIGN[cur]+'" style="margin:12px 0 0">'+(cur>0?'Play Map '+(cur+1):'Start')+'</button>':'<button class="btn ok full" data-act="free" style="margin:12px 0 0">Free Play</button>')+
     '<div class="trail">'+trail+'</div><div class="btnrow"><button class="btn alt" data-act="campreset">Restart campaign</button><button class="btn alt" data-act="howto">Back</button></div></div>');
 }
+const FREE_MAPS=[0,7,4];
 function showFree(){
   const m=PROF.freeMoney==='limited'?'limited':'unlimited';
-  showOv('<div class="card"><h1>Free Play</h1><p class="sub">Play any map you like. Nothing here counts toward the campaign.</p>'+
+  showOv('<div class="card"><h1>Free Play</h1><p class="sub">Pick one of three maps and just build. Nothing here counts toward the campaign.</p>'+
     '<div class="seg"><button class="'+(m==='unlimited'?'on':'')+'" data-act="freemoney" data-v="unlimited">Unlimited money</button><button class="'+(m==='limited'?'on':'')+'" data-act="freemoney" data-v="limited">Limited money</button></div>'+
     '<p class="sub" style="margin-top:0">'+(m==='unlimited'?'Build whatever you want. No game over.':'Start each map with its normal cash and the normal rules.')+'</p>'+
-    levelCards('freelevel')+'<div class="btnrow" style="margin-top:12px"><button class="btn alt" data-act="howto">Back</button></div></div>');
+    levelCards('freelevel',FREE_MAPS,m==='unlimited')+'<div class="btnrow" style="margin-top:12px"><button class="btn alt" data-act="howto">Back</button></div></div>');
+}
+function showChallenges(){
+  showOv('<div class="card small"><h1>Challenges</h1><p class="sub">The same city for everyone, and a new one every day or week. Your best profit is saved.</p><div class="levels" style="grid-template-columns:1fr">'+[5,6].map(i=>{const L=LEVELS[i];return'<button class="lv" data-act="level" data-i="'+i+'"><b>'+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small><div class="chips"><span class="chip">'+L.days+' days</span><span class="chip">$'+L.cash.toLocaleString('en-US')+'</span></div></button>'}).join('')+'</div><div class="btnrow" style="margin-top:12px"><button class="btn alt" data-act="howto">Back</button></div></div>');
 }
 function leaveConfirm(){
   showOv('<div class="card small"><h2>Back to the main menu?</h2><p class="sub">Your game is saved at the end of every day. Anything since then is lost.</p><div class="btnrow"><button class="btn ok" data-act="resume">Keep playing</button><button class="btn alt" data-act="mainmenu">Leave</button></div></div>');
 }
-function levelCards(act){act=act||'level';
+function levelCards(act,only,unl){act=act||'level';
   const st=getStars(),cont='';
-  const order=CAMPAIGN.concat(LEVELS.map((_,i)=>i).filter(i=>CAMPAIGN.indexOf(i)<0));
+  const order=only||CAMPAIGN.concat(LEVELS.map((_,i)=>i).filter(i=>CAMPAIGN.indexOf(i)<0));
   return'<div class="levels">'+cont+order.map(i=>{const L=LEVELS[i],ci=CAMPAIGN.indexOf(i);return'<button class="lv" data-act="'+act+'" data-i="'+i+'"><b>'+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small>'+
-    '<div class="chips"><span class="chip">'+(isFinite(L.days)?L.days+' days':'Endless')+'</span><span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>'+(i===1?'<span class="chip new">Express routes</span>':'')+(i===2?'<span class="chip new">Transfers · step-free stops</span>':'')+(i===3?'<span class="chip new">Bridges</span>':'')+(i===7?'<span class="chip new">Narrow streets</span>':'')+(i===8?'<span class="chip new">Canals</span>':'')+(i===9?'<span class="chip new">Hill detours</span>':'')+(i===10?'<span class="chip new">Lake</span>':'')+(i===11?'<span class="chip new">Coast</span>':'')+(i===12?'<span class="chip new">Ring road</span>':'')+(i===13?'<span class="chip new">Finale</span>':'')+regionChips(L)+(L.sandbox?'<span class="chip new">No game over</span>':'')+(L.daily?'<span class="chip new">Today only</span>':'')+(L.weekly?'<span class="chip new">This week only</span>':'')+'</div>'+
+    '<div class="chips"><span class="chip">'+(isFinite(L.days)?L.days+' days':'Endless')+'</span>'+(unl?'<span class="chip new">Unlimited money</span>':'<span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>')+(i===1?'<span class="chip new">Express routes</span>':'')+(i===2?'<span class="chip new">Transfers · step-free stops</span>':'')+(i===3?'<span class="chip new">Bridges</span>':'')+(i===7?'<span class="chip new">Narrow streets</span>':'')+(i===8?'<span class="chip new">Canals</span>':'')+(i===9?'<span class="chip new">Hill detours</span>':'')+(i===10?'<span class="chip new">Lake</span>':'')+(i===11?'<span class="chip new">Coast</span>':'')+(i===12?'<span class="chip new">Ring road</span>':'')+(i===13?'<span class="chip new">Finale</span>':'')+regionChips(L)+(L.sandbox?'<span class="chip new">No game over</span>':'')+(L.daily?'<span class="chip new">Today only</span>':'')+(L.weekly?'<span class="chip new">This week only</span>':'')+'</div>'+
     (ci>=0&&(st[i]||0)>0?'<div class="stars">'+starStr(st[i]||0)+'</div>':'')+'</button>'}).join('')+'</div>';
 }
 
