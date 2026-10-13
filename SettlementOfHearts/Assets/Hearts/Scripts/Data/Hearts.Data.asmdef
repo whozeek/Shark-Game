@@ -1,0 +1,14 @@
+{
+    "name": "Hearts.Data",
+    "rootNamespace": "Hearts.Data",
+    "references": ["Hearts.Sim"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

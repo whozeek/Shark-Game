@@ -1,0 +1,28 @@
+# Unity
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+*.csproj
+*.sln
+*.suo
+*.user
+*.pidb
+*.booproj
+*.unityproj
+.vs/
+.idea/
+.vscode/
+crashlytics-buildid.txt
+sysinfo.txt
+
+# Headless .NET test runner build output
+/Tools/SimTests/bin/
+/Tools/SimTests/obj/
+
+# Keep the headless test project file
+!/Tools/SimTests/SimTests.csproj

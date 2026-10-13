@@ -1,0 +1,14 @@
+{
+    "name": "Hearts.View",
+    "rootNamespace": "Hearts.View",
+    "references": ["Hearts.Sim", "Hearts.Data", "Unity.InputSystem"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
