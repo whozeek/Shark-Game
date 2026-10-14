@@ -58,6 +58,7 @@ namespace Hearts.View
             GUI.enabled = !modal;
             DrawWorldLabels();
             DrawTopBar();
+            if (root.Matchmaking) DrawMatchBanner();
             DrawFeed();
             if (root.SelectedId >= 0 && Runner.State.Person(root.SelectedId) != null) DrawInspector();
             GUI.enabled = true;
@@ -151,6 +152,13 @@ namespace Hearts.View
                 GUI.Label(nameRect, text, nameTag);
                 GUI.contentColor = oldColor;
 
+                if (root.IsCandidate(p))
+                {
+                    var pv = Runner.Matchmaking.Preview(Runner.State.Person(root.MatchSourceId), p);
+                    GUI.Label(new Rect(gp.x - 90f, nameRect.y - 20f, 180f, 20f), HeartMeter(pv.attraction, pv.WillCourt), nameTag);
+                    nameRect.y -= 20f;
+                }
+
                 if (!string.IsNullOrEmpty(view.BubbleText) && view.BubbleAlpha > 0f)
                 {
                     var content = new GUIContent(view.BubbleText);
@@ -164,6 +172,34 @@ namespace Hearts.View
                     GUI.color = old;
                 }
             }
+        }
+
+        string HeartMeter(float attraction, bool willWork)
+        {
+            int filled = Mathf.Clamp(Mathf.RoundToInt(attraction / 20f), 0, 5);
+            var on = willWork ? Effects.Heart : Muted;
+            string text = "<color=#" + Hex(on) + ">" + new string('\u2665', filled) + "</color>"
+                          + "<color=#555555>" + new string('\u2665', 5 - filled) + "</color>";
+            if (root.ShowNumbers) text += " " + Mathf.RoundToInt(attraction);
+            return text;
+        }
+
+        void DrawMatchBanner()
+        {
+            var source = Runner.State.Person(root.MatchSourceId);
+            if (source == null) return;
+            var r = new Rect(vw / 2f - 260f, TopBarHeight + 8f, 520f, 54f);
+            DrawPanel(r);
+            string text = "Who should <b>" + source.firstName + "</b> meet? Click someone with a pink ring. Hearts show attraction.";
+            var hover = Runner.State.Person(root.HoverId);
+            if (hover != null && hover.id != source.id)
+            {
+                var pv = Runner.Matchmaking.Preview(source, hover);
+                text = source.firstName + " and " + hover.firstName + ": " + HeartMeter(pv.attraction, pv.WillCourt) + "   "
+                       + (pv.Blocked ? pv.blockedReason : pv.WillCourt ? "<color=#" + Hex(Effects.Accept) + ">They'd give it a try.</color>" : pv.failReason);
+            }
+            GUI.Label(new Rect(r.x + 12f, r.y + 6f, r.width - 120f, r.height - 12f), text, new GUIStyle(label) { wordWrap = true });
+            if (GUI.Button(new Rect(r.xMax - 100f, r.y + 14f, 88f, 26f), "Cancel (Esc)")) root.CancelMatchmaking();
         }
 
         static string StripColor(string s)
@@ -206,7 +242,15 @@ namespace Hearts.View
 
             var scenario = Db.scenario;
             string goal = scenario != null ? "Goal (day " + Mathf.Min(state.day, scenario.goalDays) + " of " + scenario.goalDays + "): " + scenario.goal : "";
-            GUI.Label(new Rect(14f, 36f, vw - 28f, 24f), goal, muted);
+            GUI.Label(new Rect(14f, 36f, vw - 260f, 24f), goal, muted);
+
+            int slots = state.matchmakingSlots;
+            int used = Runner.Relationships.SlotsInUse();
+            string hearts = "";
+            for (int i = 0; i < slots; i++)
+                hearts += "<color=#" + Hex(i < slots - used ? Effects.Heart : Muted) + ">\u2665</color> ";
+            GUI.Label(new Rect(vw - 240f, 36f, 230f, 24f), new GUIContent("Matchmaking: " + hearts,
+                "Free hearts are introductions you can make. A heart comes back when that couple makes it official or splits up."), label);
         }
 
         // ---------- Event feed ----------
@@ -272,6 +316,7 @@ namespace Hearts.View
 
             GUILayout.Space(10f);
             GUILayout.Label("Influence", header);
+            DrawMatchmakeButton(p);
             DrawNudges(p);
 
             GUILayout.Space(10f);
@@ -404,6 +449,17 @@ namespace Hearts.View
                 GUILayout.Label(p.IsHeartbroken ? "Single, and heartbroken." : "Single.", label);
             }
 
+            string friends = "", rivals = "";
+            foreach (var link in p.links)
+            {
+                var other = Runner.State.Person(link.otherId);
+                if (other == null || link.strength <= 0f || other.id == (partner != null ? partner.id : -1)) continue;
+                if (link.type == LinkType.Friend) friends += (friends.Length > 0 ? ", " : "") + other.firstName;
+                if (link.type == LinkType.Rival) rivals += (rivals.Length > 0 ? ", " : "") + other.firstName;
+            }
+            if (friends.Length > 0) GUILayout.Label("Friends: " + friends, new GUIStyle(small) { wordWrap = true });
+            if (rivals.Length > 0) GUILayout.Label("Rivals: " + rivals, new GUIStyle(small) { wordWrap = true });
+
             foreach (var link in p.links)
             {
                 if (link.type != LinkType.ExPartner) continue;
@@ -427,6 +483,21 @@ namespace Hearts.View
             Bar(r, value / 100f, color);
             if (root.ShowNumbers) GUILayout.Label(Mathf.RoundToInt(value).ToString(), muted, GUILayout.Width(30f));
             GUILayout.EndHorizontal();
+        }
+
+        void DrawMatchmakeButton(PersonState p)
+        {
+            string unavailable = Runner.Matchmaking.UnavailableReason(p);
+            if (unavailable != null && !p.IsHeartbroken) return; // Partnered people don't need this button.
+            int cost = Runner.Db.settings.matchmakeCost;
+            bool noSlot = Runner.Relationships.FreeSlots() <= 0;
+            string tip = unavailable ?? (noSlot ? "All your matchmaking slots are busy." : "Choose someone for " + p.firstName + " to meet.");
+            bool wasEnabled = GUI.enabled;
+            GUI.enabled = wasEnabled && unavailable == null && !noSlot && Runner.State.influence >= cost && !root.Matchmaking;
+            if (GUILayout.Button(new GUIContent("<b>Matchmake</b>  ·  " + cost + " Influence", tip), nudgeButton, GUILayout.Width(384f), GUILayout.Height(34f)))
+                root.BeginMatchmaking(p.id);
+            GUI.enabled = wasEnabled;
+            if (noSlot && unavailable == null) GUILayout.Label("No free matchmaking slot. One frees when a couple you introduced makes it official.", new GUIStyle(muted) { wordWrap = true });
         }
 
         void DrawNudges(PersonState p)
@@ -495,15 +566,16 @@ namespace Hearts.View
 
         void DrawIntro()
         {
-            var r = ModalRect(560f, 470f);
+            var r = ModalRect(580f, 520f);
             GUILayout.BeginArea(new Rect(r.x + 24f, r.y + 20f, r.width - 48f, r.height - 40f));
             GUILayout.Label("Settlement of Hearts", title);
             GUILayout.Label(Db.scenario != null ? Db.scenario.displayName : "", header);
             GUILayout.Space(8f);
             GUILayout.Label(
-                "You are an unseen matchmaker watching over a small camp. Six people live here, each with their own personality.\n\n" +
+                "You are an unseen matchmaker watching over a small camp. " + Runner.State.people.Count + " people live here, each with their own personality.\n\n" +
                 "<b>Click a person</b> to see who they are, how they feel and who they love.\n" +
                 "<b>Spend Influence</b> to nudge them: be a better or worse partner, stay or leave, seek love or stay single.\n" +
+                "<b>Matchmake</b> two singles to start a couple. Each heart in the top right is one introduction; it comes back when that couple makes it official.\n" +
                 "<b>People have free will.</b> Nudges can be shrugged off or backfire, and people drift back toward their nature. " +
                 "Sometimes they change their minds on their own; a <color=#" + Hex(Gold) + ">?!</color> means someone is wavering.\n\n" +
                 (Db.scenario != null ? "<b>Goal:</b> " + Db.scenario.goal : ""), modalText);
@@ -517,9 +589,9 @@ namespace Hearts.View
         void DrawGoal()
         {
             var report = root.GoalReport;
-            var r = ModalRect(540f, 360f);
+            var r = ModalRect(560f, 420f);
             GUILayout.BeginArea(new Rect(r.x + 24f, r.y + 20f, r.width - 48f, r.height - 40f));
-            GUILayout.Label("Day " + report.day + ": the first month is over", title);
+            GUILayout.Label("Day " + report.day + ": time to take stock", title);
             GUILayout.Label(report.goal, muted);
             GUILayout.Space(10f);
             foreach (var line in report.lines) GUILayout.Label("•  " + line, modalText);

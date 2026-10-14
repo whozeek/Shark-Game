@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Hearts.Sim
 {
-    // The built-in content for the influence toy (build step 1). In Unity, the menu
+    // The built-in content for build steps 1-2: the influence toy plus matchmaking. In Unity, the menu
     // "Hearts > Create Default Data Assets" writes this out as editable ScriptableObjects.
     public static class DefaultContent
     {
@@ -223,7 +223,25 @@ namespace Hearts.Sim
                     70, 72, 35, 25, 30, 30, 40, "hopeless_romantic"),
                 Person("sela", "Sela", "Moss", 33, 0.45f,
                     "A scout who spends days alone in the hills and likes it that way.",
-                    60, 55, 25, 85, 35, 45, 70, "lone_wolf", "impressionable")
+                    60, 55, 25, 85, 35, 45, 70, "lone_wolf", "impressionable"),
+                Person("rhea", "Rhea", "Lind", 26, 0.12f,
+                    "The camp's cook and storyteller. Knows everyone's business and loves a crowd.",
+                    76, 64, 30, 40, 40, 82, 48),
+                Person("bram", "Bram", "Holt", 35, 0.03f,
+                    "A quiet blacksmith, steady as his anvil and twice as hard to move.",
+                    58, 80, 18, 52, 72, 38, 62),
+                Person("nell", "Nell", "Price", 22, 0.83f,
+                    "A herbalist's apprentice who falls in love with every sunset.",
+                    84, 60, 55, 28, 25, 62, 35, "hopeless_romantic"),
+                Person("corin", "Corin", "Ash", 28, 0.66f,
+                    "A restless trader with a quick smile and quicker exits.",
+                    38, 36, 68, 66, 58, 76, 82, "fickle"),
+                Person("wren", "Wren", "Odell", 30, 0.5f,
+                    "A surveyor who maps the valley and dreams of building a town on it.",
+                    68, 72, 26, 55, 50, 36, 74),
+                Person("jory", "Jory", "Bell", 25, 0.2f,
+                    "A cheerful woodcutter, easily swayed and eager to please.",
+                    62, 46, 44, 44, 28, 56, 40, "impressionable")
             };
         }
 
@@ -231,11 +249,12 @@ namespace Hearts.Sim
         {
             return new ScenarioDef
             {
-                id = "first_month",
-                displayName = "The First Month",
-                goal = "Keep Mara and Tomas together, and decide what to do about Ilse and Davin, for 30 days.",
-                goalDays = 30,
-                profileIds = new List<string> { "mara", "tomas", "ilse", "davin", "oren", "sela" },
+                id = "the_camp",
+                displayName = "The Camp",
+                goal = "Within 45 days, help two new couples make it official, keep Mara and Tomas together, and decide what to do about Ilse and Davin.",
+                goalDays = 45,
+                newCoupleTarget = 2,
+                profileIds = new List<string> { "mara", "tomas", "ilse", "davin", "oren", "sela", "rhea", "bram", "nell", "corin", "wren", "jory" },
                 couples = new List<CoupleSeedDef>
                 {
                     new CoupleSeedDef { personA = "mara", personB = "tomas", stage = CoupleStage.Established, bond = 68, tension = 15 },

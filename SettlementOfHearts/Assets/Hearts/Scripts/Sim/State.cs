@@ -35,6 +35,7 @@ namespace Hearts.Sim
         public int otherId;
         public LinkType type;
         public float strength;
+        public int meetings;
     }
 
     [Serializable]
@@ -53,6 +54,8 @@ namespace Hearts.Sim
         public float happiness = 60f;
         public int coupleId = -1;
         public int heartbrokenDaysLeft;
+        // Consecutive days spent as a known bad partner; the whole settlement notices.
+        public int daysBadPartner;
         // A pending change of heart per attitude, executed at the next day tick.
         public bool[] wavering;
         public float[] waveringTarget;
@@ -62,6 +65,14 @@ namespace Hearts.Sim
 
         public string FullName { get { return firstName + " " + familyName; } }
         public bool IsHeartbroken { get { return heartbrokenDaysLeft > 0; } }
+        public bool IsSingle { get { return coupleId < 0; } }
+
+        public RelationshipLink Link(int otherId, LinkType type)
+        {
+            foreach (var l in links)
+                if (l.otherId == otherId && l.type == type) return l;
+            return null;
+        }
         public bool HasPartner { get { return coupleId >= 0; } }
     }
 
@@ -81,6 +92,7 @@ namespace Hearts.Sim
         public int lastChildDay;
         public int formedDay;
         public bool usesMatchmakingSlot;
+        public bool matchmade;
         public int leaverId = -1;
 
         public int Other(int personId) { return personId == personA ? personB : personA; }
@@ -114,6 +126,10 @@ namespace Hearts.Sim
         public int flips;
         public int steadied;
         public int breakups;
+        public int matchmakes;
+        public int failedMatchmakes;
+        public int naturalCouples;
+        public int established;
     }
 
     [Serializable]
@@ -126,6 +142,7 @@ namespace Hearts.Sim
         public float hourOfDay = 8f;
         public float influence;
         public float maxInfluence;
+        public int matchmakingSlots = 1;
         public ulong rngState;
         public int nextPersonId;
         public int nextCoupleId;

@@ -5,11 +5,13 @@ namespace Hearts.View
     // Greybox Camp: a clearing, a campfire, a few trees and tents placed on a ring.
     public class WorldBuilder
     {
-        const int HomeSlots = 10;
-        const float HomeRadius = 10f;
+        const int HomeSlots = 16;
+        const float HomeRadius = 13f;
 
         readonly Transform root;
-        readonly bool[] slotUsed = new bool[HomeSlots];
+        readonly GameObject[] tents = new GameObject[HomeSlots];
+        readonly Vector3[] doors = new Vector3[HomeSlots];
+        int overflow;
 
         public WorldBuilder(Transform root) { this.root = root; }
 
@@ -33,7 +35,7 @@ namespace Hearts.View
             for (int i = 0; i < 28; i++)
             {
                 float angle = (float)rng.NextDouble() * Mathf.PI * 2f;
-                float radius = 17f + (float)rng.NextDouble() * 10f;
+                float radius = 19f + (float)rng.NextDouble() * 9f;
                 var pos = new Vector3(Mathf.Cos(angle) * radius, 0f, Mathf.Sin(angle) * radius);
                 float size = 0.8f + (float)rng.NextDouble() * 0.8f;
                 var trunk = Effects.Primitive(PrimitiveType.Cylinder, "Tree", root, new Color(0.4f, 0.28f, 0.18f));
@@ -76,19 +78,32 @@ namespace Hearts.View
 
         public Vector3 ClaimHome(string label, Color color)
         {
-            int slot = 0;
+            int slot = -1;
             for (int i = 0; i < HomeSlots; i++)
             {
-                if (!slotUsed[i]) { slot = i; break; }
+                if (tents[i] == null) { slot = i; break; }
             }
-            slotUsed[slot] = true;
+            if (slot < 0) slot = overflow++ % HomeSlots; // Full camp: share a spot until step 5 adds housing.
             float angle = slot * Mathf.PI * 2f / HomeSlots + 0.3f;
             var pos = new Vector3(Mathf.Cos(angle) * HomeRadius, 0f, Mathf.Sin(angle) * HomeRadius);
-            BuildTent(label, pos, color);
-            return pos + (Vector3.zero - pos).normalized * 2.2f;
+            if (tents[slot] == null) tents[slot] = BuildTent(label, pos, color);
+            var door = pos + (Vector3.zero - pos).normalized * 2.2f;
+            doors[slot] = door;
+            return door;
         }
 
-        void BuildTent(string label, Vector3 pos, Color color)
+        // Packs away the tent at this home once nobody lives there.
+        public void ReleaseHome(Vector3 door)
+        {
+            for (int i = 0; i < HomeSlots; i++)
+            {
+                if (tents[i] == null || (doors[i] - door).sqrMagnitude > 0.01f) continue;
+                Object.Destroy(tents[i]);
+                tents[i] = null;
+            }
+        }
+
+        GameObject BuildTent(string label, Vector3 pos, Color color)
         {
             var tent = new GameObject("Tent " + label);
             tent.transform.SetParent(root, false);
@@ -103,6 +118,7 @@ namespace Hearts.View
             var door = Effects.Primitive(PrimitiveType.Cube, "Door", tent.transform, new Color(0.25f, 0.2f, 0.18f));
             door.transform.localPosition = new Vector3(0f, 0.45f, 1.2f);
             door.transform.localScale = new Vector3(0.6f, 0.9f, 0.05f);
+            return tent;
         }
 
         public static Transform MakeLink(Transform parent)

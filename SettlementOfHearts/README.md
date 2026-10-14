@@ -4,9 +4,9 @@ A settlement-growing game in which you are an unseen matchmaker. You nudge peopl
 free will toward being good or bad partners, staying or leaving, and seeking love or
 staying single, and they decide for themselves whether to listen.
 
-This folder is the Unity project. It currently contains **build steps 0 and 1** from the
-design doc: the data skeleton and the "influence toy", the smallest playable version of
-the influence system.
+This folder is the Unity project. It currently contains **build steps 0 to 2** from the
+design doc: the data skeleton, the influence toy, and matchmaking with the full
+relationship lifecycle.
 
 ## Play it
 
@@ -21,19 +21,23 @@ the influence system.
 | Action | Input |
 | --- | --- |
 | Inspect a person | Left-click them |
+| Introduce two singles | Matchmake in a single person's inspector, then click someone with a pink ring |
 | Pan / rotate / zoom | WASD or arrows / Q, E or right-drag / scroll |
 | Pause, speed 1x 2x 4x | Space, 1, 2, 3 |
 | Show all relationships | R |
 | Show raw numbers | F1 |
-| Focus camera on selected person / close inspector | F / Esc |
+| Focus camera on selected person / close inspector or cancel matchmaking | F / Esc |
 
 ### What's in this build
 
-- Six hand-authored people with seven traits, three attitudes and quirks. Two couples, one well matched and one not, plus two singles.
+- Twelve hand-authored people with seven traits, three attitudes and quirks. Two couples, one well matched and one not, plus eight singles.
 - Six nudges paid with regenerating Influence. Each nudge rolls acceptance against the person's stubbornness, their nature and recent nudges, and it can be accepted, shrugged off or backfire.
 - Free will: attitudes drift back toward each person's nature, and people sometimes change their minds on their own. A `?!` warns you a day ahead, and **Steady** cancels the change at a premium.
-- Bond and Tension per couple, breakups, heartbreak and ex-partner links.
-- A 30-day goal with an end-of-month report. You can keep playing afterwards.
+- Matchmaking: introduce two single adults for 15 Influence. Hearts over each candidate show attraction. You start with one matchmaking slot, and it comes back when that couple makes it official or splits up.
+- Couples go Courting, then Dating, then Established, and move into one tent when they make it official.
+- People meet each other every day, more often if they're sociable. Willing singles who click can start courting on their own, and people form friends and rivals.
+- Bond and Tension per couple, breakups, heartbreak, ex-partners (less attracted to each other) and bad-partner reputations (less attractive to everyone).
+- A 45-day goal: two new official couples, keep Mara and Tomas together, decide about Ilse and Davin. You can keep playing afterwards.
 - Capsule people, tents and primitive VFX only. Real art starts at build step 6.
 
 ## Project layout
@@ -67,11 +71,23 @@ The game runs on built-in content until you create data assets:
 - In Unity: **Window > General > Test Runner > EditMode > Run All**.
 - Without Unity: `dotnet test Tools/SimTests` (needs the .NET 8 SDK).
 
-`TuningReport.FirstMonthReport` prints balance numbers from 500 headless runs. With the
-current settings, Ilse and Davin stay together in about a third of untouched runs, Mara and
-Tomas always do, and a nudge from rest works about 57% of the time.
+**Hearts > Sim Runner** runs many settlements headless (optionally with an auto-matchmaker)
+and plots couples, singles, heartbreak, breakups and changes of heart over time.
+
+`TuningReport.StartingScenarioReport` prints balance numbers. With the current settings:
+Ilse and Davin stay together in about 30% of untouched runs and Mara and Tomas always do; a
+nudge from rest works about 58% of the time; an introduced couple makes it official in about
+two to three weeks; an auto-matchmaker meets the 45-day goal in about 94% of runs, while
+without the player about one couple forms on its own.
+
+## Tuning changes from the design doc
+
+- A nudge counts as "against their nature" only once the person is already 15+ points past their resting point in that direction, so a first push from rest is fair.
+- Volatility adds a daily random mood swing (up to 8 points), which keeps changes of heart happening.
+- Courting and Dating couples get +2 Bond a day ("new romance"); Established couples lose 1.5 a day to routine, so a bad partner can slowly sink a relationship.
+- A Matchmake needs Attraction 55, not 40, because most of the starting cast is warm and almost every pair cleared 40.
 
 ## Next (from the build order)
 
-Step 2 adds matchmaking and the full relationship lifecycle: compatibility preview, courting,
-dating, natural meetings and the Sim Runner editor window.
+Step 3 adds families and aging: life stages, children (up to three per couple), inheritance,
+upbringing, and deaths.

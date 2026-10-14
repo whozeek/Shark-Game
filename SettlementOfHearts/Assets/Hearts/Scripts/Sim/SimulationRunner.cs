@@ -15,6 +15,8 @@ namespace Hearts.Sim
         public readonly InfluenceSystem Influence;
         public readonly RelationshipSystem Relationships;
         public readonly HappinessSystem Happiness;
+        public readonly EncounterSystem Encounters;
+        public readonly MatchmakingSystem Matchmaking;
         readonly SimContext ctx;
 
         public SimulationRunner(ContentDb db, SettlementState state)
@@ -26,6 +28,8 @@ namespace Hearts.Sim
             Influence = new InfluenceSystem(ctx, Attitudes);
             Relationships = new RelationshipSystem(ctx);
             Happiness = new HappinessSystem(ctx);
+            Encounters = new EncounterSystem(ctx, Relationships);
+            Matchmaking = new MatchmakingSystem(ctx, Relationships);
         }
 
         public static SimulationRunner NewGame(ContentDb db, int seedOverride = 0)
@@ -38,7 +42,8 @@ namespace Hearts.Sim
                 seed = seed,
                 rngState = Rng.SeedState(seed),
                 influence = db.settings.startingInfluence,
-                maxInfluence = db.settings.maxInfluence
+                maxInfluence = db.settings.maxInfluence,
+                matchmakingSlots = db.settings.startingMatchmakingSlots
             };
             var runner = new SimulationRunner(db, state);
 
@@ -118,6 +123,8 @@ namespace Hearts.Sim
 
             foreach (var p in State.people) Relationships.HeartbreakTick(p);
             foreach (var p in State.people) Attitudes.DailyTick(p);
+            foreach (var p in State.people) TrackReputation(p);
+            Encounters.DailyTick();
             Relationships.DailyTick();
             foreach (var p in State.people) Happiness.DailyTick(p);
 
@@ -127,6 +134,26 @@ namespace Hearts.Sim
                 State.goalReported = true;
                 Events.RaiseGoal(BuildGoalReport());
             }
+        }
+
+        void TrackReputation(PersonState p)
+        {
+            bool bad = p.attitudes[Db.PartnerDisposition] < Db.settings.badReputationThreshold;
+            p.daysBadPartner = bad ? p.daysBadPartner + 1 : 0;
+            if (p.daysBadPartner == Db.settings.badReputationDays)
+            {
+                ctx.Story(p, "Has a reputation as a bad partner. People are wary.");
+                ctx.Feed("Word has spread that " + p.firstName + " treats partners badly.", p.id, FeedKind.Bad);
+            }
+        }
+
+        // New couples that made it to Established since the game began.
+        public int NewEstablishedCouples()
+        {
+            int count = 0;
+            foreach (var c in State.couples)
+                if (c.stage == CoupleStage.Established && c.formedDay > 1) count++;
+            return count;
         }
 
         public GoalReport BuildGoalReport()
@@ -149,10 +176,17 @@ namespace Hearts.Sim
                     report.lines.Add(a.firstName + " and " + b.firstName + " broke up.");
                 }
             }
+            if (Db.scenario.newCoupleTarget > 0)
+            {
+                int made = NewEstablishedCouples();
+                report.lines.Add("New couples who made it official: " + made + " of " + Db.scenario.newCoupleTarget
+                                 + (made >= Db.scenario.newCoupleTarget ? ". Goal met!" : "."));
+            }
             var st = State.stats;
             report.lines.Add("Nudges: " + st.nudgesTried + " tried, " + st.accepted + " accepted, "
                              + st.shrugged + " shrugged off, " + st.backfired + " backfired.");
-            report.lines.Add("Changes of heart: " + st.flips + ", steadied: " + st.steadied + ".");
+            report.lines.Add("Introductions: " + st.matchmakes + " took, " + st.failedMatchmakes + " fell flat. Couples who found each other alone: " + st.naturalCouples + ".");
+            report.lines.Add("Changes of heart: " + st.flips + ", steadied: " + st.steadied + ", breakups: " + st.breakups + ".");
             return report;
         }
 

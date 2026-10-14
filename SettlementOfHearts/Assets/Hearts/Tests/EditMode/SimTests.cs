@@ -35,10 +35,10 @@ namespace Hearts.Tests
         }
 
         [Test]
-        public void ScenarioSpawnsSixPeopleAndTwoCouples()
+        public void ScenarioSpawnsTwelvePeopleAndTwoCouples()
         {
             var r = NewRunner();
-            Assert.AreEqual(6, r.State.people.Count);
+            Assert.AreEqual(12, r.State.people.Count);
             Assert.AreEqual(2, r.State.couples.Count);
             Assert.AreEqual(r.FindByProfile("mara").coupleId, r.FindByProfile("tomas").coupleId);
         }
@@ -169,8 +169,9 @@ namespace Hearts.Tests
             float rest = r.Attitudes.RestingPoint(mara, a);
             mara.attitudes[a] = -40f;
             mara.wavering[a] = false;
-            // Disable flips so only drift acts.
+            // Disable flips and mood swings so only drift acts.
             r.Db.settings.flipBaseChance = 0f;
+            r.Db.settings.moodSwingPerDay = 0f;
             r.AdvanceDays(1);
             Assert.AreEqual(-40f + (rest + 40f) * 0.05f, mara.attitudes[a], 0.01f);
         }
@@ -285,16 +286,35 @@ namespace Hearts.Tests
         }
 
         [Test]
-        public void GoalReportFiresOnceAtDay30()
+        public void GoalReportFiresOnceAtGoalDay()
         {
             var r = NewRunner();
             int fired = 0;
             GoalReport report = null;
             r.Events.GoalReached += g => { fired++; report = g; };
-            r.AdvanceDays(40);
+            r.AdvanceDays(60);
             Assert.AreEqual(1, fired);
-            Assert.AreEqual(30, report.day);
+            Assert.AreEqual(45, report.day);
+            Assert.IsTrue(report.lines.Exists(l => l.Contains("made it official")));
             Assert.IsTrue(report.lines.Exists(l => l.Contains("Mara and Tomas")));
+        }
+
+        [Test]
+        public void ThousandDayRunsStayStable()
+        {
+            foreach (var policy in new System.Action<SimulationRunner>[] { null, SimBatch.GreedyMatchmaker })
+            {
+                var batch = SimBatch.Run(DefaultContent.Create, 20, 1000, 1, policy);
+                Assert.IsEmpty(batch.problems, string.Join("\n", batch.problems));
+                TestContext.Out.WriteLine((policy == null ? "No player" : "Greedy matchmaker") + ": couples at day 1000 " + batch.Final(batch.couples).ToString("0.0")
+                    + ", established " + batch.Final(batch.established).ToString("0.0")
+                    + ", breakups total " + batch.Final(batch.breakupsTotal).ToString("0.0")
+                    + ", natural couples total " + batch.Final(batch.naturalTotal).ToString("0.0")
+                    + ", changes of heart " + batch.Final(batch.flipsTotal).ToString("0.0"));
+                Assert.Greater(batch.Final(batch.couples), 1f, "couples should persist");
+                Assert.Greater(batch.Final(batch.breakupsTotal), 0.5f, "breakups should happen occasionally");
+                Assert.Less(batch.Final(batch.breakupsTotal), 60f, "breakups should not churn constantly");
+            }
         }
     }
 }

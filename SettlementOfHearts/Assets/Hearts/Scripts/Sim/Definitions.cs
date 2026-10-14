@@ -177,6 +177,8 @@ namespace Hearts.Sim
         public int seed;
         public List<string> profileIds = new List<string>();
         public List<CoupleSeedDef> couples = new List<CoupleSeedDef>();
+        // How many new Established couples the goal asks for. 0 means none.
+        public int newCoupleTarget;
     }
 
     [Serializable]
@@ -204,6 +206,8 @@ namespace Hearts.Sim
 
         // Free will
         public float driftPerDay = 0.05f;
+        // Daily random mood swing (standard deviation) for a person with Volatility 100.
+        public float moodSwingPerDay = 8f;
         public float flipBaseChance = 0.005f;
         public float flipDistanceScale = 50f;
         public float flipMinDistance = 10f;
@@ -216,6 +220,10 @@ namespace Hearts.Sim
         public float bondFromCompatibility = 0.04f;
         public float bondFromDisposition = 0.05f;
         public float bondFromCommitment = 0.03f;
+        // Extra daily Bond while Courting or Dating: new love moves fast.
+        public float newRomanceBondBonus = 2f;
+        // Daily Bond lost by Established couples to routine; good partners outpace it, bad ones don't.
+        public float establishedBondWear = 1.5f;
         public float tensionFromBadPartner = 0.06f;
         public float tensionFromAmbitionGap = 0.003f;
         public float tensionCoolingPerDay = 2f;
@@ -228,6 +236,25 @@ namespace Hearts.Sim
         public float breakupEarlyStageMultiplier = 2f;
         public int heartbreakDays = 10;
         public float heartbreakDesire = -50f;
+
+        // Matchmaking and meeting people
+        public int startingMatchmakingSlots = 1;
+        public int matchmakeCost = 15;
+        public float matchmakeRefundOnFail = 0.5f;
+        public float matchmakeMinDesire = -20f;
+        public float matchmakeMinAttraction = 55f;
+        public float naturalMinDesire = 20f;
+        public float naturalMinAttraction = 60f;
+        public float naturalCourtshipChance = 0.35f;
+        public float sociabilityPerExtraMeeting = 34f;
+        public float exAttractionPenalty = 20f;
+        public float badReputationThreshold = -40f;
+        public int badReputationDays = 14;
+        public float badReputationPenalty = 15f;
+        public int friendMeetings = 5;
+        public float friendCompatibility = 55f;
+        public float rivalCompatibility = 35f;
+        public int adultAge = 18;
 
         // Happiness
         public float happinessRest = 60f;

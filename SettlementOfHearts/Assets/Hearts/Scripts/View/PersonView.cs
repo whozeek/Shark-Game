@@ -13,6 +13,7 @@ namespace Hearts.View
         public Color BubbleColor { get; private set; }
         public float BubbleAlpha { get { return Mathf.Clamp01(bubbleTime / 0.4f); } }
         public bool Selected { get; set; }
+        Renderer ringRenderer;
 
         GameRoot root;
         Renderer bodyRenderer;
@@ -52,6 +53,7 @@ namespace Hearts.View
             ring.transform.localPosition = new Vector3(0f, 0.02f, 0f);
             ring.transform.localScale = new Vector3(1.3f, 0.01f, 1.3f);
             ring.SetActive(false);
+            ringRenderer = ring.GetComponent<Renderer>();
 
             transform.position = home + RandomOffset(2f);
             goal = transform.position;
@@ -59,6 +61,12 @@ namespace Hearts.View
         }
 
         public void SetHome(Vector3 position) { home = position; idle = 0f; }
+
+        public void WalkTo(Vector3 position)
+        {
+            goal = new Vector3(position.x, 0f, position.z);
+            idle = 3f;
+        }
 
         public void Say(string text, Color color, float seconds = 3f)
         {
@@ -80,7 +88,11 @@ namespace Hearts.View
             if (p == null) return;
 
             if (bubbleTime > 0f) bubbleTime -= Time.unscaledDeltaTime;
-            ring.SetActive(Selected);
+            bool candidate = root.IsCandidate(p);
+            ring.SetActive(Selected || candidate);
+            if (ring.activeSelf)
+                ringRenderer.material.color = Selected ? new Color(1f, 0.95f, 0.55f)
+                    : root.HoverId == PersonId ? Effects.Heart : new Color(1f, 0.7f, 0.8f);
 
             var tint = p.IsHeartbroken ? Color.Lerp(baseColor, Color.gray, 0.6f) : baseColor;
             bodyRenderer.material.color = tint;

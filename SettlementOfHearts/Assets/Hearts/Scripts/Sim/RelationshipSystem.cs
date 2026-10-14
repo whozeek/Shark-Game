@@ -39,6 +39,56 @@ namespace Hearts.Sim
             return (float)(Rng.Hash01(a.id, b.id, 7) * 2.0 - 1.0) * range;
         }
 
+        public bool AreExes(PersonState a, PersonState b)
+        {
+            return a.Link(b.id, LinkType.ExPartner) != null;
+        }
+
+        public bool HasBadReputation(PersonState p)
+        {
+            return p.daysBadPartner >= ctx.S.badReputationDays;
+        }
+
+        // How drawn two people are to each other right now.
+        public float Attraction(PersonState a, PersonState b)
+        {
+            var s = ctx.S;
+            float attraction = Compatibility(a, b) + Spark(a, b);
+            if (AreExes(a, b)) attraction -= s.exAttractionPenalty;
+            if (HasBadReputation(a)) attraction -= s.badReputationPenalty;
+            if (HasBadReputation(b)) attraction -= s.badReputationPenalty;
+            return attraction;
+        }
+
+        public bool IsAvailable(PersonState p)
+        {
+            return p.IsSingle && !p.IsHeartbroken && p.age >= ctx.S.adultAge;
+        }
+
+        public int SlotsInUse()
+        {
+            int used = 0;
+            foreach (var c in ctx.state.couples)
+                if (c.usesMatchmakingSlot) used++;
+            return used;
+        }
+
+        public int FreeSlots() { return Math.Max(0, ctx.state.matchmakingSlots - SlotsInUse()); }
+
+        // A couple that starts courting today, by introduction or on its own.
+        public CoupleState StartCourting(PersonState a, PersonState b, bool matchmade)
+        {
+            var c = CreateCouple(a, b, CoupleStage.Courting, Math.Max(0f, Attraction(a, b)) / 3f, 0f);
+            c.matchmade = matchmade;
+            c.usesMatchmakingSlot = matchmade;
+            ctx.Story(a, "Started courting " + b.firstName + (matchmade ? " after an introduction." : "."));
+            ctx.Story(b, "Started courting " + a.firstName + (matchmade ? " after an introduction." : "."));
+            ctx.Feed(a.firstName + " and " + b.firstName + " are courting" + (matchmade ? "." : ". Nobody had to help."), a.id, FeedKind.Good);
+            if (!matchmade) ctx.state.stats.naturalCouples++;
+            ctx.events.RaiseFormed(c);
+            return c;
+        }
+
         public CoupleState CreateCouple(PersonState a, PersonState b, CoupleStage stage, float bond, float tension)
         {
             var c = new CoupleState
@@ -89,7 +139,8 @@ namespace Hearts.Sim
             int pd = ctx.db.PartnerDisposition, cm = ctx.db.Commitment;
             return s.bondFromCompatibility * (c.compatibility - 50f)
                    + s.bondFromDisposition * (a.attitudes[pd] + b.attitudes[pd]) / 2f
-                   + s.bondFromCommitment * (a.attitudes[cm] + b.attitudes[cm]) / 2f;
+                   + s.bondFromCommitment * (a.attitudes[cm] + b.attitudes[cm]) / 2f
+                   + (c.stage == CoupleStage.Established ? -s.establishedBondWear : s.newRomanceBondBonus);
         }
 
         public float TensionChange(PersonState a, PersonState b)
@@ -139,6 +190,10 @@ namespace Hearts.Sim
                     if (c.daysAtHighBond >= s.establishedDays)
                     {
                         c.stage = CoupleStage.Established;
+                        c.usesMatchmakingSlot = false;
+                        ctx.state.stats.established++;
+                        ctx.Story(a, "Made it official with " + b.firstName + ".");
+                        ctx.Story(b, "Made it official with " + a.firstName + ".");
                         ctx.Feed(a.firstName + " and " + b.firstName + " made it official.", a.id, FeedKind.Good);
                         ctx.events.RaiseStage(c);
                     }

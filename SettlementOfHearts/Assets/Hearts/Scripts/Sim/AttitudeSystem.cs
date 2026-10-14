@@ -77,6 +77,8 @@ namespace Hearts.Sim
                 float rest = RestingPoint(p, a);
                 float drift = Math.Min(1f, s.driftPerDay * DriftMultiplier(p, a));
                 p.attitudes[a] += (rest - p.attitudes[a]) * drift;
+                float swing = s.moodSwingPerDay * p.traits[ctx.db.Volatility] / 100f;
+                if (swing > 0f) p.attitudes[a] = SimContext.Clamp100(p.attitudes[a] + ctx.rng.Gaussian(0f, swing));
 
                 if (a == ctx.db.PartnerDisposition && p.attitudes[a] < s.redeemableThreshold && IsRedeemable(p)
                     && ctx.rng.Chance(s.redeemableDailyChance))

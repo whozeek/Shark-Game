@@ -51,6 +51,30 @@ namespace Hearts.Sim
         public string thought;
     }
 
+    public struct MatchPreview
+    {
+        public float attraction;
+        public int cost;
+        // Set when the introduction can't be attempted at all (nothing is spent).
+        public string blockedReason;
+        // Set when it can be attempted but will not take (half the cost is refunded).
+        public string failReason;
+
+        public bool Blocked { get { return !string.IsNullOrEmpty(blockedReason); } }
+        public bool WillCourt { get { return !Blocked && string.IsNullOrEmpty(failReason); } }
+    }
+
+    public struct MatchResult
+    {
+        public int personA;
+        public int personB;
+        public bool success;
+        public bool attempted;
+        public int spent;
+        public string reason;
+        public int coupleId;
+    }
+
     public class GoalReport
     {
         public int day;
@@ -66,7 +90,9 @@ namespace Hearts.Sim
         public event Action<int, int> Wavering;           // personId, attitude index
         public event Action<FlipInfo> AttitudeFlipped;
         public event Action<int, int> Steadied;           // personId, attitude index
+        public event Action<CoupleState> CoupleFormed;
         public event Action<CoupleState> CoupleStageChanged;
+        public event Action<MatchResult> MatchmakeResolved;
         public event Action<CoupleState> BrokeUp;
         public event Action<int> HeartHealed;             // personId
         public event Action<GoalReport> GoalReached;
@@ -76,6 +102,8 @@ namespace Hearts.Sim
         internal void RaiseWavering(int p, int a) { if (Wavering != null) Wavering(p, a); }
         internal void RaiseFlip(FlipInfo f) { if (AttitudeFlipped != null) AttitudeFlipped(f); }
         internal void RaiseSteadied(int p, int a) { if (Steadied != null) Steadied(p, a); }
+        internal void RaiseFormed(CoupleState c) { if (CoupleFormed != null) CoupleFormed(c); }
+        internal void RaiseMatch(MatchResult m) { if (MatchmakeResolved != null) MatchmakeResolved(m); }
         internal void RaiseStage(CoupleState c) { if (CoupleStageChanged != null) CoupleStageChanged(c); }
         internal void RaiseBreakUp(CoupleState c) { if (BrokeUp != null) BrokeUp(c); }
         internal void RaiseHealed(int p) { if (HeartHealed != null) HeartHealed(p); }

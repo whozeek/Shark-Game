@@ -36,12 +36,17 @@ namespace Hearts.View
         public bool ShowOverlay { get; set; }
         public bool ShowIntro { get; set; } = true;
         public GoalReport GoalReport { get; set; }
+        // While choosing a partner for someone: their id, and the candidate under the mouse.
+        public int MatchSourceId { get; private set; } = -1;
+        public int HoverId { get; private set; } = -1;
+        public bool Matchmaking { get { return MatchSourceId >= 0; } }
 
         public float SimSpeed { get { return Paused || ShowIntro || GoalReport != null ? 0f : Speeds[SpeedIndex]; } }
 
         readonly Dictionary<int, PersonView> views = new Dictionary<int, PersonView>();
         readonly Dictionary<int, Transform> links = new Dictionary<int, Transform>();
         readonly List<int> staleLinks = new List<int>();
+        readonly Dictionary<int, Vector3> homes = new Dictionary<int, Vector3>();
         WorldBuilder world;
         CameraRig cameraRig;
         Camera cam;
@@ -72,7 +77,9 @@ namespace Hearts.View
             ev.Steadied += OnSteadied;
             ev.BrokeUp += OnBreakUp;
             ev.HeartHealed += id => Say(id, "I'm ready to move on.", Effects.Accept);
-            ev.CoupleStageChanged += c => { Burst(c.personA, Effects.Heart, 12); Burst(c.personB, Effects.Heart, 12); };
+            ev.CoupleStageChanged += OnStageChanged;
+            ev.CoupleFormed += OnCoupleFormed;
+            ev.MatchmakeResolved += OnMatchmake;
             ev.GoalReached += report => GoalReport = report;
         }
 
@@ -103,6 +110,7 @@ namespace Hearts.View
             var view = go.AddComponent<PersonView>();
             view.Init(this, p, home);
             views[p.id] = view;
+            homes[p.id] = home;
         }
 
         public PersonView ViewOf(int personId)
@@ -132,6 +140,44 @@ namespace Hearts.View
             SelectedId = -1;
         }
 
+        public void BeginMatchmaking(int personId)
+        {
+            MatchSourceId = personId;
+            Select(personId);
+        }
+
+        public void CancelMatchmaking()
+        {
+            MatchSourceId = -1;
+            HoverId = -1;
+        }
+
+        // People who could be introduced to the matchmaking source right now.
+        public bool IsCandidate(PersonState p)
+        {
+            if (!Matchmaking || p == null || p.id == MatchSourceId) return false;
+            return Runner.Matchmaking.UnavailableReason(p) == null;
+        }
+
+        void SetHome(int personId, Vector3 home)
+        {
+            Vector3 old;
+            bool hadHome = homes.TryGetValue(personId, out old);
+            homes[personId] = home;
+            var view = ViewOf(personId);
+            if (view != null) view.SetHome(home);
+            if (!hadHome) return;
+            foreach (var h in homes.Values)
+                if ((h - old).sqrMagnitude < 0.01f) return;
+            world.ReleaseHome(old);
+        }
+
+        bool ShareHome(int a, int b)
+        {
+            Vector3 ha, hb;
+            return homes.TryGetValue(a, out ha) && homes.TryGetValue(b, out hb) && (ha - hb).sqrMagnitude < 0.01f;
+        }
+
         public void SetSpeed(int index)
         {
             SpeedIndex = Mathf.Clamp(index, 0, Speeds.Length - 1);
@@ -149,7 +195,13 @@ namespace Hearts.View
             if (InputShim.Down(GameKey.Speed3)) SetSpeed(2);
             if (InputShim.Down(GameKey.Overlay)) ShowOverlay = !ShowOverlay;
             if (InputShim.Down(GameKey.Numbers)) ShowNumbers = !ShowNumbers;
-            if (InputShim.Down(GameKey.Cancel)) Deselect();
+            if (InputShim.Down(GameKey.Cancel))
+            {
+                if (Matchmaking) CancelMatchmaking();
+                else Deselect();
+            }
+            if (Matchmaking && Runner.Matchmaking.UnavailableReason(Runner.State.Person(MatchSourceId)) != null) CancelMatchmaking();
+            HoverId = Matchmaking && !overUi ? PersonUnderMouse() : -1;
             if (InputShim.Down(GameKey.Focus) && SelectedId >= 0) Select(SelectedId, true);
 
             if (InputShim.LeftClickDown && !overUi && !ShowIntro && GoalReport == null) ClickWorld();
@@ -160,20 +212,28 @@ namespace Hearts.View
             if (speed > 0f) Runner.Advance(Time.deltaTime * speed * SimulationRunner.HoursPerDay / secondsPerDay);
         }
 
-        void ClickWorld()
+        int PersonUnderMouse()
         {
             var ray = cam.ScreenPointToRay(InputShim.MousePosition);
             RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, 500f))
+            if (!Physics.Raycast(ray, out hit, 500f)) return -1;
+            var view = hit.collider.GetComponentInParent<PersonView>();
+            return view != null ? view.PersonId : -1;
+        }
+
+        void ClickWorld()
+        {
+            int id = PersonUnderMouse();
+            if (Matchmaking)
             {
-                var view = hit.collider.GetComponentInParent<PersonView>();
-                if (view != null)
-                {
-                    Select(view.PersonId);
-                    return;
-                }
+                if (id < 0 || id == MatchSourceId) return;
+                var result = Runner.Matchmaking.Introduce(MatchSourceId, id);
+                if (!result.attempted) Say(id, result.reason, Effects.Shrug, 4f);
+                else CancelMatchmaking();
+                return;
             }
-            Deselect();
+            if (id >= 0) Select(id);
+            else Deselect();
         }
 
         void LateUpdate()
@@ -264,6 +324,42 @@ namespace Hearts.View
             Burst(personId, Effects.Accept, 8);
         }
 
+        void OnCoupleFormed(CoupleState c)
+        {
+            Burst(c.personA, Effects.Heart, 16);
+            Burst(c.personB, Effects.Heart, 16);
+            Say(c.personA, "Oh! Hello there.", Effects.Heart);
+            Say(c.personB, "Have we met?", Effects.Heart);
+            var a = ViewOf(c.personA);
+            var b = ViewOf(c.personB);
+            if (a != null && b != null)
+            {
+                var meet = (a.transform.position + b.transform.position) * 0.5f;
+                a.WalkTo(meet + (a.transform.position - meet).normalized * 0.6f);
+                b.WalkTo(meet + (b.transform.position - meet).normalized * 0.6f);
+            }
+        }
+
+        void OnMatchmake(MatchResult m)
+        {
+            if (!m.success && m.attempted)
+            {
+                Say(m.personA, m.reason, Effects.Shrug, 4f);
+                Burst(m.personB, Effects.Shrug, 6);
+            }
+        }
+
+        void OnStageChanged(CoupleState c)
+        {
+            Burst(c.personA, Effects.Heart, 12);
+            Burst(c.personB, Effects.Heart, 12);
+            if (c.stage != CoupleStage.Established || ShareHome(c.personA, c.personB)) return;
+            // Making it official means moving in together.
+            Vector3 home;
+            if (homes.TryGetValue(c.personA, out home)) SetHome(c.personB, home);
+            Say(c.personA, "Let's make it official.", Effects.Heart, 4f);
+        }
+
         void OnBreakUp(CoupleState c)
         {
             Say(c.personA, "It's over.", Effects.Backfire, 4f);
@@ -272,9 +368,9 @@ namespace Hearts.View
             Burst(c.personB, Effects.Backfire, 18);
 
             // The person who left moves into a tent of their own.
+            if (!ShareHome(c.personA, c.personB)) return;
             var leaver = Runner.State.Person(c.leaverId >= 0 ? c.leaverId : c.personA);
-            var view = ViewOf(leaver.id);
-            if (view != null) view.SetHome(world.ClaimHome(leaver.FullName, Color.HSVToRGB(leaver.hue, 0.4f, 0.9f)));
+            SetHome(leaver.id, world.ClaimHome(leaver.FullName, Color.HSVToRGB(leaver.hue, 0.4f, 0.9f)));
         }
     }
 }
