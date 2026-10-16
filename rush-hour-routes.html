@@ -2728,7 +2728,7 @@ function expandAnimTick(now){
   const a=ui.expAnim;
   if(!a){if(T.expG&&T.expG._k){clearGroup(T.expG);T.expG._k=null}return}
   if(!T.expG){T.expG=new THREE.Group();T.dyn.add(T.expG)}
-  const g=T.expG,ex=a.ex,t=(now-a.t0)/a.dur;
+  const g=T.expG,ex=a.ex,t=a.fixedT!=null?a.fixedT:(now-a.t0)/a.dur;
   if(t>=1){endExpandAnim();return}
   const e=x=>x<0?0:x>1?1:x*x*(3-2*x),east=ex.side==='east',nw=ex.neu,w=nw.x1-nw.x0,h=nw.y1-nw.y0;
   if(!g._k){
