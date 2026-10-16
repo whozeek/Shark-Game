@@ -298,6 +298,13 @@ def draw_set(F, t, name, wall, emoji):
         ties = bed & (np.abs(wx - cxl) < half * 1.2) & ((np.log(d) * 9) % 1 < 0.45)
         img[ties] = C(0.42, 0.28, 0.18)
         rails = g & (np.abs(np.abs(wx - cxl) - half * 0.85) < (2 + d * 0.012))
+        if OPTS.get("side_track"):  # branch that splits off toward the left
+            cx2 = -40 - d * 1.05
+            bed2 = g & (np.abs(wx - cx2) < half * 1.35) & (wy > -200)
+            img[bed2] = C(0.55, 0.50, 0.45)
+            ties2 = bed2 & (np.abs(wx - cx2) < half * 1.2) & ((np.log(d) * 9) % 1 < 0.45)
+            img[ties2] = C(0.42, 0.28, 0.18)
+            rails = rails | (g & (wy > -200) & (np.abs(np.abs(wx - cx2) - half * 0.85) < (2 + d * 0.012)))
         img[rails] = C(0.75, 0.76, 0.80)
         finish(F, img)
         # lever
@@ -306,11 +313,10 @@ def draw_set(F, t, name, wall, emoji):
             F.cap((220, -40), (240, -105), 9, (0.55, 0.55, 0.6), "lvstub")
             F.cap((300, -15), (395, -40), 9, (0.55, 0.55, 0.6), "lvpiece")
             F.ell((400, -42), 20, 20, (0.85, 0.15, 0.15), "lvknob", spec=0.3)
-            emoji(F, "❌", (240, -170), 55, "lvx")
         else:
             F.cap((220, -40), (290, -230), 9, (0.55, 0.55, 0.6), "lvstick")
             F.ell((290, -235), 20, 20, (0.85, 0.15, 0.15), "lvknob", spec=0.3)
-        emoji(F, OPTS.get("train", "🚋"), (-70, -330), 90, "tram")
+        emoji(F, OPTS.get("train", "🚋"), (-75, -250), 135, "tram")
     elif name == "sea":
         img, wx, wy = outdoor(F, sky0=(0.35, 0.40, 0.50), sky1=(0.62, 0.68, 0.74), ground=(0.18, 0.40, 0.58), horizon=-380)
         waves = (wy > -380) & (np.sin(wx / 60 + np.sin(wy / 40) * 2 + F.bi * 0.8) > 0.85)

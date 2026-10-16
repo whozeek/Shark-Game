@@ -542,14 +542,17 @@ REVIEW_FIXES_3 = {
         (0, "chars", ["you"]), (0, "act", "react"), (0, "icons", []), (0, "no_truck", True),
         (0, "decor", [("🧑🏾‍🦱", -210, -725, 95), ("❤️", -150, -790, 40)] + [("🙋", x, y, 80) for x, y in _W]),
         (0, "react", "shock"), (0, "at", 0.35)],
-    "49_the_trolley_lever": [(0, "cam", (40, -470, 1120))],
+    "49_the_trolley_lever": [(0, "cam", (40, -470, 1150)), (0, "xs", [175]), (0, "side_track", True),
+                             (0, "decor", [("👵", -125, -75, 80), ("👶", -235, -70, 70)])],
     "50_one_place_left": [
         (0, "set", "lifeboat"), (0, "icons", ["🌊", "1️⃣"]), (0, "cam", (0, -500, 1350)),
         (1, "set", "lifeboat"), (1, "cam", (0, -500, 1350)),
         (1, "front", [("🤰", -262, -90, 92), ("🧒", 262, -90, 84)])],
     "52_the_broken_lever": [
-        (0, "cam", (40, -470, 1120)), (0, "broken_lever", True), (0, "train", "🚆"),
-        (1, "chars", ["you", "stranger"]), (1, "xs", [10, 215]), (1, "scale", {1: 1.25}),
+        (0, "cam", (40, -470, 1150)), (0, "xs", [175]), (0, "broken_lever", True), (0, "train", "🚆"),
+        (0, "decor", [("🧍", x, -70, 58) for x in (-215, -170, -125, -80, -35)]),
+        (1, "chars", ["you", "stranger"]), (1, "xs", [-10, 165]), (1, "scale", {1: 1.25}), (1, "cam", (60, -540, 1320)),
+        (1, "decor", [("🧍", x, -70, 50) for x in (-260, -225, -190, -155, -120)]),
         (1, "broken_lever", True), (1, "train", "🚆")],
 }
 for _ad in ADS:
