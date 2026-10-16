@@ -610,8 +610,8 @@
   const HW = 5, BODYH = 46, ARMS = 49;      // half width, body height, grip height above feet (matches the motions)
   const G = 1500, JUMP_H = 98, JV = Math.sqrt(2 * G * JUMP_H);
   const WALK = 55, RUN = 92, DODGE = 128;
-  const SLAM = 0.016;
-  const CRACK_AT = 5, BREAK_AT = 10;          // seconds of drilling before cracks show, and before the piece breaks                       // seconds per row while a hard drop slams down
+  const SLAM = 0.016;                        // seconds per row while a hard drop slams down
+  const CRACK_AT = 5, BREAK_AT = 10;          // seconds of drilling before cracks show, and before the block breaks
   const dropInterval = () => Math.max(0.06, 0.9 * Math.pow(0.85, S.level - 1));
   const SHAPES = {
     I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
@@ -717,7 +717,8 @@
       score: 0, lines: 0, level: 1, mode: 'intro', time: 0,
       dropT: 0, lockT: 0, lockResets: 0, shake: 0, flash: 0,
       climber: freshClimber(), result: null,
-      ids: Array.from({ length: ROWS }, () => Array(COLS).fill(0)), serial: 1, cracks: {}, parts: [],
+      ids: Array.from({ length: ROWS }, () => Array(COLS).fill(0)), serial: 1, parts: [],
+      crk: Array.from({ length: ROWS }, () => Array(COLS).fill(0)),
     };
   }
   let best = 0;
@@ -877,6 +878,7 @@
       for (const r of cleared) {
         S.board.splice(r, 1); S.board.unshift(Array(COLS).fill(0));
         S.ids.splice(r, 1); S.ids.unshift(Array(COLS).fill(0));
+        S.crk.splice(r, 1); S.crk.unshift(Array(COLS).fill(0));
       }
       if (C.state !== 'win' && C.state !== 'intro') {
         const below = cleared.filter(r => r * CELL >= C.y - 0.5).length;
@@ -1143,20 +1145,42 @@
   }
 
   // the block that has him boxed in: a ceiling just over his head, or a wall beside him
+  // the fewest blocks he must drill to get somewhere higher; null if drilling would not help
   function drillTarget() {
     const C = S.climber;
     const r = Math.round(C.y / CELL), c = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL)));
     let roofed = false;
     for (let k = r - 3; k >= 0; k--) if (solidB(k, c)) { roofed = true; break; }
     if (!roofed) return null;                  // open sky above: he is not blocked in, just waiting
-    if (r - 3 >= 0 && solidB(r - 3, c) && S.board[r - 3][c]) return { r: r - 3, c, side: 0, x: colX(c) };
-    for (const d of [C.f || 1, -(C.f || 1)]) {
-      const nc = c + d;
-      for (const rr of [r - 1, r - 2]) {
-        if (nc >= 0 && nc < COLS && rr >= 0 && S.board[rr][nc]) return { r: rr, c: nc, side: d, x: d > 0 ? (c + 1) * CELL - HW - 3 : c * CELL + HW + 3 };
-      }
+    const has = (rr, cc) => rr >= 0 && cc >= 0 && cc < COLS && rr < ROWS && !!S.board[rr][cc];
+    const options = [];
+    // the ceiling: the first block above his head (within drill reach) and up to two more stacked on it
+    let k0 = -1;
+    for (let k = r - 3; k >= Math.max(0, r - 5); k--) if (has(k, c)) { k0 = k; break; }
+    if (k0 >= 0) {
+      const run = [];
+      for (let k = k0; k >= Math.max(0, k0 - 2) && has(k, c); k--) { run.push([k, c]); options.push(run.slice()); }
     }
-    return null;
+    for (const d of [-1, 1]) {
+      const nc = c + d, low = has(r - 1, nc), high = has(r - 2, nc);
+      if (low) options.push([[r - 1, nc]]);
+      if (high) options.push([[r - 2, nc]]);
+      if (low && high) options.push([[r - 1, nc], [r - 2, nc]]);
+    }
+    // try each option on the board, see how high he could get, put the blocks back
+    const now = planStack().bestY;
+    let best = null;
+    for (const set of options) {
+      const saved = set.map(([rr, cc]) => S.board[rr][cc]);
+      for (const [rr, cc] of set) S.board[rr][cc] = 0;
+      const y = planStack().bestY;
+      set.forEach(([rr, cc], i) => { S.board[rr][cc] = saved[i]; });
+      if (y < now && (!best || y < best.y || (y === best.y && set.length < best.set.length))) best = { y, set };
+    }
+    if (!best) return null;
+    const [tr, tc] = best.set[0];
+    const side = tc - c;
+    return { r: tr, c: tc, side, x: side > 0 ? (c + 1) * CELL - HW - 3 : side < 0 ? c * CELL + HW + 3 : colX(c) };
   }
   function addParts(x, y, color, n, power) {
     for (let i = 0; i < n; i++) {
@@ -1164,24 +1188,19 @@
       S.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - power * 0.3, life: 0.5 + Math.random() * 0.5, s: 2 + Math.random() * 3, color });
     }
   }
-  function breakPiece(id) {
-    let n = 0;
-    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-      if (S.ids[r][c] !== id) continue;
-      addParts(colX(c), r * CELL + CELL / 2, T.p[S.board[r][c]] || T.ink, 10, 160);
-      S.board[r][c] = 0; S.ids[r][c] = 0; n++;
-    }
-    delete S.cracks[id];
-    if (n) { S.shake = Math.min(12, S.shake + 5); sfx('crumble'); say(pick(SAY.smash), 1.5); }
+  function breakBlock(r, c) {
+    addParts(colX(c), r * CELL + CELL / 2, T.p[S.board[r][c]] || T.ink, 14, 160);
+    S.board[r][c] = 0; S.ids[r][c] = 0; S.crk[r][c] = 0;
+    S.shake = Math.min(12, S.shake + 4); sfx('crumble'); say(pick(SAY.smash), 1.5);
+    // if another block still has him boxed in, he goes straight on to it
     const C = S.climber;
-    C.drilling = false; C.trapT = 0; C.intent = null; C.think = 0.1;
+    C.intent = null; C.think = 0;
   }
   // one frame of drilling on the target block
   function drillTick(it, dt) {
     const C = S.climber;
     if (!S.board[it.tr] || !S.board[it.tr][it.tc]) { C.intent = null; C.think = 0; return; }
     if (it.side) C.f = it.side;
-    const id = S.ids[it.tr][it.tc];
     const before = C.drillT % 0.07;
     C.drillT += dt;
     if (C.drillT % 0.07 < before) {
@@ -1192,9 +1211,8 @@
       S.shake = Math.min(3, S.shake + 0.35);
       sfx('rattle');
     }
-    if (!id) return;
-    S.cracks[id] = (S.cracks[id] || 0) + dt;
-    if (S.cracks[id] >= BREAK_AT) breakPiece(id);
+    S.crk[it.tr][it.tc] += dt;
+    if (S.crk[it.tr][it.tc] >= BREAK_AT) breakBlock(it.tr, it.tc);
   }
 
   // ---------- the climber: seeing a piece coming ----------
@@ -1678,7 +1696,7 @@
     for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
       const v = S.board[y][x];
       if (!v) continue;
-      const prog = S.cracks[S.ids[y][x]] || 0;
+      const prog = S.crk[y][x] || 0;
       const jig = prog > BREAK_AT - 2 ? (Math.random() - 0.5) * (prog - (BREAK_AT - 2)) : 0;
       drawCell(ctx, x * CELL + jig, y * CELL, CELL, T.p[v], y * 31 + x);
       if (prog >= CRACK_AT) drawCracks(x * CELL + jig, y * CELL, (prog - CRACK_AT) / (BREAK_AT - CRACK_AT), y * 31 + x);
@@ -2044,6 +2062,7 @@
     if (data && data.board && data.climber && 'vx' in data.climber) {
       S = Object.assign(newState(), data);
       if (!S.ids) S.ids = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+      if (!S.crk) S.crk = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
       if (S.mode === 'play') S.mode = 'paused';
       if (S.mode === 'paused') showCard('Paused.', 'The page was updated. He is still hanging on.', 'Resume', false);
       else if (S.mode === 'over') overlay.hidden = false;
