@@ -224,6 +224,14 @@ body.rm .mini.loopon,body.rm .mini.loopon i{animation:none}
 #replay{position:absolute;left:50%;transform:translateX(-50%);top:150px;width:min(450px,calc(100% - 20px));padding:10px 12px;box-sizing:border-box;z-index:6}#replay canvas{width:100%;height:auto;display:block;border-radius:10px}#replay small{display:block;color:var(--muted);font-weight:600;margin-top:4px}
 .pin{border:0;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:11px;border-radius:8px;padding:2px 7px;margin-left:4px}
 #rbubble{position:absolute;width:220px;padding:8px 11px;border-left:5px solid var(--ok);font-size:13px;line-height:1.35;z-index:7;pointer-events:none}#rbubble b{display:block;font-family:var(--font-display)}
+#growbar.gb3{flex-direction:column;align-items:stretch;gap:6px;width:min(620px,94vw);padding:8px 10px;bottom:88px}
+#growbar .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+#growbar .gbh{display:flex;flex-direction:column;gap:2px;font-size:13px}#growbar .gbh b{font-size:16px}#growbar .gbh span{color:var(--muted)}
+.gpick{display:flex;gap:7px;align-items:center;text-align:left;min-height:48px;border-radius:14px;border:2px solid var(--c);background:#fff;padding:5px 7px;font:inherit;color:var(--ink,#14202a);min-width:0}
+.gpick i{flex:none;width:30px;height:30px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:18px}
+.gpick span{display:flex;flex-direction:column;font-weight:800;font-size:13px;line-height:1.15;min-width:0}.gpick small{font-weight:700;color:#3a4954;font-size:12px}
+.gpick:active{background:#f1f6fa}
+#growbar .gskip{height:40px;font-size:14px}
 #growbar{position:absolute;left:50%;transform:translateX(-50%);bottom:96px;display:flex;gap:12px;align-items:center;padding:8px 12px;font-weight:700;z-index:8}
 #ov.homeov{backdrop-filter:none;background:#14183c;padding:0;overflow:hidden}
 #hbg{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -2740,12 +2748,27 @@ function growChoices(){
   for(const o of out){o.title=D[o.letter][0];o.desc=D[o.letter][1]}
   return out;
 }
+const GROW_COL=['#2a7de1','#e0509a','#3fb868'];
+function growBar(){
+  const opts=ui.growOpts||[];let gb=$('#growbar');
+  if(!gb){gb=document.createElement('div');gb.id='growbar';gb.className='panel';$('#app').appendChild(gb)}
+  gb.className='panel gb3';
+  gb.innerHTML='<div class="gbh"><b>The city is growing</b><span>Day '+G.day+': pick a flashing circle on the map.</span></div><div class="g3">'+
+   opts.map((o,i)=>'<button class="gpick" style="--c:'+GROW_COL[i%3]+'" data-act="growpick" data-i="'+i+'" title="'+esc(o.desc)+'"><i>'+String.fromCharCode(65+i)+'</i><span><b>'+esc(o.title)+'</b><small>'+esc(o.place)+'</small></span></button>').join('')+'</div>'+
+   '<button class="btn alt gskip" data-act="growskip">Not today</button>';
+  gb.hidden=false;
+}
+function growLabelTex(letter,o,col){
+  return srgbTex(mkCanvas(640,200,(c,w,h)=>{
+    c.fillStyle=col;rrect(c,6,6,w-12,h-12,34);c.fill();c.lineWidth=10;c.strokeStyle='#fff';rrect(c,6,6,w-12,h-12,34);c.stroke();
+    c.fillStyle='#fff';c.beginPath();c.arc(100,h/2,66,0,6.283);c.fill();
+    c.fillStyle=col;c.font='900 90px Outfit,Arial,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(letter,100,h/2+5);
+    c.textAlign='left';c.fillStyle='#fff';c.shadowColor='rgba(0,0,0,.45)';c.shadowBlur=8;c.font='900 56px Outfit,Arial,sans-serif';c.fillText(o.place,190,h/2-32,420);
+    c.font='800 40px Outfit,Arial,sans-serif';c.fillText(o.title,190,h/2+36,420)}));
+}
 function showGrowth(opts){
-  ui.growOpts=opts;
-  opts.forEach((o,i)=>{const x=MARGIN+o.c*S+S/2,y=MARGIN+o.r*S+S/2;fx.ring(x,y,['#2a7de1','#e0509a','#3fb868'][i%3],60);fx.text(x,y-20,String.fromCharCode(65+i),'#1b2733')});
-  showOv('<div class="card small"><h2>The city is growing</h2><p class="sub">Day '+G.day+' begins. Choose where the next block goes. The marked spots are shown on the map behind this card.</p>'+
-   opts.map((o,i)=>'<button class="lv" style="width:100%;min-height:0;margin:6px 0" data-act="growpick" data-i="'+i+'"><b>'+String.fromCharCode(65+i)+'. '+esc(o.title)+' near '+esc(o.place)+'</b><small>'+esc(o.desc)+'</small></button>').join('')+
-   '<div class="btnrow"><button class="btn alt" data-act="growlook">Look at the map</button><button class="btn alt" data-act="growskip">Not today</button></div></div>');$('#ov').classList.add('light');
+  ui.growOpts=opts;hideOv();G.modal=false;
+  fitCam(true);growBar();syncPlay();ui.dirty=true;
 }
 function applyGrowth(i){
   const o=(ui.growOpts||[])[i];hideOv();ui.growOpts=null;{const gb=$('#growbar');if(gb)gb.hidden=true}
@@ -4309,12 +4332,17 @@ function syncViews(now){
   {const go=ui.growOpts;
    if(go&&go.length){
      if(!T.growG){T.growG=new THREE.Group();T.dyn.add(T.growG)}
-     if(T.growG._k!==go){clearGroup(T.growG);T.growG._k=go;T.growG._r=[];
-       go.forEach((o,i)=>{const x=MARGIN+o.c*S+S/2,y=MARGIN+o.r*S+S/2,col=['#2a7de1','#e0509a','#3fb868'][i%3];
+     if(T.growG._k!==go){clearGroup(T.growG);T.growG._k=go;T.growG._r=[];T.growG._r2=[];T.growG._p=[];
+       go.forEach((o,i)=>{const x=MARGIN+o.c*S+S/2,y=MARGIN+o.r*S+S/2,col=GROW_COL[i%3];
          const ring=new THREE.Mesh(T.gRing,basic(col,{transparent:true,opacity:.95,depthWrite:false}));ring.position.set(x,1.4,y);ring.scale.setScalar(50);ring.renderOrder=6;T.growG.add(ring);T.growG._r.push(ring);
+         const ring2=new THREE.Mesh(T.gRing,basic(col,{transparent:true,opacity:.6,depthWrite:false}));ring2.position.set(x,1.3,y);ring2.renderOrder=6;T.growG.add(ring2);T.growG._r2.push(ring2);
+         const disc=new THREE.Mesh(T.gDisc,basic(col,{transparent:true,opacity:.22,depthWrite:false}));disc.position.set(x,1.2,y);disc.scale.setScalar(46);disc.renderOrder=5;T.growG.add(disc);T.growG._p.push(disc);
          const pil=new THREE.Mesh(T.gCyl,basic(col,{transparent:true,opacity:.35,depthWrite:false}));pil.scale.set(3,70,3);pil.position.set(x,35,y);T.growG.add(pil);
-         const lb=mkSprite(textTex(String.fromCharCode(65+i),col),52,21);lb.position.set(x,84,y);T.growG.add(lb)})}
-     for(const r of T.growG._r)r.scale.setScalar(46+9*Math.sin(now/280));
+         const lb=mkSprite(growLabelTex(String.fromCharCode(65+i),o,col),270,84);lb.position.set(x,96+i*44,y);T.growG.add(lb)})}
+     const fl=ui.rm?1:.45+.55*Math.abs(Math.sin(now/230));
+     T.growG._r.forEach((r,i)=>{r.scale.setScalar(ui.rm?50:46+9*Math.sin(now/280));r.material.opacity=fl});
+     T.growG._r2.forEach((r,i)=>{const ph=ui.rm?.5:((now/900+i*.33)%1);r.scale.setScalar(40+40*ph);r.material.opacity=ui.rm?.5:.7*(1-ph)});
+     T.growG._p.forEach(d=>{d.material.opacity=.12+.2*fl});
    }else if(T.growG&&T.growG._k){clearGroup(T.growG);T.growG._k=null}}
   if(T.waterTex&&!ui.rm){T.waterTex.offset.set((now/26000)%1,(now/41000)%1)}
   if(T.foamMat)T.foamMat.opacity=.22+.14*Math.sin(now/900);
@@ -4718,7 +4746,7 @@ document.addEventListener('click',e=>{
   if(['busup','busdown','express','model','loop','reverse','lane','sched','night','bike','spacing','engine','delroute','rmstop','ramp','depot','color'].includes(act))pushUndo();
   const route=id?G.routes.find(r=>r.id===id):null;
   switch(act){
-    case'play':if(G.modal||G.over)return;if(ui.expAnim){return}if(G.pendingNext){nextDay();return}
+    case'play':if(G.modal||G.over)return;if(ui.expAnim){return}if(ui.growOpts){toast('Pick where the city grows first, or tap Not today.',2400);return}if(G.pendingNext){nextDay();return}
       if(G.paused&&G.t===0&&!ui.growOpts){G.snap=serialize();if(!G.missions.length)makeMissions()}if(G.paused&&!G.routes.length&&G.t===0){toast('Place stops and draw a route first.');const sb=document.querySelector('.tbtn[data-tool="stop"]');if(sb){sb.classList.add('nudge');setTimeout(()=>sb.classList.remove('nudge'),2200)}return}if(G.paused&&G.t===0&&PROF.cos.horn!=='classic')snd('horn');G.paused=!G.paused;syncPlay();break;
     case'speed':G.speed=G.speed%3+1;syncPlay();break;
     case'sound':ui.sound=!ui.sound;syncPlay();if(el.closest('#ov'))el.textContent=ui.sound?'Sound: on':'Sound: off';break;
