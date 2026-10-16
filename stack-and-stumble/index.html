@@ -133,7 +133,7 @@
 <div class="app">
   <header>
     <h1>Stack <span>&amp;</span> Stumble</h1>
-    <div class="tag">He climbs your blocks. Every piece you land shakes him loose.</div>
+    <div class="tag">He climbs your pieces. Every piece you land shakes him loose.</div>
   </header>
   <div class="stage">
     <aside class="side left">
@@ -149,8 +149,8 @@
       <canvas id="game" aria-label="Game board with the climber on the stack"></canvas>
       <div class="overlay" id="overlay">
         <div class="card">
-          <h2 id="ovTitle">He wants out.</h2>
-          <p id="ovText">A stick figure is climbing your blocks to get out of the well. If he stands above the dashed jump line, he crouches and leaps out, and you lose. Every piece you land shakes him. Hard drops next to him knock him off his ledge, a piece on his head sends him flying, and cleared lines pull the floor out from under him.</p>
+          <h2 id="ovTitle">He wants the top.</h2>
+          <p id="ovText">A stick figure is trying to climb out of your well. He runs, jumps, climbs and grabs onto your pieces, even the one that is still falling. Every piece you land shakes him. Slam one next to him to knock him off, drop one on his head, or move and spin the falling piece to throw him off it. If he reaches the top, you lose.</p>
           <div class="keys" id="ovKeys">← → move · ↑ / X rotate · Z rotate back<br>↓ soft drop · Space hard drop<br>C hold · P pause</div>
           <button id="ovBtn" type="button">Let him climb</button>
         </div>
@@ -177,15 +177,439 @@
 </div>
 
 <script>
+/* motions.js - hand-keyframed stick-figure motion library.
+ *
+ * window.StickMotions = { sample, duration, loops, names, blend }
+ *
+ * Poses: { hip, neck, head, lElbow, lHand, rElbow, rHand, lKnee, lFoot, rKnee, rFoot, face }
+ * each joint [x, y] in px, y DOWN, figure facing +x. Engine mirrors x for facing left.
+ *
+ * How it works: each keyframe stores a few "channels" (hip or neck position, torso lean,
+ * head nod, and per limb either FK angles or an IK end-effector target). Channels are
+ * interpolated with monotone cubic Hermite splines (smooth, no overshoot, holds stay
+ * exactly still, loops wrap seamlessly), then forward/inverse kinematics builds the
+ * joints. Limb lengths are therefore always exact: arm 9+9, leg 9+9, torso 17, head 8.
+ *
+ * Angle convention (degrees): measured from straight DOWN, positive rotates toward +x
+ * (forward). 0 = hanging down, 90 = pointing forward, 180 = pointing up.
+ *   torso  lean : 0 upright, + leans forward (neck ahead of hip)
+ *   head   nod  : added to lean; + tips head forward/down, - tilts it back (look up)
+ *   arm FK  s,e : upper arm absolute angle s; forearm angle = s + e (e >= 0 bends elbow)
+ *   leg FK  s,k : thigh absolute angle s;    shin angle    = s - k (k >= 0 bends knee)
+ *   IK bend sign: +1 puts the joint on the side n = (u.y, -u.x) of the root->target dir u.
+ *                 For a leg pointing down that is +x (knee forward).
+ */
+(function () {
+  'use strict';
+
+  var UA = 9, FA = 9, TH = 9, SH = 9, TORSO = 17, HEAD = 8;
+  var D2R = Math.PI / 180;
+  var JOINTS = ['hip', 'neck', 'head', 'lElbow', 'lHand', 'rElbow', 'rHand', 'lKnee', 'lFoot', 'rKnee', 'rFoot'];
+
+  function dir(a, len) { return [len * Math.sin(a * D2R), len * Math.cos(a * D2R)]; }
+  function add(p, v) { return [p[0] + v[0], p[1] + v[1]]; }
+
+  // Two-bone IK. Returns [middleJoint, endPoint]; end is pulled in if out of reach.
+  function ik(root, target, a, b, sigma) {
+    var dx = target[0] - root[0], dy = target[1] - root[1];
+    var d = Math.sqrt(dx * dx + dy * dy);
+    if (d < 1e-6) { dx = 0; dy = 1; d = 1e-6; }
+    var ux = dx / d, uy = dy / d;
+    var dc = Math.min(Math.max(d, Math.abs(a - b) + 0.01), a + b - 0.001);
+    var along = (a * a - b * b + dc * dc) / (2 * dc);
+    var h = Math.sqrt(Math.max(0, a * a - along * along));
+    var nx = uy * sigma, ny = -ux * sigma;
+    return [[root[0] + ux * along + nx * h, root[1] + uy * along + ny * h],
+            [root[0] + ux * dc, root[1] + uy * dc]];
+  }
+
+  // Default channel values (a relaxed standing pose).
+  var BASE = {
+    x: 0, y: -16.8, lean: 3, nod: 0, hd: HEAD,
+    las: 6, lae: 12, ras: -6, rae: 16,              // arm FK
+    lhx: 1, lhy: -16, rhx: 2, rhy: -16,              // arm IK targets
+    lls: 0, llk: 6, rls: 0, rlk: 6,                  // leg FK
+    lfx: -3, lfy: 0, rfx: 3, rfy: 0                  // leg IK targets
+  };
+  var LIMB_CH = {
+    la: { fk: ['las', 'lae'], ik: ['lhx', 'lhy'] }, ra: { fk: ['ras', 'rae'], ik: ['rhx', 'rhy'] },
+    ll: { fk: ['lls', 'llk'], ik: ['lfx', 'lfy'] }, rl: { fk: ['rls', 'rlk'], ik: ['rfx', 'rfy'] }
+  };
+
+  var MOTIONS = {};
+
+  // Fritsch-Butland monotone slope at the middle of three points.
+  function slope(p0, t0, p1, t1, p2, t2) {
+    var h0 = t1 - t0, h1 = t2 - t1;
+    var d0 = (p1 - p0) / h0, d1 = (p2 - p1) / h1;
+    if (d0 * d1 <= 0) return 0;
+    return 3 * (h0 + h1) / ((2 * h1 + h0) / d0 + (h1 + 2 * h0) / d1);
+  }
+
+  /* def(name, spec)
+   * spec.dur   seconds;  spec.loop bool;  spec.speedable (opts.speed applies)
+   * spec.root  'hip' (x,y = hip) or 'neck' (x,y = neck; hip hangs from it)
+   * spec.mode  { la, ra, ll, rl : 'fk' | 'ik' }  (defaults: arms fk, legs ik)
+   * spec.bend  IK bend signs { la, ra, ll, rl }  (defaults: arms -1, legs +1)
+   * spec.face  default face;  keys: [[t, {channels..., face?}], ...]
+   * Missing channels carry over from the previous key (first key: BASE). */
+  function def(name, spec) {
+    var mode = { la: 'fk', ra: 'fk', ll: 'ik', rl: 'ik' };
+    var bend = { la: -1, ra: -1, ll: 1, rl: 1 };
+    var k;
+    for (k in spec.mode || {}) mode[k] = spec.mode[k];
+    for (k in spec.bend || {}) bend[k] = spec.bend[k];
+    var chans = ['x', 'y', 'lean', 'nod', 'hd'];
+    for (k in LIMB_CH) chans = chans.concat(LIMB_CH[k][mode[k]]);
+    var keys = spec.keys.slice().sort(function (a, b) { return a[0] - b[0]; });
+    var n = keys.length, T = [], V = {}, faces = [];
+    chans.forEach(function (c) { V[c] = []; });
+    var prev = BASE;
+    keys.forEach(function (kf, i) {
+      T.push(kf[0]);
+      var cur = {};
+      chans.forEach(function (c) { cur[c] = (c in kf[1]) ? kf[1][c] : prev[c]; V[c].push(cur[c]); });
+      faces.push(kf[1].face || null);
+      prev = cur;
+    });
+    // Precompute tangents.
+    var M = {}, dur = spec.dur;
+    chans.forEach(function (c) {
+      var v = V[c], m = [];
+      for (var i = 0; i < n; i++) {
+        if (n < 2) { m.push(0); continue; }
+        if (spec.loop) {
+          var ip = (i - 1 + n) % n, inx = (i + 1) % n;
+          var tp = T[ip] - (i === 0 ? dur : 0), tn = T[inx] + (i === n - 1 ? dur : 0);
+          m.push(slope(v[ip], tp, v[i], T[i], v[inx], tn));
+        } else if (i === 0 || i === n - 1) {
+          m.push(0);
+        } else {
+          m.push(slope(v[i - 1], T[i - 1], v[i], T[i], v[i + 1], T[i + 1]));
+        }
+      }
+      M[c] = m;
+    });
+    MOTIONS[name] = { name: name, spec: spec, mode: mode, bend: bend, chans: chans,
+                      T: T, V: V, M: M, faces: faces, n: n, dur: dur, loop: !!spec.loop };
+  }
+
+  function evalMotion(mo, t) {
+    var T = mo.T, n = mo.n, dur = mo.dur, out = {};
+    var ia, ib, ta, tb;
+    if (mo.loop) {
+      t = ((t % dur) + dur) % dur;
+      if (t < T[0]) t += dur;                  // before first key: wrap segment
+      ia = n - 1;
+      for (var i = 0; i < n - 1; i++) if (t >= T[i] && t < T[i + 1]) { ia = i; break; }
+      ib = (ia + 1) % n; ta = T[ia]; tb = ib === 0 ? T[0] + dur : T[ib];
+    } else {
+      t = Math.max(T[0], Math.min(t, T[n - 1]));
+      ia = 0;
+      for (var j = 0; j < n - 1; j++) if (t >= T[j]) ia = j;
+      ib = Math.min(ia + 1, n - 1); ta = T[ia]; tb = T[ib];
+    }
+    var h = tb - ta, s = h > 0 ? (t - ta) / h : 0;
+    var s2 = s * s, s3 = s2 * s;
+    var h00 = 2 * s3 - 3 * s2 + 1, h10 = s3 - 2 * s2 + s, h01 = -2 * s3 + 3 * s2, h11 = s3 - s2;
+    mo.chans.forEach(function (c) {
+      var v = mo.V[c], m = mo.M[c];
+      out[c] = h00 * v[ia] + h10 * h * m[ia] + h01 * v[ib] + h11 * h * m[ib];
+    });
+    // Face is stepped: last key at or before t that names one.
+    var face = mo.spec.face || 'normal';
+    var tf = mo.loop ? t % dur : t;
+    for (var q = 0; q < n; q++) if (mo.faces[q] && T[q] <= tf + 1e-9) face = mo.faces[q];
+    if (mo.loop && tf < T[0]) for (var r = 0; r < n; r++) if (mo.faces[r]) face = mo.faces[r];
+    out.face = face;
+    return out;
+  }
+
+  function build(mo, c) {
+    var tv = dir(180 - c.lean, TORSO);   // hip -> neck
+    var hip, neck;
+    if (mo.spec.root === 'neck') { neck = [c.x, c.y]; hip = [c.x - tv[0], c.y - tv[1]]; }
+    else { hip = [c.x, c.y]; neck = add(hip, tv); }
+    var head = add(neck, dir(180 - (c.lean + c.nod), c.hd));
+    var p = { hip: hip, neck: neck, head: head };
+    function limb(id, root, a, b, jn, en, sign) {
+      var ch = LIMB_CH[id][mo.mode[id]];
+      if (mo.mode[id] === 'fk') {
+        var j = add(root, dir(c[ch[0]], a));
+        p[jn] = j; p[en] = add(j, dir(c[ch[0]] + sign * c[ch[1]], b));
+      } else {
+        var r = ik(root, [c[ch[0]], c[ch[1]]], a, b, mo.bend[id]);
+        p[jn] = r[0]; p[en] = r[1];
+      }
+    }
+    limb('la', neck, UA, FA, 'lElbow', 'lHand', 1);
+    limb('ra', neck, UA, FA, 'rElbow', 'rHand', 1);
+    limb('ll', hip, TH, SH, 'lKnee', 'lFoot', -1);
+    limb('rl', hip, TH, SH, 'rKnee', 'rFoot', -1);
+    p.face = c.face;
+    return p;
+  }
+
+  // Helper for gait cycles: n evenly spaced keys, fn(i) returns the channels of key i.
+  function cycle(dur, n, fn) {
+    var keys = [];
+    for (var i = 0; i < n; i++) keys.push([dur * i / n, fn(i)]);
+    return keys;
+  }
+
+  /* ------------------------------------------------------------------ GROUND */
+
+  // idle: breathing (hip rises/falls), slow weight shift, a glance up around 2s.
+  def('idle', { dur: 3.2, loop: true, keys: [
+    [0.0,  { x: 0,    y: -16.8, lean: 3, nod: 0,   las: 6, lae: 12, ras: -6, rae: 16, lfx: -3, rfx: 3.5 }],
+    [0.8,  { x: 0.5,  y: -16.3, lean: 4, nod: 2,   las: 8, lae: 15, ras: -4, rae: 19 }],
+    [1.6,  { x: 0.9,  y: -16.7, lean: 3, nod: 1,   las: 6, lae: 12, ras: -6, rae: 15 }],
+    [2.0,  { x: 0.6,  y: -16.6, lean: 2, nod: -16, las: 4, lae: 11, ras: -8, rae: 14 }],
+    [2.5,  { x: 0.2,  y: -16.4, lean: 2, nod: -13 }],
+    [2.75, { x: -0.2, y: -16.5, lean: 3, nod: 4,   las: 6, lae: 13, ras: -5, rae: 16 }]
+  ]});
+
+  // lookUp: weight back, head tipped up, right hand shading the eyes, left hand on hip.
+  def('lookUp', { dur: 2.0, loop: true, mode: { ra: 'ik' }, keys: [
+    [0.0, { x: -0.5, y: -16.8, lean: -5, nod: -25, las: -25, lae: 70, rhx: 3.5, rhy: -44,   lfx: -3.5, rfx: 3 }],
+    [0.5, { x: -0.9, y: -16.5, lean: -6, nod: -31, las: -24, lae: 72, rhx: 3.0, rhy: -44.5 }],
+    [1.0, { x: -0.4, y: -16.8, lean: -4, nod: -22, las: -26, lae: 69, rhx: 4.0, rhy: -43.5 }],
+    [1.5, { x: 0.2,  y: -16.5, lean: -5, nod: -29, las: -25, lae: 71, rhx: 3.5, rhy: -44 }]
+  ]});
+
+  // walk: 8-key cycle. Right foot path W[i]; left foot is half a cycle later.
+  // Stance foot slides back 12px per half cycle -> ground speed ~44 px/s at speed 1.
+  (function () {
+    var W = [[6, 0], [3, 0], [0, 0], [-3, 0], [-6.5, -1], [-3, -4.5], [1.5, -5.5], [5, -2.5]];
+    var ARM = [-24, -25, -12, 6, 24, 25, 12, -6];          // right arm swing (opposes right leg)
+    var ELB = [14, 13, 16, 22, 30, 31, 25, 18];
+    var HY = [-16.0, -16.4, -17.2, -16.8], NOD = [2, 0, -2, 0];
+    def('walk', { dur: 0.55, loop: true, speedable: true, keys: cycle(0.55, 8, function (i) {
+      var o = (i + 4) % 8;
+      return { x: 0, y: HY[i % 4], lean: 6, nod: NOD[i % 4],
+               rfx: W[i][0], rfy: W[i][1], lfx: W[o][0], lfy: W[o][1],
+               ras: ARM[i], rae: ELB[i], las: ARM[o], lae: ELB[o] };
+    })});
+  })();
+
+  // run: forward lean, high knees, flight phase, big pumping arms with ~90 deg elbows.
+  // Stance foot slides 15px per half cycle -> ground speed ~105 px/s at speed 1.
+  (function () {
+    var R = [[7, 0], [2, 0], [-3, 0], [-8, -1.5], [-8, -9], [-2, -10.5], [5, -9], [9, -3.5]];
+    var ARM = [-48, -40, 5, 42, 55, 42, -5, -40];
+    var ELB = [62, 70, 92, 102, 98, 88, 70, 60];
+    var HY = [-15.4, -14.9, -15.6, -16.8], NOD = [-8, -6, -9, -11];
+    def('run', { dur: 0.38, loop: true, speedable: true, keys: cycle(0.38, 8, function (i) {
+      var o = (i + 4) % 8;
+      return { x: 0, y: HY[i % 4], lean: 15, nod: NOD[i % 4],
+               rfx: R[i][0], rfy: R[i][1], lfx: R[o][0], lfy: R[o][1],
+               ras: ARM[i], rae: ELB[i], las: ARM[o], lae: ELB[o] };
+    })});
+  })();
+
+  // crouch: anticipation before a jump. Deep knee bend, arms swing back, eyes up.
+  def('crouch', { dur: 0.14, keys: [
+    [0.0,  { x: 0,    y: -16.6, lean: 4,  nod: 0,   las: 5,   lae: 15, ras: -5,  rae: 15 }],
+    [0.06, { x: -0.6, y: -13,   lean: 14, nod: 5,   las: -30, lae: 15, ras: -36, rae: 15 }],
+    [0.14, { x: -1.5, y: -10,   lean: 28, nod: -12, las: -70, lae: 22, ras: -76, rae: 18 }]
+  ]});
+
+  // land: squash on impact (head keeps going = overlap), then recover to standing.
+  def('land', { dur: 0.24, keys: [
+    [0.0,  { x: 0, y: -14,   lean: 10, nod: 0,  las: 120, lae: 20, ras: 110, rae: 25, lfx: -4, rfx: 4 }],
+    [0.06, { x: 0, y: -10.5, lean: 22, nod: 12, las: 50,  lae: 35, ras: 35,  rae: 40 }],
+    [0.13, { x: 0, y: -12,   lean: 16, nod: 6,  las: 20,  lae: 25, ras: 10,  rae: 25 }],
+    [0.24, { x: 0, y: -16.6, lean: 4,  nod: 0,  las: 6,   lae: 12, ras: -6,  rae: 16, lfx: -3, rfx: 3 }]
+  ]});
+
+  // ledgeReach: rise onto the toes and throw both arms straight up, eyes on the ledge.
+  def('ledgeReach', { dur: 0.2, keys: [
+    [0.0, { y: -16.6, lean: 4,  nod: 0,   las: 10,  lae: 20, ras: 0,   rae: 20, lfx: -2.5, rfx: 2.5 }],
+    [0.1, { y: -17.0, lean: 2,  nod: -15, las: 110, lae: 30, ras: 100, rae: 35 }],
+    [0.2, { y: -17.6, lean: -2, nod: -25, las: 172, lae: 4,  ras: 165, rae: 8 }]
+  ]});
+
+  // balance: on a moving piece. Wide soft stance, hips wobble, arms windmill to compensate.
+  def('balance', { dur: 1.6, loop: true, face: 'strain', keys: [
+    [0.0, { x: 1.2,  y: -15.2, lean: 9,   nod: -6, las: 105, lae: 20, ras: -95,  rae: 15, lfx: -4.5, rfx: 4.5 }],
+    [0.4, { x: -0.4, y: -15.6, lean: -3,  nod: 4,  las: 70,  lae: 45, ras: -120, rae: 30 }],
+    [0.8, { x: -1.4, y: -15.0, lean: -10, nod: 8,  las: 125, lae: 15, ras: -75,  rae: 35 }],
+    [1.2, { x: 0.3,  y: -15.5, lean: 2,   nod: -2, las: 85,  lae: 35, ras: -105, rae: 20 }]
+  ]});
+
+  // stumble: toe catches, body pitches forward, arms flail, a catch step, recovery.
+  def('stumble', { dur: 0.5, keys: [
+    [0.0,  { x: -2,   y: -16.4, lean: 6,  nod: 0,   lfx: -5, lfy: 0,  rfx: 1,  rfy: 0,  las: 10,  lae: 15, ras: -10, rae: 15 }],
+    [0.07, { x: -0.5, y: -15.5, lean: 26, nod: -10, lfx: -4, lfy: 0,  rfx: -8, rfy: -3, las: 120, lae: 30, ras: 50,  rae: 50, face: 'scared' }],
+    [0.18, { x: 2.5,  y: -13,   lean: 42, nod: -18, lfx: 6,  lfy: 0,  rfx: -7, rfy: -5, las: 60,  lae: 60, ras: 160, rae: 20 }],
+    [0.3,  { x: 1.5,  y: -14,   lean: 28, nod: -10, lfx: 5,  lfy: 0,  rfx: 1,  rfy: -4, las: 150, lae: 30, ras: 80,  rae: 50 }],
+    [0.4,  { x: 0.6,  y: -16,   lean: 12, nod: -2,  lfx: 4,  lfy: 0,  rfx: -2, rfy: 0,  las: 40,  lae: 25, ras: 20,  rae: 30, face: 'normal' }],
+    [0.5,  { x: 0,    y: -16.6, lean: 4,  nod: 0,   lfx: 3,  lfy: 0,  rfx: -3, rfy: 0,  las: 6,   lae: 12, ras: -6,  rae: 16 }]
+  ]});
+
+  // dazed: sitting, legs out front, arm propped back, head lolling in a slow circle.
+  def('dazed', { dur: 1.6, loop: true, face: 'dizzy', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0, { x: -3,   y: -3, lean: 4,  nod: 18,  hd: 8,   las: 35, lae: 40, ras: -30, rae: 6, lls: 100, llk: 40, rls: 95, rlk: 35 }],
+    [0.4, { x: -2.7, y: -3, lean: 10, nod: 5,   hd: 7.4, las: 40, lae: 45 }],
+    [0.8, { x: -3,   y: -3, lean: 6,  nod: -14, hd: 8,   las: 36, lae: 38, ras: -28 }],
+    [1.2, { x: -3.3, y: -3, lean: -2, nod: 4,   hd: 8.6, las: 30, lae: 35, ras: -32 }]
+  ]});
+
+  // squashed: flattened face-down under a block (~12px tall): torso flat, one arm along the
+  // body, one flung forward, lower legs flipped up behind; a leg twitches.
+  def('squashed', { dur: 1.0, face: 'dizzy', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: -9,  y: -7,   lean: 65, nod: 10, las: -60, lae: 20, ras: 70, rae: 50, lls: -40, llk: 40,  rls: -70, rlk: 50 }],
+    [0.08, { x: -10, y: -2.6, lean: 90, nod: -3, las: -96, lae: 6,  ras: 96, rae: 30, lls: -96, llk: 40,  rls: -92, rlk: 70 }],
+    [0.2,  { x: -10, y: -3.2, lean: 88, nod: -4, las: -95, lae: 10, ras: 94, rae: 40, lls: -95, llk: 50,  rls: -93, rlk: 62 }],
+    [0.6,  { lls: -95, llk: 50 }],
+    [0.72, { lls: -95, llk: 85 }],
+    [0.84, { lls: -95, llk: 45 }],
+    [1.0,  { lls: -95, llk: 50 }]
+  ]});
+
+  // celebrate: hop for joy, arms in a V, heels kicked back at the top (~10px air).
+  def('celebrate', { dur: 0.6, loop: true, face: 'happy', keys: [
+    [0.0,  { x: 0, y: -12.5, lean: 10, nod: 8,   lfx: -3, lfy: 0,   rfx: 3,   rfy: 0,     las: 125, lae: 30, ras: 135, rae: 25 }],
+    [0.12, { x: 0, y: -17.6, lean: 2,  nod: -6,  lfx: -2, lfy: 0,   rfx: 2.5, rfy: 0,     las: 160, lae: 10, ras: 168, rae: 8 }],
+    [0.3,  { x: 0, y: -26.5, lean: -4, nod: -14, lfx: -7, lfy: -12, rfx: -4,  rfy: -10.5, las: 150, lae: 20, ras: 160, rae: 15 }],
+    [0.45, { x: 0, y: -24,   lean: -2, nod: -8,  lfx: -2, lfy: -7,  rfx: 2,   rfy: -6,    las: 145, lae: 22, ras: 155, rae: 18 }],
+    [0.54, { x: 0, y: -16.5, lean: 4,  nod: 2,   lfx: -3, lfy: 0,   rfx: 3,   rfy: 0,     las: 135, lae: 25, ras: 145, rae: 20 }]
+  ]});
+
+  // wave: right arm up, forearm waving twice a second, a little happy bounce.
+  def('wave', { dur: 1.0, loop: true, face: 'happy', keys: [
+    [0.0,  { y: -16.8, lean: 2, nod: -4, las: 5, lae: 12, ras: 150, rae: 12 }],
+    [0.25, { y: -16.5, lean: 3, nod: -2, ras: 145, rae: 55 }],
+    [0.5,  { y: -16.8, lean: 2, nod: -4, ras: 152, rae: 8 }],
+    [0.75, { y: -16.5, lean: 3, nod: -2, ras: 146, rae: 50 }]
+  ]});
+
+  // push: leaning into something to the right (contact at x~+16), feet re-plant in turn.
+  def('push', { dur: 1.0, loop: true, face: 'strain', mode: { la: 'ik', ra: 'ik' }, keys: [
+    [0.0,  { x: -3,   y: -14,   lean: 35, nod: -15, lhx: 16, lhy: -28, rhx: 16.5, rhy: -25, lfx: -10, lfy: 0, rfx: 1, rfy: 0 }],
+    [0.25, { x: -2.4, y: -14.4, lean: 33, nod: -12, rfx: 1.5, rfy: -3 }],
+    [0.5,  { x: -2,   y: -14.5, lean: 36, nod: -15, rfx: 2,  rfy: 0 }],
+    [0.75, { x: -2.6, y: -14.2, lean: 34, nod: -13, lfx: -8.5, lfy: -3 }]
+  ]});
+
+  // brace: flinch - duck, forearms folded over the head, eyes squeezed.
+  def('brace', { dur: 0.3, face: 'scared', keys: [
+    [0.0,  { x: 0,    y: -16.6, lean: 3,  nod: 0,  las: 6,   lae: 12, ras: -6,  rae: 16, lfx: -4, rfx: 3 }],
+    [0.08, { x: -1,   y: -13,   lean: 16, nod: -6, las: 118, lae: 70, ras: 96,  rae: 80 }],
+    [0.3,  { x: -1.5, y: -12,   lean: 18, nod: -4, las: 115, lae: 72, ras: 94,  rae: 82 }]
+  ]});
+
+  /* --------------------------------------------------------------------- AIR */
+
+  // jumpUp: full extension with arms thrown up, then knees tuck. Origin = feet.
+  def('jumpUp', { dur: 0.3, mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0, { y: -17.8, lean: 6, nod: -5,  las: 150, lae: 10, ras: 165, rae: 15, lls: -4, llk: 4,   rls: 2,  rlk: 6 }],
+    [0.1, { y: -18,   lean: 2, nod: -10, las: 170, lae: 8,  ras: 175, rae: 10, lls: -6, llk: 10,  rls: 4,  rlk: 12 }],
+    [0.3, { y: -14,   lean: 4, nod: 0,   las: 125, lae: 40, ras: 140, rae: 35, lls: 60, llk: 105, rls: 75, rlk: 115 }]
+  ]});
+
+  // fallDown: arms flailing overhead, legs bicycling.
+  def('fallDown', { dur: 0.6, loop: true, face: 'scared', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { y: -17,   lean: -4, nod: -12, las: 150, lae: 30, ras: 165, rae: 10, lls: 25,  llk: 30, rls: 10,  rlk: 70 }],
+    [0.15, { y: -17.5, lean: -6, nod: -16, las: 175, lae: 10, ras: 130, rae: 45, lls: 45,  llk: 80, rls: -10, rlk: 20 }],
+    [0.3,  { y: -17,   lean: -3, nod: -10, las: 135, lae: 45, ras: 160, rae: 15, lls: 10,  llk: 70, rls: 25,  rlk: 30 }],
+    [0.45, { y: -16.6, lean: -5, nod: -14, las: 160, lae: 20, ras: 140, rae: 35, lls: -10, llk: 20, rls: 45,  rlk: 80 }]
+  ]});
+
+  // tumble: curled ball with limbs flung, centred near (0,-18); engine spins it.
+  def('tumble', { dur: 0.6, loop: true, face: 'dizzy', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: -9.5, y: -8,    lean: 40, nod: 30, lls: 115, llk: 125, rls: 100, rlk: 110, las: 200, lae: 20, ras: 120, rae: 70 }],
+    [0.15, { x: -9,   y: -8.5, lean: 35, nod: 20, lls: 80,  llk: 40,  rls: 120, rlk: 130, las: 150, lae: 60, ras: 210, rae: 15 }],
+    [0.3,  { x: -9.5, y: -8,    lean: 45, nod: 35, lls: 120, llk: 130, rls: 70,  rlk: 30,  las: 110, lae: 90, ras: 180, rae: 30 }],
+    [0.45, { x: -9,   y: -7.5, lean: 38, nod: 25, lls: 100, llk: 100, rls: 110, rlk: 120, las: 230, lae: 25, ras: 140, rae: 60 }]
+  ]});
+
+  /* ------------------------------------------------------------ BLOCK / WALL */
+
+  // hang: origin = grip (block top-left corner, block at x>0,y>0). Hands pinned at (0,0);
+  // body dangles below-left like a pendulum, legs lag behind the swing, one small kick.
+  var HANG_ARMS = { mode: { la: 'ik', ra: 'ik', ll: 'fk', rl: 'fk' }, bend: { la: 1, ra: 1 } };
+  def('hang', { dur: 2.4, loop: true, root: 'neck', face: 'strain', mode: HANG_ARMS.mode, bend: HANG_ARMS.bend, keys: [
+    [0.0, { x: -7.2, y: 14.6, lean: -6,  nod: -10, lhx: 0, lhy: 0, rhx: 0, rhy: 0, lls: 6,  llk: 15, rls: -2, rlk: 25 }],
+    [0.6, { x: -6.3, y: 15.0, lean: -10, nod: -12, lls: 12, llk: 22, rls: 4,  rlk: 30 }],
+    [1.2, { x: -5.5, y: 15.3, lean: -12, nod: -10, lls: 8,  llk: 14, rls: 6,  rlk: 62 }],
+    [1.8, { x: -6.4, y: 15.0, lean: -8,  nod: -8,  lls: 0,  llk: 10, rls: 6,  rlk: 22 }]
+  ]});
+
+  // hangShimmy: hand-over-hand along the edge. Each hand lifts and moves +x while the
+  // other holds; planted hand slides -x 4px per 0.25s -> shimmy ~16 px/s at speed 1.
+  def('hangShimmy', { dur: 0.5, loop: true, speedable: true, root: 'neck', face: 'strain', mode: HANG_ARMS.mode, bend: HANG_ARMS.bend, keys: [
+    [0.0,   { x: -6.5, y: 15.2, lean: -8, nod: -10, lhx: 2,  lhy: 0,    rhx: -2, rhy: 0,    lls: 4,  llk: 14, rls: 8,  rlk: 22 }],
+    [0.125, { x: -6.0, y: 14.7, lean: -6, nod: -12, lhx: 0,  lhy: 0,    rhx: 0,  rhy: -1.8, lls: 8,  llk: 20, rls: 2,  rlk: 16 }],
+    [0.25,  { x: -6.5, y: 15.2, lean: -8, nod: -10, lhx: -2, lhy: 0,    rhx: 2,  rhy: 0,    lls: 8,  llk: 22, rls: 4,  rlk: 14 }],
+    [0.375, { x: -7.0, y: 14.7, lean: -9, nod: -12, lhx: 0,  lhy: -1.8, rhx: 0,  rhy: 0,    lls: 2,  llk: 16, rls: 8,  rlk: 20 }]
+  ]});
+
+  // pullUp: origin = grip. Starts as hang, pulls chest to the edge, presses down with
+  // elbows up, right foot steps onto the ledge, stands at feet ~(5..11, 0), hip (8,-16.8).
+  def('pullUp', { dur: 0.55, root: 'neck', face: 'strain', mode: { la: 'ik', ra: 'ik' }, bend: { la: 1, ra: 1 }, keys: [
+    [0.0,  { x: -6.5, y: 15,   lean: -8, nod: -12, lhx: 0, lhy: 0, rhx: 0, rhy: 0, lfx: -3.6, lfy: 49.3, rfx: -2.6, rfy: 49 }],
+    [0.14, { x: -4.5, y: 5,    lean: 4,  nod: -14, lfx: -2, lfy: 33, rfx: -9, rfy: 37 }],
+    [0.26, { x: -0.5, y: -5,   lean: 25, nod: -10, lfx: -6, lfy: 26, rfx: -1, rfy: 15 }],
+    [0.36, { x: 3,    y: -12,  lean: 35, nod: 0,   lhx: 0, lhy: 0, rhx: 0, rhy: 0, lfx: -7, lfy: 15, rfx: 3, rfy: 0 }],
+    [0.46, { x: 7.5,  y: -26,  lean: 18, nod: 0,   lhx: 5, lhy: -12, rhx: 7, rhy: -11, lfx: 4, lfy: -3, rfx: 6, rfy: 0, face: 'normal' }],
+    [0.55, { x: 8.89, y: -33.78, lean: 3, nod: 0,  lhx: 9.8, lhy: -16.8, rhx: 8.2, rhy: -16.5, lfx: 5, lfy: 0, rfx: 11, rfy: 0 }]
+  ]});
+
+  // climb: origin = feet contact; wall face at x~+7. Contralateral hand/foot pairs: a
+  // gripping hand slides 11px down per half cycle -> climb rate ~37 px/s at speed 1.
+  def('climb', { dur: 0.6, loop: true, speedable: true, face: 'strain', mode: { la: 'ik', ra: 'ik' }, keys: [
+    [0.0,  { x: -2.5, y: -15.5, lean: 10, nod: -12, rhx: 7, rhy: -44,   lhx: 7, lhy: -33,   lfx: 6.5, lfy: -11,  rfx: 6.5, rfy: 0 }],
+    [0.15, { x: -3.0, y: -16,   lean: 12, nod: -16, rhx: 7, rhy: -38.5, lhx: 3.5,   lhy: -41,   lfx: 6.5, lfy: -5.5, rfx: 3.5,   rfy: -7 }],
+    [0.3,  { x: -2.5, y: -15.5, lean: 10, nod: -12, rhx: 7, rhy: -33,   lhx: 7, lhy: -44,   lfx: 6.5, lfy: 0,    rfx: 6.5, rfy: -11 }],
+    [0.45, { x: -2.0, y: -16,   lean: 12, nod: -16, rhx: 3.5,   rhy: -41,   lhx: 7, lhy: -38.5, lfx: 3.5,   lfy: -7,   rfx: 6.5, rfy: -5.5 }]
+  ]});
+
+  /* -------------------------------------------------------------------- API */
+
+  var names = Object.keys(MOTIONS);
+
+  function get(name) { return MOTIONS[name] || MOTIONS.idle; }
+
+  function sample(name, t, opts) {
+    var mo = get(name);
+    t = +t || 0;
+    if (mo.spec.speedable && opts && opts.speed != null && isFinite(opts.speed)) t *= opts.speed;
+    return build(mo, evalMotion(mo, t));
+  }
+
+  function blend(a, b, k) {
+    k = Math.max(0, Math.min(1, +k || 0));
+    var out = {};
+    JOINTS.forEach(function (j) {
+      var pa = a[j], pb = b[j];
+      out[j] = [pa[0] + (pb[0] - pa[0]) * k, pa[1] + (pb[1] - pa[1]) * k];
+    });
+    out.face = k < 0.5 ? (a.face || 'normal') : (b.face || 'normal');
+    return out;
+  }
+
+  window.StickMotions = {
+    sample: sample,
+    duration: function (name) { return get(name).dur; },
+    loops: function (name) { return get(name).loop; },
+    names: names,
+    blend: blend,
+    joints: JOINTS.slice()
+  };
+})();
+
+</script>
+<script>
 (() => {
   // ---------- constants ----------
   const COLS = 10, ROWS = 20, CELL = 28;
   const BW = COLS * CELL, RULER = 30, TOP = 46;
   const W = BW + RULER, BH = ROWS * CELL, H = TOP + BH;
-  const BODY = 42;                       // climber height in px (a cell and a half)
-  const WALK = 40;                       // px per second
-  const JUMP_ROW = 10;                   // standing on a row this high or higher, he can jump out of the well
-  const CHARGE = 1.6;                    // seconds he crouches before the jump
+  // the climber's body and physics (pixels, seconds)
+  const HW = 5, BODYH = 46, ARMS = 49;      // half width, body height, grip height above feet (matches the motions)
+  const G = 1500, JUMP_H = 98, JV = Math.sqrt(2 * G * JUMP_H);
+  const WALK = 55, RUN = 92;
   const SHAPES = {
     I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
     O: [[1,1],[1,1]],
@@ -202,19 +626,29 @@
     start: ['Here I go!', 'Nice blocks. Thanks!', 'Up we go.'],
     chat: ['Just keep moving.', "You can't stop me!", 'One block at a time.', 'Hmm hm hmm…', 'Great stairs.'],
     near: ['I can see the sky!', 'Almost out!', 'So close…'],
-    climb: ['Ooh, a ledge.', 'Hup!', 'Up and over.'],
+    grab: ['Got it!', 'Gotcha!', 'Free ride!'],
+    ride: ['Wheee!', 'Going down?', 'Taxi!'],
     small: ['Hey!', 'Whoa—', 'Easy!', 'Rude.', 'Hng!'],
     big: ['AAAAH!', 'Not again!', 'Seriously?!', 'Noooo—'],
+    thrown: ['WHOA!', 'Hey, quit spinning it!', 'Bad driver!'],
     bonk: ['OOF!', 'My head!', 'BONK.', 'Ow ow ow!'],
-    blocked: ['Blocked.', 'Hmm, no way up.', 'Other way then.'],
-    wait: ['Build it higher!', 'Need a step here…', 'Come on, one more block.', 'I can wait.', 'Nice view. Need more.'],
-    charge: ['Here I go…!', 'Big jump…', 'Three… two…'],
-    cancel: ['Hey! I was jumping!', 'Not now!', 'Whoa, whoa!'],
-    grab: ['Phew.', 'Still here.', 'Landed it.'],
+    slip: ['Losing grip!', 'Nope nope nope—', 'My fingers!'],
+    stuck: ['Let me out!', 'Hmph.', 'Hey! Up here!', 'This is fine.'],
+    wait: ['Build it higher!', 'Need a step here…', 'Come on, one more block.', 'I can wait.'],
+    look: ['Ooh, that one.', 'Come to papa.', 'I can reach that…'],
     ground: ['Ow.', 'Back to the bottom…', 'My everything.', '…ow.'],
     up: ['Okay. Again.', 'Round two.', "I'm not giving up."],
   };
   const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  // ---------- motions (from StickMotions, with a plain fallback) ----------
+  const STAND = { hip: [0, -17], neck: [0, -34], head: [0, -42], lElbow: [-3, -26], lHand: [-4, -17], rElbow: [3, -26], rHand: [4, -17],
+                  lKnee: [-2, -9], lFoot: [-4, 0], rKnee: [2, -9], rFoot: [4, 0] };
+  const M = window.StickMotions || {
+    sample: () => STAND, duration: () => 0.5, loops: () => true, names: [],
+    blend: (a, b, k) => { const o = {}; for (const j in b) o[j] = Array.isArray(b[j]) && a[j] ? [a[j][0] + (b[j][0] - a[j][0]) * k, a[j][1] + (b[j][1] - a[j][1]) * k] : b[j]; return o; },
+  };
+  const JOINTS = ['hip', 'neck', 'head', 'lElbow', 'lHand', 'rElbow', 'rHand', 'lKnee', 'lFoot', 'rKnee', 'rFoot'];
 
   // ---------- DOM ----------
   const $ = id => document.getElementById(id);
@@ -261,11 +695,13 @@
   // ---------- state ----------
   let S;
   const colX = c => c * CELL + CELL / 2;
-  const hugX = (c, side) => colX(c) + side * (CELL / 2 - 11);
   function freshClimber() {
-    return { c: 4, x: colX(4), feetY: BH, state: 'idle', dir: 0, side: 1, vy: 0, rot: 0, spin: 0,
-             t: 0, phase: 0, grit: 0, pauseT: 0, slipLeft: 0, dazedT: 0, winT: 0, fallStart: BH,
-             bonked: false, lastBlocked: 0, chargeT: 0, leapT: 0, x0: 0, y0: 0, x1: 0, waitT: 0, sayText: '', sayT: 0, chatT: 7, peak: 0 };
+    return { x: 16, y: BH, vx: 0, vy: 0, f: 1, state: 'intro', t: 0,
+             tumble: false, rot: 0, spin: 0, fallFrom: BH, airT: 0, wantGrab: false, steer: 0,
+             anchor: null, hangT: 0, pullT: 0, escape: false, climbCol: 0,
+             crouchT: 0, crouchLen: 0.14, jumpV: 0, jumpVx: 0, landT: 0, stumbleT: 0, dazedT: 0, squashT: 0, winT: 0,
+             wobble: 0, grit: 0, think: 0, intent: null, mood: 'idle', moodT: 3, wanderT: 0, wanderX: 16,
+             stuckT: 0, lastX: 16, sayText: '', sayT: 0, chatT: 7, peak: 0 };
   }
   function newState() {
     return {
@@ -279,11 +715,34 @@
   let best = 0;
   try { best = +localStorage.getItem('stack-stumble-best') || 0; } catch (e) {}
 
-  // walls and floor count as solid: he can stand on the floor, but he only climbs blocks
-  function filled(r, c) {
+  // ---------- world queries ----------
+  // walls and floor are solid but he never climbs them; he climbs pieces only
+  function pieceHas(r, c) {
+    const p = S.cur;
+    if (!p || S.mode === 'intro' || S.mode === 'over' && S.result === 'topout') return false;
+    const pr = r - p.y, pc = c - p.x;
+    return pr >= 0 && pc >= 0 && pr < p.m.length && pc < p.m.length && !!p.m[pr][pc];
+  }
+  function solidB(r, c) {
     if (c < 0 || c >= COLS || r >= ROWS) return true;
     if (r < 0) return false;
     return !!S.board[r][c];
+  }
+  const solid = (r, c) => solidB(r, c) || (r >= 0 && c >= 0 && c < COLS && pieceHas(r, c));
+  function boxFree(x, y) {
+    const c0 = Math.floor((x - HW) / CELL), c1 = Math.floor((x + HW - 0.001) / CELL);
+    const r0 = Math.floor((y - BODYH) / CELL), r1 = Math.floor((y - 0.5) / CELL);
+    for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) if (solid(r, c)) return false;
+    return true;
+  }
+  // what is directly under his feet: 'board', 'piece' or null
+  function supportUnder(x, y) {
+    if (Math.abs(y - Math.round(y / CELL) * CELL) > 0.6) return null;
+    const r = Math.round(y / CELL);
+    const c0 = Math.floor((x - HW + 1) / CELL), c1 = Math.floor((x + HW - 1) / CELL);
+    let res = null;
+    for (let c = c0; c <= c1; c++) { if (solidB(r, c)) return 'board'; if (r >= 0 && pieceHas(r, c)) res = 'piece'; }
+    return res;
   }
 
   // ---------- pieces ----------
@@ -317,47 +776,74 @@
     }
     return false;
   }
+
+  // every change to the falling piece goes through here, so he can ride it, hang from it, or get hit by it
+  function pieceAction(fn) {
+    const C = S.climber;
+    const riding = (C.state === 'ground' || C.state === 'dazed') && supportUnder(C.x, C.y) === 'piece';
+    const hanging = (C.state === 'hang' || C.state === 'pull') && C.anchor && C.anchor.piece;
+    const p = S.cur, px = p.x, py = p.y, pm = p.m;
+    const res = fn();
+    if (S.cur === p && (p.x !== px || p.y !== py || p.m !== pm)) afterPieceMove(p.x - px, p.y - py, p.m !== pm, riding, hanging);
+    return res;
+  }
   function spawn(t) {
     refill();
     S.cur = makePiece(t || S.queue.shift());
     refill();
     S.dropT = 0; S.lockT = 0; S.lockResets = 0;
-    if (collide(S.cur.m, S.cur.x, S.cur.y)) gameOver('topout');
+    if (collide(S.cur.m, S.cur.x, S.cur.y)) return gameOver('topout');
+    resolveOverlap(0, 0);
     drawMinis();
   }
   const grounded = () => collide(S.cur.m, S.cur.x, S.cur.y + 1);
   function resetLock() { if (grounded() && S.lockResets < 15) { S.lockT = 0; S.lockResets++; } }
   function move(dx) {
-    if (!collide(S.cur.m, S.cur.x + dx, S.cur.y)) { S.cur.x += dx; resetLock(); return true; }
-    return false;
+    return pieceAction(() => {
+      if (!collide(S.cur.m, S.cur.x + dx, S.cur.y)) { S.cur.x += dx; resetLock(); return true; }
+      return false;
+    });
   }
   function rotate(dir) {
     if (S.cur.t === 'O') return;
-    const m2 = rotateM(S.cur.m, dir);
-    for (const [kx, ky] of [[0,0],[1,0],[-1,0],[0,-1],[2,0],[-2,0],[1,-1],[-1,-1]]) {
-      if (!collide(m2, S.cur.x + kx, S.cur.y + ky)) {
-        S.cur.m = m2; S.cur.x += kx; S.cur.y += ky; resetLock(); sfx('rot'); return;
+    pieceAction(() => {
+      const m2 = rotateM(S.cur.m, dir);
+      for (const [kx, ky] of [[0,0],[1,0],[-1,0],[0,-1],[2,0],[-2,0],[1,-1],[-1,-1]]) {
+        if (!collide(m2, S.cur.x + kx, S.cur.y + ky)) {
+          S.cur.m = m2; S.cur.x += kx; S.cur.y += ky; resetLock(); sfx('rot'); return;
+        }
       }
-    }
+    });
   }
-  function softStep() {
-    if (!collide(S.cur.m, S.cur.x, S.cur.y + 1)) { S.cur.y++; S.score += 1; S.dropT = 0; }
+  function fallStep() {
+    return pieceAction(() => {
+      if (!collide(S.cur.m, S.cur.x, S.cur.y + 1)) { S.cur.y++; return true; }
+      return false;
+    });
   }
+  function softStep() { if (fallStep()) { S.score += 1; S.dropT = 0; } }
   function hardDrop() {
     let d = 0;
-    while (!collide(S.cur.m, S.cur.x, S.cur.y + 1)) { S.cur.y++; d++; }
+    while (S.cur && fallStep()) d++;
     S.score += 2 * d;
     lock(true, d);
   }
   function holdPiece() {
     if (!S.canHold) return;
+    const C = S.climber;
+    const riding = (C.state === 'ground' || C.state === 'dazed') && supportUnder(C.x, C.y) === 'piece';
+    if ((C.state === 'hang' || C.state === 'pull') && C.anchor && C.anchor.piece) letGo('slip');
     const t = S.cur.t;
     if (S.hold) { const h = S.hold; S.hold = t; spawn(h); }
     else { S.hold = t; spawn(); }
+    if (riding) { say('Where did it go?!', 1.4); }
     S.canHold = false;
     drawMinis();
   }
   function lock(hard, dist) {
+    const C = S.climber;
+    const body = C.state === 'ground' || C.state === 'dazed';
+    const riding = body && supportUnder(C.x, C.y) === 'piece';
     const { m, x, y, t } = S.cur;
     let over = false;
     const cells = [];
@@ -367,282 +853,467 @@
       S.board[y + r][x + c] = t;
       cells.push([y + r, x + c]);
     }
-    const C = S.climber;
-    // a piece landed on him
-    const bonked = C.state !== 'win' && C.state !== 'leap' && C.state !== 'idle' && bodyBlocked();
-    if (bonked) bonk();
+    // whatever he was holding on the piece is now part of the stack
+    if (C.anchor && C.anchor.piece) { C.anchor = { piece: false, r: C.anchor.r + y, c: C.anchor.c + x, f: C.anchor.f }; }
 
-    // clear lines; anything resting on a cleared row (him included) drops with it
-    const clearedRows = [];
-    for (let r = 0; r < ROWS; r++) if (S.board[r].every(v => v)) clearedRows.push(r);
-    if (clearedRows.length) {
-      const standRow = Math.ceil(C.feetY / CELL - 1e-6);
-      const below = clearedRows.filter(r => r >= standRow).length;
-      for (const r of clearedRows) { S.board.splice(r, 1); S.board.unshift(Array(COLS).fill(0)); }
-      if (C.state !== 'win' && C.state !== 'idle' && C.state !== 'leap') {
-        C.feetY = Math.min(BH, C.feetY + below * CELL);
-        if (bodyBlocked()) bonk();
+    // clear lines; anything above a cleared row (him included) drops with it
+    const cleared = [];
+    for (let r = 0; r < ROWS; r++) if (S.board[r].every(v => v)) cleared.push(r);
+    if (cleared.length) {
+      for (const r of cleared) { S.board.splice(r, 1); S.board.unshift(Array(COLS).fill(0)); }
+      if (C.state !== 'win' && C.state !== 'intro') {
+        const below = cleared.filter(r => r * CELL >= C.y - 0.5).length;
+        if (C.state === 'hang' || C.state === 'pull' || C.state === 'climb') {
+          const a = C.anchor;
+          if (a && cleared.includes(a.r)) letGo('slip');
+          else if (a) a.r += cleared.filter(r => r > a.r).length;
+          if (C.state === 'climb') letGo('slip');
+        } else {
+          C.y = Math.min(BH, C.y + below * CELL);
+        }
       }
       S.flash = 0.18;
     }
-    const cleared = clearedRows.length;
-    S.score += LINE_SCORE[cleared] * S.level;
-    S.lines += cleared;
+    const n = cleared.length;
+    S.score += LINE_SCORE[n] * S.level;
+    S.lines += n;
     S.level = 1 + Math.floor(S.lines / 10);
 
-    // the stack shakes
-    S.shake = Math.min(12, S.shake + 1.5 + (hard ? dist * 0.3 : 0) + cleared * 3);
-    if (!bonked) knock(cells, hard, dist, cleared);
-    sfx(cleared ? 'clear' + cleared : (hard ? 'slam' : 'lock'));
+    S.shake = Math.min(12, S.shake + 1.5 + (hard ? dist * 0.3 : 0) + n * 3);
+    knock(cells, hard, dist, n, riding);
+    sfx(n ? 'clear' + n : (hard ? 'slam' : 'lock'));
 
     S.canHold = true;
     if (over) return gameOver('topout');
+    resolveOverlap(0, 0);
     spawn();
   }
 
-  // ---------- the climber ----------
+  // ---------- the climber: reactions ----------
   function say(text, dur = 1.9) { const C = S.climber; C.sayText = text; C.sayT = dur; }
-  function bodyRows(feetY) { return [Math.floor((feetY - BODY) / CELL), Math.floor((feetY - 1) / CELL)]; }
-  function bodyBlocked(c = S.climber.c, feetY = S.climber.feetY) {
-    const [r0, r1] = bodyRows(feetY);
-    for (let r = Math.max(0, r0); r <= Math.min(ROWS - 1, r1); r++) if (S.board[r][c]) return true;
-    return false;
-  }
-  function startFall(spin = 0) {
+  function toAir() {
     const C = S.climber;
-    if (C.state !== 'fall') { C.fallStart = C.feetY; C.vy = 30; }
-    C.state = 'fall'; C.spin = spin;
+    if (C.state !== 'air') { C.fallFrom = C.y; C.airT = 0; }
+    C.state = 'air'; C.anchor = null;
   }
-  function bonk() {
+  function letGo(why) {
     const C = S.climber;
-    C.grit = 0;
-    let moved = false;
-    for (const dc of [-1, 1, -2, 2]) {
-      const nc = C.c + dc;
-      if (nc >= 0 && nc < COLS && !bodyBlocked(nc, C.feetY)) { C.c = nc; moved = true; break; }
-    }
-    if (!moved) {
-      // no room beside him: he pops out on top of whatever buried him
-      let r = 0; while (r < ROWS && !S.board[r][C.c]) r++;
-      C.feetY = r * CELL;
-    }
-    C.bonked = true;
-    startFall((Math.random() < 0.5 ? -1 : 1) * 9);
-    C.vy = 120;
-    say(pick(SAY.bonk), 1.6);
-    sfx('bonk');
+    C.anchor = null; C.escape = false;
+    toAir(); C.vy = Math.max(C.vy, 0); C.wantGrab = false;
+    if (why === 'slip') { say(pick(SAY.slip), 1.3); }
   }
-  function knock(cells, hard, dist, cleared) {
+  function knockOff(dir, why) {
     const C = S.climber;
-    if (C.state === 'win' || C.state === 'idle' || C.state === 'leap') return;
-    C.grit = 0;
-    const fr = Math.round(C.feetY / CELL);
-    const near = cells.some(([r, c]) => Math.abs(c - C.c) <= 2 && Math.abs(r - fr) <= 4);
-    const slip = (5 + (hard ? 1.0 * dist : 0)) * (near ? 1.8 : 1);
-    const onWall = C.state === 'climb' || C.state === 'slip';
-    if (C.state === 'dazed') { C.dazedT = Math.min(2.5, C.dazedT + 0.2); return; }
-    if (cleared && onWall) {
-      startFall((Math.random() < 0.5 ? -1 : 1) * 7);
-      say(cleared === 4 ? 'WHY?!' : pick(SAY.big), 1.6); sfx('fall');
-    } else if (onWall) {
-      if (slip >= 24) { startFall((Math.random() < 0.5 ? -1 : 1) * 6); say(pick(SAY.big), 1.5); sfx('fall'); }
-      else { C.state = 'slip'; C.slipLeft = (C.slipLeft || 0) + slip; if (Math.random() < 0.3) say(pick(SAY.small), 1.2); }
-    } else if (C.state === 'walk' || C.state === 'charge') {
-      if (C.state === 'charge') { C.state = 'walk'; say(pick(SAY.cancel), 1.4); }
-      if (near && hard && slip >= 18 && knockOff()) return;
-      C.pauseT = Math.max(C.pauseT, cleared || near ? 0.7 : 0.3);
-      if ((cleared || near) && C.sayT <= 0 && Math.random() < 0.5) say(cleared === 4 ? 'WHY?!' : pick(SAY.small), 1.2);
-    }
+    toAir();
+    C.vy = -220; C.vx = dir * 120; C.tumble = true; C.spin = dir * (8 + Math.random() * 4);
+    C.wantGrab = false;
+    say(pick(why === 'thrown' ? SAY.thrown : SAY.big), 1.5); sfx('fall');
   }
-  // a hard drop next to him shoves him off his ledge, if there is a lower spot beside him
-  function knockOff() {
-    const C = S.climber, r = Math.round(C.feetY / CELL);
-    const dirs = Math.random() < 0.5 ? [-1, 1] : [1, -1];
-    for (const d of dirs) {
-      const nc = C.c + d;
-      if (nc < 0 || nc >= COLS || filled(r - 1, nc) || filled(r - 2, nc) || filled(r, nc)) continue;
-      C.c = nc; C.x = colX(nc) - d * 8;
-      startFall(d * 8); say(pick(SAY.big), 1.5); sfx('fall');
-      return true;
-    }
-    return false;
+  function squash() {
+    const C = S.climber;
+    C.state = 'squash'; C.squashT = 0.7; C.anchor = null; C.vx = 0; C.vy = 0;
+    say(pick(SAY.bonk), 1.6); sfx('bonk');
   }
-  // move his feet down by dy, stopping on the first surface below him
-  function descend(dy) {
-    const C = S.climber, prev = C.feetY, ny = prev + dy;
-    for (let r = Math.max(0, Math.ceil(prev / CELL - 1e-6)); r * CELL <= ny; r++) {
-      if (filled(r, C.c)) { C.feetY = r * CELL; return true; }
-    }
-    C.feetY = ny;
-    return false;
-  }
-  // find the highest spot he can reach by walking, dropping and climbing block faces,
-  // and head one column toward it (0 = he is already as high as he can get)
-  function plan() {
-    const C = S.climber, sc = C.c, sr = Math.round(C.feetY / CELL);
-    const key = (c, r) => c * 64 + r;
-    const from = new Map([[key(sc, sr), null]]);
-    const q = [[sc, sr]];
-    let best = [sc, sr];
-    while (q.length) {
-      const [c, r] = q.shift();
-      if (r < best[1]) best = [c, r];
-      for (const d of [-1, 1]) {
-        const nc = c + d;
-        if (nc < 0 || nc >= COLS) continue;
-        let nr = null;
-        if (filled(r - 1, nc)) {
-          // a block face: climb it to its top, if there is room
-          let k = r - 1;
-          while (k > 0 && filled(k - 1, nc)) k--;
-          let ok = k > 0 && !filled(k - 1, nc) && !filled(k - 2, nc);
-          for (let y = k - 2; ok && y <= r - 1; y++) if (y >= 0 && filled(y, c)) ok = false;
-          if (ok) nr = k;
-        } else if (!filled(r - 2, nc)) {
-          let k = r; while (!filled(k, nc)) k++;      // walk across, or drop down
-          nr = k;
+  // pop him out to the nearest open spot after he was buried
+  function expel() {
+    const C = S.climber;
+    for (let k = 1; k <= 8; k++) {
+      for (const [dx, dy] of [[0, -k * 7], [-k * 7, 0], [k * 7, 0], [-k * 7, -k * 7], [k * 7, -k * 7]]) {
+        const nx = Math.max(HW, Math.min(BW - HW, C.x + dx));
+        if (boxFree(nx, C.y + dy)) {
+          C.x = nx; C.y += dy; toAir();
+          C.vy = -140; C.vx = (dx || (Math.random() < 0.5 ? -1 : 1)) > 0 ? 70 : -70;
+          C.tumble = true; C.spin = Math.sign(C.vx) * 9;
+          return;
         }
-        if (nr === null || from.has(key(nc, nr))) continue;
-        from.set(key(nc, nr), [c, r]);
-        q.push([nc, nr]);
       }
     }
-    if (best[1] >= sr) return 0;
-    let node = best;
-    for (;;) { const p = from.get(key(node[0], node[1])); if (!p || (p[0] === sc && p[1] === sr)) break; node = p; }
-    return Math.sign(node[0] - sc);
+    let c = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL))), r = 0;
+    while (r < ROWS && solid(r, c)) r++;
+    while (r < ROWS && !solid(r, c)) r++;
+    C.x = colX(c); C.y = r * CELL; toAir(); C.tumble = true;
+  }
+  function resolveOverlap(dx, dy) {
+    const C = S.climber;
+    if (!['ground', 'air', 'dazed', 'climb'].includes(C.state)) return;
+    if (boxFree(C.x, C.y)) return;
+    if (dy > 0) return squash();
+    // nudged sideways or by a rotation: try a small push before burying him
+    for (const [ox, oy] of [[0, -6], [-8, 0], [8, 0], [0, -14], [-14, 0], [14, 0]]) {
+      if (boxFree(C.x + ox, C.y + oy)) { C.x += ox; C.y += oy; if (C.state === 'climb') letGo(); if (oy) toAir(); return; }
+    }
+    squash();
+  }
+  function afterPieceMove(dx, dy, rot, riding, hanging) {
+    const C = S.climber;
+    if (riding && (C.state === 'ground' || C.state === 'dazed')) {
+      if (rot) { knockOff(Math.random() < 0.5 ? -1 : 1, 'thrown'); C.vy = -300; }
+      else {
+        C.x += dx * CELL; C.y += dy * CELL;
+        if (dx) {
+          C.wobble += 0.45;
+          if (C.wobble > 1) knockOff(-dx, 'thrown');
+          else { C.stumbleT = Math.max(C.stumbleT, 0.2); if (C.sayT <= 0 && Math.random() < 0.4) say(pick(SAY.small), 1); }
+        } else if (dy && C.sayT <= 0 && Math.random() < 0.02) say(pick(SAY.ride), 1.2);
+      }
+    }
+    if (hanging && (C.state === 'hang' || C.state === 'pull')) {
+      if (rot) letGo('slip');
+      else if (dx && Math.random() < 0.35) letGo('slip');
+    }
+    resolveOverlap(dx, dy);
+  }
+  function knock(cells, hard, dist, cleared, riding) {
+    const C = S.climber;
+    if (['win', 'intro', 'squash'].includes(C.state)) return;
+    C.grit = 0;
+    const near = cells.some(([r, c]) => Math.abs(colX(c) - C.x) <= 2 * CELL && Math.abs(r * CELL - C.y) <= 4 * CELL);
+    const veryNear = cells.some(([r, c]) => Math.abs(colX(c) - C.x) <= 1.6 * CELL && Math.abs(r * CELL + CELL / 2 - (C.y - 20)) <= 2 * CELL);
+    const away = Math.sign(C.x - cells.reduce((s, [, c]) => s + colX(c), 0) / cells.length) || 1;
+    switch (C.state) {
+      case 'ground':
+        if (riding && hard) { knockOff(away, 'thrown'); C.vy = -320; }
+        else if ((veryNear && hard) || (cleared >= 2 && Math.random() < 0.5)) knockOff(away);
+        else if (near || cleared) { C.stumbleT = 0.5; C.crouchT = 0; if (C.sayT <= 0 && Math.random() < 0.4) say(pick(SAY.small), 1.1); }
+        else if (Math.random() < 0.3) C.stumbleT = 0.25;
+        break;
+      case 'hang': case 'pull': {
+        const p = (hard ? 0.45 : 0.12) + (near ? 0.3 : 0) + (cleared ? 0.5 : 0);
+        if (Math.random() < p) letGo('slip');
+        break;
+      }
+      case 'climb':
+        if ((hard && near) || cleared) letGo('slip');
+        else if (boxFree(C.x, C.y + 12)) C.y += 12;
+        break;
+      case 'dazed': C.dazedT = Math.min(2.5, C.dazedT + 0.2); break;
+    }
+  }
+
+  // ---------- the climber: brain ----------
+  // highest spot on the stack he can reach by walking, dropping, jumping up and climbing
+  function planStack() {
+    const C = S.climber;
+    const sc = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL))), sr = Math.round(C.y / CELL);
+    const key = (c, r) => c * 64 + r;
+    const from = new Map([[key(sc, sr), null]]);
+    const q = [[sc, sr, 0]];
+    let best = [sc, sr, 0];
+    while (q.length) {
+      const [c, r, d] = q.shift();
+      if (r < best[1]) best = [c, r, d];
+      for (const dir of [-1, 1]) {
+        const nc = c + dir;
+        if (nc < 0 || nc >= COLS) continue;
+        let move = null;
+        if (!solidB(r - 1, nc)) {
+          if (solidB(r - 2, nc)) continue;
+          let k = r; while (!solidB(k, nc)) k++;
+          move = { type: 'walk', nc, k, dir };
+        } else {
+          let k = r - 1;
+          while (k > 0 && solidB(k - 1, nc)) k--;
+          if (k <= 0 || solidB(k - 1, nc) || solidB(k - 2, nc)) continue;
+          let ok = true;
+          for (let y = k - 2; ok && y < r; y++) if (y >= 0 && solidB(y, c)) ok = false;
+          if (!ok) continue;
+          move = { type: r - k <= 3 ? 'jump' : 'climb', nc, k, dir, rise: r - k };
+        }
+        if (from.has(key(nc, move.k))) continue;
+        from.set(key(nc, move.k), { c, r, move });
+        q.push([nc, move.k, d + 1]);
+      }
+    }
+    let node = key(best[0], best[1]), first = null;
+    while (from.get(node)) { const p = from.get(node); first = p.move; node = key(p.c, p.r); }
+    return { bestY: best[1] * CELL, move: first, col: sc };
+  }
+  // a grabbable top corner on the falling piece that would get him higher than the stack can
+  function pieceOption(bestY) {
+    const C = S.climber, p = S.cur;
+    if (!p) return null;
+    const sr = Math.round(C.y / CELL);
+    let best = null;
+    for (let pr = 0; pr < p.m.length; pr++) for (let pc = 0; pc < p.m.length; pc++) {
+      if (!p.m[pr][pc]) continue;
+      const r = p.y + pr, c = p.x + pc;
+      if (r < 0 || solid(r - 1, c)) continue;
+      for (const f of [1, -1]) {
+        const sc = c - f;
+        if (sc < 0 || sc >= COLS || solid(r, sc)) continue;
+        let clear = true;
+        for (let rr = r + 1; rr < sr; rr++) if (pieceHas(rr, sc) || solidB(rr, sc)) clear = false;
+        if (!clear) continue;
+        const gy = r * CELL, gx = f > 0 ? c * CELL : (c + 1) * CELL;
+        if (gy >= C.y - BODYH || gy > bestY - CELL) continue;
+        const sx = gx - f * (HW + 4);
+        if (!walkable(C.x, sx, sr)) continue;
+        if (!best || gy < best.gy || (gy === best.gy && Math.abs(sx - C.x) < Math.abs(best.sx - C.x))) best = { gy, sx, f };
+      }
+    }
+    return best;
+  }
+  function walkable(x0, x1, r) {
+    const c0 = Math.floor(Math.min(x0, x1) / CELL), c1 = Math.floor(Math.max(x0, x1) / CELL);
+    for (let c = c0; c <= c1; c++) {
+      if (c < 0 || c >= COLS || !solidB(r, c) || solid(r - 1, c) || solid(r - 2, c)) return false;
+    }
+    return true;
+  }
+  function brain() {
+    const C = S.climber;
+    const sr = Math.round(C.y / CELL);
+    // close enough to the top to jump for it
+    if (C.y <= JUMP_H + ARMS - 4) { C.intent = { type: 'escape', x: C.x }; return; }
+    // riding the falling piece: hang on and enjoy the view
+    if (supportUnder(C.x, C.y) === 'piece') { C.intent = { type: 'idle', x: C.x }; return; }
+    const plan = planStack();
+    const po = pieceOption(plan.bestY);
+    const need = po ? C.y - ARMS - po.gy + 6 : 0;
+    // only wait for the piece if it will be in reach soon; otherwise keep climbing
+    const waitRows = Math.max(0, (need - JUMP_H) / CELL);
+    const interval = Math.max(0.06, 0.9 * Math.pow(0.85, S.level - 1));
+    if (po && (waitRows * interval < 2.5 || !plan.move)) {
+      const reachNow = need <= JUMP_H;
+      C.idleT = 0;
+      C.intent = { type: reachNow ? 'jump' : 'wait', x: po.sx, f: po.f, v: Math.sqrt(2 * G * Math.max(20, need + 6)), vx: po.f * 20, piece: true };
+      return;
+    }
+    const m = plan.move;
+    if (m) {
+      const c = plan.col;
+      C.idleT = 0;
+      if (m.type === 'walk') C.intent = { type: 'go', x: colX(m.nc) };
+      else {
+        const edge = m.dir > 0 ? (c + 1) * CELL - HW - 3 : c * CELL + HW + 3;
+        if (m.type === 'jump') C.intent = { type: 'jump', x: edge, f: m.dir, v: Math.min(JV, Math.sqrt(2 * G * (m.rise * CELL + 22))), vx: m.dir * 40 };
+        else C.intent = { type: 'climb', x: m.dir > 0 ? (c + 1) * CELL - 7 : c * CELL + 7, f: m.dir, col: m.nc };
+      }
+      return;
+    }
+    // nowhere higher to go right now: pace, look around, hop in frustration
+    C.idleT = (C.idleT || 0) + 0.2;
+    if (C.idleT > 3 && Math.random() < 0.12) {
+      C.idleT = 0;
+      C.intent = { type: 'jump', x: C.x, f: C.f, v: Math.sqrt(2 * G * (14 + Math.random() * 16)), vx: 0 };
+      if (C.sayT <= 0 && Math.random() < 0.5) say(pick(SAY.stuck), 1.4);
+      return;
+    }
+    C.intent = { type: 'idle', x: C.wanderT > 0 ? C.wanderX : C.x };
+    if (C.wanderT <= 0 && Math.random() < 0.15) {
+      C.wanderT = 1.5 + Math.random() * 1.5;
+      const span = [];
+      for (let c = 0; c < COLS; c++) if (walkable(C.x, colX(c), sr)) span.push(colX(c));
+      C.wanderX = span.length ? pick(span) : C.x;
+    }
+    if (C.sayT <= 0) { C.chatT -= 0.2; if (C.chatT <= 0) { C.chatT = 7 + Math.random() * 6; say(pick(S.cur ? SAY.wait : SAY.chat)); } }
+  }
+
+  // ---------- the climber: movement ----------
+  function moveX(dx) {
+    const C = S.climber;
+    let nx = C.x + dx;
+    if (boxFree(nx, C.y)) { C.x = nx; return false; }
+    if (dx > 0) nx = Math.floor((nx + HW) / CELL) * CELL - HW - 0.01;
+    else nx = (Math.floor((nx - HW) / CELL) + 1) * CELL + HW + 0.01;
+    if (boxFree(nx, C.y) && Math.abs(nx - C.x) <= Math.abs(dx) + 0.02) C.x = nx;
+    C.vx = 0;
+    return true;
+  }
+  function moveY(dy) {
+    const C = S.climber;
+    let ny = C.y + dy;
+    if (boxFree(C.x, ny)) { C.y = ny; return 0; }
+    if (dy > 0) { ny = Math.floor(ny / CELL) * CELL; if (boxFree(C.x, ny) && ny >= C.y - 0.01) C.y = ny; C.vy = 0; return 1; }
+    ny = (Math.floor((ny - BODYH) / CELL) + 1) * CELL + BODYH;
+    if (boxFree(C.x, ny) && ny <= C.y + 0.01) C.y = ny;
+    C.vy = 0;
+    return -1;
+  }
+  function physics(dt) {
+    const C = S.climber;
+    const n = Math.max(1, Math.ceil(Math.max(Math.abs(C.vx), Math.abs(C.vy)) * dt / 5));
+    let landed = false;
+    for (let i = 0; i < n; i++) {
+      moveX(C.vx * dt / n);
+      if (moveY(C.vy * dt / n) === 1) { landed = true; break; }
+    }
+    return landed;
+  }
+  function startJump(i) {
+    const C = S.climber;
+    C.crouchT = C.crouchLen; C.f = i.f || C.f;
+    C.jumpV = i.v || JV; C.jumpVx = i.vx || 0; C.steer = Math.sign(i.vx || 0);
+  }
+  function tryGrab() {
+    const C = S.climber, f = C.f;
+    const hy = C.y - ARMS;
+    if (hy <= 2) {
+      // his hands are over the top of the well
+      C.anchor = { top: true, gx: C.x + f * (HW + 2), gy: 0, f };
+      C.state = 'pull'; C.pullT = 0; C.escape = true; C.vx = C.vy = 0;
+      say('Almost…!', 1); return true;
+    }
+    const r = Math.round(hy / CELL);
+    if (Math.abs(r * CELL - hy) > 11) return false;
+    const cf = Math.floor((C.x + f * (HW + 6)) / CELL);
+    if (cf < 0 || cf >= COLS || !solid(r, cf) || solid(r - 1, cf)) return false;
+    const gx = f > 0 ? cf * CELL : (cf + 1) * CELL, gy = r * CELL;
+    if (Math.abs(C.x + f * HW - gx) > 10) return false;
+    const hx = gx - f * (HW + 1);
+    if (!boxFree(hx, gy + ARMS)) return false;
+    const onPiece = !solidB(r, cf) && pieceHas(r, cf);
+    C.anchor = onPiece ? { piece: true, r: r - S.cur.y, c: cf - S.cur.x, f } : { piece: false, r, c: cf, f };
+    C.state = 'hang'; C.hangT = 0; C.vx = C.vy = 0; C.tumble = false; C.rot = 0;
+    C.x = hx; C.y = gy + ARMS;
+    if (onPiece && Math.random() < 0.6) say(pick(SAY.grab), 1.2);
+    return true;
+  }
+  function anchorAbs() {
+    const a = S.climber.anchor;
+    if (!a) return null;
+    if (a.top) return { gx: a.gx, gy: 0, f: a.f, top: true };
+    let r = a.r, c = a.c;
+    if (a.piece) { if (!S.cur) return null; r += S.cur.y; c += S.cur.x; }
+    return { r, c, f: a.f, gx: a.f > 0 ? c * CELL : (c + 1) * CELL, gy: r * CELL };
   }
   function land() {
     const C = S.climber;
-    const drop = C.feetY - C.fallStart;
-    C.vy = 0; C.rot = 0; C.spin = 0; C.dir = 0;
-    if (C.bonked || drop > 3.5 * CELL) {
-      C.state = 'dazed'; C.dazedT = C.bonked ? 1.6 : 1.3; C.bonked = false;
-      say(C.feetY >= BH - 1 ? pick(SAY.ground) : pick(SAY.small), 1.6); sfx('thud');
+    const fall = C.y - C.fallFrom;
+    C.vy = 0; C.rot = 0; C.wantGrab = false; C.steer = 0;
+    if (C.tumble || fall > 3.6 * CELL) {
+      C.state = 'dazed'; C.dazedT = C.tumble ? 1.3 : 1.0; C.vx = 0;
+      say(C.y >= BH - 1 ? pick(SAY.ground) : pick(SAY.small), 1.5); sfx('thud');
     } else {
-      C.state = 'walk'; C.pauseT = 0.3;
-      if (drop > CELL && Math.random() < 0.4) say(pick(SAY.grab), 1.2);
+      C.state = 'ground'; C.landT = fall > CELL ? 0.2 : 0.08; C.vx *= 0.3;
     }
+    C.tumble = false; C.spin = 0;
   }
+
   function updateClimber(dt) {
     const C = S.climber;
     C.t += dt;
     if (C.sayT > 0) C.sayT -= dt;
     switch (C.state) {
-      case 'walk': {
-        if (C.pauseT > 0) { C.pauseT -= dt; break; }
-        const r = Math.round(C.feetY / CELL);
-        C.feetY = r * CELL;
-        if (!filled(r, C.c)) { startFall(); break; }
-        if (r <= JUMP_ROW && r < ROWS) {
-          C.state = 'charge'; C.chargeT = CHARGE; say(pick(SAY.charge), CHARGE); break;
+      case 'ground': {
+        if (!supportUnder(C.x, C.y)) { toAir(); C.wantGrab = Math.random() < 0.5; break; }
+        C.wobble = Math.max(0, C.wobble - dt * 0.7);
+        if (C.wanderT > 0) C.wanderT -= dt;
+        if (C.crouchT > 0) {
+          C.crouchT -= dt; C.vx *= 0.8;
+          if (C.crouchT <= 0) { toAir(); C.vy = -C.jumpV; C.vx = C.jumpVx; C.wantGrab = true; sfx('jump'); }
+          break;
         }
-        if (!C.dir) {
-          C.dir = plan();
-          if (!C.dir) {
-            // nowhere higher to go: wait on top of the stack for more blocks
-            C.x += (colX(C.c) - C.x) * Math.min(1, dt * 6);
-            C.waitT -= dt;
-            if (C.waitT <= 0) { C.waitT = 6 + Math.random() * 5; if (C.sayT <= 0 && r < ROWS) say(pick(SAY.wait), 1.8); }
-            C.pauseT = 0.25;
-            break;
-          }
+        if (C.landT > 0) C.landT -= dt;
+        if (C.stumbleT > 0) {
+          C.stumbleT -= dt; C.vx *= Math.pow(0.05, dt);
+          physics(dt);
+          if (!supportUnder(C.x, C.y)) toAir();
+          break;
         }
-        const d = C.dir, nc = C.c + d;
-        if (nc < 0 || nc >= COLS) { C.dir = 0; C.pauseT = 0.3; break; }
-        if (filled(r - 1, nc)) {
-          // a block face: walk up to it and start climbing
-          const hx = hugX(C.c, d), gap = hx - C.x;
-          if (Math.abs(gap) < 0.5) { C.x = hx; C.state = 'climb'; C.side = d; if (Math.random() < 0.15) say(pick(SAY.climb), 1.1); }
-          else { C.x += Math.sign(gap) * Math.min(Math.abs(gap), WALK * dt); C.phase += dt * 10; }
-        } else if (filled(r - 2, nc)) {
-          C.lastBlocked = d; C.dir = 0; C.pauseT = 0.4;
-          if (Math.random() < 0.4) say(pick(SAY.blocked), 1.2);
-        } else {
-          C.x += d * WALK * dt; C.phase += dt * 10;
-          const col = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL)));
-          if (col !== C.c) { C.c = col; C.dir = 0; if (!filled(r, C.c)) startFall(); }
+        C.think -= dt;
+        if (C.think <= 0) { C.think = 0.2; brain(); }
+        const it = C.intent || { type: 'idle', x: C.x };
+        const gap = it.x - C.x;
+        const speed = Math.abs(gap) > 50 ? RUN : WALK;
+        const want = Math.abs(gap) < 1.5 ? 0 : Math.sign(gap) * Math.min(speed, Math.abs(gap) * 7);
+        C.vx += (want - C.vx) * Math.min(1, dt * 9);
+        if (Math.abs(C.vx) > 4) C.f = Math.sign(C.vx);
+        const bumped = moveX(C.vx * dt);
+        if (!supportUnder(C.x, C.y)) { toAir(); break; }
+        // arrived: do the thing
+        if (Math.abs(gap) < 2.5 && C.landT <= 0) {
+          if (it.type === 'jump') { C.f = it.f; startJump(it); }
+          else if (it.type === 'escape') startJump({ f: C.f, v: JV, vx: 0 });
+          else if (it.type === 'climb') {
+            const cf = it.col;
+            if (solid(Math.floor((C.y - 1) / CELL), cf)) { C.f = it.f; C.climbCol = cf; C.state = 'climb'; C.vx = 0; }
+          } else if (it.type === 'wait') C.f = it.f;
+        }
+        // watchdog: if he is trying to go somewhere and not getting there, wander for a bit
+        if (Math.abs(want) > 1 && (bumped || Math.abs(C.x - C.lastX) < 0.05)) C.stuckT += dt; else C.stuckT = 0;
+        C.lastX = C.x;
+        if (C.stuckT > 1.2) { C.stuckT = 0; C.wanderT = 1.5; C.wanderX = colX(Math.floor(Math.random() * COLS)); C.intent = { type: 'idle', x: C.wanderX }; }
+        break;
+      }
+      case 'air': {
+        C.airT += dt;
+        C.vy = Math.min(C.vy + G * dt, 900);
+        if (C.steer && !C.tumble) C.vx += (C.steer * 55 - C.vx) * Math.min(1, dt * 4);
+        else C.vx *= Math.pow(0.6, dt);
+        if (C.tumble) C.rot += C.spin * dt;
+        if (Math.abs(C.vx) > 6 && !C.tumble) C.f = Math.sign(C.vx);
+        if (physics(dt)) { land(); break; }
+        if (!C.tumble && (C.wantGrab || C.vy > 120) && C.vy > -260) tryGrab();
+        if (C.y > BH) { C.y = BH; land(); }
+        break;
+      }
+      case 'hang': {
+        const A = anchorAbs();
+        if (!A || !solid(A.r, A.c) || solid(A.r - 1, A.c)) { letGo('slip'); break; }
+        C.x = A.gx - A.f * (HW + 1); C.y = A.gy + ARMS;
+        C.hangT += dt;
+        if (C.hangT > 0.32) {
+          if (boxFree(A.gx + A.f * 8, A.gy)) { C.state = 'pull'; C.pullT = 0; }
+          else if (C.hangT > 1.3) letGo();
         }
         break;
       }
-      case 'charge': {
-        const r = Math.round(C.feetY / CELL);
-        if (!filled(r, C.c)) { startFall(); break; }
-        C.x += (colX(C.c) - C.x) * Math.min(1, dt * 6);
-        C.chargeT -= dt;
-        if (C.chargeT <= 0) {
-          C.state = 'leap'; C.leapT = 0; C.x0 = C.x; C.y0 = C.feetY;
-          C.x1 = C.x < BW / 2 ? 12 : BW - 12;
-          say('HUP!', 1); sfx('jump');
+      case 'pull': {
+        const A = anchorAbs();
+        if (!A || (!A.top && (!solid(A.r, A.c) || solid(A.r - 1, A.c)))) { letGo('slip'); break; }
+        C.pullT += dt;
+        if (C.pullT >= (M.duration('pullUp') || 0.55)) {
+          C.anchor = null;
+          C.x = A.gx + A.f * 8; C.y = A.gy;
+          if (A.top) { C.state = 'win'; C.winT = 0; C.escape = false; say('I MADE IT!', 3); sfx('win'); break; }
+          C.state = 'ground'; C.landT = 0.06; C.vx = 0;
+          if (!boxFree(C.x, C.y)) expel();
         }
-        break;
-      }
-      case 'leap': {
-        C.leapT += dt;
-        const u = Math.min(1, C.leapT / 0.9);
-        C.x = C.x0 + (C.x1 - C.x0) * u;
-        C.feetY = C.y0 * (1 - u) - Math.sin(u * Math.PI) * 70;
-        if (u >= 1) { C.feetY = 0; C.state = 'win'; C.winT = 0; say('I’M OUT!', 3); sfx('win'); }
         break;
       }
       case 'climb': {
-        const d = C.side, nc = C.c + d;
-        C.x += (hugX(C.c, d) - C.x) * Math.min(1, dt * 10);
-        C.grit = Math.min(6, C.grit + dt * 0.25);
-        const sp = 14 + 2 * (S.level - 1) + C.grit;
-        C.feetY -= sp * dt;
-        C.phase += dt * (4 + sp * 0.4);
-        const headRow = Math.floor((C.feetY - BODY) / CELL);
-        if (headRow >= 0 && filled(headRow, C.c)) {
-          // an overhang above his head: let go and try the other way
-          C.feetY = (headRow + 1) * CELL + BODY;
-          C.lastBlocked = d; startFall();
-          if (Math.random() < 0.5) say(pick(SAY.blocked), 1.2);
-          break;
-        }
-        const fr = Math.floor((C.feetY - 1) / CELL);
-        if (!filled(fr, nc)) {
-          // the face ended: mantle onto the top of it
-          C.c = nc; C.feetY = (fr + 1) * CELL; C.x = colX(nc) - d * CELL * 0.3;
-          C.state = 'walk'; C.dir = 0; C.pauseT = 0.15; C.lastBlocked = 0;
-        }
-        if (C.sayT <= 0) {
-          C.chatT -= dt;
-          if (C.chatT <= 0) { C.chatT = 8 + Math.random() * 6; say(C.feetY < BH * 0.3 ? pick(SAY.near) : pick(SAY.chat)); }
+        const f = C.f, cf = C.climbCol;
+        const faceX = f > 0 ? cf * CELL : (cf + 1) * CELL;
+        C.x = faceX - f * 7;
+        C.grit = Math.min(10, C.grit + dt * 0.5);
+        const ny = C.y - (26 + 3 * (S.level - 1) + C.grit) * dt;
+        if (!boxFree(C.x, ny)) { letGo(); break; }
+        C.y = ny;
+        const rh = Math.floor((C.y - ARMS) / CELL);
+        if (!solid(rh, cf)) {
+          const r = rh + 1;
+          if (solid(r, cf) && r * CELL - (C.y - ARMS) < 14) {
+            const onPiece = !solidB(r, cf) && pieceHas(r, cf);
+            C.anchor = onPiece ? { piece: true, r: r - S.cur.y, c: cf - S.cur.x, f } : { piece: false, r, c: cf, f };
+            C.state = 'hang'; C.hangT = 0.2;
+          } else if (!solid(Math.floor((C.y - 4) / CELL), cf)) letGo();
         }
         break;
       }
-      case 'slip': {
-        const m = Math.min(C.slipLeft, 150 * dt);
-        C.slipLeft -= m;
-        if (descend(m)) { C.slipLeft = 0; C.state = 'walk'; C.dir = 0; C.pauseT = 0.3; break; }
-        if (C.slipLeft <= 0) C.state = 'climb';
-        break;
-      }
-      case 'fall':
-        C.vy += 900 * dt;
-        C.rot += C.spin * dt;
-        C.x += (colX(C.c) - C.x) * Math.min(1, dt * 4);
-        if (descend(C.vy * dt)) land();
-        break;
       case 'dazed':
         C.dazedT -= dt;
-        if (C.dazedT <= 0) { C.state = 'walk'; C.dir = 0; if (C.feetY >= BH - 1) say(pick(SAY.up), 1.5); }
+        if (!supportUnder(C.x, C.y)) { toAir(); C.tumble = true; break; }
+        if (C.dazedT <= 0) { C.state = 'ground'; C.landT = 0.15; if (C.y >= BH - 1 && Math.random() < 0.6) say(pick(SAY.up), 1.5); }
+        break;
+      case 'squash':
+        C.squashT -= dt;
+        if (C.squashT <= 0) expel();
         break;
       case 'win':
         C.winT += dt;
-        if (C.winT > 2 && S.mode === 'play') gameOver('win');
+        if (C.winT > 2.6 && S.mode === 'play') gameOver('win');
         break;
     }
     C.peak = Math.max(C.peak, altitude());
   }
-  const altitude = () => Math.max(0, Math.min(100, Math.round((1 - S.climber.feetY / BH) * 100)));
+  const altitude = () => Math.max(0, Math.min(100, Math.round((1 - S.climber.y / BH) * 100)));
 
   // ---------- game flow ----------
   function startGame() {
     S = newState();
     S.mode = 'play';
-    S.climber.state = 'walk';
+    S.climber.state = 'ground';
     refill(); spawn();
     say(pick(SAY.start), 1.8);
     overlay.hidden = true;
@@ -661,7 +1332,7 @@
     if (S.score > best) { best = S.score; try { localStorage.setItem('stack-stumble-best', best); } catch (e) {} }
     const mins = Math.floor(S.time / 60), secs = String(Math.floor(S.time % 60)).padStart(2, '0');
     if (kind === 'win') {
-      showCard('He jumped out of the well.', `It took him ${mins}:${secs}. Your score: ${S.score.toLocaleString()}. Keep the stack under the jump line, and slam a piece next to him when he crouches.`, 'Try again', false);
+      showCard('You lose.', `He made it to the top in ${mins}:${secs} and he is dancing about it. Your score: ${S.score.toLocaleString()}. Keep the stack low, and move or spin the falling piece to shake him off.`, 'Try again', false);
     } else {
       sfx('over');
       const peak = S.climber.peak;
@@ -687,7 +1358,7 @@
   const DAS = 0.16, ARR = 0.05, SOFT = 0.035;
   function press(act) {
     initAudio();
-    if (S.mode !== 'play' || S.climber.state === 'win' || S.climber.state === 'leap') return;
+    if (S.mode !== 'play' || S.climber.state === 'win' || !S.cur) return;
     switch (act) {
       case 'left': move(-1); held.left = { t: 0, r: 0 }; delete held.right; break;
       case 'right': move(1); held.right = { t: 0, r: 0 }; delete held.left; break;
@@ -703,9 +1374,9 @@
     for (const act of ['left', 'right']) {
       const h = held[act]; if (!h) continue;
       h.t += dt;
-      if (h.t > DAS) { h.r += dt; while (h.r >= ARR) { h.r -= ARR; move(act === 'left' ? -1 : 1); } }
+      if (h.t > DAS) { h.r += dt; while (h.r >= ARR && S.cur) { h.r -= ARR; move(act === 'left' ? -1 : 1); } }
     }
-    if (held.soft) { held.soft.r += dt; while (held.soft.r >= SOFT) { held.soft.r -= SOFT; softStep(); } }
+    if (held.soft) { held.soft.r += dt; while (held.soft.r >= SOFT && S.cur) { held.soft.r -= SOFT; softStep(); } }
   }
   const KEYMAP = { ArrowLeft: 'left', ArrowRight: 'right', ArrowDown: 'soft', ArrowUp: 'rotate', KeyX: 'rotate',
                    KeyZ: 'ccw', Space: 'hard', KeyC: 'hold', ShiftLeft: 'hold', ShiftRight: 'hold' };
@@ -757,8 +1428,8 @@
       case 'clear1': case 'clear2': case 'clear3':
         [523, 659, 784].slice(0, +name.slice(-1) + 1).forEach((f, i) => tone(f, f, 0.1, 'square', 0.05, i * 0.06)); break;
       case 'clear4': [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.14, 'square', 0.06, i * 0.07)); break;
+      case 'jump': tone(300, 700, 0.12, 'square', 0.03); break;
       case 'fall': tone(1200, 180, 0.7, 'sine', 0.06); break;
-      case 'jump': tone(300, 900, 0.3, 'square', 0.05); break;
       case 'bonk': tone(700, 160, 0.18, 'square', 0.07); tone(90, 40, 0.15, 'triangle', 0.15); break;
       case 'thud': tone(90, 40, 0.2, 'triangle', 0.18); break;
       case 'win': [392, 523, 659, 784].forEach((f, i) => tone(f, f, 0.18, 'triangle', 0.08, i * 0.12)); break;
@@ -784,7 +1455,6 @@
   }
 
   function drawSky(t) {
-    // open air above the well, with the rim he is trying to reach
     ctx.fillStyle = T.paper; ctx.fillRect(0, 0, W, TOP);
     ctx.strokeStyle = T.ink; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.moveTo(0, TOP - 1); ctx.lineTo(W, TOP - 1); ctx.stroke();
@@ -796,7 +1466,7 @@
     ctx.beginPath(); ctx.moveTo(fx, TOP - 34); ctx.quadraticCurveTo(fx - 10, TOP - 30 + wave, fx - 20, TOP - 28 + wave);
     ctx.lineTo(fx, TOP - 22); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.fillStyle = T.muted; ctx.font = `13px ${T.hand}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText('the way out ↑', 6, TOP - 16);
+    ctx.fillText('the top ↑ (he wants it)', 6, TOP - 16);
   }
 
   function drawRuler() {
@@ -810,12 +1480,8 @@
       ctx.beginPath(); ctx.moveTo(BW + 2, y); ctx.lineTo(BW + 7, y); ctx.stroke();
       if (m % 20 === 0 && m > 0 && m < 100) ctx.fillText(m + 'm', W - 3, y);
     }
-    ctx.fillStyle = T.accent; ctx.textAlign = 'center'; ctx.font = `12px ${T.hand}`;
-    ctx.fillText('jump', BW + RULER / 2 + 1, TOP + JUMP_ROW * CELL - 9);
-    // marker for his height
-    const C = S.climber;
     if (S.mode !== 'intro') {
-      const y = TOP + Math.max(0, C.feetY);
+      const y = TOP + Math.max(0, Math.min(BH, S.climber.y));
       ctx.fillStyle = T.accent;
       ctx.beginPath(); ctx.moveTo(BW + 3, y); ctx.lineTo(BW + 11, y - 5); ctx.lineTo(BW + 11, y + 5); ctx.closePath(); ctx.fill();
     }
@@ -832,113 +1498,120 @@
       const v = S.board[y][x];
       if (v) drawCell(ctx, x * CELL, y * CELL, CELL, T.p[v], y * 31 + x);
     }
-    // the jump line: once he stands at or above it, he can leap out
-    const jy = JUMP_ROW * CELL;
-    ctx.save();
-    ctx.setLineDash([7, 6]); ctx.strokeStyle = T.accent; ctx.lineWidth = 1.6; ctx.globalAlpha = 0.75;
-    ctx.beginPath(); ctx.moveTo(0, jy); ctx.lineTo(BW, jy); ctx.stroke();
-    ctx.restore();
     if (S.cur && S.mode !== 'intro') {
-      const { m, x, t } = S.cur;
+      const { m, x } = S.cur;
       let gy = S.cur.y; while (!collide(m, x, gy + 1)) gy++;
       ctx.setLineDash([4, 4]); ctx.strokeStyle = T.muted; ctx.lineWidth = 1.5;
       for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++)
         if (m[r][c] && gy + r >= 0) ctx.strokeRect((x + c) * CELL + 3.5, (gy + r) * CELL + 3.5, CELL - 7, CELL - 7);
       ctx.setLineDash([]);
+      for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++)
+        if (m[r][c] && S.cur.y + r >= 0) drawCell(ctx, (x + c) * CELL, (S.cur.y + r) * CELL, CELL, T.p[S.cur.t], r * 5 + c + 999);
     }
   }
-  function drawCurrent() {
-    if (!S.cur || S.mode === 'intro') return;
-    const { m, x, t } = S.cur;
-    for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++)
-      if (m[r][c] && S.cur.y + r >= 0) drawCell(ctx, (x + c) * CELL, (S.cur.y + r) * CELL, CELL, T.p[t], r * 5 + c + 999);
-  }
 
-  function limb(a, b, bend) {
-    const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
-    const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
-    ctx.moveTo(a[0], a[1]);
-    ctx.quadraticCurveTo(mx - (dy / len) * bend, my + (dx / len) * bend, b[0], b[1]);
+  // which motion to show, how far into it, and where its origin sits in the world
+  function currentMotion() {
+    const C = S.climber;
+    let name = 'idle', t = C.t, ox = C.x, oy = C.y, speed = 1;
+    switch (C.state) {
+      case 'intro': name = 'wave'; break;
+      case 'ground': {
+        const v = Math.abs(C.vx);
+        const riding = supportUnder(C.x, C.y) === 'piece';
+        if (C.crouchT > 0) { name = 'crouch'; t = C.crouchLen - C.crouchT; }
+        else if (C.stumbleT > 0) name = 'stumble';
+        else if (C.landT > 0) name = 'land';
+        else if (v > 70) { name = 'run'; speed = v / 105; }
+        else if (v > 6) { name = 'walk'; speed = Math.max(0.5, v / 44); }
+        else if (riding || C.wobble > 0.15) name = 'balance';
+        else if (C.intent && C.intent.type === 'wait') name = 'lookUp';
+        else name = C.mood;
+        break;
+      }
+      case 'air':
+        if (C.tumble) name = 'tumble';
+        else if (C.vy < 0) { name = 'jumpUp'; t = C.airT; }
+        else name = 'fallDown';
+        break;
+      case 'hang': case 'pull': {
+        const A = anchorAbs();
+        if (A) { ox = A.gx; oy = A.gy; }
+        name = C.state === 'hang' ? (C.hangT > 0.9 ? 'hangShimmy' : 'hang') : 'pullUp';
+        if (C.state === 'pull') t = C.pullT;
+        break;
+      }
+      case 'climb': name = 'climb'; speed = (26 + 3 * (S.level - 1) + C.grit) / 37; break;
+      case 'dazed': name = 'dazed'; break;
+      case 'squash': name = 'squashed'; t = 0.7 - C.squashT; break;
+      case 'win': name = 'celebrate'; oy = 0; t = C.winT; break;
+    }
+    return { name, t, ox, oy, speed };
   }
-  // draws in board coordinates; returns the head position for the speech bubble
-  function drawClimber() {
-    const C = S.climber, t = C.t;
-    let cx = C.x, feetY = C.feetY, pose = C.state;
-    if (pose === 'walk' && C.pauseT > 0) pose = 'stand';
-    if (pose === 'win') pose = 'cheer';
-    if (pose === 'leap') pose = 'jump';
-    const neckY = feetY - 32, hipY = feetY - 15;
-    let neck = [cx, neckY], hip = [cx, hipY], head = [cx, neckY - 8];
-    const s = Math.sin(C.phase), w = Math.sin(t * 28);
-    let hands, feet, bendL = 5, bendR = -5;
+  let lastWorld = null, fromWorld = null, fadeT = 0, lastName = '', animStart = 0;
+  function worldPose(clock) {
+    const C = S.climber;
+    const mo = currentMotion();
+    if (mo.name !== lastName) {
+      fromWorld = lastWorld; fadeT = 0.12; lastName = mo.name; animStart = clock;
+    }
+    const local = M.sample(mo.name, mo.t === C.t ? (clock - animStart) * mo.speed : mo.t, { speed: mo.speed }) || STAND;
+    const f = C.state === 'hang' || C.state === 'pull' ? (anchorAbs() || { f: C.f }).f : C.f;
+    const w = { face: local.face };
+    const rot = C.state === 'air' && C.tumble ? C.rot : 0;
+    const cx = mo.ox, cy = mo.oy - 18, cs = Math.cos(rot), sn = Math.sin(rot);
+    for (const j of JOINTS) {
+      const p = local[j] || STAND[j];
+      let x = mo.ox + p[0] * f, y = mo.oy + p[1];
+      if (rot) { const dx = x - cx, dy = y - cy; x = cx + dx * cs - dy * sn; y = cy + dx * sn + dy * cs; }
+      w[j] = [x, y];
+    }
+    let out = w;
+    if (fadeT > 0 && fromWorld) {
+      const k = 1 - fadeT / 0.12;
+      out = { face: local.face };
+      for (const j of JOINTS) out[j] = [fromWorld[j][0] + (w[j][0] - fromWorld[j][0]) * k, fromWorld[j][1] + (w[j][1] - fromWorld[j][1]) * k];
+    }
+    out.f = f;
+    lastWorld = out;
+    return out;
+  }
+  function drawClimber(clock, dt) {
+    if (fadeT > 0) fadeT = Math.max(0, fadeT - dt);
+    const P = worldPose(clock);
     ctx.save();
     ctx.strokeStyle = T.ink; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    if (pose === 'fall') { ctx.translate(cx, hipY - 6); ctx.rotate(C.rot); ctx.translate(-cx, -(hipY - 6)); }
-
-    if (pose === 'walk') {
-      const d = C.dir || 1;
-      neck = [cx + d * 2, neckY]; head = [cx + d * 3, neckY - 8];
-      hands = [[cx - 7 * s, neckY + 14], [cx + 7 * s, neckY + 14]];
-      feet = [[cx - 8 * s, feetY], [cx + 8 * s, feetY]];
-    } else if (pose === 'stand' || pose === 'idle') {
-      const wave = pose === 'idle' ? Math.sin(t * 6) * 5 : 0;
-      hands = [[cx - 8, neckY + 15], pose === 'idle' ? [cx + 12, neckY - 10 + wave] : [cx + 8, neckY + 15]];
-      feet = [[cx - 6, feetY], [cx + 6, feetY]];
-    } else if (pose === 'climb' || pose === 'slip') {
-      const d = C.side, fx = colX(C.c) + d * CELL / 2;           // the face he is hugging
-      neck = [cx + d * 2, neckY]; head = [cx + d * 1, neckY - 8];
-      if (pose === 'climb') {
-        hands = [[fx - d, neckY - 9 + 6 * s], [fx - d, neckY - 9 - 6 * s]];
-        feet = [[fx - d * 2, feetY - 3 - 5 * s], [fx - d * 2, feetY - 3 + 5 * s]];
-      } else {
-        hands = [[fx - d, neckY - 12], [fx - d * 6, neckY - 4 + 3 * w]];
-        feet = [[cx - d * 3 + 3 * w, feetY + 2], [cx + 3 - 3 * w, feetY]];
-      }
-      bendL = bendR = -d * 6;
-    } else if (pose === 'charge') {
-      const q = Math.sin(t * 30) * (C.chargeT < 0.6 ? 1 : 0.4);
-      const crouch = 9;
-      hip = [cx + q, feetY - 15 + crouch]; neck = [cx + q, neckY + crouch + 2]; head = [cx + q, neckY + crouch - 6];
-      hands = [[cx - 11 + q, feetY - 6], [cx + 11 + q, feetY - 6]];
-      feet = [[cx - 8, feetY], [cx + 8, feetY]];
-      bendL = -7; bendR = 7;
-    } else if (pose === 'fall') {
-      hands = [[cx - 13, neckY - 12 + 5 * w], [cx + 13, neckY - 12 - 5 * w]];
-      feet = [[cx - 10 - 3 * w, feetY + 1], [cx + 10 + 3 * w, feetY + 1]];
-    } else if (pose === 'dazed') {
-      hip = [cx, feetY - 3]; neck = [cx - 3, feetY - 20]; head = [cx - 4, feetY - 28];
-      hands = [[cx - 12, feetY - 3], [cx + 8, feetY - 5]];
-      feet = [[cx + 13, feetY - 1], [cx + 16, feetY - 4]];
-    } else if (pose === 'cheer') {
-      const b = Math.abs(Math.sin(t * 7)) * 3;
-      feetY = -b; hip = [cx, feetY - 15]; neck = [cx, feetY - 32]; head = [cx, feetY - 40];
-      hands = [[cx - 12, neck[1] - 13], [cx + 12, neck[1] - 13]];
-      feet = [[cx - 6, feetY], [cx + 6, feetY]];
-    } else { // jump
-      hands = [[cx - 11, neckY - 13], [cx + 11, neckY - 13]];
-      feet = [[cx - 7, feetY - 5], [cx + 7, feetY - 5]];
-    }
+    const sh = [P.neck[0], P.neck[1] + 3];
     ctx.beginPath();
-    ctx.moveTo(neck[0], neck[1]); ctx.lineTo(hip[0], hip[1]);
-    const sh = [neck[0], neck[1] + 3];
-    limb(sh, hands[0], -4); limb(sh, hands[1], 4);
-    limb(hip, feet[0], bendL); limb(hip, feet[1], bendR);
+    ctx.moveTo(P.neck[0], P.neck[1]); ctx.lineTo(P.hip[0], P.hip[1]);
+    ctx.moveTo(sh[0], sh[1]); ctx.lineTo(P.lElbow[0], P.lElbow[1]); ctx.lineTo(P.lHand[0], P.lHand[1]);
+    ctx.moveTo(sh[0], sh[1]); ctx.lineTo(P.rElbow[0], P.rElbow[1]); ctx.lineTo(P.rHand[0], P.rHand[1]);
+    ctx.moveTo(P.hip[0], P.hip[1]); ctx.lineTo(P.lKnee[0], P.lKnee[1]); ctx.lineTo(P.lFoot[0], P.lFoot[1]);
+    ctx.moveTo(P.hip[0], P.hip[1]); ctx.lineTo(P.rKnee[0], P.rKnee[1]); ctx.lineTo(P.rFoot[0], P.rFoot[1]);
     ctx.stroke();
-    ctx.beginPath(); ctx.arc(head[0], head[1], 6.5, 0, Math.PI * 2);
+    const [hx, hy] = P.head;
+    ctx.beginPath(); ctx.arc(hx, hy, 6.5, 0, Math.PI * 2);
     ctx.fillStyle = T.board; ctx.fill(); ctx.stroke();
-    if (pose === 'dazed') {
-      ctx.lineWidth = 1.4;
+    // a tiny face
+    const f = P.f || 1;
+    ctx.lineWidth = 1.3; ctx.fillStyle = T.ink;
+    const face = P.face || 'normal';
+    if (face === 'dizzy') {
       ctx.beginPath();
-      for (const ex of [-2.5, 2]) { ctx.moveTo(head[0] + ex - 1.5, head[1] - 1.5); ctx.lineTo(head[0] + ex + 1.5, head[1] + 1.5); ctx.moveTo(head[0] + ex + 1.5, head[1] - 1.5); ctx.lineTo(head[0] + ex - 1.5, head[1] + 1.5); }
+      for (const ex of [-1, 3]) { const x = hx + ex * f; ctx.moveTo(x - 1.4, hy - 2.4); ctx.lineTo(x + 1.4, hy + 0.4); ctx.moveTo(x + 1.4, hy - 2.4); ctx.lineTo(x - 1.4, hy + 0.4); }
       ctx.stroke();
       ctx.fillStyle = T.p.O;
-      for (let i = 0; i < 3; i++) {
-        const a = t * 4 + i * 2.1;
-        star(head[0] + Math.cos(a) * 12, head[1] - 9 + Math.sin(a) * 3, 3.2);
-      }
+      for (let i = 0; i < 3; i++) { const a = S.climber.t * 4 + i * 2.1; star(hx + Math.cos(a) * 11, hy - 9 + Math.sin(a) * 3, 3); }
+    } else {
+      for (const ex of [0, 3.2]) { ctx.beginPath(); ctx.arc(hx + ex * f, hy - 1.2, 0.95, 0, Math.PI * 2); ctx.fill(); }
+      ctx.beginPath();
+      if (face === 'happy') ctx.arc(hx + 1.6 * f, hy + 1.2, 2.2, 0.15 * Math.PI, 0.85 * Math.PI);
+      else if (face === 'scared') ctx.arc(hx + 1.6 * f, hy + 2.6, 1.3, 0, Math.PI * 2);
+      else if (face === 'strain') { ctx.moveTo(hx + 0.2 * f, hy + 2.6); ctx.lineTo(hx + 3.2 * f, hy + 2.2); }
+      ctx.stroke();
     }
     ctx.restore();
-    return head;
+    return P.head;
   }
   function star(x, y, r) {
     ctx.beginPath();
@@ -996,19 +1669,17 @@
     for (const k in vals) if (last[k] !== vals[k]) { ui[k].textContent = vals[k]; last[k] = vals[k]; }
   }
 
-  function render(t) {
+  function render(clock, dt) {
     ctx.save();
     ctx.clearRect(0, 0, W, H);
-    drawSky(t);
+    drawSky(clock);
     if (S.shake > 0.2) ctx.translate((Math.random() - 0.5) * S.shake * 0.5, (Math.random() - 0.5) * S.shake * 0.35);
     drawRuler();
     ctx.save();
     ctx.translate(0, TOP);
     ctx.beginPath(); ctx.rect(-20, -TOP, BW + 40, H + 20); ctx.clip();
     drawBoard();
-    let head;
-    if (S.climber.state === 'win' || S.climber.state === 'leap') { drawCurrent(); head = drawClimber(); }
-    else { head = drawClimber(); drawCurrent(); }
+    const head = drawClimber(clock, dt);
     if (S.flash > 0) { ctx.globalAlpha = S.flash * 3; ctx.fillStyle = T.board; ctx.fillRect(0, 0, BW, BH); ctx.globalAlpha = 1; }
     ctx.restore();
     drawBubble(head);
@@ -1022,26 +1693,26 @@
     if (S.mode === 'play') {
       S.time += dt;
       updateHeld(dt);
-      if (S.climber.state !== 'win' && S.climber.state !== 'leap') {
+      const C = S.climber;
+      if (C.state !== 'win' && S.cur) {
         const interval = Math.max(0.06, 0.9 * Math.pow(0.85, S.level - 1));
         S.dropT += dt;
-        if (S.dropT >= interval) {
-          S.dropT = 0;
-          if (!collide(S.cur.m, S.cur.x, S.cur.y + 1)) S.cur.y++;
-        }
-        if (grounded()) { S.lockT += dt; if (S.lockT >= 0.5) lock(false, 0); }
+        if (S.dropT >= interval) { S.dropT = 0; fallStep(); }
+        if (S.cur && grounded()) { S.lockT += dt; if (S.lockT >= 0.5) lock(false, 0); }
         else S.lockT = 0;
       }
+      // the mood he shows when he has nothing better to do
+      C.moodT -= dt;
+      if (C.moodT <= 0) { C.moodT = 2.5 + Math.random() * 3; C.mood = pick(['idle', 'idle', 'idle', 'lookUp', 'wave']); }
       if (S.mode === 'play') updateClimber(dt);
-    } else if (S.mode === 'intro') {
-      S.climber.t += dt;
-    } else if (S.mode === 'over') {
+    } else {
       S.climber.t += dt;
       if (S.climber.state === 'win') S.climber.winT += dt;
+      if (S.climber.sayT > 0 && S.mode !== 'intro') S.climber.sayT -= dt;
     }
     S.shake *= Math.exp(-dt * 9);
     if (S.flash > 0) S.flash -= dt;
-    render(clock);
+    render(clock, dt);
     syncUI();
     requestAnimationFrame(frame);
   }
@@ -1050,7 +1721,7 @@
   window.claude?.hot?.snapshot?.(() => S && S.mode !== 'intro' ? JSON.parse(JSON.stringify(S)) : {});
   function start(data) {
     S = newState();
-    if (data && data.board && data.climber && 'c' in data.climber) {
+    if (data && data.board && data.climber && 'vx' in data.climber) {
       S = Object.assign(newState(), data);
       if (S.mode === 'play') S.mode = 'paused';
       if (S.mode === 'paused') showCard('Paused.', 'The page was updated. He is still hanging on.', 'Resume', false);
