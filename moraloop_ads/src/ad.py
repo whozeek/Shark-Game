@@ -414,7 +414,7 @@ REACT_ICON = {"angry": "💢", "sad": "💧", "worried": "💦", "happy": "✨",
 
 def draw_char(F, t, cid, x, f, P):
     c = CHARS[cid]
-    s = c.get("scale", 1.0)
+    s = P.get("scale") or c.get("scale", 1.0)
     X = lambda px, py: (x + px * s, py * s)
     skin, top, pants, hairc, shoe = c["skin"], c["top"], c["pants"], c["hair"], c["shoe"]
     sd = f"{cid}{int(x)}"
@@ -576,7 +576,7 @@ def scene_story(t, seg):
     ut = lambda uu: T0 + (T1 - T0) * uu
     chars = sc["chars"]
     n = len(chars)
-    xs = {1: [0], 2: [-150, 150], 3: [-215, 0, 215]}[n]
+    xs = list(sc.get("xs") or {1: [0], 2: [-150, 150], 3: [-215, 0, 215]}[n])
     you = sc.get("you", chars.index("you") if "you" in chars else n - 1)
     spk = sc.get("speaker", 0 if you != 0 else min(1, n - 1))
     act = sc["act"]
@@ -584,23 +584,51 @@ def scene_story(t, seg):
     react = sc.get("react", "shock")
     at = sc.get("at", 0.55)
     wall_i = sc.get("wall", seg.get("idx", 0)) % len(WALLS)
-    if act == "think":
-        cx = xs[you] * 0.6 + 40
-        cam = (cx, -540, lerp(1080, 990, u))
+    if act == "think" and n == 1:
+        cam = (xs[you] * 0.6 + 40, -540, lerp(1080, 990, u))
+    elif act == "think":
+        cam = (sum(xs) / n * 0.5 + 20, -520, lerp(1240, 1140, u))
     else:
         cam = (0, -520 if n < 3 else -540, lerp(1240, 1140, u) if n < 3 else lerp(1360, 1260, u))
+    if sc.get("cam"):
+        cx_, cy_, vh_ = sc["cam"]
+        cam = (cx_, cy_, lerp(vh_, vh_ - 90, u))
     F = Frame(t, cam)
     import sets
+    sets.OPTS = sc
     sets.draw_set(F, t, sc.get("set", "home"), WALLS[wall_i], emoji)
+    for j, (ch, dx, dy, sz) in enumerate(sc.get("decor", [])):
+        emoji(F, ch, (dx, dy + math.sin(t * 3 + j) * 4), sz, f"decor{j}")
+    for j, (ch, gx, u0) in enumerate(sc.get("ground", [])):
+        if u >= u0:
+            emoji(F, ch, (gx, -22), 72 * back_out(ramp(t, ut(u0), ut(u0) + 0.25)), f"ground{j}")
     rk = ramp(t, ut(at), ut(at) + 0.25)
     heads = {}
     for i, cid in enumerate(chars):
         x = xs[i]
         other = xs[spk] if i != spk else xs[you] if you != i else 0
         f = 1.0 if other > x else -1.0 if other < x else 0.0
+        if i in sc.get("face", {}):
+            f = sc["face"][i]
         P = {"arms": POSE["rest"], "look": (f * 4, 0)}
+        if i in sc.get("scale", {}):
+            P["scale"] = sc["scale"][i]
+        wk = sc.get("walk", {}).get(i)
+        if wk:
+            k = ramp(t, ut(wk[1]), ut(wk[2]))
+            x = xs[i] + wk[0] * k
+            if 0 < k < 1:
+                f = 1.0 if wk[0] > 0 else -1.0
+                P["bounce"] = abs(math.sin(t * 12)) * 7
         expr = dict(EXPR["neutral"])
-        if i == spk and i != you and act in ("tell", "say", "give", "laugh", "react"):
+        if act == "witness" and i in (0, 1):
+            f = 1.0 if i == 0 else -1.0
+            kk = ramp(t, ut(0.08), ut(0.3))
+            P["lean"] = f * 26 * kk
+            P["arms"] = lerp_pose(POSE["rest"], facepose(f, "give"), kk)
+            P["blush"] = kk
+            expr = mix_expr(EXPR["neutral"], dict(eye=0.12, smile=0.85, mo=1, mw=10), kk)
+        elif i == spk and i != you and act in ("tell", "say", "give", "laugh", "react"):
             talking = win(t, ut(0.05), ut(0.6), 0.2, 0.2)
             flap = (abs(math.sin(t * 11)) * 6 + 1) * (0.05 < u < 0.6)
             if act == "tell":
@@ -656,9 +684,25 @@ def scene_story(t, seg):
                 P["arms"] = lerp_pose(POSE["rest"], POSE["laugh"], lk)
             elif sc.get("others"):
                 expr = mix_expr(expr, EXPR[sc["others"]], ramp(t, ut(0.15), ut(0.35)))
+        if i in sc.get("exprs", {}):
+            expr = mix_expr(expr, EXPR[sc["exprs"][i]], ramp(t, ut(0.1), ut(0.3)))
         P.update(expr)
         P["look"] = expr.get("look", P["look"]) if "look" in expr else P["look"]
         heads[i] = draw_char(F, t, cid, x, f, P)
+        xs[i] = x
+    if sc.get("set") == "lifeboat":  # hull in front of whoever stands in the boat
+        F.poly([(-215, -175), (215, -175), (180, 45), (-180, 45)], (0.55, 0.33, 0.18), "hull", wob=0.004, smooth_it=1, spec=0.15)
+        F.cap((-225, -180), (225, -180), 16, (0.42, 0.25, 0.14), "rim")
+        F.poly([(-260, -60), (260, -60), (300, 120), (-300, 120)], (0.20, 0.42, 0.60), "waterfront", wob=0.01, smooth_it=1, shade=0.3, shadow=0)
+    for j, (ch, dx, dy, sz) in enumerate(sc.get("front", [])):
+        emoji(F, ch, (dx, dy + math.sin(t * 2.5 + j) * 6), sz, f"front{j}")
+    if act == "witness":
+        kk = ramp(t, ut(0.2), ut(0.35))
+        (ax, ay), (bx, by) = heads[0], heads[1]
+        mx, my = (ax + bx) / 2, min(ay, by) - 40
+        for j, ch in enumerate(icons or ["💋"]):
+            emoji(F, ch, (mx + j * 50, my - 60 * j - 20 * math.sin(t * 3)), 70 * kk * (1 + 0.1 * math.sin(t * 8)), f"wit{j}")
+        emoji(F, "❤️", (mx + 50, my - 90 - (t * 40) % 80), 38 * kk, "witheart")
     # bubbles
     if icons and act in ("tell", "say", "laugh", "react"):
         bp = back_out(ramp(t, ut(0.12), ut(0.2))) * (1 - ramp(t, ut(0.92), ut(0.99)))

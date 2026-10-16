@@ -523,3 +523,36 @@ for _ad in ADS:
     _scenes = [b for b in _ad["beats"] if b[0] == "scene"]
     for _i, _field, _value in REVIEW_FIXES_2.get(_ad["id"], []):
         _scenes[_i][2][_field] = _value
+
+# Final-video QA fixes: stage the key moment so it is visible on screen
+_W = [(140, -895), (210, -725), (70, -725), (210, -555), (70, -895)]
+REVIEW_FIXES_3 = {
+    "27_the_secret": [
+        (0, "chars", ["friend", "partner", "you"]), (0, "xs", [-250, -110, 200]), (0, "exprs", {1: "happy"}),
+        (1, "chars", ["partner", "stranger", "you"]), (1, "xs", [-235, -95, 210]), (1, "act", "witness"),
+        (1, "icons", ["💋"]), (1, "react", "shock"), (1, "at", 0.45)],
+    "30_the_one_left_out": [
+        (0, "chars", ["friend", "you", "stranger"]), (0, "xs", [-265, -120, 245]), (0, "act", "say"),
+        (0, "icons", ["😂", "💬"]), (0, "spk_smile", 0.8), (0, "exprs", {2: "sad"}), (0, "face", {2: 1.0})],
+    "33_the_dropped_money": [
+        (0, "act", "react"), (0, "icons", []), (0, "walk", {0: (-560, 0.2, 0.65)}),
+        (0, "ground", [("💵", -150, 0.15)]), (0, "react", "shock"), (0, "at", 0.6)],
+    "37_too_much_change": [(0, "icons", ["🪙", "🪙", "➕"])],
+    "48_one_friend_or_five_strangers": [
+        (0, "chars", ["you"]), (0, "act", "react"), (0, "icons", []), (0, "no_truck", True),
+        (0, "decor", [("🧑🏾‍🦱", -210, -725, 95), ("❤️", -150, -790, 40)] + [("🙋", x, y, 80) for x, y in _W]),
+        (0, "react", "shock"), (0, "at", 0.35)],
+    "49_the_trolley_lever": [(0, "cam", (40, -470, 1120))],
+    "50_one_place_left": [
+        (0, "set", "lifeboat"), (0, "icons", ["🌊", "1️⃣"]), (0, "cam", (0, -500, 1350)),
+        (1, "set", "lifeboat"), (1, "cam", (0, -500, 1350)),
+        (1, "front", [("🤰", -262, -90, 92), ("🧒", 262, -90, 84)])],
+    "52_the_broken_lever": [
+        (0, "cam", (40, -470, 1120)), (0, "broken_lever", True), (0, "train", "🚆"),
+        (1, "chars", ["you", "stranger"]), (1, "xs", [10, 215]), (1, "scale", {1: 1.25}),
+        (1, "broken_lever", True), (1, "train", "🚆")],
+}
+for _ad in ADS:
+    _scenes = [b for b in _ad["beats"] if b[0] == "scene"]
+    for _i, _field, _value in REVIEW_FIXES_3.get(_ad["id"], []):
+        _scenes[_i][2][_field] = _value

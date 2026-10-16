@@ -4,6 +4,7 @@ import numpy as np
 from clay import W, H
 
 _g = None
+OPTS = {}
 
 
 def world(F):
@@ -301,9 +302,15 @@ def draw_set(F, t, name, wall, emoji):
         finish(F, img)
         # lever
         F.poly([(170, -60), (270, -60), (270, -10), (170, -10)], (0.35, 0.35, 0.38), "lvbase", smooth_it=1)
-        F.cap((220, -40), (290, -230), 9, (0.55, 0.55, 0.6), "lvstick")
-        F.ell((290, -235), 20, 20, (0.85, 0.15, 0.15), "lvknob", spec=0.3)
-        emoji(F, "🚋", (-150, -300), 110, "tram")
+        if OPTS.get("broken_lever"):  # snapped lever: stub + broken piece on the ground
+            F.cap((220, -40), (240, -105), 9, (0.55, 0.55, 0.6), "lvstub")
+            F.cap((300, -15), (395, -40), 9, (0.55, 0.55, 0.6), "lvpiece")
+            F.ell((400, -42), 20, 20, (0.85, 0.15, 0.15), "lvknob", spec=0.3)
+            emoji(F, "❌", (240, -170), 55, "lvx")
+        else:
+            F.cap((220, -40), (290, -230), 9, (0.55, 0.55, 0.6), "lvstick")
+            F.ell((290, -235), 20, 20, (0.85, 0.15, 0.15), "lvknob", spec=0.3)
+        emoji(F, OPTS.get("train", "🚋"), (-70, -330), 90, "tram")
     elif name == "sea":
         img, wx, wy = outdoor(F, sky0=(0.35, 0.40, 0.50), sky1=(0.62, 0.68, 0.74), ground=(0.18, 0.40, 0.58), horizon=-380)
         waves = (wy > -380) & (np.sin(wx / 60 + np.sin(wy / 40) * 2 + F.bi * 0.8) > 0.85)
@@ -331,7 +338,15 @@ def draw_set(F, t, name, wall, emoji):
             F.poly([(x - 30, -820), (x + 30, -820), (x, -820 - h * 0.55)], (1.0, 0.85, 0.30), f"fy{i}", smooth_it=2, shadow=0)
         for i in range(4):
             F.ell((-200 + i * 140, -1180 - i * 60 - (t * 20) % 60), 120, 80, (0.35, 0.33, 0.35), f"smk{i}", shadow=0, alpha=0.8)
-        emoji(F, "🚒", (300, -80), 150, "truck")
+        if not OPTS.get("no_truck"):
+            emoji(F, "🚒", (300, -80), 150, "truck")
+    elif name == "lifeboat":
+        img, wx, wy = outdoor(F, sky0=(0.33, 0.38, 0.48), sky1=(0.60, 0.66, 0.72), ground=(0.18, 0.40, 0.58), horizon=-430)
+        waves = (wy > -430) & (np.sin(wx / 55 + np.sin(wy / 35) * 2 + F.bi * 0.8) > 0.86)
+        img[waves] = C(0.70, 0.82, 0.90)
+        finish(F, img)
+        emoji(F, "🚢", (-230, -500), 230, "ship", rot=-18)
+        F.poly([(-700, -470), (700, -470), (700, -380), (-700, -380)], (0.20, 0.42, 0.60), "shipwater", wob=0.01, smooth_it=1, shade=0.2, shadow=0)
     elif name == "cafe":
         img, *_ = indoor(F, (0.62, 0.44, 0.32))
         finish(F, img)
