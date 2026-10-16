@@ -2705,6 +2705,7 @@ function expClipMats(){
   return[...set];
 }
 function startExpandAnim(ex,camBefore){
+  if(ui.expAnim)endExpandAnim();
   const to={x:cam.x,y:cam.y,zoom:cam.zoom,yaw:cam.yaw,pitch:cam.pitch},now=performance.now(),dur=9000,east=ex.side==='east';
   Object.assign(cam,camBefore);clampCam();updateCamera();
   ui.camAnim={from:camBefore,to,t0:now+.24*dur,dur:.36*dur};
@@ -2718,7 +2719,7 @@ function startExpandAnim(ex,camBefore){
 }
 function endExpandAnim(){
   const a=ui.expAnim;if(!a)return;
-  for(const m of a.mats){m.clippingPlanes=null;m.needsUpdate=true}
+  for(const m of a.mats){m.clippingPlanes=null;m.clipShadows=false;m.needsUpdate=true}
   if(T.expG){clearGroup(T.expG);T.expG._k=null}
   if(a.skipped){Object.assign(cam,a.to);clampCam();updateCamera();ui.camAnim=null}
   ui.expAnim=null;ui.dirty=true;
