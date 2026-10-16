@@ -2587,8 +2587,8 @@ function nextDay(){
   const grown=null,gch=G.L.growth===false?[]:growChoices();
   if(G.season!==prevSeason&&T.ok&&!grown){build3D(G.city);resetDyn()}
   planEvents();makeMissions();hideOv();G.modal=false;G.paused=true;syncPlay();ui.dirty=true;
-  if(expd){toast('The city has expanded to the '+expd.side+'! New blocks and new streets are open.',4800);if(!ui.rm)startExpandAnim(expd,camBefore)}
-  if(gch.length){if(expd&&!ui.rm){ui.pendingGrowth=gch;setTimeout(()=>{if(ui.pendingGrowth&&!G.modal&&!G.over){const g2=ui.pendingGrowth;ui.pendingGrowth=null;showGrowth(g2)}},3700)}else showGrowth(gch)}
+  if(expd){if(!ui.rm)startExpandAnim(expd,camBefore);else toast('The city has expanded to the '+expd.side+'! New blocks and new streets are open.',4800)}
+  if(gch.length){if(expd&&!ui.rm&&ui.expAnim)ui.pendingGrowth=gch;else showGrowth(gch)}
   toast((grown?'Day '+G.day+' · '+seasonLabel().toLowerCase()+'. New blocks opened: '+grown+'.':'Day '+G.day+' · '+seasonLabel().toLowerCase()+'. Press play when ready.'),3800);
   saveGame();
 }
@@ -2695,38 +2695,68 @@ function expandMap(){
   fitCam(true);
   return{side:side==='E'?'east':'south',old:oldRect,neu:neuRect};
 }
-/* ---- expansion animation ---- */
+/* ---- expansion animation: old city -> buildings sink -> new streets grow out -> buildings rise ---- */
+function expClipMats(){
+  const set=new Set(),skip=new Set();if(T.groundMat)skip.add(T.groundMat);for(const m of(T.terrMats||[]))skip.add(m);
+  if(T.city)T.city.traverse(o=>{
+    if(!(o.isMesh||o.isPoints)||!o.material)return;
+    if(o.geometry&&(o.geometry.type==='PlaneGeometry'||o.geometry.type==='CircleGeometry'||o.geometry.type==='RingGeometry'))return;
+    for(const m of(Array.isArray(o.material)?o.material:[o.material]))if(m&&!skip.has(m)&&!m.isSpriteMaterial&&!m.isShaderMaterial&&!m.bumpMap&&!m.userData.tint)set.add(m)});
+  return[...set];
+}
 function startExpandAnim(ex,camBefore){
-  const to={x:cam.x,y:cam.y,zoom:cam.zoom,yaw:cam.yaw,pitch:cam.pitch};
+  const to={x:cam.x,y:cam.y,zoom:cam.zoom,yaw:cam.yaw,pitch:cam.pitch},now=performance.now(),dur=9000,east=ex.side==='east';
   Object.assign(cam,camBefore);clampCam();updateCamera();
-  ui.camAnim={from:camBefore,to,t0:performance.now(),dur:2600};
-  ui.expAnim={t0:performance.now(),dur:3500,ex};
+  ui.camAnim={from:camBefore,to,t0:now+.24*dur,dur:.36*dur};
+  T.r.localClippingEnabled=true;
+  T.clipH=new THREE.Plane(new THREE.Vector3(0,-1,0),400);
+  T.clipW=east?new THREE.Plane(new THREE.Vector3(-1,0,0),ex.old.x1+14):new THREE.Plane(new THREE.Vector3(0,0,-1),ex.old.y1+14);
+  const mats=expClipMats();for(const m of mats){m.clippingPlanes=[T.clipH,T.clipW];m.clipShadows=true;m.needsUpdate=true}
+  ui.expAnim={t0:now,dur,ex,to,mats,ph:0};
   if(T.expG){clearGroup(T.expG);T.expG._k=null}
+  toast('Your company grew. The city is expanding… (tap to skip)',3000);
+}
+function endExpandAnim(){
+  const a=ui.expAnim;if(!a)return;
+  for(const m of a.mats){m.clippingPlanes=null;m.needsUpdate=true}
+  if(T.expG){clearGroup(T.expG);T.expG._k=null}
+  if(a.skipped){Object.assign(cam,a.to);clampCam();updateCamera();ui.camAnim=null}
+  ui.expAnim=null;ui.dirty=true;
+  if(ui.pendingGrowth&&!G.over){const g2=ui.pendingGrowth;ui.pendingGrowth=null;showGrowth(g2)}
 }
 function expandAnimTick(now){
   const a=ui.expAnim;
   if(!a){if(T.expG&&T.expG._k){clearGroup(T.expG);T.expG._k=null}return}
   if(!T.expG){T.expG=new THREE.Group();T.dyn.add(T.expG)}
   const g=T.expG,ex=a.ex,t=(now-a.t0)/a.dur;
+  if(t>=1){endExpandAnim();return}
+  const e=x=>x<0?0:x>1?1:x*x*(3-2*x),east=ex.side==='east',nw=ex.neu,w=nw.x1-nw.x0,h=nw.y1-nw.y0;
   if(!g._k){
     g._k=1;g._m={};
-    const bx=(r,col,op,y)=>{const m=new THREE.Mesh(T.gBox,basic(col,{transparent:true,opacity:op,depthWrite:false}));m.renderOrder=8;m.position.y=y;g.add(m);return m};
-    g._m.old=bx(ex.old,'#0b1822',.6,34);g._m.neu=bx(ex.neu,'#3fb868',.4,3);
-    g._m.edge=[];for(let i=0;i<4;i++)g._m.edge.push(bx(ex.neu,'#ffffff',.95,3.5));
-    const lb=mkSprite(textTex('NEW','#2a9d57'),90,36);lb.position.set((ex.neu.x0+ex.neu.x1)/2,90,(ex.neu.y0+ex.neu.y1)/2);lb.visible=false;g.add(lb);g._m.lb=lb;
+    const base=(T.terrMats&&T.terrMats[0])||null,cm=new THREE.MeshStandardMaterial({color:base?base.color.clone():lin('#6c9a47'),roughness:.97});
+    if(base&&base.map){const mp=base.map.clone();mp.needsUpdate=true;mp.repeat.set(Math.max(1,w/200),Math.max(1,h/200));cm.map=mp}
+    const cover=new THREE.Mesh(T.gBox,cm);cover.renderOrder=3;g.add(cover);g._m.cover=cover;
+    const front=new THREE.Mesh(T.gBox,basic('#ffffff',{transparent:true,opacity:.95,depthWrite:false}));front.renderOrder=8;g.add(front);g._m.front=front;
+    const tint=new THREE.Mesh(T.gBox,basic('#3fb868',{transparent:true,opacity:.3,depthWrite:false}));tint.renderOrder=7;g.add(tint);g._m.tint=tint;
+    const lb=mkSprite(textTex('NEW','#2a9d57'),90,36);lb.position.set((nw.x0+nw.x1)/2,90,(nw.y0+nw.y1)/2);lb.visible=false;g.add(lb);g._m.lb=lb;
   }
-  const e=x=>x<0?0:x>1?1:x*x*(3-2*x),m=g._m,o=ex.old,nw=ex.neu,east=ex.side==='east';
-  // dark veil over the old city fades out; the new area grows outward from the old edge
-  const veil=1-e((t-.55)/.35);m.old.visible=veil>.01;m.old.material.opacity=.6*veil;
-  m.old.scale.set(o.x1-o.x0,.5,o.y1-o.y0);m.old.position.set((o.x0+o.x1)/2,34,(o.y0+o.y1)/2);
-  const gr=e(t/.4),w=nw.x1-nw.x0,h=nw.y1-nw.y0,gw=east?w*gr:w,gh=east?h:h*gr,cx=east?nw.x0+gw/2:(nw.x0+nw.x1)/2,cz=east?(nw.y0+nw.y1)/2:nw.y0+gh/2;
-  m.neu.scale.set(Math.max(.01,gw),.5,Math.max(.01,gh));m.neu.position.set(cx,3,cz);m.neu.material.opacity=(.34+.14*Math.sin(now/220))*(1-e((t-.8)/.2));
-  const th=4,x0=cx-gw/2,x1=cx+gw/2,z0=cz-gh/2,z1=cz+gh/2,E=m.edge;
-  E[0].scale.set(gw,.6,th);E[0].position.set(cx,3.6,z0);E[1].scale.set(gw,.6,th);E[1].position.set(cx,3.6,z1);
-  E[2].scale.set(th,.6,gh);E[2].position.set(x0,3.6,cz);E[3].scale.set(th,.6,gh);E[3].position.set(x1,3.6,cz);
-  for(const b of E)b.material.opacity=.95*(1-e((t-.85)/.15));
-  m.lb.visible=t>.3&&t<.92;m.lb.position.y=80+8*Math.sin(now/260);
-  if(t>=1){ui.expAnim=null;clearGroup(g);g._k=null}
+  const m=g._m;
+  // 1) buildings sink into the ground, 2) the new streets grow out from the old edge, 3) buildings rise, new ones included
+  const sink=e((t-.08)/.24),rise=e((t-.6)/.34);
+  T.clipH.constant=t<.6?400-399.2*sink:.8+399.2*rise;
+  if(t>=.6&&T.clipW.constant<1e5)T.clipW.constant=1e6;
+  if(t>.3&&a.ph<1){a.ph=1;toast('New streets are opening.',2600)}
+  if(t>.6&&a.ph<2){a.ph=2;toast('New buildings are going up!',2600)}
+  const prog=e((t-.3)/.26);
+  // the grass cover shrinks away from the old edge, so the new roads appear to grow outward
+  const cw=east?w*(1-prog):w,ch=east?h:h*(1-prog),cx=east?nw.x1-cw/2:(nw.x0+nw.x1)/2,cz=east?(nw.y0+nw.y1)/2:nw.y1-ch/2;
+  m.cover.visible=prog<.999;m.cover.scale.set(Math.max(.01,cw),.4,Math.max(.01,ch));m.cover.position.set(cx,.9,cz);
+  const rw=east?w*prog:w,rh=east?h:h*prog,rx=east?nw.x0+rw/2:(nw.x0+nw.x1)/2,rz=east?(nw.y0+nw.y1)/2:nw.y0+rh/2;
+  const fade=1-e((t-.62)/.18);
+  m.tint.visible=prog>.01&&fade>.01;m.tint.scale.set(Math.max(.01,rw),.5,Math.max(.01,rh));m.tint.position.set(rx,1.3,rz);m.tint.material.opacity=(.3+.12*Math.sin(now/200))*fade;
+  m.front.visible=prog>.01&&prog<.995;
+  if(east){m.front.scale.set(5,.8,h);m.front.position.set(nw.x0+rw,1.6,(nw.y0+nw.y1)/2)}else{m.front.scale.set(w,.8,5);m.front.position.set((nw.x0+nw.x1)/2,1.6,nw.y0+rh)}
+  m.lb.visible=t>.3&&t<.74;m.lb.position.y=80+8*Math.sin(now/260);
 }
 /* ================= growth choices ================= */
 function growChoices(){
@@ -2923,7 +2953,7 @@ function panBy(x0,y0,x1,y1){
   if(a&&b){cam.x+=a.x-b.x;cam.y+=a.y-b.y;clampCam();updateCamera()}
 }
 const pointers=new Map();let gesture=null,multi=false;
-cv.addEventListener('pointerdown',e=>{ui.camAnim=null;
+cv.addEventListener('pointerdown',e=>{if(ui.expAnim){ui.expAnim.skipped=true;ui.expAnim.t0-=ui.expAnim.dur*2}ui.camAnim=null;
   ensureAudio();
   if(e.isPrimary){pointers.clear();multi=false;gesture=null}
   try{cv.setPointerCapture(e.pointerId)}catch(_){}
@@ -5084,7 +5114,7 @@ function frame(now){
       let dt=rdt*G.speed;
       while(dt>0&&!G.modal&&!G.over){const s=Math.min(.05,dt);stepAll(s);dt-=s}
     }
-    if(ui.camAnim){const a=ui.camAnim,k=Math.min(1,(now-a.t0)/a.dur),e=k*k*(3-2*k);for(const f of['x','y','zoom','yaw','pitch'])cam[f]=a.from[f]+(a.to[f]-a.from[f])*e;updateCamera();if(k>=1)ui.camAnim=null}
+    if(ui.camAnim){const a=ui.camAnim,k=Math.max(0,Math.min(1,(now-a.t0)/a.dur)),e=k*k*(3-2*k);for(const f of['x','y','zoom','yaw','pitch'])cam[f]=a.from[f]+(a.to[f]-a.from[f])*e;updateCamera();if(k>=1)ui.camAnim=null}
     uiT+=rdt;
     if(ui.dirty)refreshUI();
     if(uiT>.25){uiT=0;if(!G.paused&&++_scT%40===0)selfCheck();if(_scT%12===0)advisorTick();ui.vibrate=true;coachTick();hud();updateStopCard(false);liveInfo();applyHint()}
