@@ -609,7 +609,9 @@
   // the climber's body and physics (pixels, seconds)
   const HW = 5, BODYH = 46, ARMS = 49;      // half width, body height, grip height above feet (matches the motions)
   const G = 1500, JUMP_H = 98, JV = Math.sqrt(2 * G * JUMP_H);
-  const WALK = 55, RUN = 92;
+  const WALK = 55, RUN = 92, DODGE = 128;
+  const SLAM = 0.016;                       // seconds per row while a hard drop slams down
+  const dropInterval = () => Math.max(0.06, 0.9 * Math.pow(0.85, S.level - 1));
   const SHAPES = {
     I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
     O: [[1,1],[1,1]],
@@ -633,6 +635,8 @@
     thrown: ['WHOA!', 'Hey, quit spinning it!', 'Bad driver!'],
     bonk: ['OOF!', 'My head!', 'BONK.', 'Ow ow ow!'],
     slip: ['Losing grip!', 'Nope nope nope—', 'My fingers!'],
+    dodge: ['!', 'WHOA!', 'Not on my head!', 'Incoming!', 'Eep!'],
+    missed: ['Ha! Missed me!', 'Too slow!', 'Close one!', 'Nice try.'],
     stuck: ['Let me out!', 'Hmph.', 'Hey! Up here!', 'This is fine.'],
     wait: ['Build it higher!', 'Need a step here…', 'Come on, one more block.', 'I can wait.'],
     look: ['Ooh, that one.', 'Come to papa.', 'I can reach that…'],
@@ -822,11 +826,15 @@
     });
   }
   function softStep() { if (fallStep()) { S.score += 1; S.dropT = 0; } }
-  function hardDrop() {
-    let d = 0;
-    while (S.cur && fallStep()) d++;
-    S.score += 2 * d;
-    lock(true, d);
+  // a hard drop slams the piece down fast but not instantly, so he gets a split second to see it coming
+  function hardDrop() { S.slam = { d: 0, t: 0, y0: S.cur.y }; }
+  function updateSlam(dt) {
+    S.slam.t += dt;
+    while (S.slam && S.slam.t >= SLAM) {
+      S.slam.t -= SLAM;
+      if (fallStep()) { S.slam.d++; S.score += 2; }
+      else { const d = S.slam.d; S.slam = null; lock(true, d); }
+    }
   }
   function holdPiece() {
     if (!S.canHold) return;
@@ -893,6 +901,7 @@
   function say(text, dur = 1.9) { const C = S.climber; C.sayText = text; C.sayT = dur; }
   function toAir() {
     const C = S.climber;
+    C.alert = null;
     if (C.state !== 'air') { C.fallFrom = C.y; C.airT = 0; }
     C.state = 'air'; C.anchor = null;
   }
@@ -1072,7 +1081,7 @@
     const need = po ? C.y - ARMS - po.gy + 6 : 0;
     // only wait for the piece if it will be in reach soon; otherwise keep climbing
     const waitRows = Math.max(0, (need - JUMP_H) / CELL);
-    const interval = Math.max(0.06, 0.9 * Math.pow(0.85, S.level - 1));
+    const interval = dropInterval();
     if (po && (waitRows * interval < 2.5 || !plan.move)) {
       const reachNow = need <= JUMP_H;
       C.idleT = 0;
@@ -1107,6 +1116,47 @@
       C.wanderX = span.length ? pick(span) : C.x;
     }
     if (C.sayT <= 0) { C.chatT -= 0.2; if (C.chatT <= 0) { C.chatT = 7 + Math.random() * 6; say(pick(S.cur ? SAY.wait : SAY.chat)); } }
+  }
+
+  // ---------- the climber: seeing a piece coming ----------
+  // is the falling piece going to land on him where he stands, and how soon?
+  function threat() {
+    const C = S.climber, p = S.cur;
+    if (!p) return null;
+    const c0 = Math.floor((C.x - HW) / CELL), c1 = Math.floor((C.x + HW - 0.001) / CELL);
+    const head = Math.floor((C.y - BODYH) / CELL);
+    let gy = p.y; while (!collide(p.m, p.x, gy + 1)) gy++;
+    let rows = Infinity;
+    for (let pr = 0; pr < p.m.length; pr++) for (let pc = 0; pc < p.m.length; pc++) {
+      if (!p.m[pr][pc]) continue;
+      const c = p.x + pc, r = p.y + pr;
+      if (c < c0 || c > c1 || r >= head || r + (gy - p.y) < head) continue;
+      rows = Math.min(rows, head - r);
+    }
+    if (rows === Infinity) return null;
+    if (S.slam) return { rows, time: rows * SLAM - S.slam.t };
+    if (held.soft) return { rows, time: rows * SOFT };
+    return { rows, time: Math.max(0, rows * dropInterval() - S.dropT) };
+  }
+  // nearest spot along his footing that is out from under the piece
+  function dodgePlan() {
+    const C = S.climber, p = S.cur;
+    const r = Math.round(C.y / CELL), c = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL)));
+    const under = col => p.m.some((row, pr) => row.some((v, pc) => v && p.x + pc === col && p.y + pr < r));
+    let bestX = null;
+    for (const d of [-1, 1]) {
+      for (let k = 0; k < COLS; k++) {
+        const col = c + d * k;
+        if (col < 0 || col >= COLS || solidB(r - 1, col) || solidB(r - 2, col)) break;
+        if (!under(col)) {
+          const x = d > 0 ? col * CELL + HW + 2 : (col + 1) * CELL - HW - 2;
+          if (bestX === null || Math.abs(x - C.x) < Math.abs(bestX - C.x)) bestX = x;
+          break;
+        }
+        if (!solidB(r, col)) break;   // stepping off a ledge here would still drop him under it
+      }
+    }
+    return bestX;
   }
 
   // ---------- the climber: movement ----------
@@ -1199,6 +1249,35 @@
         if (!supportUnder(C.x, C.y)) { toAir(); C.wantGrab = Math.random() < 0.5; break; }
         C.wobble = Math.max(0, C.wobble - dt * 0.7);
         if (C.wanderT > 0) C.wanderT -= dt;
+        // a piece is coming down on him: notice it, then run for it (if there is time)
+        const th = threat();
+        if (th && th.time < 1.6 && !C.alert) {
+          C.alert = { t: 0, react: 0.07 + Math.random() * 0.2 };
+          C.crouchT = 0; C.stumbleT = 0;
+          say(pick(SAY.dodge), 1.1);
+        } else if (!th && C.alert) {
+          if (C.alert.ran && Math.random() < 0.6) say(pick(SAY.missed), 1.4);
+          C.alert = null; C.intent = null; C.think = 0.15;
+        }
+        if (C.alert) {
+          C.alert.t += dt;
+          if (C.alert.t < C.alert.react) { C.vx *= Math.pow(0.02, dt); moveX(C.vx * dt); break; }
+          // re-plan every frame: the player may shift the piece while he runs
+          const x = S.cur ? dodgePlan() : null;
+          C.intent = x === null ? { type: 'brace', x: C.x } : { type: 'dodge', x };
+          if (x !== null) {
+            C.alert.ran = true;
+            // not enough time to run: dive for it
+            const dist = Math.abs(x - C.x), left = th ? th.time : 1;
+            if (!C.alert.dived && left < dist / DODGE + 0.06 && dist > 3) {
+              C.alert.dived = true;
+              const d = Math.sign(x - C.x);
+              toAir(); C.vx = d * 185; C.vy = -170; C.f = d; C.steer = d;
+              say('Eep!', 0.9);
+              break;
+            }
+          }
+        }
         if (C.crouchT > 0) {
           C.crouchT -= dt; C.vx *= 0.8;
           if (C.crouchT <= 0) { toAir(); C.vy = -C.jumpV; C.vx = C.jumpVx; C.wantGrab = true; sfx('jump'); }
@@ -1212,12 +1291,12 @@
           break;
         }
         C.think -= dt;
-        if (C.think <= 0) { C.think = 0.2; brain(); }
+        if (C.think <= 0 && !C.alert) { C.think = 0.2; brain(); }
         const it = C.intent || { type: 'idle', x: C.x };
         const gap = it.x - C.x;
-        const speed = Math.abs(gap) > 50 ? RUN : WALK;
+        const speed = it.type === 'dodge' ? DODGE : Math.abs(gap) > 50 ? RUN : WALK;
         const want = Math.abs(gap) < 1.5 ? 0 : Math.sign(gap) * Math.min(speed, Math.abs(gap) * 7);
-        C.vx += (want - C.vx) * Math.min(1, dt * 9);
+        C.vx += (want - C.vx) * Math.min(1, dt * (it.type === 'dodge' ? 30 : 9));
         if (Math.abs(C.vx) > 4) C.f = Math.sign(C.vx);
         const bumped = moveX(C.vx * dt);
         if (!supportUnder(C.x, C.y)) { toAir(); break; }
@@ -1358,7 +1437,7 @@
   const DAS = 0.16, ARR = 0.05, SOFT = 0.035;
   function press(act) {
     initAudio();
-    if (S.mode !== 'play' || S.climber.state === 'win' || !S.cur) return;
+    if (S.mode !== 'play' || S.climber.state === 'win' || !S.cur || S.slam) return;
     switch (act) {
       case 'left': move(-1); held.left = { t: 0, r: 0 }; delete held.right; break;
       case 'right': move(1); held.right = { t: 0, r: 0 }; delete held.left; break;
@@ -1505,6 +1584,17 @@
       for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++)
         if (m[r][c] && gy + r >= 0) ctx.strokeRect((x + c) * CELL + 3.5, (gy + r) * CELL + 3.5, CELL - 7, CELL - 7);
       ctx.setLineDash([]);
+      if (S.slam) {
+        // speed streaks behind a slamming piece
+        ctx.globalAlpha = 0.18; ctx.fillStyle = T.p[S.cur.t];
+        for (let c = 0; c < m.length; c++) {
+          let top = -1; for (let r = 0; r < m.length; r++) if (m[r][c]) { top = r; break; }
+          if (top < 0) continue;
+          const y1 = (S.cur.y + top) * CELL, y0 = Math.max(0, (S.slam.y0 + top) * CELL);
+          if (y1 > y0) ctx.fillRect((x + c) * CELL + 6, y0, CELL - 12, y1 - y0);
+        }
+        ctx.globalAlpha = 1;
+      }
       for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++)
         if (m[r][c] && S.cur.y + r >= 0) drawCell(ctx, (x + c) * CELL, (S.cur.y + r) * CELL, CELL, T.p[S.cur.t], r * 5 + c + 999);
     }
@@ -1519,7 +1609,9 @@
       case 'ground': {
         const v = Math.abs(C.vx);
         const riding = supportUnder(C.x, C.y) === 'piece';
-        if (C.crouchT > 0) { name = 'crouch'; t = C.crouchLen - C.crouchT; }
+        if (C.alert && C.alert.t < C.alert.react) name = 'lookUp';
+        else if (C.alert && C.intent && C.intent.type === 'brace') name = 'brace';
+        else if (C.crouchT > 0) { name = 'crouch'; t = C.crouchLen - C.crouchT; }
         else if (C.stumbleT > 0) name = 'stumble';
         else if (C.landT > 0) name = 'land';
         else if (v > 70) { name = 'run'; speed = v / 105; }
@@ -1573,6 +1665,7 @@
       for (const j of JOINTS) out[j] = [fromWorld[j][0] + (w[j][0] - fromWorld[j][0]) * k, fromWorld[j][1] + (w[j][1] - fromWorld[j][1]) * k];
     }
     out.f = f;
+    if (C.alert) out.face = 'scared';
     lastWorld = out;
     return out;
   }
@@ -1694,8 +1787,9 @@
       S.time += dt;
       updateHeld(dt);
       const C = S.climber;
-      if (C.state !== 'win' && S.cur) {
-        const interval = Math.max(0.06, 0.9 * Math.pow(0.85, S.level - 1));
+      if (S.slam && S.cur) updateSlam(dt);
+      else if (C.state !== 'win' && S.cur) {
+        const interval = dropInterval();
         S.dropT += dt;
         if (S.dropT >= interval) { S.dropT = 0; fallStep(); }
         if (S.cur && grounded()) { S.lockT += dt; if (S.lockT >= 0.5) lock(false, 0); }
