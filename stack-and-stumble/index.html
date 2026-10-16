@@ -610,7 +610,8 @@
   const HW = 5, BODYH = 46, ARMS = 49;      // half width, body height, grip height above feet (matches the motions)
   const G = 1500, JUMP_H = 98, JV = Math.sqrt(2 * G * JUMP_H);
   const WALK = 55, RUN = 92, DODGE = 128;
-  const SLAM = 0.016;                       // seconds per row while a hard drop slams down
+  const SLAM = 0.016;
+  const CRACK_AT = 5, BREAK_AT = 10;          // seconds of hammering before cracks show, and before the piece breaks                       // seconds per row while a hard drop slams down
   const dropInterval = () => Math.max(0.06, 0.9 * Math.pow(0.85, S.level - 1));
   const SHAPES = {
     I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
@@ -637,6 +638,8 @@
     slip: ['Losing grip!', 'Nope nope nope—', 'My fingers!'],
     dodge: ['!', 'WHOA!', 'Not on my head!', 'Incoming!', 'Eep!'],
     missed: ['Ha! Missed me!', 'Too slow!', 'Close one!', 'Nice try.'],
+    hammer: ['Fine. Hammer time.', 'Stand back.', 'I came prepared.'],
+    smash: ['HA!', 'Out of my way!', 'Demolition!'],
     stuck: ['Let me out!', 'Hmph.', 'Hey! Up here!', 'This is fine.'],
     wait: ['Build it higher!', 'Need a step here…', 'Come on, one more block.', 'I can wait.'],
     look: ['Ooh, that one.', 'Come to papa.', 'I can reach that…'],
@@ -714,6 +717,7 @@
       score: 0, lines: 0, level: 1, mode: 'intro', time: 0,
       dropT: 0, lockT: 0, lockResets: 0, shake: 0, flash: 0,
       climber: freshClimber(), result: null,
+      ids: Array.from({ length: ROWS }, () => Array(COLS).fill(0)), serial: 1, cracks: {}, parts: [],
     };
   }
   let best = 0;
@@ -855,10 +859,12 @@
     const { m, x, y, t } = S.cur;
     let over = false;
     const cells = [];
+    S.serial++;
     for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++) {
       if (!m[r][c]) continue;
       if (y + r < 0) { over = true; continue; }
       S.board[y + r][x + c] = t;
+      S.ids[y + r][x + c] = S.serial;
       cells.push([y + r, x + c]);
     }
     // whatever he was holding on the piece is now part of the stack
@@ -868,7 +874,10 @@
     const cleared = [];
     for (let r = 0; r < ROWS; r++) if (S.board[r].every(v => v)) cleared.push(r);
     if (cleared.length) {
-      for (const r of cleared) { S.board.splice(r, 1); S.board.unshift(Array(COLS).fill(0)); }
+      for (const r of cleared) {
+        S.board.splice(r, 1); S.board.unshift(Array(COLS).fill(0));
+        S.ids.splice(r, 1); S.ids.unshift(Array(COLS).fill(0));
+      }
       if (C.state !== 'win' && C.state !== 'intro') {
         const below = cleared.filter(r => r * CELL >= C.y - 0.5).length;
         if (C.state === 'hang' || C.state === 'pull' || C.state === 'climb') {
@@ -1084,14 +1093,14 @@
     const interval = dropInterval();
     if (po && (waitRows * interval < 2.5 || !plan.move)) {
       const reachNow = need <= JUMP_H;
-      C.idleT = 0;
+      C.idleT = 0; C.trapT = 0; C.hammering = false;
       C.intent = { type: reachNow ? 'jump' : 'wait', x: po.sx, f: po.f, v: Math.sqrt(2 * G * Math.max(20, need + 6)), vx: po.f * 20, piece: true };
       return;
     }
     const m = plan.move;
     if (m) {
       const c = plan.col;
-      C.idleT = 0;
+      C.idleT = 0; C.trapT = 0; C.hammering = false;
       if (m.type === 'walk') C.intent = { type: 'go', x: colX(m.nc) };
       else {
         const edge = m.dir > 0 ? (c + 1) * CELL - HW - 3 : c * CELL + HW + 3;
@@ -1100,6 +1109,17 @@
       }
       return;
     }
+    // boxed in by blocks: after a moment, get the hammer out
+    const tgt = hammerTarget();
+    if (tgt) {
+      C.trapT = (C.trapT || 0) + 0.2;
+      if (C.trapT > 1.6) {
+        if (!C.hammering) { C.hammering = true; C.hammerT = 0; say(pick(SAY.hammer), 1.6); }
+        C.intent = { type: 'hammer', x: tgt.x, tr: tgt.r, tc: tgt.c, side: tgt.side };
+        return;
+      }
+    } else C.trapT = 0;
+    C.hammering = false;
     // nowhere higher to go right now: pace, look around, hop in frustration
     C.idleT = (C.idleT || 0) + 0.2;
     if (C.idleT > 3 && Math.random() < 0.12) {
@@ -1116,6 +1136,61 @@
       C.wanderX = span.length ? pick(span) : C.x;
     }
     if (C.sayT <= 0) { C.chatT -= 0.2; if (C.chatT <= 0) { C.chatT = 7 + Math.random() * 6; say(pick(S.cur ? SAY.wait : SAY.chat)); } }
+  }
+
+  // the block that has him boxed in: a ceiling just over his head, or a wall beside him
+  function hammerTarget() {
+    const C = S.climber;
+    const r = Math.round(C.y / CELL), c = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL)));
+    let roofed = false;
+    for (let k = r - 3; k >= 0; k--) if (solidB(k, c)) { roofed = true; break; }
+    if (!roofed) return null;                  // open sky above: he is not blocked in, just waiting
+    if (r - 3 >= 0 && solidB(r - 3, c) && S.board[r - 3][c]) return { r: r - 3, c, side: 0, x: colX(c) };
+    for (const d of [C.f || 1, -(C.f || 1)]) {
+      const nc = c + d;
+      for (const rr of [r - 1, r - 2]) {
+        if (nc >= 0 && nc < COLS && rr >= 0 && S.board[rr][nc]) return { r: rr, c: nc, side: d, x: d > 0 ? (c + 1) * CELL - HW - 3 : c * CELL + HW + 3 };
+      }
+    }
+    return null;
+  }
+  function addParts(x, y, color, n, power) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, v = power * (0.4 + Math.random() * 0.8);
+      S.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - power * 0.3, life: 0.5 + Math.random() * 0.5, s: 2 + Math.random() * 3, color });
+    }
+  }
+  function breakPiece(id) {
+    let n = 0;
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      if (S.ids[r][c] !== id) continue;
+      addParts(colX(c), r * CELL + CELL / 2, T.p[S.board[r][c]] || T.ink, 10, 160);
+      S.board[r][c] = 0; S.ids[r][c] = 0; n++;
+    }
+    delete S.cracks[id];
+    if (n) { S.shake = Math.min(12, S.shake + 5); sfx('crumble'); say(pick(SAY.smash), 1.5); }
+    const C = S.climber;
+    C.hammering = false; C.trapT = 0; C.intent = null; C.think = 0.1;
+  }
+  // one frame of hammering on the target block
+  function hammerTick(it, dt) {
+    const C = S.climber;
+    if (!S.board[it.tr] || !S.board[it.tr][it.tc]) { C.intent = null; C.think = 0; return; }
+    if (it.side) C.f = it.side;
+    const id = S.ids[it.tr][it.tc];
+    const before = C.hammerT % 0.42;
+    C.hammerT += dt;
+    if (C.hammerT % 0.42 < before) {
+      // the blow lands
+      const ix = it.side ? (it.side > 0 ? it.tc * CELL : (it.tc + 1) * CELL) : colX(it.tc);
+      const iy = it.side ? it.tr * CELL + CELL / 2 : (it.tr + 1) * CELL;
+      addParts(ix, iy, T.p[S.board[it.tr][it.tc]] || T.ink, 3, 70);
+      S.shake = Math.min(12, S.shake + 0.8);
+      sfx('tink');
+    }
+    if (!id) return;
+    S.cracks[id] = (S.cracks[id] || 0) + dt;
+    if (S.cracks[id] >= BREAK_AT) breakPiece(id);
   }
 
   // ---------- the climber: seeing a piece coming ----------
@@ -1308,6 +1383,7 @@
             const cf = it.col;
             if (solid(Math.floor((C.y - 1) / CELL), cf)) { C.f = it.f; C.climbCol = cf; C.state = 'climb'; C.vx = 0; }
           } else if (it.type === 'wait') C.f = it.f;
+          else if (it.type === 'hammer') hammerTick(it, dt);
         }
         // watchdog: if he is trying to go somewhere and not getting there, wander for a bit
         if (Math.abs(want) > 1 && (bumped || Math.abs(C.x - C.lastX) < 0.05)) C.stuckT += dt; else C.stuckT = 0;
@@ -1508,6 +1584,8 @@
         [523, 659, 784].slice(0, +name.slice(-1) + 1).forEach((f, i) => tone(f, f, 0.1, 'square', 0.05, i * 0.06)); break;
       case 'clear4': [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.14, 'square', 0.06, i * 0.07)); break;
       case 'jump': tone(300, 700, 0.12, 'square', 0.03); break;
+      case 'tink': tone(1600, 900, 0.06, 'square', 0.035); tone(180, 90, 0.06, 'triangle', 0.08); break;
+      case 'crumble': tone(220, 50, 0.45, 'sawtooth', 0.07); tone(120, 40, 0.35, 'triangle', 0.15); break;
       case 'fall': tone(1200, 180, 0.7, 'sine', 0.06); break;
       case 'bonk': tone(700, 160, 0.18, 'square', 0.07); tone(90, 40, 0.15, 'triangle', 0.15); break;
       case 'thud': tone(90, 40, 0.2, 'triangle', 0.18); break;
@@ -1575,7 +1653,11 @@
     ctx.stroke();
     for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
       const v = S.board[y][x];
-      if (v) drawCell(ctx, x * CELL, y * CELL, CELL, T.p[v], y * 31 + x);
+      if (!v) continue;
+      const prog = S.cracks[S.ids[y][x]] || 0;
+      const jig = prog > BREAK_AT - 2 ? (Math.random() - 0.5) * (prog - (BREAK_AT - 2)) : 0;
+      drawCell(ctx, x * CELL + jig, y * CELL, CELL, T.p[v], y * 31 + x);
+      if (prog >= CRACK_AT) drawCracks(x * CELL + jig, y * CELL, (prog - CRACK_AT) / (BREAK_AT - CRACK_AT), y * 31 + x);
     }
     if (S.cur && S.mode !== 'intro') {
       const { m, x } = S.cur;
@@ -1598,6 +1680,28 @@
       for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++)
         if (m[r][c] && S.cur.y + r >= 0) drawCell(ctx, (x + c) * CELL, (S.cur.y + r) * CELL, CELL, T.p[S.cur.t], r * 5 + c + 999);
     }
+  }
+
+  // hairline cracks that spread as the hammering goes on (k: 0 → 1)
+  function drawCracks(x, y, k, seed) {
+    ctx.save();
+    ctx.strokeStyle = T.ink; ctx.lineWidth = 1.1 + k * 0.6; ctx.lineCap = 'round';
+    const branches = 2 + Math.floor(k * 4);
+    const cx = x + CELL * (0.35 + hash(seed + 3) * 0.3), cy = y + CELL * (0.35 + hash(seed + 5) * 0.3);
+    ctx.beginPath();
+    for (let b = 0; b < branches; b++) {
+      let a = hash(seed + b * 11) * Math.PI * 2, px = cx, py = cy;
+      ctx.moveTo(px, py);
+      const segs = 2 + Math.floor(k * 2), len = (4 + k * 7) / segs * 2;
+      for (let i = 0; i < segs; i++) {
+        a += (hash(seed + b * 7 + i) - 0.5) * 1.2;
+        px = Math.max(x + 1, Math.min(x + CELL - 1, px + Math.cos(a) * len));
+        py = Math.max(y + 1, Math.min(y + CELL - 1, py + Math.sin(a) * len));
+        ctx.lineTo(px, py);
+      }
+    }
+    ctx.stroke();
+    ctx.restore();
   }
 
   // which motion to show, how far into it, and where its origin sits in the world
@@ -1672,6 +1776,25 @@
   function drawClimber(clock, dt) {
     if (fadeT > 0) fadeT = Math.max(0, fadeT - dt);
     const P = worldPose(clock);
+    const C = S.climber, it = C.intent;
+    const hammering = C.state === 'ground' && !C.alert && it && it.type === 'hammer';
+    let hammer = null;
+    if (hammering) {
+      // swing the hammer: slow wind-up, fast strike, small recoil
+      const f = it.side || P.f || 1, ph = (C.hammerT % 0.42) / 0.42;
+      const strike = it.side ? (f > 0 ? -0.15 : Math.PI + 0.15) : -Math.PI / 2 + 0.12 * f;
+      const wind = it.side ? (f > 0 ? -2.2 : Math.PI + 2.2) : -Math.PI / 2 - 1.7 * f;
+      const ease = u => u * u * (3 - 2 * u);
+      const a = ph < 0.62 ? strike + (wind - strike) * ease(ph / 0.62)
+              : ph < 0.76 ? wind + (strike - wind) * ((ph - 0.62) / 0.14)
+              : strike + (wind - strike) * 0.12 * Math.sin((ph - 0.76) / 0.24 * Math.PI);
+      const sx = P.neck[0], sy = P.neck[1] + 3;
+      P.rElbow = [sx + Math.cos(a - 0.3 * f) * 9, sy + Math.sin(a - 0.3 * f) * 9];
+      P.rHand = [P.rElbow[0] + Math.cos(a) * 9, P.rElbow[1] + Math.sin(a) * 9];
+      P.lElbow = [sx + 4 * f, sy + 6]; P.lHand = [sx + 7 * f, sy + 1];
+      P.face = 'strain';
+      hammer = { x: P.rHand[0], y: P.rHand[1], a };
+    }
     ctx.save();
     ctx.strokeStyle = T.ink; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     const sh = [P.neck[0], P.neck[1] + 3];
@@ -1682,6 +1805,16 @@
     ctx.moveTo(P.hip[0], P.hip[1]); ctx.lineTo(P.lKnee[0], P.lKnee[1]); ctx.lineTo(P.lFoot[0], P.lFoot[1]);
     ctx.moveTo(P.hip[0], P.hip[1]); ctx.lineTo(P.rKnee[0], P.rKnee[1]); ctx.lineTo(P.rFoot[0], P.rFoot[1]);
     ctx.stroke();
+    if (hammer) {
+      const { x, y, a } = hammer, ex = x + Math.cos(a) * 11, ey = y + Math.sin(a) * 11;
+      ctx.save();
+      ctx.lineWidth = 2.2; ctx.strokeStyle = T.ink;
+      ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * 2, y - Math.sin(a) * 2); ctx.lineTo(ex, ey); ctx.stroke();
+      ctx.translate(ex, ey); ctx.rotate(a);
+      ctx.fillStyle = T.muted; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.rect(-2.5, -6, 6, 12); ctx.fill(); ctx.stroke();
+      ctx.restore();
+    }
     const [hx, hy] = P.head;
     ctx.beginPath(); ctx.arc(hx, hy, 6.5, 0, Math.PI * 2);
     ctx.fillStyle = T.board; ctx.fill(); ctx.stroke();
@@ -1773,6 +1906,12 @@
     ctx.beginPath(); ctx.rect(-20, -TOP, BW + 40, H + 20); ctx.clip();
     drawBoard();
     const head = drawClimber(clock, dt);
+    for (const q of S.parts) {
+      ctx.globalAlpha = Math.max(0, Math.min(1, q.life * 2));
+      ctx.fillStyle = q.color; ctx.fillRect(q.x - q.s / 2, q.y - q.s / 2, q.s, q.s);
+      ctx.strokeStyle = T.ink; ctx.lineWidth = 0.6; ctx.strokeRect(q.x - q.s / 2, q.y - q.s / 2, q.s, q.s);
+    }
+    ctx.globalAlpha = 1;
     if (S.flash > 0) { ctx.globalAlpha = S.flash * 3; ctx.fillStyle = T.board; ctx.fillRect(0, 0, BW, BH); ctx.globalAlpha = 1; }
     ctx.restore();
     drawBubble(head);
@@ -1805,6 +1944,10 @@
       if (S.climber.sayT > 0 && S.mode !== 'intro') S.climber.sayT -= dt;
     }
     S.shake *= Math.exp(-dt * 9);
+    if (S.parts.length) {
+      for (const q of S.parts) { q.vy += 700 * dt; q.x += q.vx * dt; q.y += q.vy * dt; q.life -= dt; }
+      S.parts = S.parts.filter(q => q.life > 0 && q.y < BH + 20);
+    }
     if (S.flash > 0) S.flash -= dt;
     render(clock, dt);
     syncUI();
@@ -1817,6 +1960,7 @@
     S = newState();
     if (data && data.board && data.climber && 'vx' in data.climber) {
       S = Object.assign(newState(), data);
+      if (!S.ids) S.ids = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
       if (S.mode === 'play') S.mode = 'paused';
       if (S.mode === 'paused') showCard('Paused.', 'The page was updated. He is still hanging on.', 'Resume', false);
       else if (S.mode === 'over') overlay.hidden = false;
