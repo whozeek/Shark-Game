@@ -753,34 +753,48 @@ def card_overlay(im, t):
         txt = "More questions like this on"
         col = tuple(int(bg + (255 - bg) * ta) for bg in (18, 38, 30))
         d.text((W / 2, H * 0.16), txt, font=fnt, fill=col, anchor="mm")
-    # App Store badge slides up
-    b = ramp(t, CARD + 1.1, CARD + 1.6)
-    if b > 0.01:
-        bw, bh = int(W * 0.60), int(W * 0.60 * 0.30)
-        pulse = 1 + 0.035 * max(0, math.sin((t - CARD - 2.2) * 4)) * (t > CARD + 2.2)
-        bw2, bh2 = int(bw * pulse), int(bh * pulse)
-        badge = Image.new("RGBA", (bw2, bh2), (0, 0, 0, 0))
-        bd = ImageDraw.Draw(badge)
-        r = int(bh2 * 0.22)
-        bd.rounded_rectangle((0, 0, bw2 - 1, bh2 - 1), radius=r, fill=(0, 0, 0, 255),
-                             outline=(166, 166, 166, 255), width=max(2, bh2 // 60))
-        g = apple_glyph(int(bh2 * 0.62))
-        gx, gy = int(bh2 * 0.24), int(bh2 * 0.17)
-        badge.paste((255, 255, 255, 255), (gx, gy, gx + g.width, gy + g.height), g)
-        tx = gx + g.width + int(bh2 * 0.16)
-        bd.text((tx, int(bh2 * 0.33)), "Download on the", font=font(FONT_TITLE.replace("Black", "Bold") if False else "/usr/share/fonts/opentype/inter/Inter-SemiBold.otf", int(bh2 * 0.19)),
-                fill=(255, 255, 255, 255), anchor="lm")
-        bd.text((tx - int(bh2 * 0.02), int(bh2 * 0.64)), "App Store", font=font("/usr/share/fonts/opentype/inter/Inter-SemiBold.otf", int(bh2 * 0.40)),
-                fill=(255, 255, 255, 255), anchor="lm")
-        alpha = badge.getchannel("A").point(lambda v: int(v * b))
-        badge.putalpha(alpha)
-        y = int(H * 0.745 + (1 - b) * H * 0.04 - bh2 / 2)
-        im.paste(badge, ((W - bw2) // 2, y), badge)
+    # Official Apple "Download on the App Store" badge (Apple artwork, unmodified).
+    # Per Apple's guidelines: no animation of the badge itself (simple fade only),
+    # clear space of 1/4 badge height, subordinate to the logo, trademark credit line.
+    b = ramp(t, CARD + 1.1, CARD + 1.5)
+    if b > 0.01 and not SHOW_APP_STORE_BADGE:
+        cs = ramp(t, CARD + 1.1, CARD + 1.6)
+        col = tuple(int(15 + (v - 15) * cs) for v in (150, 215, 195))
+        d.text((W / 2, H * 0.74), "COMING SOON", font=font(FONT_CAP, int(W * 0.075)), fill=col, anchor="mm")
+    elif b > 0.01:
+        bh = int(W * 0.13)
+        badge = official_badge(bh)
+        bw = badge.width
+        cy = int(H * 0.735)
+        y = cy - bh // 2
+        a = badge.getchannel("A").point(lambda v: int(v * b))
+        bb = badge.copy()
+        bb.putalpha(a)
+        im.paste(bb, ((W - bw) // 2, y), bb)
         cfs = int(W * 0.045)
         ca = ramp(t, CARD + 1.5, CARD + 1.9)
         if ca > 0:
             col = tuple(int(15 + (v - 15) * ca) for v in (150, 215, 195))
-            d.text((W / 2, H * 0.745 + bh / 2 + H * 0.045), "COMING SOON", font=font(FONT_CAP, cfs), fill=col, anchor="mm")
+            d.text((W / 2, y + bh + bh * 0.25 + cfs * 0.9), "COMING SOON", font=font(FONT_CAP, cfs), fill=col, anchor="mm")
+        lf = font("/usr/share/fonts/opentype/inter/Inter-Regular.otf", int(W * 0.021))
+        legal = ["Apple and the Apple logo are trademarks of Apple Inc.,",
+                 "registered in the U.S. and other countries.",
+                 "App Store is a service mark of Apple Inc."]
+        lc = tuple(int(15 + (v - 15) * b) for v in (120, 150, 138))
+        for i, ln in enumerate(legal):
+            d.text((W / 2, H * 0.915 + i * W * 0.03), ln, font=lf, fill=lc, anchor="mm")
+
+
+# Turn on once the app is live on the App Store (Apple only allows the badge for available apps).
+SHOW_APP_STORE_BADGE = os.environ.get("SHOW_APP_STORE_BADGE") == "1"
+_badge = {}
+
+
+def official_badge(h):
+    if h not in _badge:
+        src = Image.open(f"{S_DIR}/badge/badge.png").convert("RGBA")
+        _badge[h] = src.resize((int(src.width * h / src.height), h), Image.LANCZOS)
+    return _badge[h]
 
 
 def setup():

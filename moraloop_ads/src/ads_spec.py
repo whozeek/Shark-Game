@@ -175,7 +175,7 @@ ADS = [
           cards=("Choose the evening most useful to students.", "Choose the evening most useful to care workers.")),
         S("Free public readings need the private study room during normal weekend hours. Open to everyone.",
           ["elder", "you"], "say", ["📖", "🚪"], "worried"),
-        M("Do you reserve the room for the free reading series, or keep it available for private study?",
+        M("Do you reserve the room for the free reading series, or keep the room available for private study?",
           cards=("Reserve the room for the free reading series.", "Keep the room available for private study.")),
     ], close=WWYD),
 
@@ -261,8 +261,7 @@ ADS = [
         S("Your best friend is in love.", ["friend", "you"], "say", ["😍", "💕"], "happy"),
         S("You see their partner kiss someone else. Your friend has no idea.", ["partner", "stranger", "you"], "say",
           ["💋"], "shock"),
-        M("Do you tell your friend or stay out of it?"),
-    ], close=WWYD),
+    ], close="Do you tell your friend or stay out of it?"),
 
     dict(id="28_the_gift", title="The Gift", beats=[
         S("Someone gives you a gift you don't like.", ["friend2", "you"], "give", ["🎁", "🧦"], "worried"),
@@ -415,3 +414,112 @@ ADS = [
         M("Do you push them?"),
     ], close=WWYD),
 ]
+
+# Setting for each story scene, in order (keeps every scene in a place that fits the dilemma)
+SETS = {
+    "01_your_brother": ["home"],
+    "02_the_school_garden": ["yard", "yard"],
+    "03_the_phone_swap": ["dinner", "dinner", "dinner"],
+    "04_the_ex_plus_one": ["home", "home", "home"],
+    "05_the_group_chat_relationship": ["gamenight", "gamenight", "home"],
+    "06_the_missing_deposit": ["moving", "moving", "moving"],
+    "07_the_wallet": ["street", "home_night"],
+    "08_the_resume": ["home"],
+    "09_the_message": ["home_night"],
+    "10_the_cover_story": ["cafe"],
+    "11_the_neighborhood_game": ["park", "park"],
+    "12_the_broken_gift": ["home", "dinner"],
+    "13_the_team_project": ["classroom", "classroom"],
+    "14_the_private_message": ["cafe", "park"],
+    "15_the_lost_wallet": ["street", "street"],
+    "16_the_community_meal": ["hall", "store"],
+    "17_the_night_reading_room": ["library", "library"],
+    "18_the_team_secret": ["field", "field"],
+    "19_the_lost_sketchbook": ["library", "park"],
+    "20_the_group_chat_photo": ["classroom", "yard"],
+    "21_the_birthday_plan": ["party", "party"],
+    "22_the_lie": ["classroom", "classroom"],
+    "23_the_promotion": ["office", "office"],
+    "24_another_chance": ["park", "park"],
+    "25_the_public_comment": ["street", "street"],
+    "26_the_honest_review": ["cafe", "home"],
+    "27_the_secret": ["park", "cafe"],
+    "28_the_gift": ["party"],
+    "29_the_unasked_advice": ["cafe"],
+    "30_the_one_left_out": ["classroom", "classroom"],
+    "31_the_rumor": ["yard", "yard"],
+    "32_reputation_or_feelings": ["home_night"],
+    "33_the_dropped_money": ["street"],
+    "34_who_do_you_help": ["street"],
+    "35_honesty_or_kindness": ["park"],
+    "36_the_old_online_post": ["home_night", "street"],
+    "37_too_much_change": ["store"],
+    "38_the_cheating_friend": ["classroom"],
+    "39_the_group_chat": ["home_night"],
+    "40_the_found_wallet": ["park"],
+    "41_every_unfiltered_thought": ["home"],
+    "42_micro_cheating": ["home_night"],
+    "43_the_faithful_clone": ["home", "home"],
+    "44_honesty_or_confidence": ["home"],
+    "45_your_dream_or_your_family": ["home", "home"],
+    "46_returned_damaged": ["home", "home"],
+    "47_the_group_project": ["classroom", "classroom"],
+    "48_one_friend_or_five_strangers": ["fire"],
+    "49_the_trolley_lever": ["tracks"],
+    "50_one_place_left": ["sea", "sea"],
+    "51_the_urgent_call": ["home_night", "home_night"],
+    "52_the_broken_lever": ["tracks", "tracks"],
+}
+for _ad in ADS:
+    _scenes = [b for b in _ad["beats"] if b[0] == "scene"]
+    assert len(_scenes) == len(SETS[_ad["id"]]), _ad["id"]
+    for _b, _s in zip(_scenes, SETS[_ad["id"]]):
+        _b[2].setdefault("set", _s)
+
+# Fixes from the AI review pass (scene index = order among scene beats)
+REVIEW_FIXES = {
+    '03_the_phone_swap': [[1, "chars", ["partner", "you"]], [1, "others", "neutral"]],
+    '05_the_group_chat_relationship': [[0, "chars", ["friend", "partner", "you"]], [0, "icons", ["🎲", "🗣️", "💢"]]],
+    '07_the_wallet': [[1, "react", "worried"]],
+    '08_the_resume': [[0, "icons", ["📄", "🤥", "💼", "🏠"]]],
+    '11_the_neighborhood_game': [[1, "chars", ["stranger", "you", "kid"]], [1, "others", "worried"]],
+    '12_the_broken_gift': [[1, "icons", ["🤨", "👉", "🍽️"]]],
+    '13_the_team_project': [[1, "chars", ["friend2", "you"]]],
+    '15_the_lost_wallet': [[0, "icons", ["👛", "💵", "🪪"]]],
+    '16_the_community_meal': [[0, "chars", ["friend2", "you", "friend"]]],
+    '17_the_night_reading_room': [[0, "chars", ["kid", "you", "coworker"]]],
+    '18_the_team_secret': [[1, "chars", ["kid", "you", "teammate"]]],
+    '20_the_group_chat_photo': [[0, "icons", ["📱", "📸", "😳"]]],
+    '21_the_birthday_plan': [[0, "set", "home"], [1, "set", "home"]],
+    '22_the_lie': [[1, "chars", ["elder", "you", "friend"]]],
+    '27_the_secret': [[1, "act", "react"], [1, "icons", ["💋", "🤫"]], [1, "others", "happy"]],
+    '29_the_unasked_advice': [[0, "icons", ["🤩", "🕳️"]], [0, "spk_smile", 0.8]],
+    '30_the_one_left_out': [[0, "chars", ["friend", "stranger", "you"]], [0, "act", "react"], [0, "icons", ["👥", "🚫", "🧍"]], [0, "react", "worried"], [1, "react", "worried"]],
+    '31_the_rumor': [[1, "chars", ["friend2", "you"]], [1, "act", "react"], [1, "icons", ["🔍", "🗣️"]], [1, "react", "angry"], [1, "others", "worried"]],
+    '32_reputation_or_feelings': [[0, "react", "worried"]],
+    '35_honesty_or_kindness': [[0, "react", "think"]],
+    '36_the_old_online_post': [[0, "icons", ["📱", "🤬", "😇"]]],
+    '38_the_cheating_friend': [[0, "act", "react"], [0, "icons", ["👀", "📝", "🤫"]], [0, "others", "smug"]],
+    '42_micro_cheating': [[0, "chars", ["partner", "you"]], [0, "others", "worried"], [0, "icons", ["📱", "💔", "❤️", "💬"]]],
+    '47_the_group_project': [[1, "chars", ["friend", "teammate", "you"]], [1, "icons", ["👉", "😴", "🤐"]], [1, "react", "think"], [1, "others", "neutral"]],
+    '48_one_friend_or_five_strangers': [[0, "icons", ["🫂", "⚖️", "5️⃣", "👥"]]],
+    '49_the_trolley_lever': [[0, "icons", ["🚋", "👵", "🔀", "👶"]]],
+    '51_the_urgent_call': [[0, "icons", ["📱", "📞", "❤️", "💵"]]],
+    '52_the_broken_lever': [[0, "icons", ["🚆", "5️⃣", "👥", "❌"]], [1, "icons", ["✋", "🛑", "🚆"]], [1, "others", "neutral"]],
+}
+for _ad in ADS:
+    _scenes = [b for b in _ad["beats"] if b[0] == "scene"]
+    for _i, _field, _value in REVIEW_FIXES.get(_ad["id"], []):
+        _scenes[_i][2][_field] = _value
+
+REVIEW_FIXES_2 = {
+    "42_micro_cheating": [(0, "icons", ["📱", "👍", "💬", "❤️"])],
+    "47_the_group_project": [(1, "chars", ["teammate", "you"])],
+    "49_the_trolley_lever": [(0, "icons", ["🚋", "👵", "👶"])],
+    "52_the_broken_lever": [(0, "icons", ["🚆", "👥", "❌"])],
+    "20_the_group_chat_photo": [(1, "chars", ["friend", "you", "friend2"]), (1, "icons", ["😂", "❓", "🤫"]), (1, "others", "worried")],
+}
+for _ad in ADS:
+    _scenes = [b for b in _ad["beats"] if b[0] == "scene"]
+    for _i, _field, _value in REVIEW_FIXES_2.get(_ad["id"], []):
+        _scenes[_i][2][_field] = _value

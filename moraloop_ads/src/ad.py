@@ -586,12 +586,12 @@ def scene_story(t, seg):
     wall_i = sc.get("wall", seg.get("idx", 0)) % len(WALLS)
     if act == "think":
         cx = xs[you] * 0.6 + 40
-        cam = (cx, -480, lerp(900, 820, u))
+        cam = (cx, -540, lerp(1080, 990, u))
     else:
-        cam = (0, -420 if n < 3 else -460, lerp(960, 860, u) if n < 3 else lerp(1300, 1200, u))
+        cam = (0, -520 if n < 3 else -540, lerp(1240, 1140, u) if n < 3 else lerp(1360, 1260, u))
     F = Frame(t, cam)
-    room_bg(F, WALLS[wall_i])
-    room_props(F, t, wall_i)
+    import sets
+    sets.draw_set(F, t, sc.get("set", "home"), WALLS[wall_i], emoji)
     rk = ramp(t, ut(at), ut(at) + 0.25)
     heads = {}
     for i, cid in enumerate(chars):
@@ -888,7 +888,7 @@ def load(ad_id):
     spec = next(a for a in ads_spec.ADS if a["id"] == ad_id)
     AD = build(spec)
     for i, s in enumerate(AD.segs):
-        s["idx"] = i + sum(ord(ch) for ch in ad_id)
+        s["idx"] = sum(ord(ch) for ch in ad_id)  # one consistent look per ad
     clay.CARD = AD.CARD
     clay.DUR = AD.DUR
     clay.DURS = []
