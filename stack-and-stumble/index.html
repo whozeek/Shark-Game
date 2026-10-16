@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Patrick+Hand&display=swap">
 <style>
-  /* Layout: a notebook-margin arcade. Hold + stats | the well with the climbing wall bolted to its right edge | next + altitude. Phones stack the side panels into one row and add a thumb pad. */
+  /* Layout: a notebook-margin arcade. Hold + stats | the well (he climbs inside it) with a height ruler | next + altitude. Phones stack the side panels into one row and add a thumb pad. */
   :root {
     --paper: #e9eff5;      /* graph paper */
     --board: #f7fafc;
@@ -40,6 +40,7 @@
     --p-Z: #f497ae; --p-J: #8db0e6; --p-L: #f7b582;
     color-scheme: dark;
   }
+  [hidden] { display: none !important; }
   html, body { height: 100%; }
   body {
     background: var(--paper);
@@ -132,7 +133,7 @@
 <div class="app">
   <header>
     <h1>Stack <span>&amp;</span> Stumble</h1>
-    <div class="tag">Every piece you land shakes the wall. Keep him off the summit.</div>
+    <div class="tag">He climbs your blocks. Every piece you land shakes him loose.</div>
   </header>
   <div class="stage">
     <aside class="side left">
@@ -145,13 +146,13 @@
       </div>
     </aside>
     <div class="well" id="well">
-      <canvas id="game" aria-label="Game board and climbing wall"></canvas>
+      <canvas id="game" aria-label="Game board with the climber on the stack"></canvas>
       <div class="overlay" id="overlay">
         <div class="card">
-          <h2 id="ovTitle">He wants the summit.</h2>
-          <p id="ovText">A stick figure is climbing the wall beside your well. Every piece you land shakes it. Hard drops shake harder, and cleared lines knock him loose. If he reaches the flag, you lose.</p>
+          <h2 id="ovTitle">He wants out.</h2>
+          <p id="ovText">A stick figure is climbing out of your well. He walks across your pieces, scales their sides and the walls, and rests on top of your stack. Every piece you land shakes him, landing one on his head knocks him flying, and cleared lines pull the floor out from under him. If he climbs out the top, you lose.</p>
           <div class="keys" id="ovKeys">← → move · ↑ / X rotate · Z rotate back<br>↓ soft drop · Space hard drop<br>C hold · P pause</div>
-          <button id="ovBtn" type="button">Start climbing season</button>
+          <button id="ovBtn" type="button">Let him climb</button>
         </div>
       </div>
     </div>
@@ -179,8 +180,10 @@
 (() => {
   // ---------- constants ----------
   const COLS = 10, ROWS = 20, CELL = 28;
-  const BW = COLS * CELL, WALLW = 104, W = BW + WALLW, H = ROWS * CELL;
-  const GROUND = H - 8, SUMMIT = 44;          // feet y-range for the climber
+  const BW = COLS * CELL, RULER = 30, TOP = 46;
+  const W = BW + RULER, BH = ROWS * CELL, H = TOP + BH;
+  const BODY = 42;                       // climber height in px (a cell and a half)
+  const WALK = 40;                       // px per second
   const SHAPES = {
     I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
     O: [[1,1],[1,1]],
@@ -192,16 +195,18 @@
   };
   const TYPES = 'IOTSZJL';
   const LINE_SCORE = [0, 100, 300, 500, 800];
-  const LINE_KNOCK = [0, 0.045, 0.095, 0.16, 0.30];
 
   const SAY = {
-    start: ['Here I go!', 'Summit or bust.', 'Easy climb.'],
-    chat: ['Nice view up here.', 'Just keep moving.', "You can't stop me!", 'One hold at a time.', 'Hmm hm hmm…'],
-    near: ['I can see the flag!', 'Almost there!', 'So close…'],
+    start: ['Here I go!', 'Nice blocks. Thanks!', 'Up we go.'],
+    chat: ['Just keep moving.', "You can't stop me!", 'One block at a time.', 'Hmm hm hmm…', 'Great stairs.'],
+    near: ['I can see the sky!', 'Almost out!', 'So close…'],
+    climb: ['Ooh, a ledge.', 'Hup!', 'Up and over.'],
     small: ['Hey!', 'Whoa—', 'Easy!', 'Rude.', 'Hng!'],
     big: ['AAAAH!', 'Not again!', 'Seriously?!', 'Noooo—'],
-    grab: ['Got it!', 'Phew.', 'Still here.'],
-    ground: ['Ow.', 'Back to the start…', 'My everything.', '…ow.'],
+    bonk: ['OOF!', 'My head!', 'BONK.', 'Ow ow ow!'],
+    blocked: ['Blocked.', 'Hmm, no way up.', 'Other way then.'],
+    grab: ['Phew.', 'Still here.', 'Landed it.'],
+    ground: ['Ow.', 'Back to the bottom…', 'My everything.', '…ow.'],
     up: ['Okay. Again.', 'Round two.', "I'm not giving up."],
   };
   const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -230,19 +235,15 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(readTokens);
 
   // ---------- sizing ----------
-  let scale = 1;
-  function fitCanvas(c, cssW, cssH, lw, lh) {
-    const dpr = window.devicePixelRatio || 1;
-    c.style.width = cssW + 'px'; c.style.height = cssH + 'px';
-    c.width = Math.round(cssW * dpr); c.height = Math.round(cssH * dpr);
-    c.getContext('2d').setTransform(c.width / lw, 0, 0, c.height / lh, 0, 0);
-  }
   function fit() {
     const r = well.getBoundingClientRect();
     const availW = Math.max(160, r.width - 4), availH = Math.max(240, r.height - 4);
-    scale = Math.min(availW / W, availH / H, 1.35);
-    fitCanvas(canvas, Math.floor(W * scale), Math.floor(H * scale), W, H);
+    const scale = Math.min(availW / W, availH / H, 1.35);
     const dpr = window.devicePixelRatio || 1;
+    const cssW = Math.floor(W * scale), cssH = Math.floor(H * scale);
+    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+    canvas.width = Math.round(cssW * dpr); canvas.height = Math.round(cssH * dpr);
+    ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
     for (const c of [holdC, nextC]) {
       const cw = c.clientWidth || 88, ch = c.clientHeight || 64;
       c.width = Math.round(cw * dpr); c.height = Math.round(ch * dpr);
@@ -254,9 +255,12 @@
 
   // ---------- state ----------
   let S;
+  const colX = c => c * CELL + CELL / 2;
+  const hugX = (c, side) => colX(c) + side * (CELL / 2 - 11);
   function freshClimber() {
-    return { h: 0, target: 0, state: 'climb', vy: 0, rot: 0, spin: 0, t: 0, phase: 0, grit: 0,
-             sayText: '', sayT: 0, chatT: 7, stumbleT: 0, dazedT: 0, winT: 0, maxH: 0 };
+    return { c: 4, x: colX(4), feetY: BH, state: 'idle', dir: 0, side: 1, vy: 0, rot: 0, spin: 0,
+             t: 0, phase: 0, grit: 0, pauseT: 0, slipLeft: 0, dazedT: 0, winT: 0, fallStart: BH,
+             bonked: false, lastBlocked: 0, sayText: '', sayT: 0, chatT: 7, peak: 0 };
   }
   function newState() {
     return {
@@ -269,6 +273,13 @@
   }
   let best = 0;
   try { best = +localStorage.getItem('stack-stumble-best') || 0; } catch (e) {}
+
+  // walls and floor count as solid, so he can climb the sides of the well and stand on the bottom
+  function filled(r, c) {
+    if (c < 0 || c >= COLS || r >= ROWS) return true;
+    if (r < 0) return false;
+    return !!S.board[r][c];
+  }
 
   // ---------- pieces ----------
   const clone = m => m.map(r => r.slice());
@@ -344,25 +355,39 @@
   function lock(hard, dist) {
     const { m, x, y, t } = S.cur;
     let over = false;
+    const cells = [];
     for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++) {
       if (!m[r][c]) continue;
       if (y + r < 0) { over = true; continue; }
       S.board[y + r][x + c] = t;
+      cells.push([y + r, x + c]);
     }
-    // clear lines
-    let cleared = 0;
-    for (let r = ROWS - 1; r >= 0; r--) {
-      if (S.board[r].every(v => v)) { S.board.splice(r, 1); S.board.unshift(Array(COLS).fill(0)); cleared++; r++; }
+    const C = S.climber;
+    // a piece landed on him
+    const bonked = C.state !== 'win' && bodyBlocked();
+    if (bonked) bonk();
+
+    // clear lines; anything resting on a cleared row (him included) drops with it
+    const clearedRows = [];
+    for (let r = 0; r < ROWS; r++) if (S.board[r].every(v => v)) clearedRows.push(r);
+    if (clearedRows.length) {
+      const standRow = Math.ceil(C.feetY / CELL - 1e-6);
+      const below = clearedRows.filter(r => r >= standRow).length;
+      for (const r of clearedRows) { S.board.splice(r, 1); S.board.unshift(Array(COLS).fill(0)); }
+      if (C.state !== 'win' && C.state !== 'idle') {
+        C.feetY = Math.min(BH, C.feetY + below * CELL);
+        if (bodyBlocked()) bonk();
+      }
+      S.flash = 0.18;
     }
+    const cleared = clearedRows.length;
     S.score += LINE_SCORE[cleared] * S.level;
     S.lines += cleared;
     S.level = 1 + Math.floor(S.lines / 10);
-    if (cleared) S.flash = 0.18;
 
-    // the wall shakes
-    const amt = 0.008 + (hard ? 0.0011 * dist : 0) + LINE_KNOCK[cleared];
+    // the stack shakes
     S.shake = Math.min(12, S.shake + 1.5 + (hard ? dist * 0.3 : 0) + cleared * 3);
-    knock(amt, cleared);
+    if (!bonked) knock(cells, hard, dist, cleared);
     sfx(cleared ? 'clear' + cleared : (hard ? 'slam' : 'lock'));
 
     S.canHold = true;
@@ -372,21 +397,90 @@
 
   // ---------- the climber ----------
   function say(text, dur = 1.9) { const C = S.climber; C.sayText = text; C.sayT = dur; }
-  function knock(amt, cleared) {
+  function bodyRows(feetY) { return [Math.floor((feetY - BODY) / CELL), Math.floor((feetY - 1) / CELL)]; }
+  function bodyBlocked(c = S.climber.c, feetY = S.climber.feetY) {
+    const [r0, r1] = bodyRows(feetY);
+    for (let r = Math.max(0, r0); r <= Math.min(ROWS - 1, r1); r++) if (S.board[r][c]) return true;
+    return false;
+  }
+  function startFall(spin = 0) {
     const C = S.climber;
-    if (C.state === 'win') return;
+    if (C.state !== 'fall') { C.fallStart = C.feetY; C.vy = 30; }
+    C.state = 'fall'; C.spin = spin;
+  }
+  function bonk() {
+    const C = S.climber;
     C.grit = 0;
-    const base = (C.state === 'fall' || C.state === 'stumble') ? C.target : C.h;
-    C.target = Math.max(0, base - amt);
-    if (C.state === 'dazed') { C.dazedT = Math.min(2.5, C.dazedT + 0.25); return; }
-    if (amt >= 0.06 || C.state === 'fall') {
-      if (C.state !== 'fall') { C.vy = 0.12; sfx('fall'); }
-      C.state = 'fall';
-      C.spin = (Math.random() < 0.5 ? -1 : 1) * (5 + amt * 25);
-      say(cleared === 4 ? 'WHY?!' : pick(SAY.big), 1.6);
+    let moved = false;
+    for (const dc of [-1, 1, -2, 2]) {
+      const nc = C.c + dc;
+      if (nc >= 0 && nc < COLS && !bodyBlocked(nc, C.feetY)) { C.c = nc; moved = true; break; }
+    }
+    if (!moved) {
+      // no room beside him: he pops out on top of whatever buried him
+      let r = 0; while (r < ROWS && !S.board[r][C.c]) r++;
+      C.feetY = r * CELL;
+    }
+    C.bonked = true;
+    startFall((Math.random() < 0.5 ? -1 : 1) * 9);
+    C.vy = 120;
+    say(pick(SAY.bonk), 1.6);
+    sfx('bonk');
+  }
+  function knock(cells, hard, dist, cleared) {
+    const C = S.climber;
+    if (C.state === 'win' || C.state === 'idle') return;
+    C.grit = 0;
+    const fr = Math.round(C.feetY / CELL);
+    const near = cells.some(([r, c]) => Math.abs(c - C.c) <= 2 && Math.abs(r - fr) <= 4);
+    const slip = (5 + (hard ? 1.0 * dist : 0)) * (near ? 1.8 : 1);
+    const onWall = C.state === 'climb' || C.state === 'slip';
+    if (C.state === 'dazed') { C.dazedT = Math.min(2.5, C.dazedT + 0.2); return; }
+    if (cleared && onWall) {
+      startFall((Math.random() < 0.5 ? -1 : 1) * 7);
+      say(cleared === 4 ? 'WHY?!' : pick(SAY.big), 1.6); sfx('fall');
+    } else if (onWall) {
+      if (slip >= 24) { startFall((Math.random() < 0.5 ? -1 : 1) * 6); say(pick(SAY.big), 1.5); sfx('fall'); }
+      else { C.state = 'slip'; C.slipLeft = (C.slipLeft || 0) + slip; if (Math.random() < 0.3) say(pick(SAY.small), 1.2); }
+    } else if (C.state === 'walk') {
+      if (cleared || (near && hard)) { C.pauseT = 0.6; if (Math.random() < 0.5) say(cleared === 4 ? 'WHY?!' : pick(SAY.small), 1.2); }
+      else C.pauseT = Math.max(C.pauseT, 0.2);
+    }
+  }
+  // move his feet down by dy, stopping on the first surface below him
+  function descend(dy) {
+    const C = S.climber, prev = C.feetY, ny = prev + dy;
+    for (let r = Math.max(0, Math.ceil(prev / CELL - 1e-6)); r * CELL <= ny; r++) {
+      if (filled(r, C.c)) { C.feetY = r * CELL; return true; }
+    }
+    C.feetY = ny;
+    return false;
+  }
+  // pick the direction with the nearest wall or block face to climb, avoiding drops
+  function decide() {
+    const C = S.climber, r = Math.round(C.feetY / CELL);
+    const cost = d => {
+      let nc = C.c + d, steps = 0;
+      for (;;) {
+        if (filled(r - 1, nc)) return steps;
+        if (filled(r - 2, nc)) return 99;
+        if (!filled(r, nc)) return 40 + steps;
+        nc += d; steps++;
+      }
+    };
+    const a = cost(-1) + (C.lastBlocked === -1 ? 30 : 0), b = cost(1) + (C.lastBlocked === 1 ? 30 : 0);
+    C.dir = a < b ? -1 : b < a ? 1 : (Math.random() < 0.5 ? -1 : 1);
+  }
+  function land() {
+    const C = S.climber;
+    const drop = C.feetY - C.fallStart;
+    C.vy = 0; C.rot = 0; C.spin = 0; C.dir = 0;
+    if (C.bonked || drop > 3.5 * CELL) {
+      C.state = 'dazed'; C.dazedT = C.bonked ? 1.6 : 1.3; C.bonked = false;
+      say(C.feetY >= BH - 1 ? pick(SAY.ground) : pick(SAY.small), 1.6); sfx('thud');
     } else {
-      C.state = 'stumble'; C.stumbleT = 0.45;
-      if (Math.random() < 0.3) say(pick(SAY.small), 1.2);
+      C.state = 'walk'; C.pauseT = 0.3;
+      if (drop > CELL && Math.random() < 0.4) say(pick(SAY.grab), 1.2);
     }
   }
   function updateClimber(dt) {
@@ -394,53 +488,91 @@
     C.t += dt;
     if (C.sayT > 0) C.sayT -= dt;
     switch (C.state) {
-      case 'climb': {
-        C.grit = Math.min(0.012, C.grit + dt * 0.0004);
-        const rate = 0.009 + 0.0022 * (S.level - 1) + C.grit;
-        C.h += rate * dt;
-        C.phase += dt * (5 + rate * 200);
-        C.target = C.h;
-        C.chatT -= dt;
-        if (C.chatT <= 0) { C.chatT = 8 + Math.random() * 6; if (C.sayT <= 0) say(C.h > 0.72 ? pick(SAY.near) : pick(SAY.chat)); }
-        if (C.h >= 1) { C.h = 1; C.state = 'win'; C.winT = 0; say('MADE IT!', 3); sfx('win'); }
+      case 'walk': {
+        if (C.pauseT > 0) { C.pauseT -= dt; break; }
+        const r = Math.round(C.feetY / CELL);
+        C.feetY = r * CELL;
+        if (!filled(r, C.c)) { startFall(); break; }
+        if (!C.dir) decide();
+        const d = C.dir, nc = C.c + d;
+        if (filled(r - 1, nc)) {
+          // a wall or block face: walk up to it and start climbing
+          const hx = hugX(C.c, d), gap = hx - C.x;
+          if (Math.abs(gap) < 0.5) { C.x = hx; C.state = 'climb'; C.side = d; if (Math.random() < 0.15) say(pick(SAY.climb), 1.1); }
+          else { C.x += Math.sign(gap) * Math.min(Math.abs(gap), WALK * dt); C.phase += dt * 10; }
+        } else if (filled(r - 2, nc)) {
+          C.lastBlocked = d; C.dir = -d; C.pauseT = 0.4;
+          if (Math.random() < 0.4) say(pick(SAY.blocked), 1.2);
+        } else {
+          C.x += d * WALK * dt; C.phase += dt * 10;
+          const col = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL)));
+          if (col !== C.c) { C.c = col; if (!filled(r, C.c)) startFall(); }
+        }
         break;
       }
-      case 'stumble':
-        C.stumbleT -= dt;
-        C.h += (C.target - C.h) * Math.min(1, dt * 9);
-        if (C.stumbleT <= 0) { C.h = C.target; C.state = 'climb'; }
-        break;
-      case 'fall':
-        C.vy += 1.5 * dt;
-        C.h -= C.vy * dt;
-        C.rot += C.spin * dt;
-        if (C.h <= C.target) {
-          C.h = C.target; C.vy = 0; C.rot = 0;
-          if (C.target <= 0.0001) { C.h = 0; C.state = 'dazed'; C.dazedT = 1.7; say(pick(SAY.ground), 1.7); sfx('thud'); }
-          else { C.state = 'climb'; if (Math.random() < 0.45) say(pick(SAY.grab), 1.2); }
+      case 'climb': {
+        const d = C.side, nc = C.c + d;
+        C.x += (hugX(C.c, d) - C.x) * Math.min(1, dt * 10);
+        C.grit = Math.min(6, C.grit + dt * 0.25);
+        const sp = 7 + 1.5 * (S.level - 1) + C.grit;
+        C.feetY -= sp * dt;
+        C.phase += dt * (4 + sp * 0.4);
+        if (C.feetY <= 0) { C.feetY = 0; C.state = 'win'; C.winT = 0; say('I’M OUT!', 3); sfx('win'); break; }
+        const headRow = Math.floor((C.feetY - BODY) / CELL);
+        if (headRow >= 0 && filled(headRow, C.c)) {
+          // an overhang above his head: let go and try the other way
+          C.feetY = (headRow + 1) * CELL + BODY;
+          C.lastBlocked = d; startFall();
+          if (Math.random() < 0.5) say(pick(SAY.blocked), 1.2);
+          break;
         }
+        const fr = Math.floor((C.feetY - 1) / CELL);
+        if (!filled(fr, nc)) {
+          // the face ended: mantle onto the top of it
+          C.c = nc; C.feetY = (fr + 1) * CELL; C.x = colX(nc) - d * CELL * 0.3;
+          C.state = 'walk'; C.dir = 0; C.pauseT = 0.15; C.lastBlocked = 0;
+        }
+        if (C.sayT <= 0) {
+          C.chatT -= dt;
+          if (C.chatT <= 0) { C.chatT = 8 + Math.random() * 6; say(C.feetY < BH * 0.3 ? pick(SAY.near) : pick(SAY.chat)); }
+        }
+        break;
+      }
+      case 'slip': {
+        const m = Math.min(C.slipLeft, 150 * dt);
+        C.slipLeft -= m;
+        if (descend(m)) { C.slipLeft = 0; C.state = 'walk'; C.dir = 0; C.pauseT = 0.3; break; }
+        if (C.slipLeft <= 0) C.state = 'climb';
+        break;
+      }
+      case 'fall':
+        C.vy += 900 * dt;
+        C.rot += C.spin * dt;
+        C.x += (colX(C.c) - C.x) * Math.min(1, dt * 4);
+        if (descend(C.vy * dt)) land();
         break;
       case 'dazed':
         C.dazedT -= dt;
-        if (C.dazedT <= 0) { C.state = 'climb'; say(pick(SAY.up), 1.5); }
+        if (C.dazedT <= 0) { C.state = 'walk'; C.dir = 0; if (C.feetY >= BH - 1) say(pick(SAY.up), 1.5); }
         break;
       case 'win':
         C.winT += dt;
         if (C.winT > 2.2 && S.mode === 'play') gameOver('win');
         break;
     }
-    C.maxH = Math.max(C.maxH, C.h);
+    C.peak = Math.max(C.peak, altitude());
   }
+  const altitude = () => Math.max(0, Math.min(100, Math.round((1 - S.climber.feetY / BH) * 100)));
 
   // ---------- game flow ----------
   function startGame() {
     S = newState();
     S.mode = 'play';
+    S.climber.state = 'walk';
     refill(); spawn();
     say(pick(SAY.start), 1.8);
     overlay.hidden = true;
     initAudio();
-    canvas.focus?.();
   }
   function setPaused(p) {
     if (S.mode === 'intro' || S.mode === 'over') return;
@@ -455,11 +587,11 @@
     if (S.score > best) { best = S.score; try { localStorage.setItem('stack-stumble-best', best); } catch (e) {} }
     const mins = Math.floor(S.time / 60), secs = String(Math.floor(S.time % 60)).padStart(2, '0');
     if (kind === 'win') {
-      showCard('He made it to the top.', `He planted his flag after ${mins}:${secs}. Your score: ${S.score.toLocaleString()}. Land pieces faster and clear more lines to keep him down.`, 'Try again', false);
+      showCard('He climbed out of the well.', `It took him ${mins}:${secs}. Your score: ${S.score.toLocaleString()}. Land pieces near him, drop them on his head, and clear lines to keep him down.`, 'Try again', false);
     } else {
       sfx('over');
-      const peak = Math.round(S.climber.maxH * 100);
-      const how = peak < 5 ? 'He never got off the ground' : `He never reached the summit (his best was ${peak} m)`;
+      const peak = S.climber.peak;
+      const how = peak < 5 ? 'He never got off the floor' : `He never got out (his best was ${peak} m)`;
       showCard('Your stack hit the ceiling.', `${how}, but your tower toppled anyway. Score: ${S.score.toLocaleString()}.`, 'Try again', false);
     }
     $('pauseBtn').textContent = 'Pause';
@@ -477,12 +609,11 @@
   $('pauseBtn').addEventListener('click', e => { setPaused(S.mode === 'play'); e.currentTarget.blur(); });
 
   // ---------- input ----------
-  const held = {};           // action -> {t, repeatT}
+  const held = {};
   const DAS = 0.16, ARR = 0.05, SOFT = 0.035;
   function press(act) {
     initAudio();
-    if (S.mode !== 'play') return;
-    if (S.climber.state === 'win') return;
+    if (S.mode !== 'play' || S.climber.state === 'win') return;
     switch (act) {
       case 'left': move(-1); held.left = { t: 0, r: 0 }; delete held.right; break;
       case 'right': move(1); held.right = { t: 0, r: 0 }; delete held.left; break;
@@ -506,7 +637,7 @@
                    KeyZ: 'ccw', Space: 'hard', KeyC: 'hold', ShiftLeft: 'hold', ShiftRight: 'hold' };
   window.addEventListener('keydown', e => {
     if (e.code === 'KeyP' || e.code === 'Escape') { e.preventDefault(); setPaused(S.mode === 'play'); return; }
-    if ((e.code === 'Enter') && (S.mode === 'intro' || S.mode === 'over')) { e.preventDefault(); startGame(); return; }
+    if (e.code === 'Enter' && (S.mode === 'intro' || S.mode === 'over')) { e.preventDefault(); startGame(); return; }
     const act = KEYMAP[e.code];
     if (!act) return;
     e.preventDefault();
@@ -553,6 +684,7 @@
         [523, 659, 784].slice(0, +name.slice(-1) + 1).forEach((f, i) => tone(f, f, 0.1, 'square', 0.05, i * 0.06)); break;
       case 'clear4': [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.14, 'square', 0.06, i * 0.07)); break;
       case 'fall': tone(1200, 180, 0.7, 'sine', 0.06); break;
+      case 'bonk': tone(700, 160, 0.18, 'square', 0.07); tone(90, 40, 0.15, 'triangle', 0.15); break;
       case 'thud': tone(90, 40, 0.2, 'triangle', 0.18); break;
       case 'win': [392, 523, 659, 784].forEach((f, i) => tone(f, f, 0.18, 'triangle', 0.08, i * 0.12)); break;
       case 'over': [330, 262, 196].forEach((f, i) => tone(f, f * 0.98, 0.22, 'triangle', 0.08, i * 0.16)); break;
@@ -571,23 +703,52 @@
     c.moveTo(x + 1.5, y + 1.5 + k * 0.5); c.lineTo(x + size - 1.5, y + 1.5);
     c.lineTo(x + size - 1.5 + j * 0.4, y + size - 1.5); c.lineTo(x + 1.5, y + size - 1.5 + j * 0.4);
     c.closePath(); c.stroke();
-    // marker streak
     c.globalAlpha = alpha * 0.28; c.strokeStyle = T.board;
     c.beginPath(); c.moveTo(x + size * 0.25, y + size * 0.72); c.lineTo(x + size * 0.7, y + size * 0.27); c.stroke();
     c.globalAlpha = 1;
   }
 
-  const HOLDS = Array.from({ length: 34 }, (_, i) => ({
-    x: BW + 12 + hash(i * 3.1) * (WALLW - 40),
-    y: 60 + hash(i * 5.7) * (GROUND - 70),
-    r: 2.5 + hash(i * 9.3) * 3.5,
-  }));
+  function drawSky(t) {
+    // open air above the well, with the rim he is trying to reach
+    ctx.fillStyle = T.paper; ctx.fillRect(0, 0, W, TOP);
+    ctx.strokeStyle = T.ink; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(0, TOP - 1); ctx.lineTo(W, TOP - 1); ctx.stroke();
+    const fx = BW + 14;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(fx, TOP - 2); ctx.lineTo(fx, TOP - 34); ctx.stroke();
+    const wave = Math.sin(t * 4) * 3;
+    ctx.fillStyle = T.accent;
+    ctx.beginPath(); ctx.moveTo(fx, TOP - 34); ctx.quadraticCurveTo(fx - 10, TOP - 30 + wave, fx - 20, TOP - 28 + wave);
+    ctx.lineTo(fx, TOP - 22); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = T.muted; ctx.font = `13px ${T.hand}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText('the way out ↑', 6, TOP - 16);
+  }
+
+  function drawRuler() {
+    ctx.fillStyle = T.wall; ctx.fillRect(BW, TOP, RULER, BH);
+    ctx.strokeStyle = T.ink; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(BW + 1, TOP); ctx.lineTo(BW + 1, H); ctx.stroke();
+    ctx.fillStyle = T.muted; ctx.strokeStyle = T.muted; ctx.lineWidth = 1.2;
+    ctx.font = `12px ${T.hand}`; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (let m = 0; m <= 100; m += 10) {
+      const y = TOP + BH * (1 - m / 100);
+      ctx.beginPath(); ctx.moveTo(BW + 2, y); ctx.lineTo(BW + 7, y); ctx.stroke();
+      if (m % 20 === 0 && m > 0 && m < 100) ctx.fillText(m + 'm', W - 3, y);
+    }
+    // marker for his height
+    const C = S.climber;
+    if (S.mode !== 'intro') {
+      const y = TOP + Math.max(0, C.feetY);
+      ctx.fillStyle = T.accent;
+      ctx.beginPath(); ctx.moveTo(BW + 3, y); ctx.lineTo(BW + 11, y - 5); ctx.lineTo(BW + 11, y + 5); ctx.closePath(); ctx.fill();
+    }
+  }
 
   function drawBoard() {
-    ctx.fillStyle = T.board; ctx.fillRect(0, 0, BW, H);
+    ctx.fillStyle = T.board; ctx.fillRect(0, 0, BW, BH);
     ctx.strokeStyle = T.grid; ctx.lineWidth = 1;
     ctx.beginPath();
-    for (let x = 1; x < COLS; x++) { ctx.moveTo(x * CELL + 0.5, 0); ctx.lineTo(x * CELL + 0.5, H); }
+    for (let x = 1; x < COLS; x++) { ctx.moveTo(x * CELL + 0.5, 0); ctx.lineTo(x * CELL + 0.5, BH); }
     for (let y = 1; y < ROWS; y++) { ctx.moveTo(0, y * CELL + 0.5); ctx.lineTo(BW, y * CELL + 0.5); }
     ctx.stroke();
     for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
@@ -601,52 +762,13 @@
       for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++)
         if (m[r][c] && gy + r >= 0) ctx.strokeRect((x + c) * CELL + 3.5, (gy + r) * CELL + 3.5, CELL - 7, CELL - 7);
       ctx.setLineDash([]);
-      for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++)
-        if (m[r][c] && S.cur.y + r >= 0) drawCell(ctx, (x + c) * CELL, (S.cur.y + r) * CELL, CELL, T.p[t], r * 5 + c + 999);
     }
-    if (S.flash > 0) { ctx.globalAlpha = S.flash * 3; ctx.fillStyle = T.board; ctx.fillRect(0, 0, BW, H); ctx.globalAlpha = 1; }
   }
-
-  function drawWall(t) {
-    ctx.fillStyle = T.wall; ctx.fillRect(BW, 0, WALLW, H);
-    // jagged seam between well and wall
-    ctx.strokeStyle = T.ink; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.moveTo(BW, 0);
-    for (let y = 0; y <= H; y += 14) ctx.lineTo(BW + 1 + hash(y) * 2, y);
-    ctx.stroke();
-    // rock strata
-    ctx.strokeStyle = T.wallInk; ctx.lineWidth = 1;
-    for (let i = 0; i < 9; i++) {
-      const y0 = 80 + i * 58 + hash(i) * 20;
-      ctx.beginPath(); ctx.moveTo(BW + 4, y0);
-      ctx.quadraticCurveTo(BW + WALLW * 0.5, y0 + (hash(i + 3) - 0.5) * 18, W, y0 + (hash(i + 5) - 0.5) * 10);
-      ctx.stroke();
-    }
-    ctx.fillStyle = T.wallInk;
-    for (const h of HOLDS) { ctx.beginPath(); ctx.ellipse(h.x, h.y, h.r * 1.3, h.r, 0.4, 0, Math.PI * 2); ctx.fill(); }
-    // altitude ticks (metres)
-    ctx.fillStyle = T.muted; ctx.strokeStyle = T.muted; ctx.lineWidth = 1.2;
-    ctx.font = `13px ${T.hand}`; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    for (let m = 0; m <= 100; m += 10) {
-      const y = GROUND - (m / 100) * (GROUND - SUMMIT);
-      ctx.beginPath(); ctx.moveTo(W - 6, y); ctx.lineTo(W, y); ctx.stroke();
-      if (m % 20 === 0 && m > 0 && m < 100) ctx.fillText(m + 'm', W - 8, y);
-    }
-    // ground
-    ctx.strokeStyle = T.ink; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(BW, GROUND + 1); ctx.lineTo(W, GROUND + 1); ctx.stroke();
-    // summit ledge + flag
-    ctx.fillStyle = T.board; ctx.fillRect(BW + 2, SUMMIT, WALLW - 2, 7);
-    ctx.strokeStyle = T.ink; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(BW + 2, SUMMIT); ctx.lineTo(W, SUMMIT); ctx.moveTo(BW + 2, SUMMIT + 7); ctx.lineTo(W, SUMMIT + 7); ctx.stroke();
-    const fx = W - 22;
-    ctx.beginPath(); ctx.moveTo(fx, SUMMIT); ctx.lineTo(fx, SUMMIT - 30); ctx.stroke();
-    const wave = Math.sin(t * 4) * 3;
-    ctx.fillStyle = T.accent;
-    ctx.beginPath(); ctx.moveTo(fx, SUMMIT - 30); ctx.quadraticCurveTo(fx - 10, SUMMIT - 26 + wave, fx - 20, SUMMIT - 24 + wave);
-    ctx.lineTo(fx, SUMMIT - 18); ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = T.muted; ctx.textAlign = 'left'; ctx.font = `13px ${T.hand}`;
-    ctx.fillText('100 m', BW + 8, SUMMIT - 10);
+  function drawCurrent() {
+    if (!S.cur || S.mode === 'intro') return;
+    const { m, x, t } = S.cur;
+    for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++)
+      if (m[r][c] && S.cur.y + r >= 0) drawCell(ctx, (x + c) * CELL, (S.cur.y + r) * CELL, CELL, T.p[t], r * 5 + c + 999);
   }
 
   function limb(a, b, bend) {
@@ -655,52 +777,65 @@
     ctx.moveTo(a[0], a[1]);
     ctx.quadraticCurveTo(mx - (dy / len) * bend, my + (dx / len) * bend, b[0], b[1]);
   }
+  // draws in board coordinates; returns the head position for the speech bubble
   function drawClimber() {
     const C = S.climber, t = C.t;
-    let feetY = GROUND - C.h * (GROUND - SUMMIT);
-    let cx = BW + WALLW / 2 - 6 + Math.sin(C.phase * 0.5) * 1.5;
-    let pose = C.state;
+    let cx = C.x, feetY = C.feetY, pose = C.state;
+    if (pose === 'walk' && C.pauseT > 0) pose = 'stand';
     if (pose === 'win') {
       const j = Math.min(1, C.winT / 0.7);
-      feetY = SUMMIT - Math.sin(j * Math.PI) * 34;
-      cx = BW + WALLW / 2 - 6 - j * 8;
-      if (C.winT > 0.7) pose = 'cheer';
+      feetY = -Math.sin(j * Math.PI) * 30;
+      if (C.winT > 0.7) pose = 'cheer'; else pose = 'jump';
     }
-    const neckY = feetY - 34, hipY = feetY - 16, headY = neckY - 8;
+    const neckY = feetY - 32, hipY = feetY - 15;
+    let neck = [cx, neckY], hip = [cx, hipY], head = [cx, neckY - 8];
+    const s = Math.sin(C.phase), w = Math.sin(t * 28);
+    let hands, feet, bendL = 5, bendR = -5;
     ctx.save();
     ctx.strokeStyle = T.ink; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    if (pose === 'fall') { ctx.translate(cx, hipY - 8); ctx.rotate(C.rot); ctx.translate(-cx, -(hipY - 8)); }
+    if (pose === 'fall') { ctx.translate(cx, hipY - 6); ctx.rotate(C.rot); ctx.translate(-cx, -(hipY - 6)); }
 
-    const s = Math.sin(C.phase), w = Math.sin(t * 28);
-    let hands, feet, neck = [cx, neckY], hip = [cx, hipY], head = [cx, headY];
-    if (pose === 'climb') {
-      hands = [[cx - 11, neckY - 11 + 6 * s], [cx + 11, neckY - 11 - 6 * s]];
-      feet = [[cx - 9, feetY - 4 - 5 * s], [cx + 9, feetY - 4 + 5 * s]];
-    } else if (pose === 'stumble') {
-      hands = [[cx - 16 + 3 * w, neckY - 2 + 3 * w], [cx + 11, neckY - 13]];
-      feet = [[cx - 5 + 4 * w, feetY + 2], [cx + 6 - 4 * w, feetY - 1]];
+    if (pose === 'walk') {
+      const d = C.dir || 1;
+      neck = [cx + d * 2, neckY]; head = [cx + d * 3, neckY - 8];
+      hands = [[cx - 7 * s, neckY + 14], [cx + 7 * s, neckY + 14]];
+      feet = [[cx - 8 * s, feetY], [cx + 8 * s, feetY]];
+    } else if (pose === 'stand' || pose === 'idle') {
+      const wave = pose === 'idle' ? Math.sin(t * 6) * 5 : 0;
+      hands = [[cx - 8, neckY + 15], pose === 'idle' ? [cx + 12, neckY - 10 + wave] : [cx + 8, neckY + 15]];
+      feet = [[cx - 6, feetY], [cx + 6, feetY]];
+    } else if (pose === 'climb' || pose === 'slip') {
+      const d = C.side, fx = colX(C.c) + d * CELL / 2;           // the face he is hugging
+      neck = [cx + d * 2, neckY]; head = [cx + d * 1, neckY - 8];
+      if (pose === 'climb') {
+        hands = [[fx - d, neckY - 9 + 6 * s], [fx - d, neckY - 9 - 6 * s]];
+        feet = [[fx - d * 2, feetY - 3 - 5 * s], [fx - d * 2, feetY - 3 + 5 * s]];
+      } else {
+        hands = [[fx - d, neckY - 12], [fx - d * 6, neckY - 4 + 3 * w]];
+        feet = [[cx - d * 3 + 3 * w, feetY + 2], [cx + 3 - 3 * w, feetY]];
+      }
+      bendL = bendR = -d * 6;
     } else if (pose === 'fall') {
-      hands = [[cx - 14, neckY - 13 + 5 * w], [cx + 14, neckY - 13 - 5 * w]];
-      feet = [[cx - 11 - 3 * w, feetY + 1], [cx + 11 + 3 * w, feetY + 1]];
+      hands = [[cx - 13, neckY - 12 + 5 * w], [cx + 13, neckY - 12 - 5 * w]];
+      feet = [[cx - 10 - 3 * w, feetY + 1], [cx + 10 + 3 * w, feetY + 1]];
     } else if (pose === 'dazed') {
-      const gy = GROUND;
-      hip = [cx, gy - 3]; neck = [cx - 3, gy - 21]; head = [cx - 4, gy - 29];
-      hands = [[cx - 13, gy - 4], [cx + 9, gy - 6]];
-      feet = [[cx + 16, gy - 1], [cx + 19, gy - 4]];
+      hip = [cx, feetY - 3]; neck = [cx - 3, feetY - 20]; head = [cx - 4, feetY - 28];
+      hands = [[cx - 12, feetY - 3], [cx + 8, feetY - 5]];
+      feet = [[cx + 13, feetY - 1], [cx + 16, feetY - 4]];
     } else if (pose === 'cheer') {
       const b = Math.abs(Math.sin(t * 7)) * 3;
-      feetY = SUMMIT - b; hip = [cx, feetY - 16]; neck = [cx, feetY - 34]; head = [cx, feetY - 42];
-      hands = [[cx - 13, neck[1] - 14], [cx + 13, neck[1] - 14]];
+      feetY = -b; hip = [cx, feetY - 15]; neck = [cx, feetY - 32]; head = [cx, feetY - 40];
+      hands = [[cx - 12, neck[1] - 13], [cx + 12, neck[1] - 13]];
       feet = [[cx - 6, feetY], [cx + 6, feetY]];
-    } else { // jumping up
-      hands = [[cx - 12, neckY - 14], [cx + 12, neckY - 14]];
-      feet = [[cx - 7, feetY - 6], [cx + 7, feetY - 6]];
+    } else { // jump
+      hands = [[cx - 11, neckY - 13], [cx + 11, neckY - 13]];
+      feet = [[cx - 7, feetY - 5], [cx + 7, feetY - 5]];
     }
     ctx.beginPath();
     ctx.moveTo(neck[0], neck[1]); ctx.lineTo(hip[0], hip[1]);
     const sh = [neck[0], neck[1] + 3];
     limb(sh, hands[0], -4); limb(sh, hands[1], 4);
-    limb(hip, feet[0], 5); limb(hip, feet[1], -5);
+    limb(hip, feet[0], bendL); limb(hip, feet[1], bendR);
     ctx.stroke();
     ctx.beginPath(); ctx.arc(head[0], head[1], 6.5, 0, Math.PI * 2);
     ctx.fillStyle = T.board; ctx.fill(); ctx.stroke();
@@ -726,19 +861,21 @@
   function drawBubble(head) {
     const C = S.climber;
     if (C.sayT <= 0 || !C.sayText) return;
+    const hx = head[0], hy = head[1] + TOP;
     ctx.save();
     ctx.globalAlpha = Math.min(1, C.sayT * 4);
     ctx.font = `17px ${T.hand}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
     const tw = ctx.measureText(C.sayText).width, bw = tw + 16, bh = 26;
-    let bx = head[0] - 14 - bw, by = head[1] - 30;
-    bx = Math.max(4, bx); by = Math.max(4, Math.min(H - bh - 4, by));
+    const leftSide = hx > BW / 2;
+    let bx = leftSide ? hx - 14 - bw : hx + 14, by = hy - 34;
+    bx = Math.max(4, Math.min(W - bw - 4, bx)); by = Math.max(4, Math.min(H - bh - 4, by));
     ctx.fillStyle = T.board; ctx.strokeStyle = T.ink; ctx.lineWidth = 1.8;
     ctx.beginPath();
     if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 9); else ctx.rect(bx, by, bw, bh);
     ctx.fill(); ctx.stroke();
+    const tx = Math.max(bx + 10, Math.min(bx + bw - 10, hx));
     ctx.beginPath();
-    const tx = Math.min(bx + bw - 8, head[0] - 8);
-    ctx.moveTo(tx - 7, by + bh - 1); ctx.lineTo(head[0] - 7, head[1] - 4); ctx.lineTo(tx, by + bh - 1);
+    ctx.moveTo(tx - 6, by + bh - 1); ctx.lineTo(hx + (leftSide ? -6 : 6), hy - 6); ctx.lineTo(tx + 2, by + bh - 1);
     ctx.fill(); ctx.stroke();
     ctx.fillStyle = T.ink; ctx.fillText(C.sayText, bx + 8, by + bh / 2 + 1);
     ctx.restore();
@@ -767,21 +904,25 @@
 
   let last = {};
   function syncUI() {
-    const C = S.climber;
     const vals = { score: S.score.toLocaleString(), lines: S.lines, level: S.level, best: Math.max(best, S.score).toLocaleString(),
-                   alt: Math.round(C.h * 100) + ' m', peak: Math.round(C.maxH * 100) + ' m' };
+                   alt: altitude() + ' m', peak: S.climber.peak + ' m' };
     for (const k in vals) if (last[k] !== vals[k]) { ui[k].textContent = vals[k]; last[k] = vals[k]; }
   }
 
   function render(t) {
     ctx.save();
     ctx.clearRect(0, 0, W, H);
-    if (S.shake > 0.2) ctx.translate((Math.random() - 0.5) * S.shake * 0.4, (Math.random() - 0.5) * S.shake * 0.25);
-    drawBoard();
+    drawSky(t);
+    if (S.shake > 0.2) ctx.translate((Math.random() - 0.5) * S.shake * 0.5, (Math.random() - 0.5) * S.shake * 0.35);
+    drawRuler();
     ctx.save();
-    if (S.shake > 0.2) ctx.translate((Math.random() - 0.5) * S.shake, (Math.random() - 0.5) * S.shake * 0.6);
-    drawWall(t);
-    const head = drawClimber();
+    ctx.translate(0, TOP);
+    ctx.beginPath(); ctx.rect(-20, -TOP, BW + 40, H + 20); ctx.clip();
+    drawBoard();
+    let head;
+    if (S.climber.state === 'win') { drawCurrent(); head = drawClimber(); }
+    else { head = drawClimber(); drawCurrent(); }
+    if (S.flash > 0) { ctx.globalAlpha = S.flash * 3; ctx.fillStyle = T.board; ctx.fillRect(0, 0, BW, BH); ctx.globalAlpha = 1; }
     ctx.restore();
     drawBubble(head);
     ctx.restore();
@@ -804,12 +945,9 @@
         if (grounded()) { S.lockT += dt; if (S.lockT >= 0.5) lock(false, 0); }
         else S.lockT = 0;
       }
-      updateClimber(dt);
+      if (S.mode === 'play') updateClimber(dt);
     } else if (S.mode === 'intro') {
-      // idle demo: he climbs a little and slips back so the first frame shows the idea
-      const C = S.climber; C.t += dt; C.phase += dt * 5;
-      C.h = 0.18 + Math.sin(C.t * 0.4) * 0.05;
-      if (C.sayT > 0) C.sayT -= dt;
+      S.climber.t += dt;
     } else if (S.mode === 'over') {
       S.climber.t += dt;
       if (S.climber.state === 'win') S.climber.winT += dt;
@@ -825,7 +963,7 @@
   window.claude?.hot?.snapshot?.(() => S && S.mode !== 'intro' ? JSON.parse(JSON.stringify(S)) : {});
   function start(data) {
     S = newState();
-    if (data && data.board && data.climber) {
+    if (data && data.board && data.climber && 'c' in data.climber) {
       S = Object.assign(newState(), data);
       if (S.mode === 'play') S.mode = 'paused';
       if (S.mode === 'paused') showCard('Paused.', 'The page was updated. He is still hanging on.', 'Resume', false);
