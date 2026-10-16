@@ -150,7 +150,7 @@
       <div class="overlay" id="overlay">
         <div class="card">
           <h2 id="ovTitle">He wants out.</h2>
-          <p id="ovText">A stick figure is climbing out of your well. He walks across your pieces, scales their sides and the walls, and rests on top of your stack. Every piece you land shakes him, landing one on his head knocks him flying, and cleared lines pull the floor out from under him. If he climbs out the top, you lose.</p>
+          <p id="ovText">A stick figure is climbing your blocks to get out of the well. If he stands above the dashed jump line, he crouches and leaps out, and you lose. Every piece you land shakes him. Hard drops next to him knock him off his ledge, a piece on his head sends him flying, and cleared lines pull the floor out from under him.</p>
           <div class="keys" id="ovKeys">← → move · ↑ / X rotate · Z rotate back<br>↓ soft drop · Space hard drop<br>C hold · P pause</div>
           <button id="ovBtn" type="button">Let him climb</button>
         </div>
@@ -184,6 +184,8 @@
   const W = BW + RULER, BH = ROWS * CELL, H = TOP + BH;
   const BODY = 42;                       // climber height in px (a cell and a half)
   const WALK = 40;                       // px per second
+  const JUMP_ROW = 10;                   // standing on a row this high or higher, he can jump out of the well
+  const CHARGE = 1.6;                    // seconds he crouches before the jump
   const SHAPES = {
     I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
     O: [[1,1],[1,1]],
@@ -205,6 +207,9 @@
     big: ['AAAAH!', 'Not again!', 'Seriously?!', 'Noooo—'],
     bonk: ['OOF!', 'My head!', 'BONK.', 'Ow ow ow!'],
     blocked: ['Blocked.', 'Hmm, no way up.', 'Other way then.'],
+    wait: ['Build it higher!', 'Need a step here…', 'Come on, one more block.', 'I can wait.', 'Nice view. Need more.'],
+    charge: ['Here I go…!', 'Big jump…', 'Three… two…'],
+    cancel: ['Hey! I was jumping!', 'Not now!', 'Whoa, whoa!'],
     grab: ['Phew.', 'Still here.', 'Landed it.'],
     ground: ['Ow.', 'Back to the bottom…', 'My everything.', '…ow.'],
     up: ['Okay. Again.', 'Round two.', "I'm not giving up."],
@@ -260,7 +265,7 @@
   function freshClimber() {
     return { c: 4, x: colX(4), feetY: BH, state: 'idle', dir: 0, side: 1, vy: 0, rot: 0, spin: 0,
              t: 0, phase: 0, grit: 0, pauseT: 0, slipLeft: 0, dazedT: 0, winT: 0, fallStart: BH,
-             bonked: false, lastBlocked: 0, sayText: '', sayT: 0, chatT: 7, peak: 0 };
+             bonked: false, lastBlocked: 0, chargeT: 0, leapT: 0, x0: 0, y0: 0, x1: 0, waitT: 0, sayText: '', sayT: 0, chatT: 7, peak: 0 };
   }
   function newState() {
     return {
@@ -274,7 +279,7 @@
   let best = 0;
   try { best = +localStorage.getItem('stack-stumble-best') || 0; } catch (e) {}
 
-  // walls and floor count as solid, so he can climb the sides of the well and stand on the bottom
+  // walls and floor count as solid: he can stand on the floor, but he only climbs blocks
   function filled(r, c) {
     if (c < 0 || c >= COLS || r >= ROWS) return true;
     if (r < 0) return false;
@@ -364,7 +369,7 @@
     }
     const C = S.climber;
     // a piece landed on him
-    const bonked = C.state !== 'win' && bodyBlocked();
+    const bonked = C.state !== 'win' && C.state !== 'leap' && C.state !== 'idle' && bodyBlocked();
     if (bonked) bonk();
 
     // clear lines; anything resting on a cleared row (him included) drops with it
@@ -374,7 +379,7 @@
       const standRow = Math.ceil(C.feetY / CELL - 1e-6);
       const below = clearedRows.filter(r => r >= standRow).length;
       for (const r of clearedRows) { S.board.splice(r, 1); S.board.unshift(Array(COLS).fill(0)); }
-      if (C.state !== 'win' && C.state !== 'idle') {
+      if (C.state !== 'win' && C.state !== 'idle' && C.state !== 'leap') {
         C.feetY = Math.min(BH, C.feetY + below * CELL);
         if (bodyBlocked()) bonk();
       }
@@ -429,7 +434,7 @@
   }
   function knock(cells, hard, dist, cleared) {
     const C = S.climber;
-    if (C.state === 'win' || C.state === 'idle') return;
+    if (C.state === 'win' || C.state === 'idle' || C.state === 'leap') return;
     C.grit = 0;
     const fr = Math.round(C.feetY / CELL);
     const near = cells.some(([r, c]) => Math.abs(c - C.c) <= 2 && Math.abs(r - fr) <= 4);
@@ -442,10 +447,25 @@
     } else if (onWall) {
       if (slip >= 24) { startFall((Math.random() < 0.5 ? -1 : 1) * 6); say(pick(SAY.big), 1.5); sfx('fall'); }
       else { C.state = 'slip'; C.slipLeft = (C.slipLeft || 0) + slip; if (Math.random() < 0.3) say(pick(SAY.small), 1.2); }
-    } else if (C.state === 'walk') {
-      if (cleared || (near && hard)) { C.pauseT = 0.6; if (Math.random() < 0.5) say(cleared === 4 ? 'WHY?!' : pick(SAY.small), 1.2); }
-      else C.pauseT = Math.max(C.pauseT, 0.2);
+    } else if (C.state === 'walk' || C.state === 'charge') {
+      if (C.state === 'charge') { C.state = 'walk'; say(pick(SAY.cancel), 1.4); }
+      if (near && hard && slip >= 18 && knockOff()) return;
+      C.pauseT = Math.max(C.pauseT, cleared || near ? 0.7 : 0.3);
+      if ((cleared || near) && C.sayT <= 0 && Math.random() < 0.5) say(cleared === 4 ? 'WHY?!' : pick(SAY.small), 1.2);
     }
+  }
+  // a hard drop next to him shoves him off his ledge, if there is a lower spot beside him
+  function knockOff() {
+    const C = S.climber, r = Math.round(C.feetY / CELL);
+    const dirs = Math.random() < 0.5 ? [-1, 1] : [1, -1];
+    for (const d of dirs) {
+      const nc = C.c + d;
+      if (nc < 0 || nc >= COLS || filled(r - 1, nc) || filled(r - 2, nc) || filled(r, nc)) continue;
+      C.c = nc; C.x = colX(nc) - d * 8;
+      startFall(d * 8); say(pick(SAY.big), 1.5); sfx('fall');
+      return true;
+    }
+    return false;
   }
   // move his feet down by dy, stopping on the first surface below him
   function descend(dy) {
@@ -456,20 +476,41 @@
     C.feetY = ny;
     return false;
   }
-  // pick the direction with the nearest wall or block face to climb, avoiding drops
-  function decide() {
-    const C = S.climber, r = Math.round(C.feetY / CELL);
-    const cost = d => {
-      let nc = C.c + d, steps = 0;
-      for (;;) {
-        if (filled(r - 1, nc)) return steps;
-        if (filled(r - 2, nc)) return 99;
-        if (!filled(r, nc)) return 40 + steps;
-        nc += d; steps++;
+  // find the highest spot he can reach by walking, dropping and climbing block faces,
+  // and head one column toward it (0 = he is already as high as he can get)
+  function plan() {
+    const C = S.climber, sc = C.c, sr = Math.round(C.feetY / CELL);
+    const key = (c, r) => c * 64 + r;
+    const from = new Map([[key(sc, sr), null]]);
+    const q = [[sc, sr]];
+    let best = [sc, sr];
+    while (q.length) {
+      const [c, r] = q.shift();
+      if (r < best[1]) best = [c, r];
+      for (const d of [-1, 1]) {
+        const nc = c + d;
+        if (nc < 0 || nc >= COLS) continue;
+        let nr = null;
+        if (filled(r - 1, nc)) {
+          // a block face: climb it to its top, if there is room
+          let k = r - 1;
+          while (k > 0 && filled(k - 1, nc)) k--;
+          let ok = k > 0 && !filled(k - 1, nc) && !filled(k - 2, nc);
+          for (let y = k - 2; ok && y <= r - 1; y++) if (y >= 0 && filled(y, c)) ok = false;
+          if (ok) nr = k;
+        } else if (!filled(r - 2, nc)) {
+          let k = r; while (!filled(k, nc)) k++;      // walk across, or drop down
+          nr = k;
+        }
+        if (nr === null || from.has(key(nc, nr))) continue;
+        from.set(key(nc, nr), [c, r]);
+        q.push([nc, nr]);
       }
-    };
-    const a = cost(-1) + (C.lastBlocked === -1 ? 30 : 0), b = cost(1) + (C.lastBlocked === 1 ? 30 : 0);
-    C.dir = a < b ? -1 : b < a ? 1 : (Math.random() < 0.5 ? -1 : 1);
+    }
+    if (best[1] >= sr) return 0;
+    let node = best;
+    for (;;) { const p = from.get(key(node[0], node[1])); if (!p || (p[0] === sc && p[1] === sr)) break; node = p; }
+    return Math.sign(node[0] - sc);
   }
   function land() {
     const C = S.climber;
@@ -493,31 +534,64 @@
         const r = Math.round(C.feetY / CELL);
         C.feetY = r * CELL;
         if (!filled(r, C.c)) { startFall(); break; }
-        if (!C.dir) decide();
+        if (r <= JUMP_ROW && r < ROWS) {
+          C.state = 'charge'; C.chargeT = CHARGE; say(pick(SAY.charge), CHARGE); break;
+        }
+        if (!C.dir) {
+          C.dir = plan();
+          if (!C.dir) {
+            // nowhere higher to go: wait on top of the stack for more blocks
+            C.x += (colX(C.c) - C.x) * Math.min(1, dt * 6);
+            C.waitT -= dt;
+            if (C.waitT <= 0) { C.waitT = 6 + Math.random() * 5; if (C.sayT <= 0 && r < ROWS) say(pick(SAY.wait), 1.8); }
+            C.pauseT = 0.25;
+            break;
+          }
+        }
         const d = C.dir, nc = C.c + d;
+        if (nc < 0 || nc >= COLS) { C.dir = 0; C.pauseT = 0.3; break; }
         if (filled(r - 1, nc)) {
-          // a wall or block face: walk up to it and start climbing
+          // a block face: walk up to it and start climbing
           const hx = hugX(C.c, d), gap = hx - C.x;
           if (Math.abs(gap) < 0.5) { C.x = hx; C.state = 'climb'; C.side = d; if (Math.random() < 0.15) say(pick(SAY.climb), 1.1); }
           else { C.x += Math.sign(gap) * Math.min(Math.abs(gap), WALK * dt); C.phase += dt * 10; }
         } else if (filled(r - 2, nc)) {
-          C.lastBlocked = d; C.dir = -d; C.pauseT = 0.4;
+          C.lastBlocked = d; C.dir = 0; C.pauseT = 0.4;
           if (Math.random() < 0.4) say(pick(SAY.blocked), 1.2);
         } else {
           C.x += d * WALK * dt; C.phase += dt * 10;
           const col = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL)));
-          if (col !== C.c) { C.c = col; if (!filled(r, C.c)) startFall(); }
+          if (col !== C.c) { C.c = col; C.dir = 0; if (!filled(r, C.c)) startFall(); }
         }
+        break;
+      }
+      case 'charge': {
+        const r = Math.round(C.feetY / CELL);
+        if (!filled(r, C.c)) { startFall(); break; }
+        C.x += (colX(C.c) - C.x) * Math.min(1, dt * 6);
+        C.chargeT -= dt;
+        if (C.chargeT <= 0) {
+          C.state = 'leap'; C.leapT = 0; C.x0 = C.x; C.y0 = C.feetY;
+          C.x1 = C.x < BW / 2 ? 12 : BW - 12;
+          say('HUP!', 1); sfx('jump');
+        }
+        break;
+      }
+      case 'leap': {
+        C.leapT += dt;
+        const u = Math.min(1, C.leapT / 0.9);
+        C.x = C.x0 + (C.x1 - C.x0) * u;
+        C.feetY = C.y0 * (1 - u) - Math.sin(u * Math.PI) * 70;
+        if (u >= 1) { C.feetY = 0; C.state = 'win'; C.winT = 0; say('I’M OUT!', 3); sfx('win'); }
         break;
       }
       case 'climb': {
         const d = C.side, nc = C.c + d;
         C.x += (hugX(C.c, d) - C.x) * Math.min(1, dt * 10);
         C.grit = Math.min(6, C.grit + dt * 0.25);
-        const sp = 7 + 1.5 * (S.level - 1) + C.grit;
+        const sp = 14 + 2 * (S.level - 1) + C.grit;
         C.feetY -= sp * dt;
         C.phase += dt * (4 + sp * 0.4);
-        if (C.feetY <= 0) { C.feetY = 0; C.state = 'win'; C.winT = 0; say('I’M OUT!', 3); sfx('win'); break; }
         const headRow = Math.floor((C.feetY - BODY) / CELL);
         if (headRow >= 0 && filled(headRow, C.c)) {
           // an overhang above his head: let go and try the other way
@@ -557,7 +631,7 @@
         break;
       case 'win':
         C.winT += dt;
-        if (C.winT > 2.2 && S.mode === 'play') gameOver('win');
+        if (C.winT > 2 && S.mode === 'play') gameOver('win');
         break;
     }
     C.peak = Math.max(C.peak, altitude());
@@ -587,7 +661,7 @@
     if (S.score > best) { best = S.score; try { localStorage.setItem('stack-stumble-best', best); } catch (e) {} }
     const mins = Math.floor(S.time / 60), secs = String(Math.floor(S.time % 60)).padStart(2, '0');
     if (kind === 'win') {
-      showCard('He climbed out of the well.', `It took him ${mins}:${secs}. Your score: ${S.score.toLocaleString()}. Land pieces near him, drop them on his head, and clear lines to keep him down.`, 'Try again', false);
+      showCard('He jumped out of the well.', `It took him ${mins}:${secs}. Your score: ${S.score.toLocaleString()}. Keep the stack under the jump line, and slam a piece next to him when he crouches.`, 'Try again', false);
     } else {
       sfx('over');
       const peak = S.climber.peak;
@@ -613,7 +687,7 @@
   const DAS = 0.16, ARR = 0.05, SOFT = 0.035;
   function press(act) {
     initAudio();
-    if (S.mode !== 'play' || S.climber.state === 'win') return;
+    if (S.mode !== 'play' || S.climber.state === 'win' || S.climber.state === 'leap') return;
     switch (act) {
       case 'left': move(-1); held.left = { t: 0, r: 0 }; delete held.right; break;
       case 'right': move(1); held.right = { t: 0, r: 0 }; delete held.left; break;
@@ -684,6 +758,7 @@
         [523, 659, 784].slice(0, +name.slice(-1) + 1).forEach((f, i) => tone(f, f, 0.1, 'square', 0.05, i * 0.06)); break;
       case 'clear4': [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.14, 'square', 0.06, i * 0.07)); break;
       case 'fall': tone(1200, 180, 0.7, 'sine', 0.06); break;
+      case 'jump': tone(300, 900, 0.3, 'square', 0.05); break;
       case 'bonk': tone(700, 160, 0.18, 'square', 0.07); tone(90, 40, 0.15, 'triangle', 0.15); break;
       case 'thud': tone(90, 40, 0.2, 'triangle', 0.18); break;
       case 'win': [392, 523, 659, 784].forEach((f, i) => tone(f, f, 0.18, 'triangle', 0.08, i * 0.12)); break;
@@ -735,6 +810,8 @@
       ctx.beginPath(); ctx.moveTo(BW + 2, y); ctx.lineTo(BW + 7, y); ctx.stroke();
       if (m % 20 === 0 && m > 0 && m < 100) ctx.fillText(m + 'm', W - 3, y);
     }
+    ctx.fillStyle = T.accent; ctx.textAlign = 'center'; ctx.font = `12px ${T.hand}`;
+    ctx.fillText('jump', BW + RULER / 2 + 1, TOP + JUMP_ROW * CELL - 9);
     // marker for his height
     const C = S.climber;
     if (S.mode !== 'intro') {
@@ -755,6 +832,12 @@
       const v = S.board[y][x];
       if (v) drawCell(ctx, x * CELL, y * CELL, CELL, T.p[v], y * 31 + x);
     }
+    // the jump line: once he stands at or above it, he can leap out
+    const jy = JUMP_ROW * CELL;
+    ctx.save();
+    ctx.setLineDash([7, 6]); ctx.strokeStyle = T.accent; ctx.lineWidth = 1.6; ctx.globalAlpha = 0.75;
+    ctx.beginPath(); ctx.moveTo(0, jy); ctx.lineTo(BW, jy); ctx.stroke();
+    ctx.restore();
     if (S.cur && S.mode !== 'intro') {
       const { m, x, t } = S.cur;
       let gy = S.cur.y; while (!collide(m, x, gy + 1)) gy++;
@@ -782,11 +865,8 @@
     const C = S.climber, t = C.t;
     let cx = C.x, feetY = C.feetY, pose = C.state;
     if (pose === 'walk' && C.pauseT > 0) pose = 'stand';
-    if (pose === 'win') {
-      const j = Math.min(1, C.winT / 0.7);
-      feetY = -Math.sin(j * Math.PI) * 30;
-      if (C.winT > 0.7) pose = 'cheer'; else pose = 'jump';
-    }
+    if (pose === 'win') pose = 'cheer';
+    if (pose === 'leap') pose = 'jump';
     const neckY = feetY - 32, hipY = feetY - 15;
     let neck = [cx, neckY], hip = [cx, hipY], head = [cx, neckY - 8];
     const s = Math.sin(C.phase), w = Math.sin(t * 28);
@@ -815,6 +895,13 @@
         feet = [[cx - d * 3 + 3 * w, feetY + 2], [cx + 3 - 3 * w, feetY]];
       }
       bendL = bendR = -d * 6;
+    } else if (pose === 'charge') {
+      const q = Math.sin(t * 30) * (C.chargeT < 0.6 ? 1 : 0.4);
+      const crouch = 9;
+      hip = [cx + q, feetY - 15 + crouch]; neck = [cx + q, neckY + crouch + 2]; head = [cx + q, neckY + crouch - 6];
+      hands = [[cx - 11 + q, feetY - 6], [cx + 11 + q, feetY - 6]];
+      feet = [[cx - 8, feetY], [cx + 8, feetY]];
+      bendL = -7; bendR = 7;
     } else if (pose === 'fall') {
       hands = [[cx - 13, neckY - 12 + 5 * w], [cx + 13, neckY - 12 - 5 * w]];
       feet = [[cx - 10 - 3 * w, feetY + 1], [cx + 10 + 3 * w, feetY + 1]];
@@ -920,7 +1007,7 @@
     ctx.beginPath(); ctx.rect(-20, -TOP, BW + 40, H + 20); ctx.clip();
     drawBoard();
     let head;
-    if (S.climber.state === 'win') { drawCurrent(); head = drawClimber(); }
+    if (S.climber.state === 'win' || S.climber.state === 'leap') { drawCurrent(); head = drawClimber(); }
     else { head = drawClimber(); drawCurrent(); }
     if (S.flash > 0) { ctx.globalAlpha = S.flash * 3; ctx.fillStyle = T.board; ctx.fillRect(0, 0, BW, BH); ctx.globalAlpha = 1; }
     ctx.restore();
@@ -935,7 +1022,7 @@
     if (S.mode === 'play') {
       S.time += dt;
       updateHeld(dt);
-      if (S.climber.state !== 'win') {
+      if (S.climber.state !== 'win' && S.climber.state !== 'leap') {
         const interval = Math.max(0.06, 0.9 * Math.pow(0.85, S.level - 1));
         S.dropT += dt;
         if (S.dropT >= interval) {
