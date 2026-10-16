@@ -1319,6 +1319,15 @@
     const C = S.climber;
     C.t += dt;
     if (C.sayT > 0) C.sayT -= dt;
+    // safety: if he ever ends up inside blocks (dragged by a piece, a line clear, a rotation), pop him out
+    if (['ground', 'air', 'dazed', 'climb'].includes(C.state) && !boxFree(C.x, C.y)) { expel(); return; }
+    // safety: airborne but not moving for a while means he is wedged; free him
+    if (C.state === 'air' || (C.state === 'ground' && !supportUnder(C.x, C.y))) {
+      if (Math.abs(C.y - (C.wedgeY ?? -1)) < 0.5 && Math.abs(C.x - (C.wedgeX ?? -1)) < 0.5) C.wedgeT = (C.wedgeT || 0) + dt;
+      else C.wedgeT = 0;
+      C.wedgeX = C.x; C.wedgeY = C.y;
+      if (C.wedgeT > 0.4) { C.wedgeT = 0; C.y = Math.round(C.y / CELL) * CELL; if (!boxFree(C.x, C.y) || !supportUnder(C.x, C.y)) { C.x = Math.max(HW + 1, Math.min(BW - HW - 1, colX(Math.floor(C.x / CELL)))); expel(); } else land(); return; }
+    } else C.wedgeT = 0;
     switch (C.state) {
       case 'ground': {
         if (!supportUnder(C.x, C.y)) { toAir(); C.wantGrab = Math.random() < 0.5; break; }
@@ -1407,6 +1416,10 @@
         const A = anchorAbs();
         if (!A || !solid(A.r, A.c) || solid(A.r - 1, A.c)) { letGo('slip'); break; }
         C.x = A.gx - A.f * (HW + 1); C.y = A.gy + ARMS;
+        if (!boxFree(C.x, C.y)) {
+          // his legs are being dragged into the blocks below: drop to the side and scramble out
+          letGo('slip'); expel(); break;
+        }
         C.hangT += dt;
         if (C.hangT > 0.32) {
           if (boxFree(A.gx + A.f * 8, A.gy)) { C.state = 'pull'; C.pullT = 0; }
@@ -1461,6 +1474,13 @@
         break;
     }
     C.peak = Math.max(C.peak, altitude());
+  }
+  // last resort: put him back on top of the stack in his column
+  function rescueClimber() {
+    const C = S.climber;
+    const c = Math.max(0, Math.min(COLS - 1, Math.floor((C.x || 0) / CELL)));
+    let r = 0; while (r < ROWS && !solidB(r, c)) r++;
+    Object.assign(C, { x: colX(c), y: r * CELL, vx: 0, vy: 0, state: 'air', anchor: null, alert: null, intent: null, tumble: false, rot: 0 });
   }
   const altitude = () => Math.max(0, Math.min(100, Math.round((1 - S.climber.y / BH) * 100)));
 
@@ -1993,7 +2013,10 @@
       // the mood he shows when he has nothing better to do
       C.moodT -= dt;
       if (C.moodT <= 0) { C.moodT = 2.5 + Math.random() * 3; C.mood = pick(['idle', 'idle', 'idle', 'lookUp', 'wave']); }
-      if (S.mode === 'play') updateClimber(dt);
+      if (S.mode === 'play') {
+        try { updateClimber(dt); }
+        catch (err) { console.error(err); rescueClimber(); }
+      }
     } else {
       S.climber.t += dt;
       if (S.climber.state === 'win') S.climber.winT += dt;
@@ -2005,8 +2028,8 @@
       S.parts = S.parts.filter(q => q.life > 0 && q.y < BH + 20);
     }
     if (S.flash > 0) S.flash -= dt;
-    render(clock, dt);
-    syncUI();
+    try { render(clock, dt); syncUI(); }
+    catch (err) { console.error(err); }
     requestAnimationFrame(frame);
   }
 
