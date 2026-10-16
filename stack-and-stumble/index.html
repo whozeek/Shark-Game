@@ -747,7 +747,7 @@
   function supportUnder(x, y) {
     if (Math.abs(y - Math.round(y / CELL) * CELL) > 0.6) return null;
     const r = Math.round(y / CELL);
-    const c0 = Math.floor((x - HW + 1) / CELL), c1 = Math.floor((x + HW - 1) / CELL);
+    const c0 = Math.floor((x - HW) / CELL), c1 = Math.floor((x + HW - 0.001) / CELL);
     let res = null;
     for (let c = c0; c <= c1; c++) { if (solidB(r, c)) return 'board'; if (r >= 0 && pieceHas(r, c)) res = 'piece'; }
     return res;
@@ -907,7 +907,11 @@
   }
 
   // ---------- the climber: reactions ----------
-  function say(text, dur = 1.9) { const C = S.climber; C.sayText = text; C.sayT = dur; }
+  function say(text, dur = 1.9) {
+    const C = S.climber;
+    if (text === C.sayText && C.sayT > -1.5) return;   // same line again too soon
+    C.sayText = text; C.sayT = dur;
+  }
   function toAir() {
     const C = S.climber;
     C.alert = null;
@@ -1318,11 +1322,11 @@
   function updateClimber(dt) {
     const C = S.climber;
     C.t += dt;
-    if (C.sayT > 0) C.sayT -= dt;
+    C.sayT = Math.max(-10, C.sayT - dt);
     // safety: if he ever ends up inside blocks (dragged by a piece, a line clear, a rotation), pop him out
     if (['ground', 'air', 'dazed', 'climb'].includes(C.state) && !boxFree(C.x, C.y)) { expel(); return; }
     // safety: airborne but not moving for a while means he is wedged; free him
-    if (C.state === 'air' || (C.state === 'ground' && !supportUnder(C.x, C.y))) {
+    if (C.state === 'air' || ((C.state === 'ground' || C.state === 'dazed') && !supportUnder(C.x, C.y))) {
       if (Math.abs(C.y - (C.wedgeY ?? -1)) < 0.5 && Math.abs(C.x - (C.wedgeX ?? -1)) < 0.5) C.wedgeT = (C.wedgeT || 0) + dt;
       else C.wedgeT = 0;
       C.wedgeX = C.x; C.wedgeY = C.y;
