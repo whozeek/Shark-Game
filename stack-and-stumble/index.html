@@ -611,7 +611,7 @@
   const G = 1500, JUMP_H = 98, JV = Math.sqrt(2 * G * JUMP_H);
   const WALK = 55, RUN = 92, DODGE = 128;
   const SLAM = 0.016;
-  const CRACK_AT = 5, BREAK_AT = 10;          // seconds of hammering before cracks show, and before the piece breaks                       // seconds per row while a hard drop slams down
+  const CRACK_AT = 5, BREAK_AT = 10;          // seconds of drilling before cracks show, and before the piece breaks                       // seconds per row while a hard drop slams down
   const dropInterval = () => Math.max(0.06, 0.9 * Math.pow(0.85, S.level - 1));
   const SHAPES = {
     I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
@@ -638,7 +638,7 @@
     slip: ['Losing grip!', 'Nope nope nope—', 'My fingers!'],
     dodge: ['!', 'WHOA!', 'Not on my head!', 'Incoming!', 'Eep!'],
     missed: ['Ha! Missed me!', 'Too slow!', 'Close one!', 'Nice try.'],
-    hammer: ['Fine. Hammer time.', 'Stand back.', 'I came prepared.'],
+    drill: ['Fine. Drill time.', 'Stand back.', 'BRRRRRRT!', 'I came prepared.'],
     smash: ['HA!', 'Out of my way!', 'Demolition!'],
     stuck: ['Let me out!', 'Hmph.', 'Hey! Up here!', 'This is fine.'],
     wait: ['Build it higher!', 'Need a step here…', 'Come on, one more block.', 'I can wait.'],
@@ -1093,14 +1093,14 @@
     const interval = dropInterval();
     if (po && (waitRows * interval < 2.5 || !plan.move)) {
       const reachNow = need <= JUMP_H;
-      C.idleT = 0; C.trapT = 0; C.hammering = false;
+      C.idleT = 0; C.trapT = 0; C.drilling = false;
       C.intent = { type: reachNow ? 'jump' : 'wait', x: po.sx, f: po.f, v: Math.sqrt(2 * G * Math.max(20, need + 6)), vx: po.f * 20, piece: true };
       return;
     }
     const m = plan.move;
     if (m) {
       const c = plan.col;
-      C.idleT = 0; C.trapT = 0; C.hammering = false;
+      C.idleT = 0; C.trapT = 0; C.drilling = false;
       if (m.type === 'walk') C.intent = { type: 'go', x: colX(m.nc) };
       else {
         const edge = m.dir > 0 ? (c + 1) * CELL - HW - 3 : c * CELL + HW + 3;
@@ -1109,17 +1109,17 @@
       }
       return;
     }
-    // boxed in by blocks: after a moment, get the hammer out
-    const tgt = hammerTarget();
+    // boxed in by blocks: after a moment, get the drill out
+    const tgt = drillTarget();
     if (tgt) {
       C.trapT = (C.trapT || 0) + 0.2;
       if (C.trapT > 1.6) {
-        if (!C.hammering) { C.hammering = true; C.hammerT = 0; say(pick(SAY.hammer), 1.6); }
-        C.intent = { type: 'hammer', x: tgt.x, tr: tgt.r, tc: tgt.c, side: tgt.side };
+        if (!C.drilling) { C.drilling = true; C.drillT = 0; say(pick(SAY.drill), 1.6); }
+        C.intent = { type: 'drill', x: tgt.x, tr: tgt.r, tc: tgt.c, side: tgt.side };
         return;
       }
     } else C.trapT = 0;
-    C.hammering = false;
+    C.drilling = false;
     // nowhere higher to go right now: pace, look around, hop in frustration
     C.idleT = (C.idleT || 0) + 0.2;
     if (C.idleT > 3 && Math.random() < 0.12) {
@@ -1139,7 +1139,7 @@
   }
 
   // the block that has him boxed in: a ceiling just over his head, or a wall beside him
-  function hammerTarget() {
+  function drillTarget() {
     const C = S.climber;
     const r = Math.round(C.y / CELL), c = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL)));
     let roofed = false;
@@ -1170,23 +1170,23 @@
     delete S.cracks[id];
     if (n) { S.shake = Math.min(12, S.shake + 5); sfx('crumble'); say(pick(SAY.smash), 1.5); }
     const C = S.climber;
-    C.hammering = false; C.trapT = 0; C.intent = null; C.think = 0.1;
+    C.drilling = false; C.trapT = 0; C.intent = null; C.think = 0.1;
   }
-  // one frame of hammering on the target block
-  function hammerTick(it, dt) {
+  // one frame of drilling on the target block
+  function drillTick(it, dt) {
     const C = S.climber;
     if (!S.board[it.tr] || !S.board[it.tr][it.tc]) { C.intent = null; C.think = 0; return; }
     if (it.side) C.f = it.side;
     const id = S.ids[it.tr][it.tc];
-    const before = C.hammerT % 0.42;
-    C.hammerT += dt;
-    if (C.hammerT % 0.42 < before) {
-      // the blow lands
+    const before = C.drillT % 0.07;
+    C.drillT += dt;
+    if (C.drillT % 0.07 < before) {
+      // the bit chatters against the block: chips, dust and a rattle
       const ix = it.side ? (it.side > 0 ? it.tc * CELL : (it.tc + 1) * CELL) : colX(it.tc);
       const iy = it.side ? it.tr * CELL + CELL / 2 : (it.tr + 1) * CELL;
-      addParts(ix, iy, T.p[S.board[it.tr][it.tc]] || T.ink, 3, 70);
-      S.shake = Math.min(12, S.shake + 0.8);
-      sfx('tink');
+      addParts(ix, iy, Math.random() < 0.3 ? T.muted : (T.p[S.board[it.tr][it.tc]] || T.ink), 1, 90);
+      S.shake = Math.min(3, S.shake + 0.35);
+      sfx('rattle');
     }
     if (!id) return;
     S.cracks[id] = (S.cracks[id] || 0) + dt;
@@ -1383,7 +1383,7 @@
             const cf = it.col;
             if (solid(Math.floor((C.y - 1) / CELL), cf)) { C.f = it.f; C.climbCol = cf; C.state = 'climb'; C.vx = 0; }
           } else if (it.type === 'wait') C.f = it.f;
-          else if (it.type === 'hammer') hammerTick(it, dt);
+          else if (it.type === 'drill') drillTick(it, dt);
         }
         // watchdog: if he is trying to go somewhere and not getting there, wander for a bit
         if (Math.abs(want) > 1 && (bumped || Math.abs(C.x - C.lastX) < 0.05)) C.stuckT += dt; else C.stuckT = 0;
@@ -1584,7 +1584,7 @@
         [523, 659, 784].slice(0, +name.slice(-1) + 1).forEach((f, i) => tone(f, f, 0.1, 'square', 0.05, i * 0.06)); break;
       case 'clear4': [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.14, 'square', 0.06, i * 0.07)); break;
       case 'jump': tone(300, 700, 0.12, 'square', 0.03); break;
-      case 'tink': tone(1600, 900, 0.06, 'square', 0.035); tone(180, 90, 0.06, 'triangle', 0.08); break;
+      case 'rattle': tone(95 + Math.random() * 30, 60, 0.05, 'square', 0.03); if (Math.random() < 0.3) tone(1400, 900, 0.03, 'square', 0.012); break;
       case 'crumble': tone(220, 50, 0.45, 'sawtooth', 0.07); tone(120, 40, 0.35, 'triangle', 0.15); break;
       case 'fall': tone(1200, 180, 0.7, 'sine', 0.06); break;
       case 'bonk': tone(700, 160, 0.18, 'square', 0.07); tone(90, 40, 0.15, 'triangle', 0.15); break;
@@ -1682,7 +1682,7 @@
     }
   }
 
-  // hairline cracks that spread as the hammering goes on (k: 0 → 1)
+  // hairline cracks that spread as the drilling goes on (k: 0 → 1)
   function drawCracks(x, y, k, seed) {
     ctx.save();
     ctx.strokeStyle = T.ink; ctx.lineWidth = 1.1 + k * 0.6; ctx.lineCap = 'round';
@@ -1777,23 +1777,27 @@
     if (fadeT > 0) fadeT = Math.max(0, fadeT - dt);
     const P = worldPose(clock);
     const C = S.climber, it = C.intent;
-    const hammering = C.state === 'ground' && !C.alert && it && it.type === 'hammer';
-    let hammer = null;
-    if (hammering) {
-      // swing the hammer: slow wind-up, fast strike, small recoil
-      const f = it.side || P.f || 1, ph = (C.hammerT % 0.42) / 0.42;
-      const strike = it.side ? (f > 0 ? -0.15 : Math.PI + 0.15) : -Math.PI / 2 + 0.12 * f;
-      const wind = it.side ? (f > 0 ? -2.2 : Math.PI + 2.2) : -Math.PI / 2 - 1.7 * f;
-      const ease = u => u * u * (3 - 2 * u);
-      const a = ph < 0.62 ? strike + (wind - strike) * ease(ph / 0.62)
-              : ph < 0.76 ? wind + (strike - wind) * ((ph - 0.62) / 0.14)
-              : strike + (wind - strike) * 0.12 * Math.sin((ph - 0.76) / 0.24 * Math.PI);
+    const drilling = C.state === 'ground' && !C.alert && it && it.type === 'drill';
+    let drill = null;
+    if (drilling) {
+      // both hands on the jackhammer's T-handle, everything shaking
+      const f = it.side || P.f || 1;
+      const jit = () => (Math.random() - 0.5) * 1.6;
+      const ax = it.side ? f : 0, ay = it.side ? 0 : -1;                 // drill axis, pointing at the block
+      const px = -ay, py = ax;                                            // across the handle
       const sx = P.neck[0], sy = P.neck[1] + 3;
-      P.rElbow = [sx + Math.cos(a - 0.3 * f) * 9, sy + Math.sin(a - 0.3 * f) * 9];
-      P.rHand = [P.rElbow[0] + Math.cos(a) * 9, P.rElbow[1] + Math.sin(a) * 9];
-      P.lElbow = [sx + 4 * f, sy + 6]; P.lHand = [sx + 7 * f, sy + 1];
-      P.face = 'strain';
-      hammer = { x: P.rHand[0], y: P.rHand[1], a };
+      // overhead, the drill goes up beside his head rather than through it
+      const hx = it.side ? sx + f * 2 + jit() : sx + f * 10 + jit(), hy = it.side ? sy + 4 + jit() : sy - 2 + jit();
+      const tipX = it.side ? (f > 0 ? it.tc * CELL : (it.tc + 1) * CELL) : hx;
+      const tipY = it.side ? it.tr * CELL + CELL / 2 : (it.tr + 1) * CELL;
+      for (const [side, e] of [[-1, 'lElbow'], [1, 'rElbow']]) {
+        const hand = [hx + px * 5 * side + jit() * 0.5, hy + py * 5 * side + jit() * 0.5];
+        P[e === 'lElbow' ? 'lHand' : 'rHand'] = hand;
+        P[e] = [(sx + hand[0]) / 2 + px * 5 * side - ax * 3, (sy + hand[1]) / 2 + py * 5 * side - ay * 3 + (it.side ? 3 : 0)];
+      }
+      P.head = [P.head[0] + jit() * 0.6, P.head[1] + jit() * 0.6];
+      P.face = 'grit';
+      drill = { hx, hy, tipX, tipY, ax, ay, px, py, f };
     }
     ctx.save();
     ctx.strokeStyle = T.ink; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -1805,14 +1809,58 @@
     ctx.moveTo(P.hip[0], P.hip[1]); ctx.lineTo(P.lKnee[0], P.lKnee[1]); ctx.lineTo(P.lFoot[0], P.lFoot[1]);
     ctx.moveTo(P.hip[0], P.hip[1]); ctx.lineTo(P.rKnee[0], P.rKnee[1]); ctx.lineTo(P.rFoot[0], P.rFoot[1]);
     ctx.stroke();
-    if (hammer) {
-      const { x, y, a } = hammer, ex = x + Math.cos(a) * 11, ey = y + Math.sin(a) * 11;
+    if (drill) {
+      const { hx, hy, tipX, tipY, ax, ay, px, py } = drill;
+      const len = Math.max(10, (tipX - hx) * ax + (tipY - hy) * ay);
+      const bodyL = Math.min(14, len * 0.62);
       ctx.save();
-      ctx.lineWidth = 2.2; ctx.strokeStyle = T.ink;
-      ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * 2, y - Math.sin(a) * 2); ctx.lineTo(ex, ey); ctx.stroke();
-      ctx.translate(ex, ey); ctx.rotate(a);
-      ctx.fillStyle = T.muted; ctx.lineWidth = 1.4;
-      ctx.beginPath(); ctx.rect(-2.5, -6, 6, 12); ctx.fill(); ctx.stroke();
+      ctx.lineWidth = 1.6; ctx.strokeStyle = T.ink;
+      // hose, looping down to the ground
+      const bx = hx + ax * bodyL * 0.5 + px * 4, by = hy + ay * bodyL * 0.5 + py * 4;
+      ctx.beginPath(); ctx.moveTo(bx, by);
+      ctx.bezierCurveTo(bx + 14 * (drill.f || 1), by + 4, bx + 18 * (drill.f || 1), S.climber.y - 10, bx + 22 * (drill.f || 1), S.climber.y - 1);
+      ctx.stroke();
+      // T-handle
+      ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.moveTo(hx - px * 7, hy - py * 7); ctx.lineTo(hx + px * 7, hy + py * 7); ctx.stroke();
+      // body
+      ctx.fillStyle = T.board; ctx.lineWidth = 1.6;
+      const w = 4.5;
+      ctx.beginPath();
+      ctx.moveTo(hx - px * w, hy - py * w); ctx.lineTo(hx + px * w, hy + py * w);
+      ctx.lineTo(hx + px * w + ax * bodyL, hy + py * w + ay * bodyL); ctx.lineTo(hx - px * w + ax * bodyL, hy - py * w + ay * bodyL);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = T.ink;
+      ctx.beginPath(); ctx.arc(hx + ax * bodyL * 0.35, hy + ay * bodyL * 0.35, 0.9, 0, Math.PI * 2); ctx.fill();
+      // bit, hammering in and out
+      const kick = Math.random() * 1.5;
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.moveTo(hx + ax * bodyL, hy + ay * bodyL);
+      ctx.lineTo(tipX - ax * kick, tipY - ay * kick); ctx.stroke();
+      // spark lines where the bit meets the block
+      ctx.lineWidth = 1; ctx.strokeStyle = T.accent;
+      ctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        const a = Math.random() * Math.PI * 2, r0 = 2, r1 = 5 + Math.random() * 5;
+        ctx.moveTo(tipX + Math.cos(a) * r0, tipY + Math.sin(a) * r0); ctx.lineTo(tipX + Math.cos(a) * r1, tipY + Math.sin(a) * r1);
+      }
+      ctx.stroke();
+      // shake marks beside the hands, stress squiggles over the head
+      ctx.strokeStyle = T.ink; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (const h of [P.lHand, P.rHand]) {
+        const o = h === P.lHand ? -1 : 1;
+        ctx.moveTo(h[0] + px * o * 4 - ay * 3, h[1] + py * o * 4 + ax * 3);
+        ctx.quadraticCurveTo(h[0] + px * o * 6, h[1] + py * o * 6, h[0] + px * o * 4 + ay * 3, h[1] + py * o * 4 - ax * 3);
+      }
+      const [qx, qy] = P.head;
+      for (const dx of [-4, 4]) {
+        let x0 = qx + dx, y0 = qy - 9;
+        ctx.moveTo(x0, y0);
+        for (let i = 1; i <= 4; i++) ctx.lineTo(x0 + (i % 2 ? 1.6 : -1.6), y0 - i * 2);
+      }
+      ctx.stroke();
       ctx.restore();
     }
     const [hx, hy] = P.head;
@@ -1834,6 +1882,14 @@
       if (face === 'happy') ctx.arc(hx + 1.6 * f, hy + 1.2, 2.2, 0.15 * Math.PI, 0.85 * Math.PI);
       else if (face === 'scared') ctx.arc(hx + 1.6 * f, hy + 2.6, 1.3, 0, Math.PI * 2);
       else if (face === 'strain') { ctx.moveTo(hx + 0.2 * f, hy + 2.6); ctx.lineTo(hx + 3.2 * f, hy + 2.2); }
+      else if (face === 'grit') {
+        // angry brows and clenched teeth
+        ctx.moveTo(hx - 1.2 * f, hy - 3.6); ctx.lineTo(hx + 1.2 * f, hy - 2.4);
+        ctx.moveTo(hx + 2.2 * f, hy - 2.4); ctx.lineTo(hx + 4.4 * f, hy - 3.6);
+        ctx.rect(hx - 1.4 * f - (f < 0 ? 5.2 : 0), hy + 1.2, 5.2, 2.6);
+        ctx.moveTo(hx - 1.4 * f, hy + 2.5); ctx.lineTo(hx + 3.8 * f, hy + 2.5);
+        for (const t of [0.3, 1.6, 2.9]) { ctx.moveTo(hx + t * f, hy + 1.2); ctx.lineTo(hx + t * f, hy + 3.8); }
+      }
       ctx.stroke();
     }
     ctx.restore();
