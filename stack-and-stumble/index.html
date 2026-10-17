@@ -1087,8 +1087,15 @@
     }
     return true;
   }
+  function intentFor(m, c) {
+    if (m.type === 'walk') return { type: 'go', x: colX(m.nc) };
+    const edge = m.dir > 0 ? (c + 1) * CELL - HW - 3 : c * CELL + HW + 3;
+    if (m.type === 'jump') return { type: 'jump', x: edge, f: m.dir, v: Math.min(JV, Math.sqrt(2 * G * (m.rise * CELL + 22))), vx: m.dir * 40 };
+    return { type: 'climb', x: m.dir > 0 ? (c + 1) * CELL - 7 : c * CELL + 7, f: m.dir, col: m.nc };
+  }
   function brain() {
     const C = S.climber;
+    if (C.noJumpUntil && C.t < C.noJumpUntil) { C.intent = { type: 'idle', x: C.x }; return; }
     const sr = Math.round(C.y / CELL);
     // close enough to the top to jump for it
     if (C.y <= JUMP_H + ARMS - 4) { C.intent = { type: 'escape', x: C.x }; return; }
@@ -1109,13 +1116,8 @@
     const m = plan.move;
     if (m) {
       const c = plan.col;
-      C.idleT = 0; C.trapT = 0; C.drilling = false; C.stuckClock = 0; C.boxedIn = false;
-      if (m.type === 'walk') C.intent = { type: 'go', x: colX(m.nc) };
-      else {
-        const edge = m.dir > 0 ? (c + 1) * CELL - HW - 3 : c * CELL + HW + 3;
-        if (m.type === 'jump') C.intent = { type: 'jump', x: edge, f: m.dir, v: Math.min(JV, Math.sqrt(2 * G * (m.rise * CELL + 22))), vx: m.dir * 40 };
-        else C.intent = { type: 'climb', x: m.dir > 0 ? (c + 1) * CELL - 7 : c * CELL + 7, f: m.dir, col: m.nc };
-      }
+      C.idleT = 0; C.trapT = 0; C.drilling = false; C.stuckClock = 0; C.boxedIn = false; C.digging = false;
+      C.intent = intentFor(m, c);
       return;
     }
     // boxed in for too long (drilling included): out comes the teleport button
@@ -1132,11 +1134,14 @@
     if (tgt) {
       C.trapT = (C.trapT || 0) + 0.2;
       if (C.trapT > 1.6) {
+        C.digging = true;
+        // first get to where the digging starts
+        if (tgt.move) { C.drilling = false; C.intent = intentFor(tgt.move, tgt.col); return; }
         if (!C.drilling) { C.drilling = true; C.drillT = 0; say(pick(SAY.drill), 1.6); }
         C.intent = { type: 'drill', x: tgt.x, tr: tgt.r, tc: tgt.c, side: tgt.side };
         return;
       }
-    } else C.trapT = 0;
+    } else { C.trapT = 0; C.digging = false; }
     C.drilling = false;
     // nowhere higher to go right now: pace, look around, hop in frustration
     C.idleT = (C.idleT || 0) + 0.2;
@@ -1177,40 +1182,70 @@
     }
     return best;
   }
-  // the fewest blocks he must drill to get somewhere higher; null if drilling would not help
+  // cheapest way out: search his reachable spots where a move may need blocks drilled away,
+  // counting each drilled block as a cost, and return the first step toward the cheapest higher spot
+  const DIG_MAX = 6;
+  function planDig() {
+    const C = S.climber;
+    const sc = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL))), sr = Math.round(C.y / CELL);
+    const key = (c, r) => c * 64 + r;
+    const dist = new Map([[key(sc, sr), 0]]), from = new Map();
+    const open = [[0, sc, sr]];
+    let best = null;
+    while (open.length) {
+      open.sort((a, b) => a[0] - b[0]);
+      const [d, c, r] = open.shift();
+      if (d > dist.get(key(c, r))) continue;
+      if (r < sr && (!best || d < best.d || (d === best.d && r < best.r))) best = { d, c, r };
+      for (const dir of [-1, 1]) {
+        const nc = c + dir;
+        if (nc < 0 || nc >= COLS) continue;
+        const moves = [];
+        // walk across (drilling out whatever is in the way at body height), then drop to the floor below
+        {
+          const cells = [r - 1, r - 2].filter(y => y >= 0 && solidB(y, nc)).map(y => [y, nc]);
+          let k = r; while (!solidB(k, nc)) k++;
+          moves.push({ type: 'walk', nc, k, dir, cells });
+        }
+        // climb a block face, drilling out anything in his own column on the way up (if within reach)
+        if (solidB(r - 1, nc)) {
+          let k = r - 1;
+          while (k > 0 && solidB(k - 1, nc)) k--;
+          if (k > 0) {
+            const cells = [];
+            for (let y = r - 3; y >= k - 2; y--) if (y >= 0 && solidB(y, c)) cells.push([y, c]);     // his own column, on the way up
+            for (const y of [k - 1, k - 2]) if (y >= 0 && solidB(y, nc)) cells.push([y, nc]);       // room to stand on top
+            moves.push({ type: r - k <= 3 ? 'jump' : 'climb', nc, k, dir, rise: r - k, cells });
+          }
+        }
+        for (const m of moves) {
+          const nd = d + m.cells.length;
+          if (nd > DIG_MAX) continue;
+          const kk = key(nc, m.k);
+          if (dist.has(kk) && dist.get(kk) <= nd) continue;
+          dist.set(kk, nd); from.set(kk, { c, r, m });
+          open.push([nd, nc, m.k]);
+        }
+      }
+    }
+    if (!best || best.d === 0) return null;
+    let node = key(best.c, best.r), first = null;
+    while (from.get(node)) { const p = from.get(node); first = p.m; node = key(p.c, p.r); }
+    return first ? { move: first, col: sc } : null;
+  }
+  // what to do next while dug in: either drill the next block on the cheapest way out, or move to where digging starts
   function drillTarget() {
     const C = S.climber;
-    const r = Math.round(C.y / CELL), c = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL)));
-    let roofed = false;
-    for (let k = r - 3; k >= 0; k--) if (solidB(k, c)) { roofed = true; break; }
-    if (!roofed) return null;                  // open sky above: he is not blocked in, just waiting
-    const has = (rr, cc) => rr >= 0 && cc >= 0 && cc < COLS && rr < ROWS && !!S.board[rr][cc];
-    const options = [];
-    // the ceiling: the first block above his head (within drill reach) and up to two more stacked on it
-    let k0 = -1;
-    for (let k = r - 3; k >= Math.max(0, r - 5); k--) if (has(k, c)) { k0 = k; break; }
-    if (k0 >= 0) {
-      const run = [];
-      for (let k = k0; k >= Math.max(0, k0 - 2) && has(k, c); k--) { run.push([k, c]); options.push(run.slice()); }
-    }
-    for (const d of [-1, 1]) {
-      const nc = c + d, low = has(r - 1, nc), high = has(r - 2, nc);
-      if (low) options.push([[r - 1, nc]]);
-      if (high) options.push([[r - 2, nc]]);
-      if (low && high) options.push([[r - 1, nc], [r - 2, nc]]);
-    }
-    // try each option on the board, see how high he could get, put the blocks back
-    const now = planStack().bestY;
-    let best = null;
-    for (const set of options) {
-      const saved = set.map(([rr, cc]) => S.board[rr][cc]);
-      for (const [rr, cc] of set) S.board[rr][cc] = 0;
-      const y = planStack().bestY;
-      set.forEach(([rr, cc], i) => { S.board[rr][cc] = saved[i]; });
-      if (y < now && (!best || y < best.y || (y === best.y && set.length < best.set.length))) best = { y, set };
-    }
-    if (!best) return null;
-    const [tr, tc] = best.set[0];
+    if (!C.digging && !roofed()) return null;   // open sky above: he is not blocked in, just waiting
+    const plan = planDig();
+    if (!plan) return null;
+    const { move, col: c } = plan;
+    const r = Math.round(C.y / CELL);
+    // blocks he can reach standing here: beside him at body height, or overhead within the drill's reach
+    const reach = move.cells.filter(([y, x]) => (x !== c && y >= r - 3) || (x === c && y >= r - 5));
+    if (!reach.length) return { move, col: c };   // the rest get drilled while climbing or hanging
+    // the block nearest his body first: beside him low before high, overhead low before high
+    const [tr, tc] = reach.slice().sort((a, b) => b[0] - a[0])[0];
     const side = tc - c;
     return { r: tr, c: tc, side, x: side > 0 ? (c + 1) * CELL - HW - 3 : side < 0 ? c * CELL + HW + 3 : colX(c) };
   }
@@ -1223,6 +1258,7 @@
   function breakBlock(r, c) {
     addParts(colX(c), r * CELL + CELL / 2, T.p[S.board[r][c]] || T.ink, 14, 160);
     S.board[r][c] = 0; S.ids[r][c] = 0; S.crk[r][c] = 0;
+    S.climber.stuckClock = 0;
     S.shake = Math.min(12, S.shake + 4); sfx('crumble'); say(pick(SAY.smash), 1.5);
     // if another block still has him boxed in, he goes straight on to it
     const C = S.climber;
@@ -1233,6 +1269,17 @@
     const C = S.climber;
     if (!S.board[it.tr] || !S.board[it.tr][it.tc]) { C.intent = null; C.think = 0; return; }
     if (it.side) C.f = it.side;
+    drillCell(it, dt);
+  }
+  // drill while clinging to a face or hanging from a ledge
+  function drillFrom(tr, tc, dt) {
+    const C = S.climber, c = Math.floor(C.x / CELL);
+    if (!C.drilling) { C.drilling = true; C.drillT = 0; say(pick(SAY.drill), 1.4); }
+    C.drillAt = { tr, tc, side: tc === c ? 0 : tc - c };
+    drillCell(C.drillAt, dt);
+  }
+  function drillCell(it, dt) {
+    const C = S.climber;
     const before = C.drillT % 0.07;
     C.drillT += dt;
     if (C.drillT % 0.07 < before) {
@@ -1245,6 +1292,13 @@
     }
     S.crk[it.tr][it.tc] += dt;
     if (S.crk[it.tr][it.tc] >= BREAK_AT) breakBlock(it.tr, it.tc);
+  }
+  // the first block of the stack (not the falling piece) inside his body box at (x, y)
+  function blockingCell(x, y) {
+    const c0 = Math.floor((x - HW) / CELL), c1 = Math.floor((x + HW - 0.001) / CELL);
+    const r0 = Math.floor((y - BODYH) / CELL), r1 = Math.floor((y - 0.5) / CELL);
+    for (let r = r1; r >= r0; r--) for (let c = c0; c <= c1; c++) if (r >= 0 && c >= 0 && c < COLS && r < ROWS && S.board[r][c]) return [r, c];
+    return null;
   }
 
   // ---------- the climber: seeing a piece coming ----------
@@ -1373,6 +1427,7 @@
     const C = S.climber;
     C.t += dt;
     C.sayT = Math.max(-10, C.sayT - dt);
+    C.drillAt = null;
     if (C.boxedIn && ['ground', 'air', 'dazed'].includes(C.state)) C.stuckClock = (C.stuckClock || 0) + dt;
     // safety: if he ever ends up inside blocks (dragged by a piece, a line clear, a rotation), pop him out
     if (['ground', 'air', 'dazed', 'climb'].includes(C.state) && !boxFree(C.x, C.y)) { expel(); return; }
@@ -1442,7 +1497,15 @@
         if (!supportUnder(C.x, C.y)) { toAir(); break; }
         // arrived: do the thing
         if (Math.abs(gap) < 2.5 && C.landT <= 0) {
-          if (it.type === 'jump') { C.f = it.f; startJump(it); }
+          if (it.type === 'jump') {
+            const spot = Math.round(C.x / 4) + ':' + Math.round(C.y / CELL);
+            C.jumpTries = C.jumpSpot === spot ? (C.jumpTries || 0) + 1 : 1; C.jumpSpot = spot;
+            if (C.jumpTries > 4 && it.v > 300) {
+              // this jump keeps failing: stop trying it for a while
+              C.jumpTries = 0; C.noJumpUntil = C.t + 4; C.intent = { type: 'idle', x: C.x };
+              if (C.sayT <= 0) say(pick(SAY.stuck), 1.4);
+            } else { C.f = it.f; startJump(it); }
+          }
           else if (it.type === 'escape') startJump({ f: C.f, v: JV, vx: 0 });
           else if (it.type === 'climb') {
             const cf = it.col;
@@ -1479,7 +1542,11 @@
         C.hangT += dt;
         if (C.hangT > 0.32) {
           if (boxFree(A.gx + A.f * 8, A.gy)) { C.state = 'pull'; C.pullT = 0; }
-          else if (C.hangT > 1.3) letGo();
+          else {
+            const bc = C.digging && !A.top && !(C.anchor && C.anchor.piece) && blockingCell(A.gx + A.f * 8, A.gy);
+            if (bc) { C.hangT = 0.33; drillFrom(bc[0], bc[1], dt); }
+            else if (C.hangT > 1.3) letGo();
+          }
         }
         break;
       }
@@ -1502,7 +1569,11 @@
         C.x = faceX - f * 7;
         C.grit = Math.min(10, C.grit + dt * 0.5);
         const ny = C.y - (26 + 3 * (S.level - 1) + C.grit) * dt;
-        if (!boxFree(C.x, ny)) { letGo(); break; }
+        if (!boxFree(C.x, ny)) {
+          const bc = C.digging && blockingCell(C.x, ny);
+          if (bc) { drillFrom(bc[0], bc[1], dt); break; }
+          letGo(); break;
+        }
         C.y = ny;
         const rh = Math.floor((C.y - ARMS) / CELL);
         if (!solid(rh, cf)) {
@@ -1875,23 +1946,29 @@
     if (fadeT > 0) fadeT = Math.max(0, fadeT - dt);
     const P = worldPose(clock);
     const C = S.climber, it = C.intent;
-    const drilling = C.state === 'ground' && !C.alert && it && it.type === 'drill';
+    const dj = C.state === 'ground' && !C.alert && it && it.type === 'drill' ? { tr: it.tr, tc: it.tc, side: it.side } : C.drillAt;
     let drill = null;
-    if (drilling) {
+    if (dj) {
       // both hands on the jackhammer's T-handle, everything shaking
-      const f = it.side || P.f || 1;
+      const f = dj.side ? Math.sign(dj.side) : (P.f || 1);
       const jit = () => (Math.random() - 0.5) * 1.6;
-      const ax = it.side ? f : 0, ay = it.side ? 0 : -1;                 // drill axis, pointing at the block
-      const px = -ay, py = ax;                                            // across the handle
       const sx = P.neck[0], sy = P.neck[1] + 3;
-      // overhead, the drill goes up beside his head rather than through it
-      const hx = it.side ? sx + f * 2 + jit() : sx + f * 10 + jit(), hy = it.side ? sy + 4 + jit() : sy - 2 + jit();
-      const tipX = it.side ? (f > 0 ? it.tc * CELL : (it.tc + 1) * CELL) : hx;
-      const tipY = it.side ? it.tr * CELL + CELL / 2 : (it.tr + 1) * CELL;
+      let hx, hy, tipX, tipY, ax, ay;
+      if (!dj.side) {
+        // overhead, the drill goes up beside his head rather than through it
+        hx = sx + f * 10 + jit(); hy = sy - 2 + jit(); tipX = hx; tipY = (dj.tr + 1) * CELL; ax = 0; ay = -1;
+      } else {
+        hx = sx + f * 2 + jit(); hy = sy + 4 + jit();
+        tipX = f > 0 ? dj.tc * CELL : (dj.tc + 1) * CELL;
+        tipY = Math.max(dj.tr * CELL + 4, Math.min((dj.tr + 1) * CELL - 4, hy));
+        const L = Math.hypot(tipX - hx, tipY - hy) || 1;
+        ax = (tipX - hx) / L; ay = (tipY - hy) / L;
+      }
+      const px = -ay, py = ax;                                            // across the handle
       for (const [side, e] of [[-1, 'lElbow'], [1, 'rElbow']]) {
         const hand = [hx + px * 5 * side + jit() * 0.5, hy + py * 5 * side + jit() * 0.5];
         P[e === 'lElbow' ? 'lHand' : 'rHand'] = hand;
-        P[e] = [(sx + hand[0]) / 2 + px * 5 * side - ax * 3, (sy + hand[1]) / 2 + py * 5 * side - ay * 3 + (it.side ? 3 : 0)];
+        P[e] = [(sx + hand[0]) / 2 + px * 5 * side - ax * 3, (sy + hand[1]) / 2 + py * 5 * side - ay * 3 + (dj.side ? 3 : 0)];
       }
       P.head = [P.head[0] + jit() * 0.6, P.head[1] + jit() * 0.6];
       P.face = 'grit';
