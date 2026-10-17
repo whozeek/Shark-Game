@@ -611,6 +611,7 @@
   const G = 1500, JUMP_H = 98, JV = Math.sqrt(2 * G * JUMP_H);
   const WALK = 55, RUN = 92, DODGE = 128;
   const SLAM = 0.016;                        // seconds per row while a hard drop slams down
+  const TELEPORT_AFTER = 25;                  // seconds boxed in before he reaches for the teleport button
   const CRACK_AT = 5, BREAK_AT = 10;          // seconds of drilling before cracks show, and before the block breaks
   const dropInterval = () => Math.max(0.06, 0.9 * Math.pow(0.85, S.level - 1));
   const SHAPES = {
@@ -636,6 +637,8 @@
     thrown: ['WHOA!', 'Hey, quit spinning it!', 'Bad driver!'],
     bonk: ['OOF!', 'My head!', 'BONK.', 'Ow ow ow!'],
     slip: ['Losing grip!', 'Nope nope nope—', 'My fingers!'],
+    button: ['That\'s it. Plan B.', 'Okay. Cheat code.', 'I didn\'t want to do this…'],
+    arrive: ['Ta-da!', 'Teleported!', 'Miss me?'],
     dodge: ['!', 'WHOA!', 'Not on my head!', 'Incoming!', 'Eep!'],
     missed: ['Ha! Missed me!', 'Too slow!', 'Close one!', 'Nice try.'],
     drill: ['Fine. Drill time.', 'Stand back.', 'BRRRRRRT!', 'I came prepared.'],
@@ -959,7 +962,7 @@
   }
   function resolveOverlap(dx, dy) {
     const C = S.climber;
-    if (!['ground', 'air', 'dazed', 'climb'].includes(C.state)) return;
+    if (!['ground', 'air', 'dazed', 'climb', 'button'].includes(C.state)) return;
     if (boxFree(C.x, C.y)) return;
     if (dy > 0) return squash();
     // nudged sideways or by a rotation: try a small push before burying him
@@ -1099,14 +1102,14 @@
     const interval = dropInterval();
     if (po && (waitRows * interval < 2.5 || !plan.move)) {
       const reachNow = need <= JUMP_H;
-      C.idleT = 0; C.trapT = 0; C.drilling = false;
+      C.idleT = 0; C.trapT = 0; C.drilling = false; C.stuckClock = 0; C.boxedIn = false;
       C.intent = { type: reachNow ? 'jump' : 'wait', x: po.sx, f: po.f, v: Math.sqrt(2 * G * Math.max(20, need + 6)), vx: po.f * 20, piece: true };
       return;
     }
     const m = plan.move;
     if (m) {
       const c = plan.col;
-      C.idleT = 0; C.trapT = 0; C.drilling = false;
+      C.idleT = 0; C.trapT = 0; C.drilling = false; C.stuckClock = 0; C.boxedIn = false;
       if (m.type === 'walk') C.intent = { type: 'go', x: colX(m.nc) };
       else {
         const edge = m.dir > 0 ? (c + 1) * CELL - HW - 3 : c * CELL + HW + 3;
@@ -1115,6 +1118,15 @@
       }
       return;
     }
+    // boxed in for too long (drilling included): out comes the teleport button
+    C.boxedIn = roofed();
+    if (C.boxedIn) {
+      if (C.stuckClock >= TELEPORT_AFTER && teleportSpot()) {
+        C.stuckClock = 0; C.state = 'button'; C.btnT = 0; C.intent = null; C.vx = 0; C.drilling = false;
+        say(pick(SAY.button), 1.6);
+        return;
+      }
+    } else C.stuckClock = 0;
     // boxed in by blocks: after a moment, get the drill out
     const tgt = drillTarget();
     if (tgt) {
@@ -1145,6 +1157,26 @@
   }
 
   // the block that has him boxed in: a ceiling just over his head, or a wall beside him
+  // is there a block somewhere over his head (he is boxed in, not just waiting on top)?
+  function roofed() {
+    const C = S.climber;
+    const r = Math.round(C.y / CELL), c = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL)));
+    for (let k = r - 3; k >= 0; k--) if (solidB(k, c)) return true;
+    return false;
+  }
+  // the highest block top in the board that he would fit on, if it is higher than where he is
+  function teleportSpot() {
+    const C = S.climber, now = Math.round(C.y / CELL);
+    let best = null;
+    for (let c = 0; c < COLS; c++) {
+      let r = 0; while (r < ROWS && !solidB(r, c)) r++;
+      if (r >= now || r < 1) continue;
+      const x = colX(c), y = r * CELL;
+      if (!boxFree(x, y)) continue;
+      if (!best || r < best.r || (r === best.r && Math.abs(x - C.x) < Math.abs(best.x - C.x))) best = { r, x, y };
+    }
+    return best;
+  }
   // the fewest blocks he must drill to get somewhere higher; null if drilling would not help
   function drillTarget() {
     const C = S.climber;
@@ -1341,6 +1373,7 @@
     const C = S.climber;
     C.t += dt;
     C.sayT = Math.max(-10, C.sayT - dt);
+    if (C.boxedIn && ['ground', 'air', 'dazed'].includes(C.state)) C.stuckClock = (C.stuckClock || 0) + dt;
     // safety: if he ever ends up inside blocks (dragged by a piece, a line clear, a rotation), pop him out
     if (['ground', 'air', 'dazed', 'climb'].includes(C.state) && !boxFree(C.x, C.y)) { expel(); return; }
     // safety: airborne but not moving for a while means he is wedged; free him
@@ -1352,6 +1385,7 @@
     } else C.wedgeT = 0;
     switch (C.state) {
       case 'ground': {
+        if (C.arriveT > 0) C.arriveT = Math.max(0, C.arriveT - dt);
         if (!supportUnder(C.x, C.y)) { toAir(); C.wantGrab = Math.random() < 0.5; break; }
         C.wobble = Math.max(0, C.wobble - dt * 0.7);
         if (C.wanderT > 0) C.wanderT -= dt;
@@ -1486,6 +1520,25 @@
         if (!supportUnder(C.x, C.y)) { toAir(); C.tumble = true; break; }
         if (C.dazedT <= 0) { C.state = 'ground'; C.landT = 0.15; if (C.y >= BH - 1 && Math.random() < 0.6) say(pick(SAY.up), 1.5); }
         break;
+      case 'button': {
+        // pull out the box, slap the button, beam out, beam in on top of the stack
+        C.btnT += dt; C.vx = 0;
+        if (!supportUnder(C.x, C.y)) { toAir(); break; }
+        if (C.btnT >= 0.75 && !C.pressed) { C.pressed = true; sfx('beep'); }
+        if (C.btnT >= 1.05 && !C.zapped) {
+          C.zapped = true; sfx('zap');
+          for (let i = 0; i < 3; i++) addParts(C.x, C.y - 10 - i * 14, i % 2 ? T.accent : T.p.I, 5, 60);
+        }
+        if (C.btnT >= 1.5) {
+          const tp = teleportSpot();
+          if (tp) { C.x = tp.x; C.y = tp.y; }
+          C.state = 'ground'; C.arriveT = 0.7; C.pressed = C.zapped = false;
+          C.intent = null; C.think = 0.4; C.trapT = 0; C.stuckClock = 0; C.boxedIn = false;
+          for (let i = 0; i < 3; i++) addParts(C.x, C.y - 10 - i * 14, i % 2 ? T.accent : T.p.I, 6, 80);
+          sfx('zap'); say(pick(SAY.arrive), 1.4);
+        }
+        break;
+      }
       case 'squash':
         C.squashT -= dt;
         if (C.squashT <= 0) expel();
@@ -1627,6 +1680,8 @@
       case 'clear4': [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.14, 'square', 0.06, i * 0.07)); break;
       case 'jump': tone(300, 700, 0.12, 'square', 0.03); break;
       case 'rattle': tone(95 + Math.random() * 30, 60, 0.05, 'square', 0.03); if (Math.random() < 0.3) tone(1400, 900, 0.03, 'square', 0.012); break;
+      case 'beep': tone(880, 880, 0.07, 'square', 0.05); tone(1320, 1320, 0.09, 'square', 0.05, 0.08); break;
+      case 'zap': tone(180, 2200, 0.35, 'sawtooth', 0.035); tone(2400, 300, 0.3, 'sine', 0.03, 0.1); break;
       case 'crumble': tone(220, 50, 0.45, 'sawtooth', 0.07); tone(120, 40, 0.35, 'triangle', 0.15); break;
       case 'fall': tone(1200, 180, 0.7, 'sine', 0.06); break;
       case 'bonk': tone(700, 160, 0.18, 'square', 0.07); tone(90, 40, 0.15, 'triangle', 0.15); break;
@@ -1779,6 +1834,7 @@
         if (C.state === 'pull') t = C.pullT;
         break;
       }
+      case 'button': name = 'idle'; break;
       case 'climb': name = 'climb'; speed = (26 + 3 * (S.level - 1) + C.grit) / 37; break;
       case 'dazed': name = 'dazed'; break;
       case 'squash': name = 'squashed'; t = 0.7 - C.squashT; break;
@@ -1841,7 +1897,35 @@
       P.face = 'grit';
       drill = { hx, hy, tipX, tipY, ax, ay, px, py, f };
     }
+    let btn = null, alpha = 1;
+    if (C.state === 'button') {
+      const f = P.f || 1, t = C.btnT;
+      const out = Math.min(1, t / 0.35);                                 // box comes out
+      const bx = P.neck[0] + f * (4 + 8 * out), by = P.neck[1] + 14 - 2 * out;
+      const sx = P.neck[0], sy = P.neck[1] + 3;
+      P.rHand = [bx + f * 1, by + 5]; P.rElbow = [(sx + P.rHand[0]) / 2 - f * 2, (sy + P.rHand[1]) / 2 + 4];
+      // the other hand winds up, then slaps down on the button
+      const slap = t < 0.55 ? 0 : t < 0.75 ? (t - 0.55) / 0.2 : 1;
+      const up = [bx - f * 2, by - 14], down = [bx, by - 3];
+      P.lHand = t < 0.55 ? [sx - f * 4, sy + 14] : [up[0] + (down[0] - up[0]) * slap, up[1] + (down[1] - up[1]) * slap * slap];
+      P.lElbow = [(sx + P.lHand[0]) / 2 - f * 4, (sy + P.lHand[1]) / 2 - 2];
+      P.face = t > 0.75 ? 'happy' : 'normal';
+      btn = { bx, by, pressed: t >= 0.75 };
+      if (t > 1.05) alpha = Math.max(0, 1 - (t - 1.05) / 0.45);
+    }
+    if (C.arriveT > 0) alpha = Math.min(alpha, 1 - C.arriveT / 0.7);
+    // beam of light while he teleports out or in
+    const beam = C.state === 'button' && C.btnT > 0.95 ? Math.min(1, (C.btnT - 0.95) / 0.2) * (1 - Math.max(0, C.btnT - 1.35) / 0.15) : C.arriveT > 0 ? C.arriveT / 0.7 : 0;
+    if (beam > 0) {
+      ctx.save();
+      ctx.globalAlpha = 0.28 * beam; ctx.fillStyle = T.p.I;
+      ctx.fillRect(C.x - 9, C.y - 220, 18, 220);
+      ctx.globalAlpha = 0.6 * beam; ctx.strokeStyle = T.accent; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.ellipse(C.x, C.y, 10 + (1 - beam) * 10, 3, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+    }
     ctx.save();
+    ctx.globalAlpha = Math.max(0.05, alpha);
     ctx.strokeStyle = T.ink; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     const sh = [P.neck[0], P.neck[1] + 3];
     ctx.beginPath();
@@ -1933,6 +2017,14 @@
         for (const t of [0.3, 1.6, 2.9]) { ctx.moveTo(hx + t * f, hy + 1.2); ctx.lineTo(hx + t * f, hy + 3.8); }
       }
       ctx.stroke();
+    }
+    if (btn) {
+      // a little box with a big red button
+      const { bx, by, pressed } = btn;
+      ctx.lineWidth = 1.4; ctx.strokeStyle = T.ink;
+      ctx.fillStyle = T.wall; ctx.fillRect(bx - 6, by, 12, 8); ctx.strokeRect(bx - 6, by, 12, 8);
+      ctx.fillStyle = T.accent;
+      ctx.beginPath(); ctx.ellipse(bx, by, 4, pressed ? 1.5 : 3.2, 0, Math.PI, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
     }
     ctx.restore();
     return P.head;
