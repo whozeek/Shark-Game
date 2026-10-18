@@ -603,6 +603,667 @@
 
 </script>
 <script>
+/* motions-near.js - near misses, shockwaves and dodge choreography.
+ * Same spec as motions.js def(). All recoil motions face the impact (+x) and recoil toward -x;
+ * the engine turns him to face the impact, and moves him with velocity, so the motions end
+ * centred over the origin (feet at about +-3) to blend cleanly back into idle/walk.
+ * Faces: near_wide (eyes wide), near_shut (squeezed), near_phew (eyes closed, puffing out). */
+(function () {
+  'use strict';
+  var D = StickMotions.define;
+  var STAND = { x: 0, y: -16.8, lean: 3, nod: 0, las: 6, lae: 12, ras: -6, rae: 16, lfx: -3, lfy: 0, rfx: 3, rfy: 0 };
+  function st(extra) { var o = {}, k; for (k in STAND) o[k] = STAND[k]; for (k in extra || {}) o[k] = extra[k]; return o; }
+
+  /* ----------------------------------------------------------- anticipation */
+
+  // startle: head snaps up at the piece, shoulders hunch, hands half up, eyes wide.
+  D('near_startle', { dur: 0.22, face: 'near_wide', keys: [
+    [0.0,  st()],
+    [0.07, { x: -0.8, y: -16.0, lean: -6, nod: -26, las: 35, lae: 70, ras: 25, rae: 75 }],
+    [0.22, { x: -1.2, y: -15.6, lean: -8, nod: -30, las: 55, lae: 85, ras: 45, rae: 90 }]
+  ]});
+
+  // burst: the first push-off step out of the startle, deep lean, rear leg driving.
+  D('near_burst', { dur: 0.16, face: 'near_wide', keys: [
+    [0.0,  { x: -1, y: -15.6, lean: -6, nod: -28, las: 55, lae: 85, ras: 45, rae: 90, lfx: -3, lfy: 0, rfx: 3, rfy: 0 }],
+    [0.06, { x: 0,  y: -13.5, lean: 22, nod: -10, las: -40, lae: 70, ras: 60, rae: 80, lfx: -6, lfy: 0, rfx: 5, rfy: -5 }],
+    [0.16, { x: 1.5, y: -14.8, lean: 26, nod: -12, las: -50, lae: 65, ras: 55, rae: 85, lfx: -9, lfy: -1, rfx: 8, rfy: -2 }]
+  ]});
+
+  // sprint: panic run, stronger lean than run, head down, arms pumping hard.
+  (function () {
+    var R = [[8, 0], [3, 0], [-3, 0], [-9, -1.5], [-9, -10], [-2, -11], [6, -9.5], [10, -3.5]];
+    var ARM = [-60, -48, 8, 52, 66, 50, -8, -48];
+    var ELB = [60, 70, 95, 104, 98, 88, 70, 58];
+    var HY = [-14.8, -14.3, -15.0, -16.2], NOD = [-2, 0, -3, -5];
+    var keys = [];
+    for (var i = 0; i < 8; i++) {
+      var o = (i + 4) % 8;
+      keys.push([0.34 * i / 8, { x: 0, y: HY[i % 4], lean: 24, nod: NOD[i % 4],
+        rfx: R[i][0], rfy: R[i][1], lfx: R[o][0], lfy: R[o][1], ras: ARM[i], rae: ELB[i], las: ARM[o], lae: ELB[o] }]);
+    }
+    D('near_sprint', { dur: 0.34, loop: true, face: 'near_wide', keys: keys });
+  })();
+
+  // skid: stopping hard, weight thrown back, front foot planted ahead, arms out.
+  D('near_skid', { dur: 0.3, face: 'near_wide', keys: [
+    [0.0,  { x: 2,    y: -15,   lean: 20,  nod: -8,  las: -40, lae: 60, ras: 50, rae: 70, lfx: -6, lfy: 0, rfx: 6,  rfy: -2 }],
+    [0.08, { x: -1.5, y: -13.5, lean: -14, nod: -6,  las: 70,  lae: 30, ras: 95, rae: 25, lfx: -3, lfy: 0, rfx: 10, rfy: 0 }],
+    [0.3,  { x: -0.5, y: -15.8, lean: -6,  nod: -16, las: 40,  lae: 40, ras: 55, rae: 40, lfx: -4, rfx: 5 }]
+  ]});
+
+  // watch: on guard, weight back, following the piece (the engine aims the head at it).
+  D('near_watch', { dur: 1.4, loop: true, face: 'near_wide', keys: [
+    [0.0, { x: -0.8, y: -16.2, lean: -5, nod: -14, las: 40, lae: 60, ras: 30, rae: 65, lfx: -4.5, lfy: 0, rfx: 4, rfy: 0 }],
+    [0.7, { x: -1.1, y: -15.8, lean: -7, nod: -18, las: 44, lae: 64, ras: 34, rae: 70 }]
+  ]});
+
+  // phew: deflate onto the knees, a breath, straighten and wipe the brow.
+  D('near_phew', { dur: 1.2, face: 'near_phew', mode: { la: 'ik', ra: 'ik' }, keys: [
+    [0.0,  { x: -0.8, y: -16.2, lean: -5, nod: -10, lhx: 3, lhy: -20, rhx: 5, rhy: -22, lfx: -4.5, lfy: 0, rfx: 4, rfy: 0 }],
+    [0.2,  { x: -1.5, y: -14.5, lean: 32, nod: 12, lhx: 5, lhy: -12, rhx: 8, rhy: -12, lfx: -5, rfx: 5 }],
+    [0.45, { x: -1.3, y: -14.9, lean: 28, nod: 8 }],
+    [0.62, { x: -1.5, y: -14.5, lean: 31, nod: 12 }],
+    [0.82, { x: -0.5, y: -16.2, lean: 2,  nod: -4, lhx: 0, lhy: -17, rhx: 6, rhy: -41 }],
+    [0.98, { rhx: -1, rhy: -43 }],
+    [1.2,  { x: 0, y: -16.8, lean: 3, nod: 0, lhx: -1, lhy: -17, rhx: 2, rhy: -17, lfx: -3, rfx: 3, face: 'normal' }]
+  ]});
+
+  /* ------------------------------------------------------------- shockwave */
+
+  // glance: a far thump - quick look toward it, tiny shoulder jerk.
+  D('near_glance', { dur: 0.6, keys: [
+    [0.0,  st()],
+    [0.08, { x: -0.6, y: -16.4, lean: -4, nod: 6, las: 20, lae: 30, ras: 10, rae: 35, face: 'near_wide' }],
+    [0.45, { x: -0.4, y: -16.6, lean: -2, nod: 4 }],
+    [0.6,  st({ face: 'normal' })]
+  ]});
+
+  // flinch: arms snap up in front of the face, one foot steps back, eyes squeezed.
+  D('near_flinch', { dur: 0.5, face: 'near_shut', keys: [
+    [0.0,  st()],
+    [0.06, { x: -3,   y: -15,   lean: -14, nod: 10, las: 110, lae: 95, ras: 95, rae: 100, lfx: -7, lfy: -2, rfx: 2 }],
+    [0.16, { x: -3.5, y: -14.8, lean: -10, nod: 8,  lfx: -8, lfy: 0 }],
+    [0.34, { x: -1.5, y: -15.8, lean: -4,  nod: 2,  las: 50, lae: 40, ras: 30, rae: 45, lfx: -5, rfx: 2.5, face: 'normal' }],
+    [0.5,  st({ face: 'normal' })]
+  ]});
+
+  // hop: startled jump in place, knees up, arms flung out, squash on landing.
+  D('near_hop', { dur: 0.55, face: 'near_wide', keys: [
+    [0.0,  st()],
+    [0.05, { x: -0.5, y: -14,   lean: 10, nod: -8,  las: -20, lae: 30, ras: -25, rae: 30 }],
+    [0.14, { x: -1,   y: -25,   lean: -8, nod: -20, las: 120, lae: 40, ras: 140, rae: 30, lfx: -4, lfy: -7, rfx: 1, rfy: -9 }],
+    [0.26, { x: -1.5, y: -22,   lean: -4, nod: -14, lfx: -4, lfy: -3, rfx: 2, rfy: -4 }],
+    [0.34, { x: -1,   y: -13.5, lean: 12, nod: 6,   las: 60,  lae: 40, ras: 70,  rae: 40, lfx: -4, lfy: 0, rfx: 3, rfy: 0 }],
+    [0.55, st({ face: 'normal' })]
+  ]});
+
+  // stagger: blown backwards, catch steps, arms windmilling for balance.
+  D('near_stagger', { dur: 0.8, face: 'near_wide', keys: [
+    [0.0,  st()],
+    [0.06, { x: -2,   y: -15,   lean: -18, nod: 14, las: 130, lae: 30, ras: 70,  rae: 60, lfx: -8, lfy: -5, rfx: 5,  rfy: 0, face: 'near_shut' }],
+    [0.18, { x: -1,   y: -14.5, lean: -22, nod: 10, las: 60,  lae: 50, ras: 150, rae: 20, lfx: -6, lfy: 0,  rfx: 8,  rfy: 0 }],
+    [0.3,  { x: -2,   y: -15,   lean: -16, nod: 6,  las: 150, lae: 20, ras: 60,  rae: 60, lfx: 3,  lfy: 0,  rfx: -6, rfy: -5, face: 'near_wide' }],
+    [0.42, { x: -1.5, y: -15.2, lean: -12, nod: 4,  las: 80,  lae: 40, ras: 130, rae: 30, lfx: 6,  lfy: 0,  rfx: -5, rfy: 0 }],
+    [0.56, { x: -0.5, y: -15.8, lean: -6,  nod: 2,  las: 110, lae: 30, ras: 60,  rae: 40, lfx: 2,  lfy: -4, rfx: -3, rfy: 0 }],
+    [0.8,  st({ face: 'normal' })]
+  ]});
+
+  // bowl: bowled over onto his backside; ends exactly on the dazed sitting pose.
+  D('near_bowl', { dur: 0.45, face: 'near_shut', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: 0,  y: -16.6, lean: -10, nod: 10,  las: 120, lae: 30, ras: 100, rae: 40, lls: -5, llk: 8,  rls: 5,  rlk: 8 }],
+    [0.15, { x: -2, y: -10,   lean: -25, nod: 15,  las: 150, lae: 20, ras: 140, rae: 20, lls: 40, llk: 30, rls: 55, rlk: 40 }],
+    [0.28, { x: -3, y: -2.5,  lean: -8,  nod: -10, las: 60,  lae: 30, ras: -40, rae: 10, lls: 100, llk: 30, rls: 90, rlk: 25 }],
+    [0.45, { x: -3, y: -3,    lean: 4,   nod: 18,  las: 35,  lae: 40, ras: -30, rae: 6,  lls: 100, llk: 40, rls: 95, rlk: 35, face: 'dizzy' }]
+  ]});
+
+  // teeter: heels on the edge (local x ~ +2), hips hanging out over the drop behind him,
+  // arms windmilling to get the weight back over his feet.
+  D('near_teeter', { dur: 0.8, loop: true, face: 'near_wide', keys: [
+    [0.0, { x: -1.5, y: -16,   lean: -20, nod: -4, las: 160, lae: 20, ras: 40,  rae: 30, lfx: 1.5, lfy: 0, rfx: 4.5, rfy: 0 }],
+    [0.2, { x: -2.5, y: -15.4, lean: -28, nod: -10, las: 240, lae: 30, ras: 120, rae: 20, rfy: -2 }],
+    [0.4, { x: -1,   y: -16.2, lean: -14, nod: 2,  las: 60,  lae: 20, ras: 180, rae: 20, rfy: 0 }],
+    [0.6, { x: -2,   y: -15.6, lean: -25, nod: -8, las: 110, lae: 40, ras: 250, rae: 30, lfy: -2 }]
+  ]});
+
+  // recover: got it - lunge forward off the edge, then stand.
+  D('near_recover', { dur: 0.45, keys: [
+    [0.0,  { x: -1.5, y: -16, lean: -16, nod: -4, las: 160, lae: 20, ras: 40, rae: 30, lfx: 1.5, lfy: 0, rfx: 4.5, rfy: 0, face: 'near_wide' }],
+    [0.12, { x: 1,  y: -14,   lean: 28, nod: -6, las: 100, lae: 30, ras: 80, rae: 30, lfx: -3, lfy: 0, rfx: 10, rfy: -3 }],
+    [0.25, { x: 2,  y: -14.5, lean: 22, nod: 0,  lfx: -4, rfx: 9, rfy: 0 }],
+    [0.45, st({ face: 'normal' })]
+  ]});
+
+  /* ------------------------------------------------------------ near misses */
+
+  // duck: something just over his head - drop low, forearms over the head.
+  D('near_duck', { dur: 0.3, face: 'near_shut', keys: [
+    [0.0, st({ lfx: -4, rfx: 4 })],
+    [0.1, { x: -1, y: -10,  lean: 28, nod: 6, las: 150, lae: 60, ras: 135, rae: 70, lfx: -5, rfx: 5 }],
+    [0.3, { x: -1, y: -9.5, lean: 30, nod: 8, las: 148, lae: 62, ras: 132, rae: 72 }]
+  ]});
+
+  // lean: a piece sliding / falling right past his face - sway away from it, guard up.
+  D('near_lean', { dur: 0.3, face: 'near_wide', keys: [
+    [0.0,  st()],
+    [0.12, { x: -2.5, y: -15.6, lean: -16, nod: 4, las: 80, lae: 70, ras: 60, rae: 80, lfx: -6, rfx: 2 }],
+    [0.3,  { x: -2.8, y: -15.4, lean: -18, nod: 6 }]
+  ]});
+
+  // dive: superman dive, body flat out, arms reaching, legs trailing; reaches down to land.
+  D('near_dive', { dur: 0.45, face: 'near_wide', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: 0, y: -16, lean: 40, nod: -10, las: 20,  lae: 20, ras: 10,  rae: 20, lls: -20, llk: 10, rls: 10,  rlk: 30 }],
+    [0.1,  { x: 0, y: -14, lean: 78, nod: -20, las: 105, lae: 5,  ras: 100, rae: 8,  lls: -75, llk: 10, rls: -65, rlk: 25 }],
+    [0.3,  { x: 0, y: -12, lean: 84, nod: -15, las: 95,  lae: 8,  ras: 92,  rae: 10, lls: -80, llk: 15, rls: -72, rlk: 35 }],
+    [0.45, { x: 0, y: -11, lean: 80, nod: -5,  las: 70,  lae: 20, ras: 65,  rae: 25, lls: -70, llk: 20, rls: -60, rlk: 40 }]
+  ]});
+
+  // slidedive: flat, low, desperate dive straight into a belly slide.
+  D('near_slidedive', { dur: 0.25, face: 'near_wide', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: -2, y: -14, lean: 55, nod: -10, las: 60,  lae: 20, ras: 50, rae: 20, lls: -30, llk: 10, rls: 0,   rlk: 30 }],
+    [0.12, { x: -8, y: -8,  lean: 86, nod: -16, las: 100, lae: 5,  ras: 96, rae: 8,  lls: -85, llk: 10, rls: -80, rlk: 20 }],
+    [0.25, { x: -12, y: -5, lean: 88, nod: -14, las: 100, lae: 5,  ras: 95, rae: 8,  lls: -90, llk: 12, rls: -86, rlk: 25 }]
+  ]});
+
+  // bellyslide: prone, sliding on the belly, then a push-up back to standing.
+  D('near_bellyslide', { dur: 0.9, face: 'near_wide', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: -14, y: -4,   lean: 88, nod: -12, las: 100, lae: 5,  ras: 95, rae: 8,  lls: -92, llk: 10, rls: -88, rlk: 25 }],
+    [0.4,  { x: -14, y: -3.5, lean: 89, nod: -15, lls: -90, llk: 30, rls: -90, rlk: 50 }],
+    [0.55, { x: -9,  y: -6,   lean: 70, nod: -10, las: 10, lae: 0, ras: 5, rae: 0, lls: -60, llk: 50, rls: -70, rlk: 60, face: 'near_shut' }],
+    [0.72, { x: -4,  y: -11,  lean: 35, nod: 0,   las: 20, lae: 10, ras: 15, rae: 10, lls: 50, llk: 100, rls: 30, rlk: 90 }],
+    [0.9,  { x: 0,   y: -17.5, lean: 4, nod: 0,   las: 6,  lae: 12, ras: -6, rae: 16, lls: -4, llk: 6,  rls: 4,  rlk: 6, face: 'normal' }]
+  ]});
+
+  // roll: tucked ball; the engine spins it forward around (0,-15) while he slides.
+  D('near_roll', { dur: 0.45, face: 'near_shut', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: -6, y: -6,   lean: 30, nod: 70, las: 110, lae: 90,  ras: 95,  rae: 100, lls: 150, llk: 150, rls: 140, rlk: 140 }],
+    [0.45, { x: -6, y: -6.5, lean: 34, nod: 66, las: 115, lae: 95,  ras: 100, rae: 105, lls: 145, llk: 145, rls: 135, rlk: 135 }]
+  ]});
+
+  // rollup: out of the tuck, onto the feet, standing tall.
+  D('near_rollup', { dur: 0.35, mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: -6, y: -6.5, lean: 34, nod: 66, las: 115, lae: 95, ras: 100, rae: 105, lls: 145, llk: 145, rls: 135, rlk: 135, face: 'near_shut' }],
+    [0.15, { x: -1, y: -11,  lean: 30, nod: 0,  las: 40,  lae: 60, ras: 30,  rae: 60,  lls: 60,  llk: 110, rls: 50,  rlk: 100, face: 'near_wide' }],
+    [0.35, { x: 0,  y: -17.5, lean: 4, nod: -6, las: 6,   lae: 12, ras: -6,  rae: 16,  lls: -4,  llk: 6,   rls: 4,   rlk: 6 }]
+  ]});
+
+  // leap: hurdling up onto a low block, lead leg forward, trail leg tucked back.
+  D('near_leap', { dur: 0.45, face: 'near_wide', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: 0, y: -17, lean: 15, nod: -10, las: 150, lae: 20, ras: -40, rae: 40, lls: 80, llk: 20, rls: -40, rlk: 80 }],
+    [0.2,  { x: 0, y: -18, lean: 22, nod: -5,  las: 120, lae: 30, ras: -30, rae: 50, lls: 90, llk: 10, rls: -60, rlk: 90 }],
+    [0.45, { x: 0, y: -17, lean: 8,  nod: 0,   las: 90,  lae: 30, ras: 40,  rae: 40, lls: 40, llk: 30, rls: 10,  rlk: 40 }]
+  ]});
+})();
+
+</script>
+<script>
+/* motions-recover.js - recovery motions (getting up after a piece got him).
+ * Origin = feet contact, figure facing +x, same channel format as motions.js.
+ * Every get-up ends in the standing pose that idle/walk start from, so the engine's blend
+ * into the next motion is short and invisible. Faces switch dizzy -> normal part-way up
+ * (the engine fades the stars out on its own). */
+(function () {
+  'use strict';
+  var def = window.StickMotions && window.StickMotions.define;
+  if (!def) return;
+
+  // FK standing pose with the legs in FK mode (feet land at y ~ 0 with hip y -17.8).
+  var STAND_FK = { x: 0, y: -17.8, lean: 3, nod: 0, hd: 8, las: 6, lae: 12, ras: -6, rae: 16, lls: -4, llk: 6, rls: 4, rlk: 6, face: 'normal' };
+  // the sitting pose of 'dazed' at t=0, so get-ups start exactly where the sit loop is
+  var SIT = { x: -3, y: -3, lean: 4, nod: 18, hd: 8, las: 35, lae: 40, ras: -30, rae: 6, lls: 100, llk: 40, rls: 95, rlk: 35 };
+  function k(base, over) { var o = {}, p; for (p in base) o[p] = base[p]; for (p in over || {}) o[p] = over[p]; return o; }
+
+  // roll: lands curled from a tumble, rolls once (engine adds the spin), opens into the sit.
+  def('recover_roll', { dur: 0.42, face: 'dizzy', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: -1, y: -9, lean: 45, nod: 30, hd: 8, las: 160, lae: 50, ras: 120, rae: 70, lls: 115, llk: 125, rls: 100, rlk: 110 }],
+    [0.2,  { x: -2, y: -6, lean: 22, nod: 26, las: 80, lae: 50, ras: 40, rae: 45, lls: 102, llk: 70, rls: 96, rlk: 60 }],
+    [0.42, SIT]
+  ]});
+
+  // flat: popped out from under a block and lying face-down like a pancake. Head lifts
+  // groggily, one lower leg flops. Loops while he is down.
+  def('recover_flat', { dur: 1.4, loop: true, face: 'dizzy', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: -10, y: -3.4, lean: 85, nod: -8,  hd: 8, las: -95, lae: 8, ras: 92, rae: 30, lls: -95, llk: 40, rls: -93, rlk: 55 }],
+    [0.35, { nod: -20, ras: 96, rae: 45 }],
+    [0.7,  { nod: -6, llk: 72 }],
+    [1.05, { nod: -15, ras: 90, rae: 25, llk: 40 }]
+  ]});
+
+  // peelUp: from flat: hands slap down under the shoulders, push-up, knees tuck in, rise,
+  // overshoot tall (springing back into shape), settle.
+  def('recover_peelUp', { dur: 1.0, face: 'dizzy', mode: { la: 'ik', ra: 'ik', ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: -10, y: -3.4, lean: 85, nod: -8,  hd: 8, lhx: -9, lhy: -3, rhx: 15, rhy: -2, lls: -95, llk: 40, rls: -93, rlk: 55 }],
+    [0.2,  { x: -10, y: -3.4, lean: 84, nod: -16, lhx: 5, lhy: 0, rhx: 8, rhy: 0 }],
+    [0.4,  { x: -9,  y: -4.5, lean: 50, nod: -12, lls: -80, llk: 60, rls: -84, rlk: 64 }],
+    [0.58, { x: -3,  y: -9,   lean: 55, nod: -6,  lhx: 6, lhy: 0, rhx: 8, rhy: 0, lls: 62, llk: 124, rls: 55, rlk: 115 }],
+    [0.76, { x: -1,  y: -16.6, lean: 20, nod: 4, lhx: -1, lhy: -13, rhx: 4, rhy: -14, lls: 25, llk: 45, rls: 18, rlk: 40, face: 'normal' }],
+    [0.88, { x: 0,   y: -18,  lean: -3, nod: -10, lhx: -3, lhy: -19, rhx: 3.5, rhy: -19, lls: -2, llk: 0, rls: 2, rlk: 0 }],
+    [1.0,  { x: 0,   y: -17.8, lean: 3, nod: 0,   lhx: -2, lhy: -17, rhx: 3, rhy: -16.5, lls: -4, llk: 6, rls: 4, rlk: 6 }]
+  ]});
+
+  // groggyUp: after a big hit. Shakes his head, rolls onto one knee with a hand on it,
+  // pushes up, staggers back a step, then stands.
+  def('recover_groggyUp', { dur: 1.3, face: 'dizzy', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  SIT],
+    [0.12, { nod: -12, lean: 0, hd: 8.4 }],
+    [0.24, { nod: 22, lean: 6, hd: 8 }],
+    [0.34, { nod: -8, lean: 2 }],
+    [0.44, { nod: 14, lean: 5 }],
+    [0.49, { lls: 120, llk: 130 }],
+    [0.54, { x: -2, y: -5.5, lean: 18, nod: 12, las: 30, lae: 35, ras: -10, rae: 6, lls: 60, llk: 140, rls: 88, rlk: 40 }],
+    [0.64, { x: -1, y: -8, lean: 30, nod: 8, las: 25, lae: 30, ras: 2, rae: 4, lls: 20, llk: 110, rls: 80, rlk: 35 }],
+    [0.86, { x: 0, y: -12.3, lean: 32, nod: 4, las: 30, lae: 30, ras: 8, rae: 10, lls: 45, llk: 90, rls: 50, rlk: 100, face: 'normal' }],
+    [1.06, { x: -1.2, y: -17.4, lean: -7, nod: 10, las: -25, lae: 30, ras: 35, rae: 25, lls: -8, llk: 6, rls: 8, rlk: 10 }],
+    [1.3,  STAND_FK]
+  ]});
+
+  // quickUp: light hit. Tuck, push off both hands and spring straight up.
+  def('recover_quickUp', { dur: 0.62, face: 'dizzy', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  SIT],
+    [0.07, { x: -2.6, y: -4.6, lean: 14, nod: 4, las: 0, lae: 20, ras: -30, rae: 10, lls: 112, llk: 150, rls: 108, rlk: 145 }],
+    [0.14, { x: -2, y: -6.3, lean: 28, nod: 10, las: -30, lae: 10, ras: -25, rae: 15, lls: 75, llk: 140, rls: 65, rlk: 130 }],
+    [0.3,  { x: 0, y: -15.5, lean: 16, nod: -4, las: 70, lae: 30, ras: 55, rae: 35, lls: 35, llk: 70, rls: 25, rlk: 55, face: 'normal' }],
+    [0.45, { x: 0, y: -18, lean: -3, nod: -8, las: 40, lae: 20, ras: 30, rae: 20, lls: -2, llk: 0, rls: 2, rlk: 0 }],
+    [0.62, STAND_FK]
+  ]});
+
+  // shakeOff: standing, flicks both arms out loose and shakes his head. Quick.
+  def('recover_shakeOff', { dur: 0.6, keys: [
+    [0.0,  { x: 0,    y: -16.8, lean: 4, nod: 4,  las: 10, lae: 10, ras: -10, rae: 10, lfx: -3.5, rfx: 3.5 }],
+    [0.08, { x: 0.5,  y: -16.4, nod: -6, las: 42, lae: 55, ras: -40, rae: 50 }],
+    [0.16, { x: -0.5, y: -16.7, nod: 7,  las: -12, lae: 4, ras: 22, rae: 6 }],
+    [0.24, { x: 0.5,  y: -16.4, nod: -6, las: 45, lae: 58, ras: -36, rae: 55 }],
+    [0.32, { x: -0.3, y: -16.7, nod: 6,  las: -6, lae: 5, ras: 16, rae: 5 }],
+    [0.42, { x: 0,    y: -16.6, nod: 0,  las: 28, lae: 38, ras: -24, rae: 36 }],
+    [0.6,  { x: 0,    y: -16.8, lean: 3, nod: 0, las: 6, lae: 12, ras: -6, rae: 16, lfx: -3, rfx: 3 }]
+  ]});
+
+  // fist: annoyed. Hand on hip, glares up, shakes a fist at the piece / the player.
+  def('recover_fist', { dur: 1.0, face: 'grit', keys: [
+    [0.0,  { x: 0,    y: -16.8, lean: 2,  nod: -6,  las: -18, lae: 55, ras: 60,  rae: 60, lfx: -4, rfx: 4.5 }],
+    [0.12, { x: -0.8, y: -16.4, lean: -6, nod: -14, las: -28, lae: 75, ras: 118, rae: 60 }],
+    [0.22, { ras: 132, rae: 20 }],
+    [0.32, { y: -16.1, ras: 122, rae: 70 }],
+    [0.42, { y: -16.6, ras: 134, rae: 18 }],
+    [0.52, { y: -16.1, ras: 122, rae: 70 }],
+    [0.62, { y: -16.6, ras: 132, rae: 24 }],
+    [0.8,  { x: -0.2, lean: 0, nod: -8, las: -10, lae: 40, ras: 90, rae: 60 }],
+    [1.0,  { x: 0,    y: -16.8, lean: 3, nod: 0, las: 6, lae: 12, ras: -6, rae: 16, lfx: -3, rfx: 3, face: 'normal' }]
+  ]});
+
+  // dust: bends a little and pats the dust off his legs, then straightens up.
+  def('recover_dust', { dur: 0.75, keys: [
+    [0.0,  { x: 0,   y: -16.8, lean: 4,  nod: 2,  las: 6,  lae: 12, ras: -6, rae: 16, lfx: -3.5, rfx: 3.5 }],
+    [0.14, { x: -1,  y: -15.4, lean: 26, nod: 14, las: 30, lae: 40, ras: 10, rae: 30 }],
+    [0.24, { las: 10, lae: 20, ras: 34, rae: 44 }],
+    [0.34, { las: 34, lae: 44, ras: 12, rae: 22 }],
+    [0.44, { las: 12, lae: 22, ras: 36, rae: 46 }],
+    [0.58, { x: 0,   y: -16.6, lean: 6, nod: -2, las: 12, lae: 20, ras: 2, rae: 20 }],
+    [0.75, { x: 0,   y: -16.8, lean: 3, nod: 0,  las: 6, lae: 12, ras: -6, rae: 16, lfx: -3, rfx: 3 }]
+  ]});
+})();
+
+</script>
+<script>
+/* motions-ride.js - grabbing, hanging from and riding the falling piece.
+ * Origins follow motions.base.js: riding / air poses have the origin at the feet,
+ * ride_hangOne at the grip (block top-left corner, block at x>0,y>0) like 'hang'. */
+(function () {
+  'use strict';
+  var def = window.StickMotions && window.StickMotions.define;
+  if (!def) return;
+
+  // ride_surf: relaxed surfer stance on a moving piece - wide feet, soft knees, arms loose and out.
+  def('ride_surf', { dur: 1.8, loop: true, keys: [
+    [0.0, { x: 0,    y: -15.2, lean: 6, nod: 2,  las: 62, lae: 28, ras: -48, rae: 22, lfx: -6.5, lfy: 0, rfx: 6, rfy: 0 }],
+    [0.45, { x: 0.7, y: -15.6, lean: 8, nod: -3, las: 70, lae: 22, ras: -42, rae: 26 }],
+    [0.9, { x: 0.2,  y: -15.1, lean: 5, nod: 4,  las: 58, lae: 30, ras: -52, rae: 20, face: 'happy' }],
+    [1.35, { x: -0.6, y: -15.5, lean: 3, nod: 0, las: 66, lae: 24, ras: -46, rae: 24, face: 'normal' }]
+  ]});
+
+  // ride_windmill: thrown off balance by a jerk of the piece - arms flail in big opposite arcs.
+  def('ride_windmill', { dur: 0.48, loop: true, face: 'scared', keys: [
+    [0.0,  { x: 0,    y: -14.6, lean: 6,  nod: -8,  las: 165, lae: 12, ras: 25,  rae: 35, lfx: -5.5, lfy: 0, rfx: 5, rfy: 0 }],
+    [0.12, { x: 0.8,  y: -14.2, lean: 2,  nod: -4,  las: 95,  lae: 30, ras: 115, rae: 20 }],
+    [0.24, { x: 0.2,  y: -14.7, lean: -2, nod: -10, las: 30,  lae: 35, ras: 172, rae: 10 }],
+    [0.36, { x: -0.7, y: -14.3, lean: 3,  nod: -5,  las: 110, lae: 20, ras: 90,  rae: 30 }]
+  ]});
+
+  // ride_teeter: toes over the edge (facing +x = the drop): hips pump back and forth, arms pinwheel,
+  // the front foot paddles over the void while the back foot clings to the block.
+  def('ride_teeter', { dur: 0.62, loop: true, face: 'scared', keys: [
+    [0.0,  { x: -2.5, y: -15.6, lean: 20, nod: 12,  las: 150, lae: 20, ras: 60,  rae: 40, lfx: -6.5, lfy: 0, rfx: 4,   rfy: -4 }],
+    [0.16, { x: -3.2, y: -16.2, lean: 4,  nod: 4,   las: 80,  lae: 40, ras: 150, rae: 15, rfx: 6,   rfy: -1.5 }],
+    [0.31, { x: -3.8, y: -15.8, lean: -10, nod: -10, las: 40, lae: 30, ras: 175, rae: 8,  rfx: 3,   rfy: -5 }],
+    [0.47, { x: -3.0, y: -16.0, lean: 8,  nod: 2,   las: 130, lae: 25, ras: 90,  rae: 30, rfx: 6.5, rfy: -2 }]
+  ]});
+
+  // ride_tiptoe: on a one-cell top (the T's point, a step of S/Z/J/L): feet together, up on the
+  // toes, arms out like a tightrope walker, see-sawing.
+  def('ride_tiptoe', { dur: 1.3, loop: true, face: 'strain', keys: [
+    [0.0,  { x: 0,    y: -17.4, lean: 5,  nod: 6,  las: 98, lae: 6, ras: -82, rae: 8, lfx: -1.6, lfy: 0, rfx: 1.6, rfy: 0 }],
+    [0.32, { x: 0.6,  y: -17.6, lean: -2, nod: 10, las: 80, lae: 4, ras: -100, rae: 6 }],
+    [0.65, { x: 0,    y: -17.3, lean: 6,  nod: 4,  las: 104, lae: 8, ras: -76, rae: 10 }],
+    [0.97, { x: -0.6, y: -17.6, lean: 1,  nod: 9,  las: 86, lae: 5, ras: -94, rae: 6 }]
+  ]});
+
+  // ride_brace: next to a step of the piece (+x): one hand planted on its top corner, weight on it.
+  def('ride_brace', { dur: 1.8, loop: true, mode: { ra: 'ik' }, bend: { ra: -1 }, keys: [
+    [0.0, { x: -0.5, y: -15.8, lean: 12, nod: -4, rhx: 10, rhy: -28.6, las: -12, lae: 20, lfx: -5, lfy: 0, rfx: 3, rfy: 0 }],
+    [0.9, { x: 0.2,  y: -15.4, lean: 15, nod: 2,  rhx: 10, rhy: -28.6, las: -8,  lae: 26 }]
+  ]});
+
+  // ride_crouch: soft drop - squat low, hands by the knees, eyes front.
+  def('ride_crouch', { dur: 0.9, loop: true, face: 'strain', keys: [
+    [0.0,  { x: -1, y: -10.8, lean: 30, nod: -16, las: 40, lae: 25, ras: 18, rae: 40, lfx: -5, lfy: 0, rfx: 4.5, rfy: 0 }],
+    [0.45, { x: -1, y: -11.4, lean: 27, nod: -12, las: 46, lae: 22, ras: 24, rae: 36 }]
+  ]});
+
+  // ride_elevator: hard-drop slam in progress - tucked low, arms blown up overhead.
+  def('ride_elevator', { dur: 0.18, face: 'scared', keys: [
+    [0.0,  { x: -0.5, y: -12.5, lean: 18, nod: -14, las: 130, lae: 30, ras: 140, rae: 25, lfx: -5, lfy: 0, rfx: 4.5, rfy: 0 }],
+    [0.18, { x: -1,   y: -10.5, lean: 26, nod: -22, las: 168, lae: 8,  ras: 174, rae: 6 }]
+  ]});
+
+  // ride_absorb: the slam stops dead - deep squat soaking it up (head keeps going), then stand.
+  def('ride_absorb', { dur: 0.5, face: 'grit', keys: [
+    [0.0,  { x: -1, y: -8.6, lean: 30, nod: 14, las: 70, lae: 40, ras: 55, rae: 50, lfx: -6.5, lfy: 0, rfx: 6, rfy: 0 }],
+    [0.1,  { x: -1, y: -7.8, lean: 36, nod: 18, las: 40, lae: 50, ras: 30, rae: 55 }],
+    [0.3,  { x: -0.5, y: -13, lean: 14, nod: 2, las: 30, lae: 25, ras: -10, rae: 25, face: 'normal' }],
+    [0.5,  { x: 0,  y: -16.4, lean: 4, nod: 0,  las: 6,  lae: 12, ras: -6, rae: 16, lfx: -4, rfx: 4 }]
+  ]});
+
+  // ride_cartoonStand: the piece under him was swapped away (Hold). Hangs in mid-air standing,
+  // slowly looks down, realises, tiny hop of panic... (the engine then lets gravity back in).
+  def('ride_cartoonStand', { dur: 0.6, keys: [
+    [0.0,  { x: 0, y: -16.8, lean: 3,  nod: 0,  las: 6,  lae: 12, ras: -6, rae: 16, lfx: -3, lfy: 0, rfx: 3, rfy: 0 }],
+    [0.18, { x: 0, y: -16.8, lean: 8,  nod: 30, las: 8,  lae: 14, ras: -4, rae: 18 }],
+    [0.34, { x: 0, y: -17.2, lean: 10, nod: 40, las: 10, lae: 16, ras: -2, rae: 20, face: 'scared' }],
+    [0.5,  { x: 0, y: -17.8, lean: 2,  nod: 6,  las: 60, lae: 30, ras: 50, rae: 35, lfx: -2, lfy: -1, rfx: 2, rfy: -1.5 }],
+    [0.6,  { x: 0, y: -17.8, lean: 0,  nod: -6, las: 120, lae: 25, ras: 110, rae: 30 }]
+  ]});
+
+  // ride_cartoonHang: same beat when he was hanging - hands still up gripping nothing, legs
+  // dangling; looks at his empty hands, then down. Origin = feet (hands ~49px above).
+  def('ride_cartoonHang', { dur: 0.6, mode: { la: 'ik', ra: 'ik', ll: 'fk', rl: 'fk' }, bend: { la: 1, ra: 1 }, keys: [
+    [0.0,  { x: -2, y: -17.5, lean: -8, nod: -10, lhx: 8, lhy: -48, rhx: 9, rhy: -48.5, lls: 6, llk: 15, rls: -2, rlk: 25 }],
+    [0.16, { x: -2, y: -17.5, lean: -10, nod: -26, lhx: 9, lhy: -47, rhx: 10, rhy: -47.5 }],
+    [0.32, { x: -2, y: -17.5, lean: -4, nod: 26, lhx: 10, lhy: -46, rhx: 11, rhy: -46.5, lls: 10, llk: 25, rls: 2, rlk: 30, face: 'scared' }],
+    [0.6,  { x: -2, y: -17.5, lean: -4, nod: 18, lhx: 8, lhy: -44, rhx: 12, rhy: -43, lls: 14, llk: 30, rls: -6, rlk: 20 }]
+  ]});
+
+  // ride_hangOne: lost a hand - dangling from the left hand only (origin = grip), body swung under
+  // the hand, free arm clawing back up at the edge, legs kicking.
+  def('ride_hangOne', { dur: 0.8, loop: true, root: 'neck', face: 'scared',
+    mode: { la: 'ik', ra: 'fk', ll: 'fk', rl: 'fk' }, bend: { la: 1 }, keys: [
+    [0.0, { x: -3.5, y: 16.8, lean: -4, nod: -18, lhx: 0, lhy: 0, ras: 150, rae: 30, lls: 10, llk: 30, rls: -14, rlk: 20 }],
+    [0.2, { x: -2.6, y: 17.0, lean: 4,  nod: -12, ras: 95,  rae: 55, lls: -12, llk: 20, rls: 16, rlk: 40 }],
+    [0.4, { x: -2.0, y: 16.9, lean: 8,  nod: -20, ras: 165, rae: 15, lls: 14, llk: 35, rls: -8, rlk: 15 }],
+    [0.6, { x: -3.0, y: 16.8, lean: 0,  nod: -14, ras: 110, rae: 45, lls: -8, llk: 15, rls: 12, rlk: 45 }]
+  ]});
+
+  // ride_miss: fingers slipped off the corner - reaching up after it, looking up, legs dangling.
+  def('ride_miss', { dur: 0.4, face: 'scared', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0, { y: -17.6, lean: -2, nod: -26, las: 172, lae: 4,  ras: 150, rae: 22, lls: 6,  llk: 12, rls: -4, rlk: 30 }],
+    [0.2, { y: -17.4, lean: -5, nod: -30, las: 162, lae: 18, ras: 170, rae: 6,  lls: 16, llk: 35, rls: 2,  rlk: 20 }],
+    [0.4, { y: -17.0, lean: -4, nod: -22, las: 150, lae: 30, ras: 160, rae: 20, lls: 25, llk: 40, rls: 10, rlk: 60 }]
+  ]});
+})();
+
+</script>
+<script>
+/* motions-side.js - reactions to a falling piece hitting him from the SIDE.
+ * Same spec format as motions.js def(). Figure faces +x; unless noted the piece is at +x
+ * (he faces what hit him) and the engine slides him along with C.vx while these play. */
+(function () {
+  var D = StickMotions.define;
+
+  // side_guard: anticipation - a piece is sliding toward him. Weight back, knees soft,
+  // forearms up in front of the face, eyes on the piece. Holds the last key.
+  D('side_guard', { dur: 0.32, face: 'scared', keys: [
+    [0.0,  { x: 0,    y: -16.6, lean: 3,  nod: 0,   las: 6,   lae: 12, ras: -6,  rae: 16, lfx: -3, rfx: 3 }],
+    [0.1,  { x: -1.4, y: -15.2, lean: -6, nod: 6,   las: 70,  lae: 70, ras: 50,  rae: 80, lfx: -6, rfx: 3 }],
+    [0.32, { x: -2,   y: -14.8, lean: -9, nod: 8,   las: 96,  lae: 84, ras: 76,  rae: 92, lfx: -7, rfx: 3.5 }]
+  ]});
+
+  // side_jostle: a light bump from the front. Rocks back onto the heel, arms fly up,
+  // a little hop-step back, then a glare at the piece.
+  D('side_jostle', { dur: 0.5, keys: [
+    [0.0,  { x: 0,    y: -16.4, lean: 2,   nod: 0,  las: 8,   lae: 14, ras: -4,  rae: 16, lfx: -3, lfy: 0, rfx: 3, rfy: 0 }],
+    [0.05, { x: -2.5, y: -16,   lean: -16, nod: 12, las: 120, lae: 30, ras: 70,  rae: 40, lfx: -7, lfy: -2, rfx: 2, rfy: 0, face: 'scared' }],
+    [0.16, { x: -2,   y: -16.4, lean: -10, nod: 6,  las: 95,  lae: 50, ras: 30,  rae: 50, lfx: -6, lfy: 0, rfx: 1, rfy: -3 }],
+    [0.3,  { x: -0.6, y: -16.2, lean: 0,   nod: 2,  las: 30,  lae: 30, ras: -10, rae: 25, lfx: -4, lfy: 0, rfx: 3, rfy: 0, face: 'grit' }],
+    [0.5,  { x: 0,    y: -16.6, lean: 4,   nod: 0,  las: 6,   lae: 12, ras: -6,  rae: 16, lfx: -3, lfy: 0, rfx: 3, rfy: 0 }]
+  ]});
+
+  // side_jab: the point of a T jabs him in the belly. Hips shoot back, he folds over the
+  // point, hands clutch the stomach, then straightens up.
+  D('side_jab', { dur: 0.6, mode: { la: 'ik', ra: 'ik' }, keys: [
+    [0.0,  { x: 0,    y: -16.4, lean: 4,  nod: 0,  lhx: 1,  lhy: -16, rhx: 2,  rhy: -16, lfx: -3, rfx: 3 }],
+    [0.06, { x: -4,   y: -14,   lean: 42, nod: 14, lhx: 4,  lhy: -20, rhx: 5,  rhy: -18, lfx: -7, rfx: 1, face: 'scared' }],
+    [0.25, { x: -4.5, y: -13.5, lean: 48, nod: 18, lhx: 3,  lhy: -19, rhx: 4,  rhy: -17, face: 'dizzy' }],
+    [0.42, { x: -2,   y: -15.5, lean: 20, nod: 6,  lhx: 2,  lhy: -18, rhx: 3,  rhy: -17, lfx: -4, rfx: 2.5, face: 'strain' }],
+    [0.6,  { x: 0,    y: -16.6, lean: 4,  nod: 0,  lhx: 1,  lhy: -16, rhx: 2,  rhy: -16, lfx: -3, rfx: 3 }]
+  ]});
+
+  // side_staggerBack: shoved hard from the front. Torso whips back, arms windmill forward
+  // to find balance, three quick backward steps (engine slides him back meanwhile).
+  D('side_staggerBack', { dur: 0.85, keys: [
+    [0.0,  { x: 0,    y: -16.4, lean: 3,   nod: 0,  las: 10,  lae: 14, ras: -6,  rae: 16, lfx: -3,  lfy: 0,  rfx: 3,  rfy: 0 }],
+    [0.06, { x: -3,   y: -15.5, lean: -24, nod: 16, las: 150, lae: 20, ras: 100, rae: 30, lfx: -4,  lfy: 0,  rfx: 4,  rfy: -2, face: 'scared' }],
+    [0.18, { x: -3.5, y: -15,   lean: -20, nod: 10, las: 230, lae: 20, ras: 170, rae: 20, lfx: -10, lfy: -3, rfx: 3,  rfy: 0 }],
+    [0.3,  { x: -2,   y: -15.6, lean: -14, nod: 8,  las: 300, lae: 25, ras: 250, rae: 20, lfx: -8,  lfy: 0,  rfx: -2, rfy: -4 }],
+    [0.42, { x: -2.5, y: -15.2, lean: -16, nod: 10, las: 380, lae: 20, ras: 320, rae: 25, lfx: -5,  lfy: -3, rfx: -6, rfy: 0 }],
+    [0.56, { x: -1.5, y: -15.8, lean: -8,  nod: 4,  las: 450, lae: 25, ras: 400, rae: 25, lfx: -7,  lfy: 0,  rfx: 0,  rfy: -2 }],
+    [0.7,  { x: -0.5, y: -16.3, lean: 0,   nod: 2,  las: 480, lae: 20, ras: 430, rae: 22, lfx: -4,  lfy: 0,  rfx: 3,  rfy: 0, face: 'strain' }],
+    [0.85, { x: 0,    y: -16.6, lean: 4,   nod: 0,  las: 366, lae: 12, ras: 354, rae: 16, lfx: -3,  lfy: 0,  rfx: 3,  rfy: 0, face: 'normal' }]
+  ]});
+
+  // side_staggerFwd: shoved in the back. Pitches forward, arms windmill backward,
+  // catch steps forward, recovers.
+  D('side_staggerFwd', { dur: 0.75, keys: [
+    [0.0,  { x: 0,   y: -16.4, lean: 3,  nod: 0,   las: 8,   lae: 14, ras: -6,   rae: 16, lfx: -3, lfy: 0,  rfx: 3,  rfy: 0 }],
+    [0.06, { x: 2.5, y: -15.6, lean: 30, nod: -16, las: -40, lae: 20, ras: -70,  rae: 20, lfx: -6, lfy: -2, rfx: 3,  rfy: 0, face: 'scared' }],
+    [0.18, { x: 3,   y: -14.5, lean: 38, nod: -20, las: 60,  lae: 30, ras: -140, rae: 20, lfx: 7,  lfy: -4, rfx: 1,  rfy: 0 }],
+    [0.3,  { x: 2,   y: -14.8, lean: 30, nod: -12, las: 160, lae: 25, ras: -220, rae: 20, lfx: 8,  lfy: 0,  rfx: 4,  rfy: -4 }],
+    [0.44, { x: 2.5, y: -15,   lean: 26, nod: -10, las: 240, lae: 20, ras: -290, rae: 25, lfx: 3,  lfy: -3, rfx: 9,  rfy: 0 }],
+    [0.58, { x: 1,   y: -16,   lean: 12, nod: -4,  las: 330, lae: 25, ras: -340, rae: 20, lfx: 6,  lfy: 0,  rfx: 4,  rfy: 0, face: 'strain' }],
+    [0.75, { x: 0,   y: -16.6, lean: 4,  nod: 0,   las: 366, lae: 12, ras: -366, rae: 16, lfx: 3,  lfy: 0,  rfx: 7,  rfy: 0, face: 'normal' }]
+  ]});
+
+  // side_spin: a corner (S/Z/J/L) clips his shoulder and spins him round. The engine flips
+  // his facing at t=0.3, where the pose is mirror-symmetric (arms straight up, feet together).
+  D('side_spin', { dur: 0.9, keys: [
+    [0.0,  { x: 0,    y: -16.4, lean: 2,   nod: 0,  las: 8,   lae: 14, ras: -6,   rae: 16, lfx: -3,  rfx: 3 }],
+    [0.06, { x: -1.5, y: -16.6, lean: -14, nod: 8,  las: 100, lae: 10, ras: -100, rae: 10, lfx: -4,  rfx: 1, face: 'scared' }],
+    [0.18, { x: -0.6, y: -17.4, lean: -6,  nod: 2,  las: 150, lae: 6,  ras: -150, rae: 8,  lfx: -1.5, rfx: 0.5 }],
+    [0.3,  { x: 0,    y: -17.6, lean: 0,   nod: 0,  las: 180, lae: 0,  ras: 180,  rae: 0,  lfx: -1,  rfx: 1 }],
+    [0.42, { x: 0.6,  y: -17.2, lean: 6,   nod: -2, las: 150, lae: 8,  ras: 210,  rae: 6,  lfx: -2,  rfx: 2, face: 'dizzy' }],
+    [0.6,  { x: 1.2,  y: -16,   lean: 10,  nod: 8,  las: 100, lae: 30, ras: 250,  rae: 20, lfx: -5,  rfx: 4 }],
+    [0.75, { x: 0.4,  y: -16.2, lean: 6,   nod: 4,  las: 40,  lae: 20, ras: 330,  rae: 18 }],
+    [0.9,  { x: 0,    y: -16.6, lean: 4,   nod: 0,  las: 6,   lae: 12, ras: 354,  rae: 16, lfx: -3,  rfx: 3, face: 'normal' }]
+  ]});
+
+  // side_fallBack: a big hit knocks him flat on his back (head at -x, away from the piece),
+  // legs kick up, he lies stunned, then rolls up to sitting and stands.
+  D('side_fallBack', { dur: 1.7, mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: 0,    y: -16.4, lean: 2,   nod: 0,   las: 8,   lae: 14, ras: -6,  rae: 16, lls: -4,  llk: 6,   rls: 4,   rlk: 6 }],
+    [0.07, { x: -3,   y: -15,   lean: -30, nod: 18,  las: 140, lae: 20, ras: 110, rae: 30, lls: 10,  llk: 10,  rls: 30,  rlk: 20, face: 'scared' }],
+    [0.2,  { x: -5,   y: -9,    lean: -62, nod: 20,  las: 170, lae: 20, ras: 140, rae: 30, lls: 70,  llk: 40,  rls: 85,  rlk: 50 }],
+    [0.32, { x: -6,   y: -5,    lean: -86, nod: 10,  las: 200, lae: 15, ras: 120, rae: 40, lls: 140, llk: 30,  rls: 120, rlk: 60, face: 'dizzy' }],
+    [0.45, { x: -6,   y: -5.5,  lean: -84, nod: 8,   las: 190, lae: 20, ras: 110, rae: 35, lls: 120, llk: 60,  rls: 145, rlk: 20 }],
+    [0.6,  { x: -6,   y: -5,    lean: -86, nod: 10,  las: 196, lae: 18, ras: 116, rae: 38, lls: 98,  llk: 30,  rls: 100, rlk: 40 }],
+    [0.95, { x: -6,   y: -5,    lean: -84, nod: 6,   las: 200, lae: 20, ras: 120, rae: 30, lls: 96,  llk: 26,  rls: 98,  rlk: 34 }],
+    [1.15, { x: -4,   y: -3.5,  lean: -10, nod: 10,  las: 40,  lae: 40, ras: -30, rae: 10, lls: 100, llk: 40,  rls: 95,  rlk: 35 }],
+    [1.35, { x: -2,   y: -6,    lean: 30,  nod: 10,  las: 60,  lae: 30, ras: 40,  rae: 30, lls: 40,  llk: 110, rls: 30,  rlk: 120, face: 'strain' }],
+    [1.52, { x: -0.5, y: -13,   lean: 18,  nod: 4,   las: 20,  lae: 20, ras: 10,  rae: 20, lls: 15,  llk: 40,  rls: 5,   rlk: 35 }],
+    [1.7,  { x: 0,    y: -16.6, lean: 4,   nod: 0,   las: 6,   lae: 12, ras: -6,  rae: 16, lls: -6,  llk: 8,   rls: 6,   rlk: 8, face: 'normal' }]
+  ]});
+
+  // side_skid: a heavy O bulldozes him along. Leaning into it with both palms on the face
+  // (piece face at local x ~ +7.6; the engine shifts the origin), heels dug in and skidding, legs juddering.
+  D('side_skid', { dur: 0.36, loop: true, face: 'grit', mode: { la: 'ik', ra: 'ik' }, keys: [
+    [0.0,  { x: -9,   y: -14,   lean: 34, nod: -36, lhx: 7.3, lhy: -27, rhx: 7.5, rhy: -23, lfx: -18, lfy: 0,    rfx: -11, rfy: 0 }],
+    [0.09, { x: -9.4, y: -13.6, lean: 36, nod: -38, lfx: -18.5, lfy: -1.5 }],
+    [0.18, { x: -9,   y: -14.2, lean: 34, nod: -35, lfx: -18, lfy: 0, rfx: -11.5, rfy: -1.5 }],
+    [0.27, { x: -8.6, y: -13.8, lean: 33, nod: -37, rfx: -11, rfy: 0 }]
+  ]});
+
+  // side_brace: a resting piece leans on him and he pushes back. Same contact as side_skid
+  // but planted and straining, with a slow tremble.
+  D('side_brace', { dur: 0.8, loop: true, face: 'strain', mode: { la: 'ik', ra: 'ik' }, keys: [
+    [0.0, { x: -8.5, y: -14.5, lean: 30, nod: -28, lhx: 7.3, lhy: -27, rhx: 7.5, rhy: -23, lfx: -17, lfy: 0, rfx: -6, rfy: 0 }],
+    [0.2, { x: -8.2, y: -14.2, lean: 32, nod: -30, lhx: 7.6, lhy: -26.5, face: 'grit' }],
+    [0.4, { x: -8.6, y: -14.6, lean: 29, nod: -27, lhx: 7.3, lhy: -27 }],
+    [0.6, { x: -8.3, y: -14.3, lean: 31, nod: -29, rhx: 7.4, rhy: -22.6, face: 'strain' }]
+  ]});
+
+  // side_squeezed: wedged flat in a slot - arms straight up, knees together, squirming.
+  D('side_squeezed', { dur: 0.5, loop: true, face: 'strain', keys: [
+    [0.0,   { x: 0,    y: -17.4, lean: 0,  nod: -6, las: 178, lae: 0, ras: 182, rae: 0, lfx: -1, rfx: 1 }],
+    [0.125, { x: 0.8,  y: -17.6, lean: 3,  nod: -2, las: 172, lae: 6, ras: 186, rae: 0, lfx: -0.5, rfx: 1.5 }],
+    [0.25,  { x: 0,    y: -17.4, lean: 0,  nod: -8, las: 178, lae: 0, ras: 182, rae: 0, lfx: -1, rfx: 1 }],
+    [0.375, { x: -0.8, y: -17.6, lean: -3, nod: -4, las: 184, lae: 0, ras: 176, rae: 6, lfx: -1.5, rfx: 0.5 }]
+  ]});
+
+  // side_pop: squeezed out upward like a melon seed - rigid, arms up, toes pointed.
+  D('side_pop', { dur: 0.45, mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { y: -18,   lean: 0,  nod: -10, las: 178, lae: 0,  ras: 182, rae: 0,  lls: -2, llk: 0,  rls: 2,  rlk: 0, face: 'scared' }],
+    [0.25, { y: -18,   lean: -4, nod: -14, las: 170, lae: 8,  ras: 190, rae: 6,  lls: -4, llk: 4,  rls: 4,  rlk: 6 }],
+    [0.45, { y: -17,   lean: -2, nod: -8,  las: 140, lae: 30, ras: 160, rae: 20, lls: 10, llk: 30, rls: 20, rlk: 50 }]
+  ]});
+
+  // side_hangTuck: hanging while a piece slides past underneath/behind - knees yanked up
+  // to the chest, peeking down at it.
+  D('side_hangTuck', { dur: 1.2, loop: true, root: 'neck', face: 'scared',
+                       mode: { la: 'ik', ra: 'ik', ll: 'fk', rl: 'fk' }, bend: { la: 1, ra: 1 }, keys: [
+    [0.0, { x: -6.8, y: 13.6, lean: -4, nod: 22, lhx: 0, lhy: 0, rhx: 0, rhy: 0, lls: 95,  llk: 135, rls: 105, rlk: 140 }],
+    [0.6, { x: -6.4, y: 13.2, lean: -2, nod: 26, lls: 102, llk: 140, rls: 98,  rlk: 132 }]
+  ]});
+
+  // side_swept: knocked off a climbing face, back to the piece - limbs flung, falling away.
+  D('side_swept', { dur: 0.5, loop: true, face: 'scared', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { y: -17, lean: -18, nod: 10, las: 160, lae: 30, ras: 120, rae: 40, lls: 30, llk: 50, rls: -10, rlk: 30 }],
+    [0.25, { y: -17, lean: -22, nod: 14, las: 130, lae: 50, ras: 165, rae: 20, lls: -5, llk: 30, rls: 35,  rlk: 60 }]
+  ]});
+})();
+
+</script>
+<script>
+/* motions-top.js - reactions to a piece coming DOWN onto the climber (area: top).
+ * Same channel/keyframe format as motions.js (origin = feet, y down, facing +x).
+ * The engine fits the "under a piece" poses to the room left above his feet by scaling
+ * them vertically around the feet (TOP_NOM in engine.js = head-centre height of each pose).
+ */
+(function () {
+  'use strict';
+  var def = window.StickMotions && window.StickMotions.define;
+  if (!def) return;
+
+  // holdUp: caught it - deep bow-legged squat, both palms flat on the underside of the
+  // piece, pumping as he tries to push it back up. Head centre ~35px, hands ~42px.
+  def('top_holdUp', { dur: 0.8, loop: true, face: 'strain', mode: { la: 'ik', ra: 'ik' }, bend: { la: 1, ra: -1, ll: -1, rl: 1 }, keys: [
+    [0.0, { x: 0,    y: -10,   lean: 8, nod: -18, lhx: -3,   lhy: -41,   rhx: 7,   rhy: -41.5, lfx: -5.5, lfy: 0, rfx: 5.5, rfy: 0 }],
+    [0.2, { x: 0.3,  y: -11.4, lean: 6, nod: -22, lhx: -3,   lhy: -42.2, rhx: 7,   rhy: -42.4 }],
+    [0.4, { x: 0,    y: -10.2, lean: 9, nod: -16, lhx: -2.6, lhy: -41.2, rhx: 7.4, rhy: -41.4 }],
+    [0.6, { x: -0.3, y: -11.1, lean: 7, nod: -20, lhx: -3,   lhy: -41.9, rhx: 7,   rhy: -42 }]
+  ]});
+
+  // duckWalk: squeezing out from under it - crouched waddle, back hand still sliding along
+  // the underside, front arm reaching for daylight. Stance foot slides 9px / 0.25s = 36 px/s.
+  def('top_duckWalk', { dur: 0.5, loop: true, face: 'strain', mode: { la: 'ik' }, bend: { la: 1 }, keys: [
+    [0.0,   { x: 0, y: -10.5, lean: 22, nod: -30, lhx: 2,   lhy: -42, ras: 70, rae: 30, rfx: 5,  rfy: 0,    lfx: -4, lfy: 0 }],
+    [0.125, { x: 0, y: -11.3, lean: 24, nod: -26, lhx: 3,   lhy: -42.5, ras: 78, rae: 22, rfx: 0.5, rfy: 0, lfx: 1,  lfy: -3.5 }],
+    [0.25,  { x: 0, y: -10.5, lean: 22, nod: -30, lhx: 2,   lhy: -42, ras: 62, rae: 36, rfx: -4, rfy: 0,    lfx: 5,  lfy: 0 }],
+    [0.375, { x: 0, y: -11.3, lean: 24, nod: -26, lhx: 3,   lhy: -42.5, ras: 74, rae: 26, rfx: 1,  rfy: -3.5, lfx: 0.5, lfy: 0 }]
+  ]});
+
+  // pancake: flattened face-down, head toward the way out, limbs splayed flat (~13px tall),
+  // a leg twitches and the fingers drum now and then.
+  def('top_pancake', { dur: 1.4, loop: true, face: 'dizzy', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { x: -7, y: -3,   lean: 90, nod: -24, las: -92, lae: 4,  ras: 92, rae: 4,  lls: -92, llk: 0,  rls: -88, rlk: 22 }],
+    [0.5,  { x: -7, y: -3.3, lean: 90, nod: -22, rlk: 25 }],
+    [0.62, { rlk: 75 }],
+    [0.76, { rlk: 20 }],
+    [1.0,  { x: -7, y: -3,   rae: 16 }],
+    [1.12, { rae: 2 }]
+  ]});
+
+  // wriggle: flat on his belly, pulling himself along the gap hand over hand, hips humping,
+  // feet flutter-kicking. Gripping hand slides 13px / 0.3s = 43 px/s.
+  def('top_wriggle', { dur: 0.6, loop: true, face: 'strain', mode: { la: 'ik', ra: 'ik', ll: 'fk', rl: 'fk' }, bend: { la: 1, ra: 1 }, keys: [
+    [0.0,  { x: -7, y: -3,   lean: 90, nod: -26, rhx: 27, rhy: -1, lhx: 14, lhy: -1,   lls: -92, llk: 10, rls: -90, rlk: 45 }],
+    [0.15, { x: -6, y: -4.2, lean: 88, nod: -20, rhx: 21, rhy: -1, lhx: 21, lhy: -4.5, lls: -90, llk: 45, rls: -92, rlk: 8 }],
+    [0.3,  { x: -5, y: -3,   lean: 90, nod: -26, rhx: 14, rhy: -1, lhx: 27, lhy: -1,   lls: -92, llk: 10, rls: -90, rlk: 45 }],
+    [0.45, { x: -6, y: -4.2, lean: 88, nod: -20, rhx: 21, rhy: -4.5, lhx: 21, lhy: -1, lls: -90, llk: 45, rls: -92, rlk: 8 }]
+  ]});
+
+  // bonk: a point (T stem) lands on his head - head jammed down, knees buckle, arms jerk
+  // out, then both hands clutch the top of his head and he wobbles.
+  def('top_bonk', { dur: 0.6, face: 'dizzy', mode: { la: 'ik', ra: 'ik' }, bend: { la: 1, ra: -1 }, keys: [
+    [0.0,  { x: 0,    y: -16.8, lean: 3,  nod: 0,  lhx: 1,  lhy: -16, rhx: 2,  rhy: -16,   lfx: -3, lfy: 0, rfx: 3, rfy: 0, face: 'scared' }],
+    [0.05, { x: 0,    y: -12.5, lean: 12, nod: 36, lhx: -9, lhy: -31, rhx: 13, rhy: -30,   lfx: -4.5, rfx: 4.5, face: 'dizzy' }],
+    [0.18, { x: 0,    y: -12.5, lean: 8,  nod: 20, lhx: 3,  lhy: -43, rhx: 8,  rhy: -42 }],
+    [0.35, { x: -1,   y: -13.5, lean: -6, nod: 12, lhx: 0,  lhy: -44, rhx: 5,  rhy: -43.5 }],
+    [0.6,  { x: 0.5,  y: -14.5, lean: 8,  nod: 16, lhx: 3,  lhy: -44, rhx: 8,  rhy: -43 }]
+  ]});
+
+  // kneel: the heavy O - knees buckle straight to the ground, arms crumple under the weight
+  // and he ends kneeling, bowed, hands still pressed up (head centre ~34px).
+  def('top_kneel', { dur: 0.3, face: 'strain', mode: { la: 'ik', ra: 'ik', ll: 'fk', rl: 'fk' }, bend: { la: 1, ra: -1 }, keys: [
+    [0.0,  { x: 0,  y: -15,   lean: 6,  nod: -18, lhx: -2, lhy: -46, rhx: 6,  rhy: -46, lls: -10, llk: 16,  rls: 12, rlk: 20, face: 'scared' }],
+    [0.1,  { x: 0,  y: -9.5,  lean: 16, nod: 12,  lhx: 1,  lhy: -34, rhx: 9,  rhy: -33, lls: 12,  llk: 104, rls: 18, rlk: 110, face: 'strain' }],
+    [0.3,  { x: -1, y: -10,   lean: 12, nod: -10, lhx: 0,  lhy: -41, rhx: 8,  rhy: -41, lls: 10,  llk: 100, rls: 16, rlk: 106 }]
+  ]});
+
+  // shove: a corner clips his head/shoulder from behind-above - ducks, back arm flung up,
+  // lurches forward (toward the open side) with a catch step, recovers.
+  def('top_shove', { dur: 0.4, face: 'scared', keys: [
+    [0.0,  { x: 0, y: -16.6, lean: 4,  nod: 0,  las: 6,    lae: 12, ras: -6,  rae: 16, lfx: -3, lfy: 0,  rfx: 3, rfy: 0 }],
+    [0.05, { x: 3, y: -14,   lean: 32, nod: 30, las: -150, lae: 20, ras: 80,  rae: 30, lfx: -6, lfy: -2, rfx: 6, rfy: 0 }],
+    [0.18, { x: 4, y: -14.5, lean: 22, nod: 10, las: -120, lae: 40, ras: 100, rae: 20, lfx: 5,  lfy: 0,  rfx: 4, rfy: -3 }],
+    [0.3,  { x: 2, y: -16,   lean: 10, nod: 0,  las: -30,  lae: 30, ras: 40,  rae: 30, lfx: 3,  lfy: 0,  rfx: 7, rfy: 0 }],
+    [0.4,  { x: 0, y: -16.6, lean: 4,  nod: 0,  las: 6,    lae: 12, ras: -6,  rae: 16, lfx: -3, lfy: 0,  rfx: 3, rfy: 0, face: 'normal' }]
+  ]});
+
+  // stagger: seeing stars after a bonk - tottering, knees wobbling, arms loose.
+  // Feet roughly 8px per 0.225s -> ~30 px/s; the engine moves him ~22 px/s.
+  def('top_stagger', { dur: 0.9, loop: true, face: 'dizzy', keys: [
+    [0.0,   { x: 0, y: -15,   lean: -8, nod: 14,  lfx: -3, lfy: -3, rfx: 4,  rfy: 0,  las: 40, lae: 40, ras: -20, rae: 30 }],
+    [0.225, { x: 1, y: -14,   lean: 14, nod: -8,  lfx: 4,  lfy: 0,  rfx: 0,  rfy: 0,  las: 80, lae: 20, ras: 30,  rae: 60 }],
+    [0.45,  { x: 0, y: -15,   lean: -4, nod: 18,  lfx: 1,  lfy: 0,  rfx: -4, rfy: -2, las: 20, lae: 50, ras: 60,  rae: 20 }],
+    [0.675, { x: 1, y: -14.2, lean: 12, nod: -10, lfx: -1, lfy: 0,  rfx: 5,  rfy: 0,  las: 70, lae: 30, ras: -10, rae: 40 }]
+  ]});
+
+  // popOut: springs out of the gap like a cork - stretched straight, arms up, toes pointed,
+  // then opens up and settles into a normal fall.
+  def('top_popOut', { dur: 0.5, face: 'scared', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { y: -19,   lean: 0,  nod: -12, las: 178, lae: 0,  ras: 172, rae: 4,  lls: -2, llk: 0,  rls: 3,  rlk: 0 }],
+    [0.22, { y: -18,   lean: -3, nod: -6,  las: 130, lae: 12, ras: 122, rae: 16, lls: -8, llk: 10, rls: 10, rlk: 16, face: 'happy' }],
+    [0.5,  { y: -17,   lean: -4, nod: -12, las: 150, lae: 30, ras: 165, rae: 10, lls: 25, llk: 30, rls: 10, rlk: 70 }]
+  ]});
+
+  // yank: a piece whooshes down right beside him and catches his hand - he snatches the
+  // hand back to his chest and leans away, then settles.
+  def('top_yank', { dur: 0.4, keys: [
+    [0.0,  { x: 0,    y: -16.6, lean: 4,   nod: 0, las: 6,   lae: 12, ras: -6,  rae: 16,  lfx: -3, lfy: 0, rfx: 3,  rfy: 0 }],
+    [0.06, { x: -2.5, y: -15,   lean: -14, nod: 8, las: -30, lae: 40, ras: -40, rae: 125, lfx: -5, lfy: 0, rfx: 1,  rfy: -2, face: 'scared' }],
+    [0.22, { x: -2,   y: -15.6, lean: -8,  nod: 4, las: -20, lae: 35, ras: -30, rae: 128, rfx: -1, rfy: 0 }],
+    [0.4,  { x: 0,    y: -16.6, lean: 4,   nod: 0, las: 6,   lae: 12, ras: -6,  rae: 16,  lfx: -3, lfy: 0, rfx: 3,  rfy: 0, face: 'normal' }]
+  ]});
+
+  // fingers: a piece landed on the ledge he was holding - dropping, shaking the hurt hand
+  // over his head, other arm flailing, legs dangling.
+  def('top_fingers', { dur: 0.36, loop: true, face: 'strain', mode: { ll: 'fk', rl: 'fk' }, keys: [
+    [0.0,  { y: -17, lean: -4, nod: -10, ras: 150, rae: 20, las: 120, lae: 40, lls: 20, llk: 30, rls: 5,  rlk: 60 }],
+    [0.09, { ras: 160, rae: 55 }],
+    [0.18, { y: -17.4, ras: 145, rae: 15, las: 150, lae: 20, lls: 5, llk: 50, rls: 25, rlk: 30 }],
+    [0.27, { ras: 158, rae: 55 }]
+  ]});
+})();
+
+</script>
+<script>
 (() => {
   // ---------- constants ----------
   const COLS = 10, ROWS = 20, CELL = 28;
@@ -820,6 +1481,7 @@
   }
   function rotate(dir) {
     if (S.cur.t === 'O') return;
+    rideRotDir = dir;
     pieceAction(() => {
       const m2 = rotateM(S.cur.m, dir);
       for (const [kx, ky] of [[0,0],[1,0],[-1,0],[0,-1],[2,0],[-2,0],[1,-1],[-1,-1]]) {
@@ -850,11 +1512,11 @@
     if (!S.canHold) return;
     const C = S.climber;
     const riding = (C.state === 'ground' || C.state === 'dazed') && supportUnder(C.x, C.y) === 'piece';
-    if ((C.state === 'hang' || C.state === 'pull') && C.anchor && C.anchor.piece) letGo('slip');
+    if ((C.state === 'hang' || C.state === 'pull') && C.anchor && C.anchor.piece) rideHoldSwap('hang');
     const t = S.cur.t;
     if (S.hold) { const h = S.hold; S.hold = t; spawn(h); }
     else { S.hold = t; spawn(); }
-    if (riding) { say('Where did it go?!', 1.4); }
+    if (riding) rideHoldSwap('ride');
     S.canHold = false;
     drawMinis();
   }
@@ -940,7 +1602,7 @@
   }
   function squash() {
     const C = S.climber;
-    C.state = 'squash'; C.squashT = 0.7; C.anchor = null; C.vx = 0; C.vy = 0;
+    C.state = 'squash'; C.squashT = 0.7; C.anchor = null; C.vx = 0; C.vy = 0; C.topHit = null;
     say(pick(SAY.bonk), 1.6); sfx('bonk');
   }
   // pop him out to the nearest open spot after he was buried
@@ -966,7 +1628,7 @@
     const C = S.climber;
     if (!['ground', 'air', 'dazed', 'climb', 'button'].includes(C.state)) return;
     if (boxFree(C.x, C.y)) return;
-    if (dy > 0) return squash();
+    if (dy > 0) return topHit();
     // nudged sideways or by a rotation: try a small push before burying him
     for (const [ox, oy] of [[0, -6], [-8, 0], [8, 0], [0, -14], [-14, 0], [14, 0]]) {
       if (boxFree(C.x + ox, C.y + oy)) { C.x += ox; C.y += oy; if (C.state === 'climb') letGo(); if (oy) toAir(); return; }
@@ -975,21 +1637,11 @@
   }
   function afterPieceMove(dx, dy, rot, riding, hanging) {
     const C = S.climber;
-    if (riding && (C.state === 'ground' || C.state === 'dazed')) {
-      if (rot) { knockOff(Math.random() < 0.5 ? -1 : 1, 'thrown'); C.vy = -300; }
-      else {
-        C.x += dx * CELL; C.y += dy * CELL;
-        if (dx) {
-          C.wobble += 0.45;
-          if (C.wobble > 1) knockOff(-dx, 'thrown');
-          else { C.stumbleT = Math.max(C.stumbleT, 0.2); if (C.sayT <= 0 && Math.random() < 0.4) say(pick(SAY.small), 1); }
-        } else if (dy && C.sayT <= 0 && Math.random() < 0.02) say(pick(SAY.ride), 1.2);
-      }
-    }
-    if (hanging && (C.state === 'hang' || C.state === 'pull')) {
-      if (rot) letGo('slip');
-      else if (dx && Math.random() < 0.35) letGo('slip');
-    }
+    // side hits; hanging from the piece itself is handled by the ride reactions
+    if (!hanging && sideHit(dx, dy, rot, riding, hanging)) return;
+    if (riding && (C.state === 'ground' || C.state === 'dazed')) rideCarry(dx, dy, rot);
+    if (hanging && (C.state === 'hang' || C.state === 'pull')) rideHangMove(dx, dy, rot);
+    if (dy > 0) topBrush();
     resolveOverlap(dx, dy);
   }
   function knock(cells, hard, dist, cleared, riding) {
@@ -1001,12 +1653,15 @@
     const away = Math.sign(C.x - cells.reduce((s, [, c]) => s + colX(c), 0) / cells.length) || 1;
     switch (C.state) {
       case 'ground':
+        if (riding && rideLock(hard, dist, cleared)) break;
+        if (nearKnock(cells, hard, dist, cleared, riding)) break;
         if (riding && hard) { knockOff(away, 'thrown'); C.vy = -320; }
         else if ((veryNear && hard) || (cleared >= 2 && Math.random() < 0.5)) knockOff(away);
         else if (near || cleared) { C.stumbleT = 0.5; C.crouchT = 0; if (C.sayT <= 0 && Math.random() < 0.4) say(pick(SAY.small), 1.1); }
         else if (Math.random() < 0.3) C.stumbleT = 0.25;
         break;
       case 'hang': case 'pull': {
+        if (rideHangLock(hard, dist, cleared)) break;
         const p = (hard ? 0.45 : 0.12) + (near ? 0.3 : 0) + (cleared ? 0.5 : 0);
         if (Math.random() < p) letGo('slip');
         break;
@@ -1102,7 +1757,7 @@
     // close enough to the top to jump for it
     if (C.y <= JUMP_H + ARMS - 4) { C.intent = { type: 'escape', x: C.x }; return; }
     // riding the falling piece: hang on and enjoy the view
-    if (supportUnder(C.x, C.y) === 'piece') { C.intent = { type: 'idle', x: C.x }; return; }
+    if (supportUnder(C.x, C.y) === 'piece') { C.intent = rideIntent(); return; }
     const plan = planStack();
     const po = pieceOption(plan.bestY);
     const need = po ? C.y - ARMS - po.gy + 6 : 0;
@@ -1389,6 +2044,7 @@
       C.state = 'pull'; C.pullT = 0; C.escape = true; C.vx = C.vy = 0;
       say('Almost…!', 1); return true;
     }
+    if (rideNoGrab()) return false;
     const r = Math.round(hy / CELL);
     if (Math.abs(r * CELL - hy) > 11) return false;
     const cf = Math.floor((C.x + f * (HW + 6)) / CELL);
@@ -1398,6 +2054,8 @@
     const hx = gx - f * (HW + 1);
     if (!boxFree(hx, gy + ARMS)) return false;
     const onPiece = !solidB(r, cf) && pieceHas(r, cf);
+    if (rideGrabMiss(onPiece, gx, gy)) return false;
+    rideCatch(onPiece);
     C.anchor = onPiece ? { piece: true, r: r - S.cur.y, c: cf - S.cur.x, f } : { piece: false, r, c: cf, f };
     C.state = 'hang'; C.hangT = 0; C.vx = C.vy = 0; C.tumble = false; C.rot = 0;
     C.x = hx; C.y = gy + ARMS;
@@ -1423,13 +2081,16 @@
       C.state = 'ground'; C.landT = fall > CELL ? 0.2 : 0.08; C.vx *= 0.3;
     }
     C.tumble = false; C.spin = 0;
+    nearLanded();
   }
 
   function updateClimber(dt) {
     const C = S.climber;
     C.t += dt;
+    rideTick(dt);
     C.sayT = Math.max(-10, C.sayT - dt);
     C.drillAt = null;
+    sideTick(dt);
     if (C.boxedIn && ['ground', 'air', 'dazed'].includes(C.state)) C.stuckClock = (C.stuckClock || 0) + dt;
     // safety: if he ever ends up inside blocks (dragged by a piece, a line clear, a rotation), pop him out
     if (['ground', 'air', 'dazed', 'climb'].includes(C.state) && !boxFree(C.x, C.y)) { expel(); return; }
@@ -1444,8 +2105,11 @@
       case 'ground': {
         if (C.arriveT > 0) C.arriveT = Math.max(0, C.arriveT - dt);
         if (!supportUnder(C.x, C.y)) { toAir(); C.wantGrab = Math.random() < 0.5; break; }
+        if (C.topAnim && topGroundAnim(dt)) break;
         C.wobble = Math.max(0, C.wobble - dt * 0.7);
+        if (C.shove && sideShoveTick(dt)) break;
         if (C.wanderT > 0) C.wanderT -= dt;
+        if (nearGround(dt)) break;
         // a piece is coming down on him: notice it, then run for it (if there is time)
         const th = threat();
         if (th && th.time < 1.6 && !C.alert) {
@@ -1453,27 +2117,18 @@
           C.crouchT = 0; C.stumbleT = 0;
           say(pick(SAY.dodge), 1.1);
         } else if (!th && C.alert) {
-          if (C.alert.ran && Math.random() < 0.6) say(pick(SAY.missed), 1.4);
+          if (C.alert.ran) nearSafe();
           C.alert = null; C.intent = null; C.think = 0.15;
         }
+        if (C.alert && th) C.alert.left = th.time;
         if (C.alert) {
           C.alert.t += dt;
           if (C.alert.t < C.alert.react) { C.vx *= Math.pow(0.02, dt); moveX(C.vx * dt); break; }
           // re-plan every frame: the player may shift the piece while he runs
           const x = S.cur ? dodgePlan() : null;
           C.intent = x === null ? { type: 'brace', x: C.x } : { type: 'dodge', x };
-          if (x !== null) {
-            C.alert.ran = true;
-            // not enough time to run: dive for it
-            const dist = Math.abs(x - C.x), left = th ? th.time : 1;
-            if (!C.alert.dived && left < dist / DODGE + 0.06 && dist > 3) {
-              C.alert.dived = true;
-              const d = Math.sign(x - C.x);
-              toAir(); C.vx = d * 185; C.vy = -170; C.f = d; C.steer = d;
-              say('Eep!', 0.9);
-              break;
-            }
-          }
+          // pick the dodge style: jog, sprint, dive, sliding dive or a leap onto a low block
+          if (nearDodge(th)) break;
         }
         if (C.crouchT > 0) {
           C.crouchT -= dt; C.vx *= 0.8;
@@ -1481,6 +2136,7 @@
           break;
         }
         if (C.landT > 0) C.landT -= dt;
+        if (C.rec && recoverTick(dt)) break;
         if (C.stumbleT > 0) {
           C.stumbleT -= dt; C.vx *= Math.pow(0.05, dt);
           physics(dt);
@@ -1491,7 +2147,7 @@
         if (C.think <= 0 && !C.alert) { C.think = 0.2; brain(); }
         const it = C.intent || { type: 'idle', x: C.x };
         const gap = it.x - C.x;
-        const speed = it.type === 'dodge' ? DODGE : Math.abs(gap) > 50 ? RUN : WALK;
+        const speed = it.type === 'dodge' ? (it.spd || DODGE) : Math.abs(gap) > 50 ? RUN : WALK;
         const want = Math.abs(gap) < 1.5 ? 0 : Math.sign(gap) * Math.min(speed, Math.abs(gap) * 7);
         C.vx += (want - C.vx) * Math.min(1, dt * (it.type === 'dodge' ? 30 : 9));
         if (Math.abs(C.vx) > 4) C.f = Math.sign(C.vx);
@@ -1522,6 +2178,7 @@
         break;
       }
       case 'air': {
+        if (rideCartoon(dt)) break;
         C.airT += dt;
         C.vy = Math.min(C.vy + G * dt, 900);
         if (C.steer && !C.tumble) C.vx += (C.steer * 55 - C.vx) * Math.min(1, dt * 4);
@@ -1535,9 +2192,10 @@
       }
       case 'hang': {
         const A = anchorAbs();
-        if (!A || !solid(A.r, A.c) || solid(A.r - 1, A.c)) { letGo('slip'); break; }
+        if (!A || !solid(A.r, A.c) || solid(A.r - 1, A.c)) { if (!topFingers(A)) letGo('slip'); break; }
         C.x = A.gx - A.f * (HW + 1); C.y = A.gy + ARMS;
         if (!boxFree(C.x, C.y)) {
+          if (topHangHit()) break;
           // his legs are being dragged into the blocks below: drop to the side and scramble out
           letGo('slip'); expel(); break;
         }
@@ -1554,7 +2212,7 @@
       }
       case 'pull': {
         const A = anchorAbs();
-        if (!A || (!A.top && (!solid(A.r, A.c) || solid(A.r - 1, A.c)))) { letGo('slip'); break; }
+        if (!A || (!A.top && (!solid(A.r, A.c) || solid(A.r - 1, A.c)))) { if (!topFingers(A)) letGo('slip'); break; }
         C.pullT += dt;
         if (C.pullT >= (M.duration('pullUp') || 0.55)) {
           C.anchor = null;
@@ -1613,6 +2271,7 @@
         break;
       }
       case 'squash':
+        if (C.topHit) { topUpdate(dt); break; }
         C.squashT -= dt;
         if (C.squashT <= 0) expel();
         break;
@@ -1621,6 +2280,7 @@
         if (C.winT > 2.6 && S.mode === 'play') gameOver('win');
         break;
     }
+    recoverWatch(dt);
     C.peak = Math.max(C.peak, altitude());
   }
   // last resort: put him back on top of the stack in his column
@@ -1631,6 +2291,1882 @@
     Object.assign(C, { x: colX(c), y: r * CELL, vx: 0, vy: 0, state: 'air', anchor: null, alert: null, intent: null, tumble: false, rot: 0 });
   }
   const altitude = () => Math.max(0, Math.min(100, Math.round((1 - S.climber.y / BH) * 100)));
+
+  // ---------- reactions: ride ----------
+  // Grabbing, hanging from and riding the falling piece. Per-climber state lives in C.rd:
+  //   grip      0..1 grip strength: tires while hanging from a moving piece, recovers on his feet
+  //   a, w      hang pendulum: body angle around the grip (rad, his local frame, + = swung out
+  //             away from the block) and its speed; purely visual, his box stays under the grip
+  //   jy, jv    vertical jolt of the hanging body (px, - = lifted, arms bent)
+  //   lean, lv  riding lean (rad, world, + = toward +x) and its speed; too much and he loses it
+  //   bob, bv   knee dip from the piece stepping down under him
+  //   one       one-handed dangle { t, len }; catchT: second hand still reaching after a catch
+  //   miss      fingers slipped off a corner { t, gx, gy, hand }; noGrabT blocks a re-grab
+  //   absorbT   deep squat after a hard-drop slam; cartoon { t, len, kind } Hold took his piece
+  //   teeter    -1/0/1 toes over a drop edge, teeterT how long; brace -1/0/1 hand on a step; narrow
+  const RIDE_STAB = { I: 1.3, O: 1.15, T: 0.95, S: 0.8, Z: 0.8, J: 0.88, L: 0.88 };
+  const RIDE_L = 34, RIDE_W2 = 40, RIDE_AMIN = -0.07;   // pendulum length, natural freq^2, wall stop
+  const RIDE_SAY = {
+    miss: ['My fingers!', 'Nnngh—', 'Slippery!'],
+    regrab: ['Phew!', 'Got it… got it!', 'Not today!'],
+    teeter: ['Whoa whoa whoa—', 'Easy… easy…', 'Don\'t look down.'],
+    absorb: ['Hup!', 'Stuck the landing!', 'Knees!'],
+    bounce: ['BOING—', 'WAAAH!', 'Too fast!'],
+  };
+  let rideRotDir = 1;                       // direction of the last rotation (set by rotate())
+  const rclamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  function rd() {
+    const C = S.climber;
+    return C.rd || (C.rd = { grip: 1, a: 0, w: 0, jy: 0, jv: 0, lean: 0, lv: 0, bob: 0, bv: 0, one: null, catchT: 0, lead: 'r',
+                             miss: null, noGrabT: 0, absorbT: 0, cartoon: null, onPiece: false, teeter: 0, teeterT: 0, brace: 0, narrow: false });
+  }
+  // the run of open-topped piece cells he stands on, and what lies past each end
+  function rideSurface() {
+    const C = S.climber, r = Math.round(C.y / CELL);
+    const top = c => c >= 0 && c < COLS && pieceHas(r, c) && !solid(r - 1, c);
+    let c = Math.floor(C.x / CELL);
+    if (!top(c)) { const a = Math.floor((C.x - HW) / CELL), b = Math.floor((C.x + HW - 0.001) / CELL); c = top(a) ? a : top(b) ? b : -1; }
+    if (c < 0) return null;
+    let c0 = c, c1 = c;
+    while (top(c0 - 1)) c0--;
+    while (top(c1 + 1)) c1++;
+    // 'wall' = a step of the piece (or the well side) to lean on, 'flat' = more floor, 'drop' = air
+    const kind = k => k < 0 || k >= COLS || solid(r - 1, k) ? 'wall' : solid(r, k) ? 'flat' : 'drop';
+    return { l: c0 * CELL, r: (c1 + 1) * CELL, w: c1 - c0 + 1, lk: kind(c0 - 1), rk: kind(c1 + 1) };
+  }
+  // how hard the piece is to stand on: I wide and steady, O heavy, T and the S/Z/J/L steps tippier
+  function rideStab(sf) {
+    const t = S.cur ? S.cur.t : 'O';
+    let s = RIDE_STAB[t] || 1;
+    if (sf && sf.w === 1) s *= t === 'T' ? 0.5 : 0.65;
+    return s;
+  }
+  // brain hook while riding: hold still while teetering, then shuffle back in from a drop edge
+  function rideIntent() {
+    const C = S.climber, R = rd(), sf = rideSurface();
+    if (!sf || (R.teeter && R.teeterT < 0.45)) return { type: 'idle', x: C.x };
+    const lo = sf.l + (sf.lk === 'drop' ? HW + 3 : HW), hi = sf.r - (sf.rk === 'drop' ? HW + 3 : HW);
+    return { type: 'idle', x: lo <= hi ? rclamp(C.x, lo, hi) : (sf.l + sf.r) / 2 };
+  }
+
+  // --- the catch ---
+  function rideNoGrab() { const R = S.climber.rd; return !!(R && R.noGrabT > 0); }
+  // fingers slip: more likely on a moving piece, falling fast, or with a tired grip
+  function rideGrabMiss(onPiece, gx, gy) {
+    const C = S.climber, R = rd();
+    let p = onPiece ? 0.1 : 0.04;
+    if (onPiece && (held.soft || S.slam)) p += 0.3;
+    p += Math.max(0, C.vy - 260) / 1500 + (1 - R.grip) * 0.25;
+    if (Math.random() >= p) return false;
+    R.miss = { t: 0, gx, gy, hand: Math.random() < 0.5 ? 'l' : 'r' };
+    R.noGrabT = 0.35;
+    if (C.sayT <= 0 || Math.random() < 0.5) say(pick(RIDE_SAY.miss), 1);
+    addParts(gx, gy, onPiece && S.cur ? T.p[S.cur.t] : T.wall, 2, 25);
+    return true;
+  }
+  // one hand catches first, the other follows; his momentum swings the body on the arms
+  function rideCatch(onPiece) {
+    const C = S.climber, R = rd(), f = C.f;
+    R.a = 0;
+    R.w = rclamp(-C.vx * f * 0.016 + Math.max(0, C.vy) * 0.006 + (Math.random() - 0.5) * 0.6, -3.5, 3.5);
+    R.jy = C.vy < 0 ? -6 : 1.2; R.jv = 0;
+    R.catchT = 0.2; R.lead = Math.random() < 0.5 ? 'l' : 'r'; R.one = null; R.miss = null;
+    // a hard catch on a piece in motion: only one hand makes it
+    if (onPiece && C.vy > 380 && Math.random() < 0.35) { R.one = { t: 0, len: 0.55 + Math.random() * 0.3 }; R.catchT = 0; }
+  }
+
+  // --- hanging from the piece ---
+  function rideLoseHand() {
+    const C = S.climber, R = rd();
+    if (R.one) return rideDrop();
+    R.one = { t: 0, len: 0.45 + Math.random() * 0.4 }; R.catchT = 0;
+    R.jv += 40;
+    say(pick(SAY.slip), 1.2);
+  }
+  // let go mid-swing: he keeps the swing's speed
+  function rideDrop() {
+    const C = S.climber, R = rd(), f = C.anchor ? C.anchor.f : C.f;
+    const vx = -RIDE_L * R.w * Math.cos(R.a) * f * 0.7;
+    R.one = null;
+    letGo('slip');
+    C.vx = rclamp(vx, -160, 160); C.vy = Math.max(C.vy, 20);
+    R.noGrabT = 0.25;
+  }
+  // a rotation tears the corner out of his hands and flings him along the turn
+  function rideFling(gx, gy, dx, dy, fromHang) {
+    const C = S.climber, p = S.cur, n = p.m.length, dir = rideRotDir;
+    const cx = (p.x - dx + n / 2) * CELL, cy = (p.y - dy + n / 2) * CELL;
+    const om = 7;                                              // a quarter turn snaps in a blink
+    let vx = dir * -(gy - cy) * om, vy = dir * (gx - cx) * om;
+    vy = Math.min(vy, 60) - (fromHang ? 60 : 150);              // the turning block pops him up
+    vx = rclamp(vx, -260, 260); vy = rclamp(vy, -420, 80);
+    const sp = Math.hypot(vx, vy);
+    // the turn swept the block through where he stands: he is shoved out along the throw first
+    if (!fromHang && !boxFree(C.x, C.y)) {
+      const sx = Math.sign(vx) || dir;
+      out: for (let k = 1; k <= 6; k++) for (const [ox, oy] of [[sx * k * 6, -k * 6], [0, -k * 7], [sx * k * 7, 0], [-sx * k * 6, -k * 6]]) {
+        const nx = rclamp(C.x + ox, HW, BW - HW);
+        if (boxFree(nx, C.y + oy)) { C.x = nx; C.y += oy; break out; }
+      }
+    }
+    if (fromHang) { rd().one = null; letGo('slip'); } else knockOff(Math.sign(vx) || 1, 'thrown');
+    C.vx = vx; C.vy = vy;
+    C.tumble = sp > 230; C.spin = (Math.sign(vx) || dir) * (6 + sp / 50);
+    C.wantGrab = !C.tumble; rd().noGrabT = 0.12;
+  }
+  function rideHangMove(dx, dy, rot) {
+    const C = S.climber, R = rd(), a = C.anchor;
+    if (!a) return;
+    if (rot) return rideFling(C.x + a.f * (HW + 1), C.y - ARMS, dx, dy, true);
+    if (C.state === 'pull') {
+      // halfway over the edge: a jerk can still cost him the grip
+      if (dx && Math.random() < 0.1 + (1 - R.grip) * 0.35) { rideDrop(); C.vx = -dx * 60; }
+      return;
+    }
+    if (dx) {
+      // the grip jerks sideways, his body lags behind: swing out (or bang into the block face)
+      R.w += dx * a.f * 3.4;
+      R.grip = Math.max(0, R.grip - 0.05 - 0.04 * Math.abs(R.a));
+      const p = rclamp((Math.abs(R.w) - 2.5) * 0.12 + (0.6 - R.grip) * 0.5, 0, 0.6);
+      if (Math.random() < (R.one ? p + 0.35 : p)) rideLoseHand();
+    }
+    if (dy) { R.jv -= 55 * dy; R.grip = Math.max(0, R.grip - 0.012); }
+  }
+  // the piece he hangs from locks: the stop jolts him, a slam can shake him off
+  function rideHangLock(hard, dist, cleared) {
+    const C = S.climber, R = rd();
+    if (!R.onPiece || cleared) return false;
+    R.jv += hard ? 50 + dist * 6 : 25;
+    R.w += (Math.random() - 0.3) * (hard ? 2 : 0.6);
+    const p = hard ? Math.min(0.85, 0.08 + dist * 0.045 + (1 - R.grip) * 0.4) : 0.03 + (1 - R.grip) * 0.15;
+    if (Math.random() < p) { if (R.one || Math.random() < 0.5) rideDrop(); else rideLoseHand(); }
+    return true;
+  }
+
+  // --- riding on top ---
+  function rideCarry(dx, dy, rot) {
+    const C = S.climber, R = rd();
+    if (rot) return rideFling(C.x, C.y, dx, dy, false);
+    C.x += dx * CELL; C.y += dy * CELL;
+    if (dy && !dx) {
+      R.bv += 26;                                              // the step down dips his knees
+      if (C.sayT <= 0 && Math.random() < 0.02) say(pick(SAY.ride), 1.2);
+      return;
+    }
+    if (!dx) return;
+    const sf = rideSurface(), stab = rideStab(sf);
+    const trail = !sf ? 'drop' : dx > 0 ? sf.lk : sf.rk;
+    const tdist = !sf ? 0 : dx > 0 ? C.x - sf.l : sf.r - C.x;
+    // braced against a step on the trailing side: it shoves him along instead of leaving him behind
+    const braced = trail === 'wall' && tdist < HW + 6;
+    const slip = braced ? 0 : (2 + 5 * (1 - Math.min(1, stab))) * (C.state === 'dazed' ? 1.6 : 1);
+    if (slip && boxFree(C.x - dx * slip, C.y)) C.x -= dx * slip;
+    if (C.state === 'dazed') { if (!supportUnder(C.x, C.y)) { toAir(); C.tumble = true; C.vx = -dx * 50; } return; }
+    R.lv += -dx * (braced ? 0.9 : 2.4) / stab * (trail === 'drop' && tdist < 12 ? 1.6 : 1);
+    C.wobble = Math.min(1, Math.abs(R.lean) * 1.5 + 0.2);
+    if (!supportUnder(C.x, C.y)) return rideFallOff(-dx);
+    if (C.sayT <= 0 && Math.random() < 0.3) say(pick(SAY.small), 1);
+  }
+  function rideFallOff(s) {
+    const C = S.climber;
+    toAir();
+    C.vx = s * 75; C.vy = -90; C.tumble = false; C.wantGrab = true; C.f = -s;
+    rd().teeter = 0;
+    say(pick(SAY.big), 1.3); sfx('fall');
+  }
+  // the lean got away from him: wall to fall against, a drop to go over, or room to catch it
+  function rideLoseBalance(sf) {
+    const C = S.climber, R = rd(), s = Math.sign(R.lean);
+    const kind = s > 0 ? sf.rk : sf.lk, dist = s > 0 ? sf.r - C.x : C.x - sf.l;
+    if (kind === 'wall' && dist < HW + 8) { R.lean = s * 0.3; R.lv = -s * 1.5; R.brace = s; return; }
+    if (kind === 'drop' && dist < 12) {
+      if (Math.random() < 0.35 * rideStab(sf)) {
+        R.lean = s * 0.4; R.lv = -s * 1.8; R.teeter = s; R.teeterT = 0; C.f = s;
+        say(pick(RIDE_SAY.teeter), 1.2);
+      } else rideFallOff(s);
+      return;
+    }
+    if (sf.w >= 2 && Math.random() < 0.6) {
+      // a catch step into the lean
+      C.stumbleT = 0.3; C.f = s; if (boxFree(C.x + s * 4, C.y) && C.x + s * 4 > sf.l && C.x + s * 4 < sf.r) C.x += s * 4;
+      R.lean *= 0.3; R.lv *= 0.2;
+    } else {
+      // hop back toward the middle of the piece
+      const mid = (sf.l + sf.r) / 2;
+      toAir(); C.vy = -240; C.vx = rclamp((mid - C.x) * 3, -70, 70); C.f = Math.sign(C.vx) || C.f; C.wantGrab = false;
+      R.lean *= 0.4; sfx('jump');
+    }
+  }
+  // the piece he rides locks: absorb or get bounced off a slam, settle after a gentle lock
+  function rideLock(hard, dist, cleared) {
+    const C = S.climber, R = rd();
+    if (cleared >= 2 && Math.random() < 0.5) return false;
+    if (hard) {
+      const stab = rideStab(rideSurface());
+      if (dist <= 3 || (dist <= 8 && Math.random() < 0.25 + 0.45 * stab)) {
+        R.absorbT = 0.5; C.stumbleT = 0; C.landT = 0; C.crouchT = 0; R.bv += 30; R.lean *= 0.3;
+        if (C.sayT <= 0 || Math.random() < 0.4) say(pick(RIDE_SAY.absorb), 1);
+        return true;
+      }
+      const sf = rideSurface();
+      const side = sf ? (C.x - sf.l < sf.r - C.x ? -1 : 1) : (Math.random() < 0.5 ? -1 : 1);
+      knockOff(side, 'thrown');
+      C.vy = -Math.min(430, 170 + dist * 16); C.vx = side * (40 + Math.random() * 60); C.spin = side * (6 + dist * 0.4);
+      say(pick(RIDE_SAY.bounce), 1.2);
+      return true;
+    }
+    // a gentle lock: the ride stops, knees settle; a big lean turns it into a stumble
+    R.bv += 20;
+    if (Math.abs(R.lean) > 0.3) { C.stumbleT = 0.3; C.f = Math.sign(R.lean) || C.f; }
+    else C.landT = Math.max(C.landT, 0.12);
+    R.teeter = 0;
+    return true;
+  }
+
+  // --- Hold swaps the piece out from under him: hangs in the air a beat, looks down, drops ---
+  function rideHoldSwap(kind) {
+    const C = S.climber, R = rd();
+    if (kind === 'ride' && C.state !== 'ground' && C.state !== 'dazed') return;
+    if (kind === 'hang') { C.escape = false; R.one = null; }
+    toAir(); C.vx = 0; C.vy = 0; C.tumble = false; C.wantGrab = false;
+    R.cartoon = { t: 0, len: 0.5 + Math.random() * 0.15, kind };
+    R.noGrabT = 0.6; R.teeter = 0;
+    say(kind === 'hang' ? '…huh?' : 'Where did it go?!', 1.4);
+  }
+  function rideCartoon(dt) {
+    const C = S.climber, k = C.rd && C.rd.cartoon;
+    if (!k) return false;
+    k.t += dt; C.wedgeT = 0; C.vx = 0; C.vy = 0; C.fallFrom = C.y;
+    if (k.t < k.len && boxFree(C.x, C.y)) return true;
+    C.rd.cartoon = null; C.vy = 30; C.wantGrab = true; sfx('fall');
+    return false;
+  }
+
+  // --- per-frame springs and decisions ---
+  function rideTick(dt) {
+    const C = S.climber, R = rd();
+    R.noGrabT = Math.max(0, R.noGrabT - dt);
+    R.absorbT = Math.max(0, R.absorbT - dt);
+    if (R.miss) { R.miss.t += dt; if (R.miss.t > 0.45 || C.state !== 'air') R.miss = null; }
+    if (R.cartoon && C.state !== 'air') R.cartoon = null;
+    R.onPiece = !!(C.anchor && C.anchor.piece);
+    const hanging = C.state === 'hang';
+    if (hanging && R.onPiece) R.grip = Math.max(0, R.grip - dt * (R.one ? 0.12 : 0.03));
+    else if (C.state === 'ground' || C.state === 'dazed') R.grip = Math.min(1, R.grip + dt * 0.35);
+    // knee bob
+    R.bv += (-120 * R.bob - 14 * R.bv) * dt; R.bob = rclamp(R.bob + R.bv * dt, -2, 5);
+    if (hanging) {
+      // pendulum, stopped by the block face on one side and by anything solid on the other
+      const A = anchorAbs();
+      R.w += (-RIDE_W2 * Math.sin(R.a) - 1.3 * R.w) * dt; R.a += R.w * dt;
+      if (R.a < RIDE_AMIN) { R.a = RIDE_AMIN; if (R.w < 0) R.w = -R.w * 0.35; }
+      if (A && R.a > 0.05) {
+        const s = Math.sin(R.a), co = Math.cos(R.a);
+        for (const [lx, ly] of [[-4, 50], [-6, 34]]) {
+          const wx = A.gx + (lx * co - ly * s) * A.f, wy = A.gy + lx * s + ly * co;
+          if (solid(Math.floor(wy / CELL), Math.floor(wx / CELL))) { R.a -= R.w * dt; if (R.w > 0) R.w = -R.w * 0.3; break; }
+        }
+      }
+      R.a = rclamp(R.a, RIDE_AMIN, 0.9);
+      R.jv += (-160 * R.jy - 10 * R.jv) * dt; R.jy = rclamp(R.jy + R.jv * dt, -9, 1.5);
+      R.catchT = Math.max(0, R.catchT - dt);
+      // wait for the swing to die down (and both hands on) before pulling up
+      if (R.one || R.catchT > 0 || Math.abs(R.a) > 0.12 || Math.abs(R.w) > 1.2) C.hangT = Math.min(C.hangT, 0.3);
+      if (R.one) {
+        R.one.t += dt;
+        if (R.one.t >= R.one.len) {
+          if (Math.abs(R.a) < 0.4 && Math.random() < 0.3 + R.grip * 0.7) {
+            R.one = null; R.catchT = 0.18; R.grip = Math.min(1, R.grip + 0.12); R.jv -= 30;
+            say(pick(RIDE_SAY.regrab), 1.1);
+          } else { rideDrop(); return; }
+        }
+      } else if (R.onPiece && R.grip <= 0.04) rideLoseHand();
+    } else {
+      const k = Math.exp(-12 * dt);
+      R.a *= k; R.w *= k; R.jy *= k; R.jv = 0; R.one = null; R.catchT = 0;
+    }
+    const riding = C.state === 'ground' && S.cur && supportUnder(C.x, C.y) === 'piece';
+    if (!riding) {
+      R.lean *= Math.exp(-10 * dt); R.lv = 0; R.teeter = 0; R.teeterT = 0; R.brace = 0; R.narrow = false;
+      return;
+    }
+    const sf = rideSurface();
+    if (!sf) return;
+    // lean spring, plus gravity tipping him over when his toes are past a drop
+    R.teeter = sf.lk === 'drop' && C.x < sf.l + 1 ? -1 : sf.rk === 'drop' && C.x > sf.r - 1 ? 1 : 0;
+    if (R.teeter) {
+      if (!R.teeterT && C.sayT <= 0 && Math.random() < 0.5) say(pick(RIDE_SAY.teeter), 1.1);
+      R.teeterT += dt; C.f = R.teeter; R.lv += R.teeter * 1.6 * dt;
+      if (R.teeterT > 1.4) return rideFallOff(R.teeter);
+    } else R.teeterT = 0;
+    R.lv += (-55 * R.lean - 6 * R.lv) * dt; R.lean += R.lv * dt;
+    R.brace = sf.lk === 'wall' && C.x - sf.l < HW + 7 && sf.l > 0 ? -1 : sf.rk === 'wall' && sf.r - C.x < HW + 7 && sf.r < BW ? 1 : 0;
+    R.narrow = sf.w === 1;
+    if (R.brace && Math.abs(C.vx) < 6 && !R.teeter) C.f = R.brace;
+    if (Math.abs(R.lean) > 0.62 && C.stumbleT <= 0) rideLoseBalance(sf);
+  }
+
+  // --- which motion ---
+  function rideMotion(mo) {
+    const C = S.climber, R = C.rd;
+    if (!R) return mo;
+    if (C.state === 'air' && R.cartoon) return { ...mo, name: R.cartoon.kind === 'hang' ? 'ride_cartoonHang' : 'ride_cartoonStand', t: R.cartoon.t };
+    if (C.state === 'air' && R.miss && !C.tumble) return { ...mo, name: 'ride_miss', t: R.miss.t };
+    if (C.state === 'hang' && R.one) return { ...mo, name: 'ride_hangOne', t: C.t };
+    if (C.state !== 'ground') return mo;
+    if (R.absorbT > 0) return { ...mo, name: 'ride_absorb', t: 0.5 - R.absorbT };
+    if (!['balance', 'idle', 'lookUp', 'wave'].includes(mo.name) || supportUnder(C.x, C.y) !== 'piece') return mo;
+    let name = 'ride_surf';
+    if (S.slam) name = 'ride_elevator';
+    else if (held.soft) name = 'ride_crouch';
+    else if (R.teeter) name = 'ride_teeter';
+    else if (Math.abs(R.lean) > 0.2) name = 'ride_windmill';
+    else if (R.brace) name = 'ride_brace';
+    else if (R.narrow) name = 'ride_tiptoe';
+    return { ...mo, name, t: C.t };
+  }
+
+  // --- pose layers on top of the motion (world coords, after mirroring) ---
+  function rideElbow(P, sh, hand, ej) {
+    // two-bone solve shoulder->hand (9+9); keep the elbow on the side it already bends to
+    const dx = hand[0] - sh[0], dy = hand[1] - sh[1], d = Math.max(0.01, Math.hypot(dx, dy));
+    const dc = Math.min(d, 17.99), along = dc / 2, h = Math.sqrt(Math.max(0, 81 - along * along));
+    const ux = dx / d, uy = dy / d, mx = sh[0] + ux * along, my = sh[1] + uy * along;
+    const e1 = [mx - uy * h, my + ux * h], e2 = [mx + uy * h, my - ux * h], o = P[ej];
+    P[ej] = Math.hypot(e1[0] - o[0], e1[1] - o[1]) <= Math.hypot(e2[0] - o[0], e2[1] - o[1]) ? e1 : e2;
+  }
+  function rideDecorate(P) {
+    const C = S.climber, R = C.rd;
+    if (!R) return;
+    const BODY = ['hip', 'neck', 'head', 'lElbow', 'rElbow', 'lKnee', 'lFoot', 'rKnee', 'rFoot'];
+    if (C.state === 'hang') {
+      const A = anchorAbs();
+      if (!A) return;
+      const g = [A.gx, A.gy], th = R.a * A.f, co = Math.cos(th), sn = Math.sin(th);
+      const shake = R.grip < 0.35 && R.onPiece ? (Math.random() - 0.5) * (0.35 - R.grip) * 3 : 0;
+      for (const j of BODY) {
+        const x = P[j][0] - g[0], y = P[j][1] - g[1];
+        P[j] = [g[0] + x * co - y * sn + shake, g[1] + x * sn + y * co + R.jy];
+      }
+      // arms can't stretch: if the jolt pulls the shoulders out of reach, the body stops short
+      const d = Math.hypot(P.neck[0] - g[0], P.neck[1] - g[1]);
+      if (d > 17.6) {
+        const k = (d - 17.6) / d, ox = (g[0] - P.neck[0]) * k, oy = (g[1] - P.neck[1]) * k;
+        for (const j of BODY) P[j] = [P[j][0] + ox, P[j][1] + oy];
+      }
+      if (R.one) { P.lHand = g; rideElbow(P, P.neck, g, 'lElbow'); return; }
+      P.lHand = g; P.rHand = g;
+      if (R.catchT > 0) {
+        // the second hand is still on its way up to the edge
+        const k = 1 - R.catchT / 0.2, e = k * k * (3 - 2 * k);
+        const from = [P.neck[0] - A.f * 7, P.neck[1] + 9];
+        const hj = R.lead === 'l' ? 'rHand' : 'lHand';
+        P[hj] = [from[0] + (g[0] - from[0]) * e, from[1] + (g[1] - from[1]) * e];
+      }
+      rideElbow(P, P.neck, P.lHand, 'lElbow'); rideElbow(P, P.neck, P.rHand, 'rElbow');
+      return;
+    }
+    if (C.state === 'air' && R.miss && R.miss.t < 0.3) {
+      // fingertips scraping off the corner, then the hand comes away
+      const m = R.miss, hj = m.hand === 'l' ? 'lHand' : 'rHand', ej = m.hand === 'l' ? 'lElbow' : 'rElbow';
+      const k = 1 - m.t / 0.3;
+      let tx = m.gx, ty = m.gy + 2;
+      const d = Math.hypot(tx - P.neck[0], ty - P.neck[1]);
+      if (d > 17.5) { tx = P.neck[0] + (tx - P.neck[0]) * 17.5 / d; ty = P.neck[1] + (ty - P.neck[1]) * 17.5 / d; }
+      P[hj] = [P[hj][0] + (tx - P[hj][0]) * k, P[hj][1] + (ty - P[hj][1]) * k];
+      rideElbow(P, P.neck, P[hj], ej);
+      ctx.save(); ctx.strokeStyle = T.ink; ctx.lineWidth = 1; ctx.globalAlpha = k;
+      ctx.beginPath();
+      for (const o of [-3, 0, 3]) { ctx.moveTo(m.gx + o, m.gy + 1); ctx.lineTo(m.gx + o * 1.4, m.gy + 6 + Math.abs(o)); }
+      ctx.stroke(); ctx.restore();
+      return;
+    }
+    if (C.state === 'ground' && (Math.abs(R.lean) > 0.005 || Math.abs(R.bob) > 0.05)) {
+      // lean from the hips (hips go the other way to keep over the feet), knees take the bob
+      const hp = P.hip, th = R.lean, co = Math.cos(th), sn = Math.sin(th);
+      const nh = [hp[0] - R.lean * 5, hp[1] + Math.max(0, R.bob)];
+      for (const j of ['neck', 'head', 'lElbow', 'lHand', 'rElbow', 'rHand']) {
+        const x = P[j][0] - hp[0], y = P[j][1] - hp[1];
+        P[j] = [nh[0] + x * co - y * sn, nh[1] + x * sn + y * co];
+      }
+      P.hip = nh;
+      rideElbow(P, P.hip, P.lFoot, 'lKnee'); rideElbow(P, P.hip, P.rFoot, 'rKnee');
+    }
+  }
+
+  // ---------- reactions: recover ----------
+  // Two jobs. (1) Recovery: what he does after a piece got him. Out of a tumble he rolls
+  // and slides into a sit; after a squash he lies flat like a pancake; then he gets up
+  // (peel up / groggy / quick, by how hard he was hit and by which piece) and maybe
+  // shakes it off, dusts off, or shakes a fist at the piece. (2) The pose pipeline run
+  // after worldPose's cross-fade: per-motion blend times and curves, follow-through
+  // springs on head and hands, body jolts, squash & stretch, head look-at, breathing.
+  //
+  // API for other reactions (cheap, safe to call any time, all optional):
+  //   noteHit(kind, sev, piece, x, y)  what just hit him: kind 'squash'|'knock'|'thrown'|'stumble'|'fall'|'nudge'
+  //                                    (or your own), sev 0..1, piece 'I'..'L', x/y board px of the piece.
+  //                                    Recovery flavour reads it. Omitted args are inferred (S.cur, S.slam).
+  //                                    If nobody calls it, recoverWatch infers hits from state changes.
+  //   animImpulse(dx, dy, strength)    jolt his upper body toward (dx, dy); head and hands trail and settle.
+  //                                    strength ~0.5 nudge, 1 hit, 2 slam.
+  //   animSquash(amount)               + squashes (0.1 light .. 0.35 heavy), - stretches; springs back with a wobble.
+  //   animLookAt(x, y, dur, weight)    turn head and eyes to a board point for dur seconds (weight 0..1).
+  //   animBlendIn(name, sec, curve)    blend time and curve INTO motion `name`; curves 'out' (snappy, impacts),
+  //                                    'smooth' (ease in-out), 'in', 'linear'. Unlisted names fall back to
+  //                                    0.04 s 'out' if the name looks like an impact (hit/slam/bonk/...), else 0.12 s.
+  //   animBlendNext(sec, curve)        override the very next motion change only.
+  //   startRecovery(name, opts)        play a ground motion now as a recovery ({tx, ty} faces and looks at a point);
+  //                                    blocks the brain until it ends; a threat / stumble / jump cancels it.
+  const PIECE_WEIGHT = { I: 0.95, O: 1, T: 0.7, S: 0.62, Z: 0.62, J: 0.75, L: 0.75 };
+  const HIT_BASE = { squash: 0.85, knock: 0.72, thrown: 0.55, stumble: 0.3, fall: 0.5, nudge: 0.2 };
+  const REC_SAY = {
+    groggy: ['Ugh…', 'Who turned off the lights?', 'I felt that.', 'Five more minutes…', 'Ow. Ow.'],
+    I: ['Who ordered the I-beam?', 'Long one. Ow.'], O: ['That one was HEAVY.', 'Square to the face.'],
+    T: ['Pointy end. Ow.'], S: ['Sneaky S…'], Z: ['Zigzag. Ow.'], J: ['Hooked me…'], L: ['L is for… ow.'],
+    fist: ['HEY!', 'Watch it!', 'I saw that!', 'Do you MIND?!', 'Rude!'],
+    shake: ['Shake it off.', "I'm fine. Fine!", 'Pfft.'],
+  };
+  const EASE = {
+    linear: k => k, out: k => 1 - (1 - k) * (1 - k) * (1 - k), in: k => k * k * k, smooth: k => k * k * (3 - 2 * k),
+  };
+  // how long (s) and with what curve to blend INTO each motion. Impacts snap, recoveries ease.
+  const BLEND_IN = {
+    squashed: [0.035, 'out'], tumble: [0.06, 'out'], brace: [0.06, 'out'], stumble: [0.05, 'out'], land: [0.04, 'out'],
+    crouch: [0.06, 'out'], jumpUp: [0.05, 'out'], fallDown: [0.16, 'smooth'], ledgeReach: [0.08, 'out'],
+    hang: [0.06, 'out'], hangShimmy: [0.2, 'smooth'], pullUp: [0.05, 'out'], climb: [0.1, 'smooth'],
+    walk: [0.14, 'smooth'], run: [0.14, 'smooth'], idle: [0.26, 'smooth'], lookUp: [0.22, 'smooth'], wave: [0.26, 'smooth'],
+    balance: [0.16, 'smooth'], push: [0.14, 'smooth'], dazed: [0.22, 'smooth'], celebrate: [0.12, 'out'],
+    recover_roll: [0.05, 'out'], recover_flat: [0.07, 'out'], recover_peelUp: [0.18, 'smooth'],
+    recover_groggyUp: [0.22, 'smooth'], recover_quickUp: [0.12, 'smooth'], recover_shakeOff: [0.1, 'smooth'],
+    recover_fist: [0.14, 'smooth'], recover_dust: [0.14, 'smooth'],
+  };
+  function animBlendIn(name, sec, curve = 'smooth') { BLEND_IN[name] = [Math.max(0, sec), curve]; }
+  function animBlendNext(sec, curve = 'smooth') { AN.next = [Math.max(0, sec), curve]; }
+  function blendFor(from, to) {
+    if (AN.next) { const b = AN.next; AN.next = null; return b; }
+    if (!from) return [0, 'linear'];
+    if (from === 'crouch' && to === 'jumpUp') return [0.05, 'out'];
+    if (from === 'pullUp') return [0.1, 'smooth'];                      // ends in the standing pose already
+    if ((from === 'walk' || from === 'run') && (to === 'walk' || to === 'run')) return [0.18, 'smooth'];
+    return BLEND_IN[to] || (/(hit|impact|slam|squash|bonk|smack|knock|flinch|crush)/i.test(to) ? [0.04, 'out'] : [0.12, 'smooth']);
+  }
+
+  // animation state lives outside S: it is presentation only and resets with a new climber
+  const AN = { C: null, clock: 0, sp: {}, jx: 0, jy: 0, jvx: 0, jvy: 0, sq: 0, sqv: 0, br: 0,
+               lx: 0, ly: 0, lw: 0, look: null, roll: null, starA: 0, next: null, bx: 0, by: 0 };
+  function animReset(C) {
+    Object.assign(AN, { C, sp: {}, jx: 0, jy: 0, jvx: 0, jvy: 0, sq: 0, sqv: 0, br: 0, lw: 0, look: null, roll: null,
+                        starA: 0, next: null, bx: C.x, by: C.y, lx: C.x, ly: C.y - 80 });
+  }
+  function animImpulse(dx, dy, strength = 1) {
+    const L = Math.hypot(dx, dy) || 1;
+    AN.jvx += dx / L * 55 * strength; AN.jvy += dy / L * 55 * strength;
+  }
+  function animSquash(amount) { AN.sqv += amount * 22; }
+  function animLookAt(x, y, dur = 0.8, weight = 1) { AN.look = { x, y, until: AN.clock + dur, w: Math.max(0, Math.min(1, weight)) }; }
+
+  // keep a cross-fade's source pose travelling with him, so a blend while running or riding
+  // does not drag limbs behind in world space (big jumps - teleports, piece steps - blend in place)
+  function carryFrom(from) {
+    const C = S.climber;
+    const dx = C.x - AN.bx, dy = C.y - AN.by;
+    AN.bx = C.x; AN.by = C.y;
+    if (!from || fadeT <= 0 || (!dx && !dy) || Math.abs(dx) > 14 || Math.abs(dy) > 14) return;
+    for (const j of JOINTS) from[j] = [from[j][0] + dx, from[j][1] + dy];
+  }
+
+  // put the middle joint (elbow/knee) back so both bones are 9 px again, on the side it was;
+  // near-straight crossings (facing flips) shrink the bend smoothly instead of popping
+  function solveLimb(Q, root, mid, end) {
+    const r = Q[root], e = Q[end], m = Q[mid];
+    const dx = e[0] - r[0], dy = e[1] - r[1], d = Math.hypot(dx, dy);
+    if (d < 0.5) return;
+    const ux = dx / d, uy = dy / d, nx = -uy, ny = ux;
+    const half = Math.min(d, 18) / 2, h = Math.sqrt(Math.max(0, 81 - half * half));
+    const sd = (m[0] - r[0]) * nx + (m[1] - r[1]) * ny;
+    const k = Math.min(1, Math.abs(sd) / (0.6 * h + 1e-6));
+    const off = Math.sign(sd || 1) * h * k;
+    Q[mid] = [r[0] + ux * d / 2 + nx * off, r[1] + uy * d / 2 + ny * off];
+  }
+
+  const LOOK_W = { ground: 0.85, dazed: 0.45, hang: 0.6, climb: 0.5, air: 0.4 };
+  const UPPER = { hip: 0.6, neck: 1, head: 1, lElbow: 1, lHand: 1, rElbow: 1, rHand: 1, lKnee: 0.3, rKnee: 0.3, lFoot: 0, rFoot: 0 };
+  const BREATH = { hip: 0.3, neck: 1, head: 1, lElbow: 0.9, lHand: 0.8, rElbow: 0.9, rHand: 0.8, lKnee: 0.15, rKnee: 0.15, lFoot: 0, rFoot: 0 };
+  function animPost(P, mo, clock) {
+    const C = S.climber;
+    if (AN.C !== C) animReset(C);
+    const dt = Math.max(0, Math.min(0.05, clock - AN.clock)); AN.clock = clock;
+    const st = C.state;
+    const Q = { face: P.face, f: P.f };
+    for (const j of JOINTS) Q[j] = [P[j][0], P[j][1]];
+    const feetFixed = st !== 'air' && st !== 'win';
+    const handsFixed = st === 'hang' || st === 'pull' || st === 'climb' || mo.name === 'push';
+
+    // inertia: a sudden stop or start on the ground throws the upper body forward / back
+    if (st === 'ground' && dt > 0) { const dv = C.vx - (AN.pvx ?? C.vx); if (Math.abs(dv) < 400) AN.jvx -= dv * 0.25; }
+    AN.pvx = C.vx;
+    // jolt spring (slightly underdamped) and squash spring (bouncy)
+    AN.jvx += (-160 * AN.jx - 12 * AN.jvx) * dt; AN.jvy += (-160 * AN.jy - 12 * AN.jvy) * dt;
+    AN.jx = Math.max(-6, Math.min(6, AN.jx + AN.jvx * dt)); AN.jy = Math.max(-6, Math.min(6, AN.jy + AN.jvy * dt));
+    AN.sqv += (-320 * AN.sq - 11 * AN.sqv) * dt;
+    AN.sq = Math.max(-0.3, Math.min(0.4, AN.sq + AN.sqv * dt));
+    // breathing so holds never look frozen
+    const still = (st === 'ground' && Math.abs(C.vx) < 8) || st === 'dazed' || st === 'intro';
+    AN.br += ((still ? 1 : 0) - AN.br) * Math.min(1, dt * 3);
+    const breath = Math.sin(clock * 2.1) * 0.45 * AN.br;
+    for (const j of JOINTS) {
+      const w = feetFixed ? UPPER[j] : 1, wh = handsFixed && /Hand/.test(j) ? 0 : handsFixed && /Elbow/.test(j) ? 0.5 : 1;
+      Q[j][0] += AN.jx * w * wh;
+      Q[j][1] += AN.jy * w * wh + breath * BREATH[j] * wh;
+    }
+
+    // follow-through: head and hands are springs chasing their pose, so they overshoot and trail
+    const hd0 = Math.hypot(P.head[0] - P.neck[0], P.head[1] - P.neck[1]) || 8;
+    for (const j of ['head', 'lHand', 'rHand']) {
+      const T = Q[j];
+      let s = AN.sp[j];
+      if (!s || dt === 0 || Math.abs(T[0] - s.tx) > 16 || Math.abs(T[1] - s.ty) > 16) {
+        if (s && dt > 0) { s.x += T[0] - s.tx; s.y += T[1] - s.ty; s.tx = T[0]; s.ty = T[1]; }   // teleport: keep the offset
+        else AN.sp[j] = { x: T[0], y: T[1], vx: 0, vy: 0, tx: T[0], ty: T[1] };
+        continue;
+      }
+      const tvx = (T[0] - s.tx) / dt, tvy = (T[1] - s.ty) / dt;
+      s.vx += (220 * (T[0] - s.x) + 18 * (tvx - s.vx)) * dt; s.vy += (220 * (T[1] - s.y) + 18 * (tvy - s.vy)) * dt;
+      s.x += s.vx * dt; s.y += s.vy * dt; s.tx = T[0]; s.ty = T[1];
+      const max = j === 'head' ? 2.5 : 4, w = j !== 'head' && handsFixed ? 0 : 1;
+      let ox = s.x - T[0], oy = s.y - T[1];
+      const L = Math.hypot(ox, oy);
+      if (L > max) { ox *= max / L; oy *= max / L; s.x = T[0] + ox; s.y = T[1] + oy; }
+      Q[j] = [T[0] + ox * w, T[1] + oy * w];
+    }
+
+    // look-at: the falling piece when it is above and close, or a point someone asked for
+    let tx = null, ty = 0, want = 0;
+    if (AN.look && AN.look.until > clock) { tx = AN.look.x; ty = AN.look.y; want = AN.look.w; }
+    else if (S.cur && LOOK_W[st] && !C.tumble && S.mode === 'play') {
+      const p = S.cur;
+      let sx = 0, sy = 0, n = 0;
+      for (let r = 0; r < p.m.length; r++) for (let c = 0; c < p.m.length; c++) if (p.m[r][c]) { sx += c; sy += r; n++; }
+      const px = (p.x + sx / n + 0.5) * CELL, py = (p.y + sy / n + 0.5) * CELL;
+      const dx = px - Q.neck[0], dy = py - Q.neck[1];
+      if (dy < 10 && dy > -10 * CELL && Math.abs(dx) < 5 * CELL) {
+        want = LOOK_W[st] * Math.min(1, (10 * CELL + dy) / (6 * CELL)) * Math.min(1, (5 * CELL - Math.abs(dx)) / (2.5 * CELL));
+        tx = px; ty = py;
+      }
+    }
+    if (tx !== null) {
+      if (AN.lw < 0.02) { AN.lx = tx; AN.ly = ty; }
+      AN.lx += (tx - AN.lx) * Math.min(1, dt * 7); AN.ly += (ty - AN.ly) * Math.min(1, dt * 7);
+    }
+    AN.lw += (want - AN.lw) * Math.min(1, dt * 4);
+    // head keeps its length from the neck, then turns toward the look target
+    {
+      const hx = Q.head[0] - Q.neck[0], hy = Q.head[1] - Q.neck[1];
+      let a = Math.atan2(hy, hx);
+      if (AN.lw > 0.01) {
+        const a1 = Math.atan2(AN.ly - Q.neck[1], AN.lx - Q.neck[0]);
+        let d = a1 - a; d = Math.atan2(Math.sin(d), Math.cos(d));
+        a += Math.max(-1, Math.min(1, d)) * AN.lw;
+        Q.gaze = [Math.cos(a1) * 1.5 * AN.lw, Math.sin(a1) * 1.5 * AN.lw];
+      }
+      Q.head = [Q.neck[0] + Math.cos(a) * hd0, Q.neck[1] + Math.sin(a) * hd0];
+    }
+
+    // limbs back to exact length (blends and offsets shorten them)
+    solveLimb(Q, 'neck', 'lElbow', 'lHand'); solveLimb(Q, 'neck', 'rElbow', 'rHand');
+    solveLimb(Q, 'hip', 'lKnee', 'lFoot'); solveLimb(Q, 'hip', 'rKnee', 'rFoot');
+
+    // squash & stretch about his base (feet on the ground, grip when hanging, centre in the air)
+    if (Math.abs(AN.sq) > 0.003) {
+      const bx = feetFixed ? mo.ox : C.x, by = feetFixed ? mo.oy : C.y - 20;
+      const sy = 1 - AN.sq, sx = 1 + AN.sq * 0.6;
+      for (const j of JOINTS) Q[j] = [bx + (Q[j][0] - bx) * sx, by + (Q[j][1] - by) * sy];
+    }
+    // roll-out after a tumble: the leftover spin unwinds around his middle
+    if (AN.roll) {
+      const R = AN.roll;
+      R.t += dt;
+      if (R.t >= R.dur || st !== 'dazed') AN.roll = null;
+      else {
+        const a = R.a0 * (1 - EASE.out(R.t / R.dur)), cs = Math.cos(a), sn = Math.sin(a), cx = C.x, cy = C.y - 9;
+        for (const j of JOINTS) { const dx = Q[j][0] - cx, dy = Q[j][1] - cy; Q[j] = [cx + dx * cs - dy * sn, cy + dx * sn + dy * cs]; }
+      }
+    }
+    // dizzy stars fade in and out instead of popping
+    AN.starA = Math.max(0, Math.min(1, AN.starA + (Q.face === 'dizzy' ? dt * 5 : -dt * 1.6)));
+    return Q;
+  }
+  function drawStars(hx, hy) {
+    const a = AN.starA;
+    if (a < 0.03) return;
+    ctx.save();
+    ctx.globalAlpha *= a; ctx.fillStyle = T.p.O;
+    for (let i = 0; i < 3; i++) {
+      const ang = S.climber.t * 4 + i * 2.1;
+      star(hx + Math.cos(ang) * 11, hy - 9 - (1 - a) * 5 + Math.sin(ang) * 3, 3 * (0.5 + 0.5 * a));
+    }
+    ctx.restore();
+  }
+
+  // ---- what hit him
+  function noteHit(kind, sev, piece, x, y) {
+    const C = S.climber, p = S.cur;
+    piece = piece || (p && p.t) || null;
+    if (sev == null) sev = (HIT_BASE[kind] ?? 0.5) * (piece ? PIECE_WEIGHT[piece] : 0.8) + (S.slam ? 0.2 : 0);
+    if (x == null && p) { x = (p.x + p.m.length / 2) * CELL; y = (p.y + p.m.length / 2) * CELL; }
+    C.hit = { kind, sev: Math.max(0, Math.min(1, sev)), piece, x: x ?? C.x, y: y ?? C.y - 60, t: C.t };
+  }
+  const recentHit = age => { const C = S.climber; return C.hit && C.t - C.hit.t < age ? C.hit : null; };
+
+  // ---- recovery on the ground: a motion that plays out, then hands back to the brain
+  function startRecovery(name, o = {}) {
+    const C = S.climber;
+    if (C.state !== 'ground' || C.alert) return false;
+    C.rec = { m: name, t: 0, dur: M.duration(name) || 0.6 };
+    if (o.tx != null) { C.f = Math.sign(o.tx - C.x) || C.f; animLookAt(o.tx, o.ty ?? C.y - 120, C.rec.dur, 0.9); }
+    C.vx *= 0.3;
+    return true;
+  }
+  function recoverTick(dt) {
+    const C = S.climber, r = C.rec;
+    if (C.alert || C.crouchT > 0 || C.stumbleT > 0) { C.rec = null; return false; }
+    r.t += dt;
+    C.vx *= Math.pow(0.01, dt); moveX(C.vx * dt);
+    if (!supportUnder(C.x, C.y)) { C.rec = null; toAir(); return true; }
+    if (r.t >= r.dur) { C.rec = null; C.think = 0; return false; }
+    return true;
+  }
+  // after getting up / after a hit stumble: shake it off, dust off, or shake a fist
+  function followUp(h, big) {
+    const C = S.climber, r = Math.random();
+    const at = S.cur ? { tx: (S.cur.x + S.cur.m.length / 2) * CELL, ty: (S.cur.y + 1) * CELL } : { tx: h.x, ty: h.y };
+    if (r < (big ? 0.35 : 0.22)) {
+      if (startRecovery('recover_fist', at) && C.sayT <= 0) say(pick(REC_SAY.fist), 1.2);
+    } else if (big && r < 0.7) startRecovery('recover_dust');
+    else if (r < (big ? 1 : 0.6)) { if (startRecovery('recover_shakeOff') && C.sayT <= 0 && Math.random() < 0.3) say(pick(REC_SAY.shake), 1.1); }
+  }
+
+  // ---- dazed: roll in, sit (or lie flat after a squash), then a get-up that fits the hit
+  function recoverDazedStart(wasTumble, vx) {
+    const C = S.climber;
+    const h = recentHit(4) || { kind: 'fall', sev: 0.5, piece: null, x: C.x, y: C.y - 60 };
+    const flat = h.kind === 'squash', roll = !flat && wasTumble;
+    const up = flat ? 'recover_peelUp' : h.sev >= 0.62 ? 'recover_groggyUp' : 'recover_quickUp';
+    const d = { el: 0, intro: roll ? M.duration('recover_roll') : 0, roll, flat, up, upDur: M.duration(up),
+                sev: h.sev, hit: h, slide: vx * (roll ? 0.7 : 0.25), sprung: false, said: false, hurry: false };
+    C.daze = d;
+    // lying flat he is ~45 px long: lie the other way round if his legs would go into a wall
+    if (flat) { const bx = C.x - C.f * 26; if (bx < 2 || bx > BW - 2 || solidB(Math.floor((C.y - 4) / CELL), Math.floor(bx / CELL))) C.f = -C.f; }
+    C.dazedT = d.intro + (flat ? 0.5 + 0.9 * h.sev : 0.35 + 1.1 * h.sev) + d.upDur;
+    if (roll) AN.roll = { t: 0, dur: 0.34, a0: -(Math.sign(vx) || C.f) * Math.PI * 0.8 };
+  }
+  function recoverDazedTick(dt) {
+    const C = S.climber, d = C.daze;
+    if (!d) return;
+    d.el += dt;
+    if (d.slide) {
+      // slide out the landing; stops at walls and blocks
+      if (moveX(d.slide * dt)) d.slide = 0;
+      d.slide *= Math.pow(0.03, dt);
+      if (Math.abs(d.slide) < 4) d.slide = 0;
+    }
+    // a piece is about to land on him: scramble up now instead of sitting there
+    if (!d.hurry && C.dazedT > d.upDur && d.el > d.intro && S.cur) {
+      const th = threat();
+      if (th && th.time < 1.1) {
+        d.hurry = true;
+        if (!d.flat) { d.up = 'recover_quickUp'; d.upDur = M.duration(d.up); }
+        C.dazedT = d.upDur;
+      }
+    }
+    const ut = d.upDur - C.dazedT;   // time into the get-up
+    if (ut >= 0 && !d.said) {
+      d.said = true;
+      if (C.sayT <= 0 && d.sev >= 0.62 && Math.random() < 0.55) {
+        const lines = d.hit.piece && REC_SAY[d.hit.piece] && Math.random() < 0.5 ? REC_SAY[d.hit.piece] : REC_SAY.groggy;
+        say(pick(lines), 1.4);
+      }
+    }
+    // springing back into shape at the top of the get-up
+    const springAt = d.up === 'recover_peelUp' ? 0.78 : d.up === 'recover_groggyUp' ? 1.02 : 0.3;
+    if (!d.sprung && ut >= springAt) { d.sprung = true; animSquash(d.up === 'recover_peelUp' ? -0.3 : -0.14); }
+  }
+
+  // watches the climber once per update and turns state changes into animation events,
+  // so the reaction code elsewhere does not need to know about any of this
+  const RW = { C: null };
+  function recoverWatch(dt) {
+    const C = S.climber;
+    if (RW.C !== C) Object.assign(RW, { C, st: C.state, vx: 0, vy: 0, x: C.x, y: C.y, tumble: false, stumble: 0, stumbleHit: null });
+    const st = C.state, prev = RW.st;
+    if (C.alert && C.rec) C.rec = null;
+    if (st !== prev) {
+      if (st === 'squash') {
+        if (!recentHit(0.1)) noteHit('squash');
+        animSquash(0.18); animImpulse(0, 1, 1.2);
+      } else if (st === 'air' && C.tumble && prev !== 'air') {
+        if (!recentHit(1.2)) noteHit(Math.abs(C.vy) > 260 ? 'thrown' : 'knock');
+        animImpulse(Math.sign(C.vx) || 1, -0.6, 1);
+      }
+      if (prev === 'air' && (st === 'ground' || st === 'dazed')) {
+        const v = RW.vy;
+        animSquash(Math.min(0.32, Math.max(0, (v - 220) / 650) * 0.32) + (st === 'dazed' ? 0.06 : 0));
+        if (st === 'dazed') recoverDazedStart(RW.tumble, RW.vx);
+      }
+      if (prev === 'dazed') {
+        const d = C.daze; C.daze = null;
+        if (st === 'ground' && d) {
+          C.landT = 0;                 // the get-up already ends standing
+          if (!d.hurry) followUp(d.hit, d.sev >= 0.62 || d.flat);
+        }
+      }
+      if (st !== 'ground') C.rec = null;
+    }
+    if (st === 'dazed') recoverDazedTick(dt);
+    if (st === 'ground') {
+      // a stumble that came from a hit (not from his own wobbling)
+      if (C.stumbleT > RW.stumble + 0.1) {
+        if (C.stumbleT >= 0.4 && !recentHit(0.1)) noteHit('stumble');
+        const h = recentHit(0.2);
+        RW.stumbleHit = h;
+        animImpulse(h ? Math.sign(C.x - h.x) || C.f : C.f, -0.2, h ? 0.9 : 0.5);
+      } else if (RW.stumble > 0 && C.stumbleT <= 0 && RW.stumbleHit) {
+        const h = RW.stumbleHit; RW.stumbleHit = null;
+        if (!C.alert && C.crouchT <= 0) followUp(h, false);
+      }
+      // carried by the piece he rides: sideways steps jolt him, drops lift him onto his toes
+      const dx = C.x - RW.x, dy = C.y - RW.y;
+      if (Math.abs(dx) > 20 && Math.abs(dx) < 40 && Math.abs(dy) < 1) animImpulse(-Math.sign(dx), 0, 0.8);
+      else if (dy > 20 && dy < 40 && Math.abs(dx) < 1) animSquash(-0.05);
+    }
+    RW.st = st; RW.vx = C.vx; RW.vy = C.vy; RW.x = C.x; RW.y = C.y; RW.tumble = C.tumble; RW.stumble = C.stumbleT;
+  }
+
+  // which motion recovery wants on screen (called at the end of currentMotion)
+  function recoverMotion(mo) {
+    const C = S.climber;
+    if (C.state === 'ground' && C.rec && !C.alert) return { ...mo, name: C.rec.m, t: C.rec.t, speed: 1 };
+    if (C.state === 'dazed' && C.daze) {
+      const d = C.daze;
+      if (C.dazedT <= d.upDur) return { ...mo, name: d.up, t: d.upDur - C.dazedT };
+      if (d.el < d.intro) return { ...mo, name: 'recover_roll', t: d.el };
+      if (d.flat) return { ...mo, name: 'recover_flat' };
+    }
+    return mo;
+  }
+
+  // ---------- reactions: top ----------
+  // A piece coming DOWN onto him. Instead of a generic flatten-then-teleport he flinches, takes the hit
+  // in a way that depends on the piece and where it lands on him, gets pressed into whatever room is
+  // left under it, then squeezes out sideways along the gap toward open space and recovers.
+  // While it plays: C.state === 'squash' and C.topHit = { kind, phase, t, age, mt, dir, hard, sid, sy, ... }.
+  //   kind  : 'clip' (a corner caught him: shoved aside), 'bonk' (a point on his head), 'crumple' (O),
+  //           'pancake' (flat I, or any slam), 'press' (slow flat side: he holds it up)
+  //   phase : 'shove' -> done | 'impact' -> 'hold' (room left: pushes up, then duck-walks out)
+  //           -> 'flat' (no room: pancaked, then wriggles out) -> recover (stand up / pop out)
+  const TOP_NOM = { top_holdUp: 35, top_duckWalk: 35, top_bonk: 37, top_kneel: 34, brace: 33 };   // head-centre height of each pose
+  const TOP_SAY = {
+    press: ['Hnnng!', 'Heavy!', 'Too… heavy…', 'Little help?!'],
+    flat: ['Mmmph!', 'Splat.', 'Ffflat…', 'mmf mmf!'],
+    crumple: ['My knees!', 'Oof— heavy!', 'Why the big one?!'],
+    pop: ['Boing!', 'Pfff—', 'Ta-da…?', 'Fwoop!'],
+    phew: ['Phew!', 'Made it.', 'Excuse me…', 'Out!'],
+    brush: ['Whoa—my hand!', 'Watch it!', 'Close!', 'Hey!'],
+    fingers: ['MY FINGERS!', 'Ow ow ow!', 'Yowch!'],
+  };
+  // the falling piece's cells inside his body box: [row, col, pieceRow, pieceCol]
+  function topOverlap(x, y) {
+    const p = S.cur, out = [];
+    if (!p) return out;
+    for (let pr = 0; pr < p.m.length; pr++) for (let pc = 0; pc < p.m.length; pc++) {
+      if (!p.m[pr][pc]) continue;
+      const r = p.y + pr, c = p.x + pc;
+      if (c * CELL < x + HW && (c + 1) * CELL > x - HW && r * CELL < y && (r + 1) * CELL > y - BODYH) out.push([r, c, pr, pc]);
+    }
+    return out;
+  }
+  // free height above his feet (0 = something is lying right on him)
+  function topRoom(x, y) {
+    const c0 = Math.floor((x - HW) / CELL), c1 = Math.floor((x + HW - 0.001) / CELL), rf = Math.floor((y - 0.5) / CELL);
+    for (let r = rf; r >= rf - 2; r--) for (let c = c0; c <= c1; c++) if (solid(r, c)) return Math.max(0, y - (r + 1) * CELL);
+    return 99;
+  }
+  // can he squeeze along here? Under the piece that pinned him (or a later one) yes, through the old stack no
+  function topPassable(x, y, h) {
+    const c0 = Math.floor((x - HW) / CELL), c1 = Math.floor((x + HW - 0.001) / CELL), rf = Math.floor((y - 0.5) / CELL);
+    let support = false;
+    for (let c = c0; c <= c1; c++) {
+      if (c < 0 || c >= COLS) return false;
+      if (solid(rf, c) && !(pieceHas(rf, c) || (rf >= 0 && S.board[rf][c] && S.ids[rf][c] >= h.sid))) return false;
+      if (solid(rf + 1, c)) support = true;
+    }
+    return support;
+  }
+  // nearest spot along the gap where he can stand up again; prefers h.dir (the open side / where he was running)
+  function topExit(h) {
+    const C = S.climber;
+    let best = null;
+    for (const d of [-1, 1]) {
+      for (let k = 2; k <= 4 * CELL; k += 2) {
+        const x = C.x + d * k;
+        if (x < HW || x > BW - HW || !topPassable(x, C.y, h)) break;
+        if (boxFree(x, C.y)) {
+          const cost = k - (d === h.dir ? 20 : 0);
+          if (!best || cost < best.cost) best = { x, d, cost };
+          break;
+        }
+      }
+    }
+    return best;
+  }
+  function topStart(o) {
+    const C = S.climber;
+    C.state = 'squash'; C.squashT = 0.7; C.anchor = null; C.vx = 0; C.vy = 0;
+    C.alert = null; C.intent = null; C.topAnim = null; C.tumble = false; C.rot = 0; C.spin = 0; C.pressed = C.zapped = false;
+    C.topHit = Object.assign({ t: 0, age: 0, mt: 0, sy: 1, room: 46, crawl: false, noExit: 0, sid: S.serial + 1,
+                            dir: 0, hard: false, impact: 0, holdT: 0.4, flatHold: 0.4 }, o);
+    return C.topHit;
+  }
+  // entry point: the falling piece just moved down into his body
+  function topHit() {
+    const C = S.climber, p = S.cur;
+    let cells = topOverlap(C.x, C.y);
+    if (!p || !cells.length) return squash();
+    const hard = !!S.slam;
+    // in the air, on a wall: swatted down (or, with no room below, pinned to the floor)
+    if (C.state === 'air' || C.state === 'climb') {
+      const ctr = cells.reduce((s, [, c]) => s + colX(c), 0) / cells.length;
+      const push = C.state === 'climb' ? -C.f : -(Math.sign(ctr - C.x) || C.f);
+      if (topSwat(push)) return;
+      const ny = Math.ceil(C.y / CELL - 0.02) * CELL;
+      if (ny - C.y > BODYH || !supportUnder(C.x, ny)) return squash();
+      C.y = ny;
+      cells = topOverlap(C.x, C.y);
+      if (!cells.length) { C.state = 'ground'; C.landT = 0.2; return; }
+    }
+    const aware = !!C.alert;
+    const run = C.state === 'ground' && C.alert && C.alert.ran && Math.abs(C.vx) > 40 ? Math.sign(C.vx) : 0;
+    const left = Math.min(...cells.map(([, c]) => c * CELL)), right = Math.max(...cells.map(([, c]) => (c + 1) * CELL));
+    const cover = (Math.min(C.x + HW, right) - Math.max(C.x - HW, left)) / (2 * HW);
+    const side = Math.sign((left + right) / 2 - C.x);
+    // the lowest cell touching him: is it a lone point (T stem, end of an upright piece)?
+    const low = cells.reduce((a, b) => (b[0] > a[0] ? b : a));
+    const point = p.m[low[2]].filter(Boolean).length === 1;
+    // only a corner or edge caught his head/shoulder: shoved toward the open side
+    if (cover < 0.75 && side) {
+      const d = -side, x1 = d < 0 ? left - HW - 0.5 : right + HW + 0.5;
+      if (Math.abs(x1 - C.x) <= 2 * HW && x1 >= HW && x1 <= BW - HW && boxFree(x1, C.y)) {
+        topStart({ kind: 'clip', phase: 'shove', dir: d, x0: C.x, x1, dur: hard ? 0.13 : 0.22, hard, run: run === d,
+                   dizzy: p.t === 'T' || point || hard });
+        C.f = d;
+        addParts(C.x - d * 4, C.y - BODYH + 4, T.p[p.t], 3, 50);
+        sfx('bonk'); say(pick(hard ? SAY.bonk : SAY.small), 1.1);
+        return;
+      }
+    }
+    let kind;
+    if (p.t === 'O') kind = 'crumple';
+    else if (point && (p.t === 'T' || !hard)) kind = 'bonk';
+    else if (hard || (p.t === 'I' && !point)) kind = 'pancake';
+    else kind = 'press';
+    const h = topStart({ kind, phase: 'impact', hard, dir: run || 0, aware,
+                         impact: { bonk: hard ? 0.28 : 0.45, crumple: hard ? 0.16 : 0.26, press: 0.14, pancake: 0 }[kind],
+                         holdT: aware ? 0.45 : 0.3, flatHold: hard ? 0.5 : 0.35 });
+    if (kind === 'bonk') {
+      addParts(C.x, C.y - BODYH, T.p.O, 5, 80); sfx('bonk'); say(pick(SAY.bonk), 1.4);
+    } else if (kind === 'crumple') { sfx('thud'); say(pick(TOP_SAY.crumple), 1.4); }
+    else if (kind === 'press') { sfx('thud'); say(pick(TOP_SAY.press), 1.4); }
+    else { topFlat(); }
+    h.sy = 1;
+  }
+  function topFlat() {
+    const C = S.climber, h = C.topHit;
+    h.phase = 'flat'; h.t = 0; h.crawl = false; h.sy = 1;
+    const ex = topExit(h);
+    if (ex) { C.f = ex.d; if (!h.dir) h.dir = ex.d; }
+    addParts(C.x, C.y - 2, T.muted, 6, 70);
+    S.shake = Math.min(12, S.shake + (h.hard ? 3 : 1.5));
+    sfx('bonk'); say(pick(TOP_SAY.flat), 1.4);
+  }
+  function topUpdate(dt) {
+    const C = S.climber, h = C.topHit;
+    h.t += dt; h.age += dt; C.vx = 0; C.vy = 0;
+    if (h.phase === 'shove') {
+      const k = Math.min(1, h.t / h.dur);
+      C.x = h.x0 + (h.x1 - h.x0) * (1 - (1 - k) * (1 - k));
+      if (k >= 1) topShoveDone();
+      return;
+    }
+    const room = h.room = topRoom(C.x, C.y);
+    // whole body fits again: he crawled out, or the piece moved off him
+    if (boxFree(C.x, C.y) && !(h.phase === 'impact' && h.t < h.impact)) return topRecover();
+    if (room <= 6 && h.phase !== 'flat' && !(h.phase === 'impact' && h.kind === 'crumple' && h.t < 0.16)) topFlat();
+    else if (h.phase === 'impact' && h.t >= h.impact) { h.phase = 'hold'; h.t = 0; }
+    else if (h.phase === 'flat' && room > 20 && h.t > h.flatHold) { h.phase = 'hold'; h.t = h.holdT; }   // room again: back up into a crouch
+    // squeeze out along the gap
+    const wait = h.phase === 'flat' ? h.flatHold : h.phase === 'hold' ? h.holdT : Infinity;
+    if (h.t >= wait) {
+      const ex = topExit(h);
+      if (ex) {
+        h.noExit = 0;
+        if (!h.crawl || C.f !== ex.d) { h.crawl = true; C.f = ex.d; h.dir = ex.d; }
+        const flat = h.phase === 'flat', v = flat ? 38 : 48;
+        h.mt += dt * v / (flat ? 43 : 36);
+        C.x += ex.d * Math.min(Math.abs(ex.x - C.x), v * dt);
+      } else {
+        h.crawl = false; h.noExit += dt;
+        if (h.noExit > 1.6) return topGiveUp();
+      }
+    }
+    if (h.age > 7) return topGiveUp();
+    // fit the pose under the piece: squash vertically around his feet, bulge a little sideways
+    const nom = TOP_NOM[topMotion().name] || 42;
+    const target = h.phase === 'flat' ? 1 : Math.max(0.25, Math.min(1, (room - 7) / nom));
+    h.sy += (target - h.sy) * Math.min(1, dt * 30);
+    if (h.sy > target + 0.04) h.sy = target + 0.04;   // never lag up into the block
+  }
+  function topShoveDone() {
+    const C = S.climber, h = C.topHit;
+    if (!boxFree(C.x, C.y)) { Object.assign(h, { kind: 'press', phase: 'impact', t: 0, impact: 0.1 }); return; }
+    C.topHit = null; C.intent = null; C.think = 0.3;
+    if (h.hard || h.run) {
+      // a slam clipping him, or caught mid-run: thrown out the open side
+      toAir(); C.vx = h.dir * (h.run ? 170 : 140); C.vy = h.run ? -120 : -170;
+      C.tumble = !h.run; C.spin = h.dir * 9; C.wantGrab = false; C.steer = 0;
+      if (h.run) C.bonkUntil = C.t + 0.6;
+    } else {
+      C.state = 'ground'; C.vx = 0;
+      if (h.dizzy) topAnim('top_stagger', 0.9, h.dir * 22);
+      else C.stumbleT = 0.4;
+    }
+  }
+  function topRecover() {
+    const C = S.climber, h = C.topHit;
+    C.topHit = null; C.intent = null; C.think = 0.3; C.stuckT = 0;
+    if (h.phase === 'flat' || (h.phase === 'impact' && h.kind === 'pancake')) {
+      // squash-and-stretch: he springs out of the gap like a cork
+      toAir(); C.vy = h.hard ? -330 : -250; C.vx = (h.crawl ? C.f : 0) * 60;
+      C.tumble = false; C.steer = 0; C.wantGrab = false; C.popUntil = C.t + 0.5;
+      addParts(C.x, C.y - 2, T.muted, 5, 60); sfx('jump'); say(pick(TOP_SAY.pop), 1.2);
+    } else {
+      C.state = 'ground'; C.landT = 0.24; C.vx = 0;
+      if (h.kind === 'bonk') topAnim('top_stagger', 1.0, (h.dir || C.f) * 22);
+      else say(pick(TOP_SAY.phew), 1.2);
+    }
+  }
+  // boxed in under it with nowhere to squeeze: fall back to the old pop-out
+  function topGiveUp() {
+    const C = S.climber;
+    C.topHit = null; expel(); C.popUntil = C.t + 0.5;
+  }
+  // knocked downward out of the air / off a wall or ledge; false if there is no room below
+  function topSwat(push) {
+    const C = S.climber, hard = !!S.slam;
+    for (let k = 1; k <= CELL + 18 && C.y + k <= BH; k++) {
+      if (!boxFree(C.x, C.y + k)) continue;
+      C.y += k; toAir(); C.wantGrab = false; C.steer = 0;
+      // at least as fast as the piece driving him down, so it doesn't catch him again at once
+      C.vy = Math.max(hard ? 420 : 240, (held.soft ? CELL / SOFT : 0) + 60); C.vx = push * (hard ? 90 : 60);
+      C.tumble = hard; C.spin = push * 10; C.bonkUntil = C.t + 0.9;
+      addParts(C.x, C.y - BODYH, T.p.O, 5, 70); sfx('bonk'); say(pick(SAY.bonk), 1.2);
+      return true;
+    }
+    return false;
+  }
+  // hanging and the falling piece comes down on his body: swatted off the ledge
+  function topHangHit() {
+    const C = S.climber;
+    if (!topOverlap(C.x, C.y).length) return false;
+    const f = C.anchor ? C.anchor.f : C.f;
+    C.anchor = null; C.escape = false; toAir(); C.wantGrab = false;
+    if (topSwat(-f)) return true;
+    C.vy = 0; topHit();
+    return true;
+  }
+  // hanging and a piece lands on the ledge his fingers are on
+  function topFingers(A) {
+    const C = S.climber;
+    if (!A || A.top || (C.anchor && C.anchor.piece) || A.r < 1) return false;
+    const r = A.r - 1;
+    if (!pieceHas(r, A.c) && !(S.board[r][A.c] && S.ids[r][A.c] === S.serial)) return false;
+    letGo(); C.vx = -A.f * 45; C.vy = 40; C.fingerUntil = C.t + 0.9; C.f = A.f;
+    addParts(A.gx, A.gy, T.p.O, 4, 60); sfx('bonk'); say(pick(TOP_SAY.fingers), 1.4);
+    return true;
+  }
+  // a piece whooshes down right beside him at arm height: he snatches his hand back
+  function topBrush() {
+    const C = S.climber, p = S.cur;
+    if (!p || C.state !== 'ground' || C.brushId === S.serial || Math.abs(C.vx) > 30 || (C.topAnim && C.t < C.topAnim.until)) return;
+    if (!boxFree(C.x, C.y)) return;
+    for (let pr = 0; pr < p.m.length; pr++) for (let pc = 0; pc < p.m.length; pc++) {
+      if (!p.m[pr][pc]) continue;
+      const r = p.y + pr, c = p.x + pc;
+      if ((r + 1) * CELL < C.y - 40 || r * CELL > C.y - 14) continue;
+      const gr = c * CELL - (C.x + HW), gl = (C.x - HW) - (c + 1) * CELL;
+      const sd = gr >= 0 && gr < 8 ? 1 : gl >= 0 && gl < 8 ? -1 : 0;
+      if (!sd) continue;
+      C.brushId = S.serial; C.f = sd;
+      topAnim('top_yank', 0.4, -sd * 35);
+      if (C.sayT <= 0 || Math.random() < 0.5) say(pick(TOP_SAY.brush), 1);
+      return;
+    }
+  }
+  // short reaction animations that own the ground state while they play
+  function topAnim(name, dur, vx) {
+    const C = S.climber;
+    C.topAnim = { name, t: 0, until: C.t + dur, vx: vx || 0 };
+    if (vx) C.f = Math.sign(vx) * (name === 'top_yank' ? -1 : 1);
+  }
+  function topGroundAnim(dt) {
+    const C = S.climber, a = C.topAnim;
+    if (C.t >= a.until) { C.topAnim = null; return false; }
+    // a new piece is about to land on him: snap out of it and let him dodge
+    if (a.t > 0.3) { const th = threat(); if (th && th.time < 0.8) { C.topAnim = null; return false; } }
+    a.t += dt; C.vx = 0;
+    if (a.vx) {
+      moveX(a.vx * dt); a.vx *= Math.pow(0.35, dt);
+      if (!supportUnder(C.x, C.y)) { C.topAnim = null; toAir(); }
+    }
+    return true;
+  }
+  // which motion shows during a hit
+  function topMotion() {
+    const C = S.climber, h = C.topHit;
+    if (h.phase === 'shove') return { name: 'top_shove', t: h.t * 0.3 / h.dur + 0.05 };
+    if (h.phase === 'flat') return h.crawl ? { name: 'top_wriggle', t: h.mt } : { name: 'top_pancake', t: h.t };
+    if (h.phase === 'impact') {
+      const k = h.hard ? 1.6 : 1;
+      if (h.kind === 'bonk') return { name: 'top_bonk', t: h.t * k };
+      if (h.kind === 'crumple') return { name: 'top_kneel', t: h.t * k };
+      return { name: 'brace', t: 0.3 };
+    }
+    if (h.crawl) return { name: 'top_duckWalk', t: h.mt };
+    if (h.kind === 'crumple') return { name: 'top_kneel', t: 0.3 };
+    return { name: 'top_holdUp', t: h.t };
+  }
+  function topAirMotion() {
+    const C = S.climber;
+    if (C.popUntil > C.t && !C.tumble) return { name: 'top_popOut', t: 0.5 - (C.popUntil - C.t) };
+    if (C.fingerUntil > C.t) return { name: 'top_fingers', t: C.t };
+    return null;
+  }
+  // squash & stretch around his feet, strain shake, dizzy face after a bonk
+  function topDeform(w, mo, local) {
+    const C = S.climber;
+    let sx = 1, sy = 1, jx = 0;
+    if (C.state === 'squash' && C.topHit) {
+      const h = C.topHit;
+      if (h.hard && h.age < 0.08) fadeT = Math.min(fadeT, 0.03);   // a slam flattens him at once: no soft cross-fade
+      if (h.phase === 'flat') { sx = 1.1; sy = 0.85 + 0.05 * Math.sin(C.t * 9); }
+      else if (h.phase !== 'shove') { sy = h.sy; sx = 1 + (1 - sy) * 0.6; }
+      if (h.phase === 'hold' && !h.crawl) jx = Math.sin(C.t * 70) * 0.5;
+    } else if (C.state === 'air' && C.popUntil > C.t && !C.tumble) {
+      const k = (C.popUntil - C.t) / 0.5;
+      sy = 1 + 0.4 * k * k; sx = 1 - 0.22 * k * k;
+    }
+    if (C.state === 'air' && C.bonkUntil > C.t && !C.tumble) local.face = w.face = 'dizzy';
+    if (sx === 1 && sy === 1 && !jx) return;
+    for (const j of JOINTS) { w[j][0] = mo.ox + (w[j][0] - mo.ox) * sx + jx; w[j][1] = mo.oy + (w[j][1] - mo.oy) * sy; }
+  }
+
+  // ---------- reactions: side ----------
+  // The falling piece meeting him from the left or right: moved into him, rotated into him
+  // (wall kicks included), or sliding past while he climbs or hangs. Force depends on the
+  // piece (I long lever, O heavy, T point, S/Z/J/L corners) and on how often he was just hit.
+  const SIDE_MOVE = { I: 1.2, O: 1.6, T: 1.1, S: 1.0, Z: 1.0, J: 1.0, L: 1.0 };   // shoved by a sideways move
+  const SIDE_ROT = { I: 3.0, O: 0, T: 2.3, S: 2.0, Z: 2.0, J: 2.1, L: 2.1 };      // swept by a rotation
+  const SIDE_SAY = { rot: ['Watch the elbows!', 'OW! Corners!', 'Hey, I was standing there!', 'Swing much?'],
+                     push: ['Hnngh!', 'Too… heavy…', 'Stop pushing!'], pin: ['Hrrk—!', 'Can\'t… breathe…', 'SQUISH'] };
+  const SIDE_LOSE = { I: 0.3, O: 0.65, T: 0.45, S: 0.5, Z: 0.5, J: 0.45, L: 0.45 }; // chance a jolt costs a hand
+  const SIDE_SHOVE = {
+    jostle: { dur: 0.5, motion: 'side_jostle', v: 70, fr: 0.004 },
+    jab: { dur: 0.6, motion: 'side_jab', v: 60, fr: 0.002 },
+    staggerBack: { dur: 0.85, motion: 'side_staggerBack', v: 125, fr: 0.06 },
+    staggerFwd: { dur: 0.75, motion: 'side_staggerFwd', v: 120, fr: 0.06 },
+    spin: { dur: 0.9, motion: 'side_spin', v: 95, fr: 0.03 },
+    sprawl: { dur: 1.7, motion: 'side_fallBack', v: 150, fr: 0.0005 },
+    skid: { dur: 0.45, motion: 'side_skid', v: 0, fr: 1e-4 },
+  };
+  // falling-piece cells level with his body (or about to be), nearest one on each side
+  function sideScan() {
+    const C = S.climber, p = S.cur;
+    if (!p) return null;
+    let best = null;
+    for (let pr = 0; pr < p.m.length; pr++) for (let pc = 0; pc < p.m.length; pc++) {
+      if (!p.m[pr][pc]) continue;
+      const r = p.y + pr, c = p.x + pc;
+      if (r * CELL >= C.y || (r + 1) * CELL <= C.y - BODYH) continue;
+      const L = c * CELL, R = L + CELL;
+      const gap = L >= C.x ? L - (C.x + HW) : R <= C.x ? (C.x - HW) - R : -1;
+      if (gap < 0) continue;
+      if (!best || gap < best.gap) best = { gap, d: L >= C.x ? 1 : -1, r, c };
+    }
+    return best;
+  }
+  // free space on his side d before the stack or a wall (body rows only)
+  function sideRoom(d) {
+    const C = S.climber;
+    const co = d > 0 ? Math.floor((C.x + HW - 0.001) / CELL) + 1 : Math.floor((C.x - HW) / CELL) - 1;
+    const r0 = Math.floor((C.y - BODYH) / CELL), r1 = Math.floor((C.y - 0.5) / CELL);
+    for (let r = r0; r <= r1; r++) if (solidB(r, co)) return d > 0 ? co * CELL - (C.x + HW) : (C.x - HW) - (co + 1) * CELL;
+    return 99;
+  }
+  // smallest step along (ux, uy) that clears his box, or 0
+  function sideClear(ux, uy, max) {
+    const C = S.climber;
+    for (let s = 1; s <= max; s++) if (boxFree(C.x + ux * s, C.y + uy * s)) return s;
+    return 0;
+  }
+  // displace him out of the piece. The last drawn pose moves with him, so the 0.12 s
+  // cross-fade into the reaction blends poses in place instead of dragging him through
+  // the block; speed streaks show the jump instead.
+  function sideShiftPose(dx, dy) {
+    if (lastWorld) for (const j of JOINTS) lastWorld[j] = [lastWorld[j][0] + dx, lastWorld[j][1] + dy];
+  }
+  function sideMoveBy(dx, dy, color, n) {
+    const C = S.climber, x0 = C.x, y0 = C.y - 24;
+    C.x += dx; C.y += dy;
+    sideShiftPose(dx, dy);
+    if (Math.abs(dx) + Math.abs(dy) > 3) C.sideFx = { x0, y0, x1: C.x, y1: C.y - 24, t: 0.18 };
+    if (n) addParts(x0 + dx * 0.4, y0 + dy * 0.4, color, n, 70);
+  }
+  // which way the piece pushes him: the move direction, or for a rotation away from the
+  // overlapping cells' centre
+  function sideDir(dx) {
+    const C = S.climber, p = S.cur;
+    if (dx) return Math.sign(dx);
+    let sx = 0, n = 0;
+    for (let pr = 0; pr < p.m.length; pr++) for (let pc = 0; pc < p.m.length; pc++) {
+      if (!p.m[pr][pc]) continue;
+      const r = p.y + pr, c = p.x + pc;
+      if (r * CELL >= C.y || (r + 1) * CELL <= C.y - BODYH) continue;
+      if ((c + 1) * CELL <= C.x - HW || c * CELL >= C.x + HW) continue;
+      sx += colX(c); n++;
+    }
+    if (!n) { sx = (p.x + p.m.length / 2) * CELL; n = 1; }
+    return Math.sign(C.x - sx / n) || -C.f;
+  }
+  function sideShove(kind, d) {
+    const C = S.climber, k = SIDE_SHOVE[kind];
+    // shoved from the front plays backward, from behind forward
+    if (kind === 'staggerBack' && C.f === d) kind = 'staggerFwd';
+    if (kind === 'jostle' || kind === 'jab' || kind === 'sprawl' || kind === 'skid' || kind === 'spin') C.f = -d;
+    const kk = SIDE_SHOVE[kind] || k;
+    C.shove = { kind, d, t: 0, dur: kk.dur, motion: kk.motion, fr: kk.fr, flipped: false };
+    C.vx = d * kk.v;
+    C.alert = null; C.intent = null; C.crouchT = 0; C.stumbleT = 0; C.landT = 0; C.think = 0.3;
+  }
+  // a sideways move or rotation of the falling piece; true = fully handled here
+  function sideHit(dx, dy, rot, riding, hanging) {
+    const C = S.climber, p = S.cur;
+    if (!p || riding || dy > 0 || (!dx && !rot)) return false;
+    const st = C.state, t = p.t;
+    if (hanging && (st === 'hang' || st === 'pull')) return sideHangJolt(dx, rot, t);
+    if (st === 'hang') return boxFree(C.x, C.y) ? (sideWatch(dx), false) : sideScrape(dx);
+    if (!['ground', 'air', 'dazed', 'climb', 'button'].includes(st)) return false;
+    if (boxFree(C.x, C.y)) { sideWatch(dx); return false; }
+
+    const d = sideDir(dx);
+    C.sideHits = (C.sideHits || 0) + 1;
+    const F = (rot ? SIDE_ROT[t] + (dy < 0 ? 0.3 : 0) : SIDE_MOVE[t]) + (t === 'O' ? 0 : 0.6 * (C.sideHits - 1));
+    const color = T.p[t] || T.ink;
+    S.shake = Math.min(12, S.shake + 0.8 + F);
+
+    if (st === 'climb') return sideClimbHit(d, F, color);
+    const s = sideClear(d, 0, 30);
+    if (!s) return sidePinned(d, color, F);
+    sideMoveBy(d * s, 0, color, F >= 2 ? 6 : 3);
+    sfx(F >= 2 ? 'bonk' : 'thud');
+
+    if (st === 'air') {
+      C.vx = d * Math.max(Math.abs(C.vx), 140 + F * 30); C.vy = Math.min(C.vy, -120);
+      if (F >= 2) { C.tumble = true; C.spin = d * 10; }
+      say(pick(SAY.bonk), 1.1);
+      return true;
+    }
+    if (st === 'dazed') { C.dazedT = Math.min(2.5, C.dazedT + 0.4); say('Hey!', 0.9); return true; }
+    if (st === 'button') { C.state = 'ground'; C.pressed = C.zapped = false; C.btnT = 0; }
+    if (!supportUnder(C.x, C.y)) { toAir(); C.vx = d * (90 + F * 40); C.vy = -80; C.tumble = F >= 2; C.spin = d * 9; return true; }
+    if (F >= 2.8) {
+      // the long arm of an I (or a pile of hits) sends him flying
+      toAir(); C.vx = d * 175; C.vy = -270; C.tumble = true; C.spin = d * 11; C.wantGrab = false;
+      say(pick(SAY.big), 1.4); sfx('fall');
+    } else if (F >= 2.0) {
+      sideShove((t === 'S' || t === 'Z') && rot ? 'spin' : 'sprawl', d);
+      say(pick(rot ? SIDE_SAY.rot : SAY.bonk), 1.3);
+    } else if (t === 'O' && !rot) {
+      // heavy and flat: he gets bulldozed, staying pressed against its face
+      sideShove('skid', d);
+      if (C.sideHits < 1.5 || C.sayT <= 0) say(pick(SIDE_SAY.push), 1.2);
+    } else if (F >= 1.4) {
+      sideShove('staggerBack', d);
+      if (C.sayT <= 0) say(pick(SAY.small), 1);
+    } else {
+      sideShove(t === 'T' && C.f !== d ? 'jab' : 'jostle', d);
+      if (C.sayT <= 0 && Math.random() < 0.6) say(t === 'T' ? 'Oof!' : pick(SAY.small), 1);
+    }
+    return true;
+  }
+  // nothing hit him yet: did it just slide up next to him? then he looks at it
+  function sideWatch(dx) {
+    const C = S.climber;
+    if (!dx) return;
+    const sc = sideScan();
+    if (!sc || sc.d !== -Math.sign(dx) || sc.gap > CELL + 2) return;
+    C.sideWarn = { d: sc.d, t: 0.7 };
+    if (C.state === 'ground' && !C.shove && !C.alert && Math.abs(C.vx) < 25 && C.crouchT <= 0) C.f = sc.d;
+  }
+  // no room to be pushed: squeeze, then pop out upward like a melon seed (or get flattened)
+  function sidePinned(d, color, F) {
+    const C = S.climber;
+    const up = sideClear(0, -1, 70);
+    if (!up) return false;              // the old nudge/squash path handles it
+    if (F >= 2.5) {
+      // too hard to squeeze: the swing scoops him up and over
+      sideMoveBy(0, -up); toAir(); C.vy = -300; C.vx = -d * 60; C.tumble = true; C.spin = -d * 11; C.wantGrab = false;
+      addParts(C.x, C.y - 10, color, 6, 90); say(pick(SAY.big), 1.4); sfx('fall');
+      return true;
+    }
+    C.state = 'squash'; C.squashT = 9; C.vx = C.vy = 0; C.anchor = null; C.shove = null;
+    C.sideSq = { t: 0, up, d, wall: d > 0 ? Math.ceil((C.x + HW) / CELL) * CELL : Math.floor((C.x - HW) / CELL) * CELL };
+    addParts(C.x, C.y - 26, color, 4, 50);
+    say(pick(SIDE_SAY.pin), 1); sfx('bonk');
+    return true;
+  }
+  function sidePop() {
+    const C = S.climber, q = C.sideSq;
+    C.sideSq = null;
+    const up = sideClear(0, -1, 70);
+    if (!up) { expel(); return; }
+    sideMoveBy(0, -up); toAir();
+    C.vy = -330; C.vx = -q.d * 20; C.wantGrab = true; C.tumble = false; C.sidePopT = 0.5;
+    addParts(C.x, C.y, T.ink, 5, 90); sfx('jump'); say('PWAH!', 0.9);
+  }
+  // climbing a face: pushed into it (pinned, pops up) or swept off it
+  function sideClimbHit(d, F, color) {
+    const C = S.climber, f = C.f;
+    const up = F >= 2 && sideClear(0, -1, 70);
+    if (up) {
+      // a rotation scoops him off the face: up, back over the piece, spinning
+      sideMoveBy(0, -up); toAir(); C.vy = -240; C.vx = -f * 110; C.tumble = true; C.spin = -f * 10; C.wantGrab = false;
+      addParts(C.x + f * 6, C.y - 20, color, 5, 80); say(pick(SIDE_SAY.rot), 1.3); sfx('fall');
+      return true;
+    }
+    if (d === -f) {
+      const s = sideClear(d, 0, 30);
+      if (s) {
+        sideMoveBy(d * s, 0, color, 4); toAir();
+        C.vx = d * (110 + F * 35); C.vy = -90; C.tumble = F >= 2; C.spin = d * 9; C.wantGrab = F < 2;
+        C.sideSwept = !C.tumble;
+        say(pick(SAY.slip), 1.1); sfx('fall');
+        return true;
+      }
+    }
+    if (sidePinned(d, color, F)) return true;
+    const dn = sideClear(0, 1, 56);
+    if (dn) { sideMoveBy(0, dn); toAir(); C.vy = 60; C.vx = -f * 30; say(pick(SAY.slip), 1.1); return true; }
+    return false;
+  }
+  // hanging from the falling piece while it is moved or rotated: swing, lose a hand, lose both
+  function sideHangJolt(dx, rot, t) {
+    const C = S.climber;
+    if (C.state === 'pull') return false;
+    const A = anchorAbs(), f = A ? A.f : C.f;
+    if (rot) {
+      const d = -f;
+      letGo(); C.vx = d * (t === 'I' ? 220 : 150); C.vy = t === 'I' ? -230 : -160;
+      C.tumble = t === 'I' || t === 'T'; C.spin = d * 10; C.sideSwept = !C.tumble;
+      say(pick(SAY.thrown), 1.3); sfx('fall');
+      return true;
+    }
+    // the grip lurches dx; his body lags behind and swings (+ = feet away from the face)
+    sideShiftPose(dx * CELL, 0);
+    C.swV = (C.swV || 0) + dx * f * (t === 'O' ? 3.4 : t === 'I' ? 2.2 : 2.8);
+    if (C.oneHand) {
+      letGo('slip'); C.vx = -dx * 100; C.vy = -40; C.sideSwept = true;
+      return true;
+    }
+    if (Math.random() < SIDE_LOSE[t]) {
+      C.oneHand = dx * f > 0 ? 'lHand' : 'rHand'; C.oneHandT = 1.0;
+      say(pick(SAY.slip), 1.1);
+    } else if (C.sayT <= 0 && Math.random() < 0.4) say(pick(['Whoa!', 'Easy!', 'Wheee—']), 0.9);
+    return true;
+  }
+  // hanging from the stack and the piece is moved into his body: scramble up or drop
+  function sideScrape(dx) {
+    const C = S.climber, A = anchorAbs();
+    if (A && !A.top && boxFree(A.gx + A.f * 8, A.gy)) {
+      C.state = 'pull'; C.pullT = 0.16; C.sideBoost = 0.3;
+      say(pick(['Yikes!', 'Up up up!']), 0.9);
+      return true;
+    }
+    const d = Math.sign(dx) || -(A ? A.f : C.f);
+    letGo('slip');
+    const dn = sideClear(0, 1, 56);
+    if (dn) { sideMoveBy(0, dn); C.vx = d * 60; C.sideSwept = true; return true; }
+    const s = sideClear(d, 0, 30);
+    if (s) { sideMoveBy(d * s, 0); C.vx = d * 80; C.sideSwept = true; return true; }
+    expel();
+    return true;
+  }
+  // per frame, before the state machine: timers, swing, and what the nearby piece makes him do
+  function sideTick(dt) {
+    const C = S.climber;
+    C.sideHits = Math.max(0, (C.sideHits || 0) - dt * 0.6);
+    if (C.sideFx && (C.sideFx.t -= dt) <= 0) C.sideFx = null;
+    if (C.sidePopT > 0) C.sidePopT -= dt;
+    if (C.sideWarn && (C.sideWarn.t -= dt) <= 0) C.sideWarn = null;
+    if (C.state !== 'air') C.sideSwept = false;
+    if (C.state !== 'ground') C.shove = null;
+    if (C.sideSq) {
+      if (C.state !== 'squash') C.sideSq = null;
+      else if ((C.sideSq.t += dt) > 0.42) sidePop();
+    }
+    if (C.sideBoost > 0 && C.state === 'pull') { const b = Math.min(C.sideBoost, dt); C.pullT += b; C.sideBoost -= b; }
+    // pendulum swing around the grip, about 1 s period; the face below the grip stops the feet
+    if (C.state === 'hang' || C.state === 'pull') {
+      const A = anchorAbs();
+      let a = C.swA || 0, v = C.swV || 0;
+      if (C.state === 'pull') { a *= Math.exp(-dt * 10); v = 0; }
+      else {
+        const k = C.oneHand ? 26 : 34;
+        v += (-k * a - 2 * v) * dt; a += v * dt;
+        const lim = A && !A.top && solid(A.r + 1, A.c) ? -0.06 : -0.3;
+        if (a < lim) { a = lim; if (v < -1.2) { addParts(C.x + (A ? A.f : 1) * 5, C.y - 4, T.ink, 2, 30); sfx('thud'); } v = -v * 0.35; }
+        if (a > 0.9) { a = 0.9; v = Math.min(0, v); }
+      }
+      C.swA = a; C.swV = v;
+      if (C.oneHand) {
+        C.oneHandT -= dt; C.hangT = Math.min(C.hangT, 0.2);
+        if (C.oneHandT <= 0 && Math.abs(a) < 0.25) C.oneHand = null;   // regrab once the swing settles
+      }
+    } else { C.swA = C.swV = 0; C.oneHand = null; }
+    // piece beside him: brace against it, squeeze in a slot, tuck legs, or watch it go by
+    C.sideBrace = null; C.sideTuck = false; C.sideLook = 0;
+    const pinK = C.sidePinK || 0;
+    let pinned = false;
+    const sc = S.cur && !S.slam && ['ground', 'climb', 'hang'].includes(C.state) ? sideScan() : null;
+    if (sc) {
+      if (C.state === 'ground' && !C.shove && !C.alert && C.crouchT <= 0 && C.stumbleT <= 0) {
+        if (sc.gap + sideRoom(-sc.d) <= 20) pinned = true;
+        else if (sc.gap <= 6 && grounded() && Math.abs(C.vx) < 30 && supportUnder(C.x, C.y) === 'board') {
+          C.sideBrace = { d: sc.d, gap: sc.gap }; C.f = sc.d;
+          if (C.sayT <= -1 && Math.random() < dt * 0.6) say(pick(['Hnnng!', 'Get… off…', 'I got it!']), 1);
+        } else if (sc.gap <= CELL) {
+          // sliding down past him: keep watching it until it is gone
+          if (C.sideWarn && C.sideWarn.d === sc.d) C.sideWarn.t = Math.max(C.sideWarn.t, 0.15);
+          else { C.sideWarn = { d: sc.d, t: 0.7 }; if (Math.abs(C.vx) < 25) C.f = sc.d; }
+        }
+      } else if (C.state === 'climb' && sc.gap <= CELL && sc.d === -C.f) C.sideLook = sc.d;
+      else if (C.state === 'hang' && sc.gap <= CELL && !(C.anchor && C.anchor.piece)) { C.sideTuck = true; C.sideLook = sc.d; }
+    }
+    C.sidePinK = Math.max(0, Math.min(1, pinK + (pinned ? dt * 6 : -dt * 4)));
+    if (pinned && pinK === 0) say(pick(['Hey, I live here!', 'Tight fit…', 'Eek!']), 1);
+  }
+  // ground state while being shoved; returns true while the shove owns him
+  function sideShoveTick(dt) {
+    const C = S.climber, s = C.shove;
+    s.t += dt;
+    C.vx *= Math.pow(s.fr, dt);
+    if (s.kind === 'spin' && !s.flipped && s.t >= 0.3) { s.flipped = true; C.f = -C.f; }
+    if (moveX(C.vx * dt) && s.kind !== 'skid' && Math.abs(C.vx) > 40) sfx('thud');
+    if (!supportUnder(C.x, C.y)) {
+      const tum = s.kind === 'sprawl' || s.kind === 'spin';
+      C.shove = null; toAir(); C.tumble = tum; C.spin = s.d * 8; C.sideSwept = !tum; C.vx = s.d * Math.max(50, Math.abs(C.vx));
+      return true;
+    }
+    if (s.t >= s.dur) { C.shove = null; C.vx = 0; C.think = 0.15; C.landT = 0; }
+    return true;
+  }
+  // overrides the motion currentMotion() picked
+  function sideMotion(mo) {
+    const C = S.climber;
+    const w = C.sideWarn;
+    if (C.state === 'squash' && C.sideSq) { mo.name = 'side_squeezed'; mo.t = C.t; }
+    else if (C.state === 'ground') {
+      if (C.shove) {
+        mo.name = C.shove.motion; mo.t = C.shove.t;
+        if (C.shove.kind === 'skid') mo.ox = C.x + C.f * (HW - 7.6);   // palms flat on the face
+      }
+      else if (C.alert) return mo;
+      else if (C.sideBrace) { mo.name = 'side_brace'; mo.t = C.t; mo.ox = C.x + C.f * (C.sideBrace.gap + HW - 7.6); }
+      else if (C.sidePinK > 0.3) { mo.name = 'side_squeezed'; mo.t = C.t; }
+      else if (w && Math.abs(C.vx) < 25 && C.crouchT <= 0 && C.stumbleT <= 0 && C.landT <= 0) { mo.name = 'side_guard'; mo.t = 0.7 - w.t; }
+    } else if (C.state === 'air' && !C.tumble) {
+      if (C.sidePopT > 0) { mo.name = 'side_pop'; mo.t = 0.5 - C.sidePopT; }
+      else if (C.sideSwept) mo.name = 'side_swept';
+    } else if (C.state === 'hang' && C.sideTuck && mo.name === 'hang') mo.name = 'side_hangTuck';
+    return mo;
+  }
+  // tweaks the sampled world pose and draws motion streaks; cheap, per frame
+  function sideDraw(P, dt) {
+    const C = S.climber;
+    const tr = fn => { for (const j of JOINTS) P[j] = fn(P[j]); };
+    if ((C.state === 'hang' || C.state === 'pull') && (C.swA || C.oneHand)) {
+      const A = anchorAbs();
+      if (A) {
+        const gx = A.gx, gy = A.gy, f = A.f;
+        // one hand lost: the free arm flails outward and the body sags onto the other
+        if (C.oneHand && C.state === 'hang') {
+          // angles from straight down, positive swinging outward (away from the wall, -f)
+          const sh = [P.neck[0], P.neck[1] + 3], w = C.t * 17;
+          const a1 = 2.0 + 0.6 * Math.sin(w), a2 = a1 + 0.5 + 0.4 * Math.sin(w + 1.3);
+          const el = [sh[0] - f * Math.sin(a1) * 9, sh[1] + Math.cos(a1) * 9];
+          P[C.oneHand] = [el[0] - f * Math.sin(a2) * 9, el[1] + Math.cos(a2) * 9];
+          P[C.oneHand === 'lHand' ? 'lElbow' : 'rElbow'] = el;
+          P.face = 'scared';
+        }
+        const r = f * (C.swA || 0), cs = Math.cos(r), sn = Math.sin(r);
+        tr(p => { const x = p[0] - gx, y = p[1] - gy; return [gx + x * cs - y * sn, gy + x * sn + y * cs]; });
+      }
+    }
+    if (C.state === 'squash' && C.sideSq) {
+      // flattened against the wall side: squeeze across, stretch up, quiver
+      const q = C.sideSq, k = Math.min(1, q.t / 0.08), sx = 1 - 0.65 * k, sy = 1 + 0.12 * k;
+      const jx = (Math.random() - 0.5) * 1.2;
+      tr(p => [q.wall + (p[0] - q.wall) * sx + jx, C.y + (p[1] - C.y) * sy]);
+    } else if (C.sidePinK > 0) {
+      const k = C.sidePinK, sx = 1 - 0.3 * k, jx = Math.sin(C.t * 40) * 0.5 * k;
+      tr(p => [C.x + (p[0] - C.x) * sx + jx, p[1]]);
+    }
+    if (C.state === 'air' && C.sidePopT > 0) {
+      const k = C.sidePopT / 0.5, sx = 1 - 0.3 * k, sy = 1 + 0.25 * k;
+      tr(p => [C.x + (p[0] - C.x) * sx, C.y - 23 + (p[1] - C.y + 23) * sy]);
+    }
+    if (C.shove && C.shove.kind === 'spin' && C.shove.t > 0.06 && C.shove.t < 0.54) {
+      // a pirouette: squash across through edge-on, the facing flip happens at the thinnest point
+      const sx = Math.max(0.12, Math.abs(Math.cos(Math.PI * (C.shove.t - 0.06) / 0.48))), cx = P.hip[0];
+      tr(p => [cx + (p[0] - cx) * sx, p[1]]);
+    }
+    if (C.sideBrace || (C.shove && C.shove.kind === 'skid')) {
+      const j = (Math.random() - 0.5) * 0.7;
+      P.head = [P.head[0] + j, P.head[1]];
+    }
+    if (C.sideLook) { P.f = C.sideLook; P.face = 'scared'; }
+    else if (C.sideWarn && C.state !== 'ground') P.face = 'scared';
+    if (C.sideFx) {
+      // speed streaks from where he was hit to where he ended up
+      const q = C.sideFx, a = q.t / 0.18, dx = q.x1 - q.x0, dy = q.y1 - q.y0, L = Math.hypot(dx, dy) || 1;
+      const nx = -dy / L, ny = dx / L, k = 1 - a;                // streak tails catch up with him
+      ctx.save();
+      ctx.globalAlpha = 0.55 * a; ctx.strokeStyle = T.ink; ctx.lineWidth = 1.2; ctx.lineCap = 'round';
+      ctx.beginPath();
+      for (const o of [-12, 0, 12]) {
+        ctx.moveTo(q.x0 + dx * k + nx * o, q.y0 + dy * k + ny * o);
+        ctx.lineTo(q.x1 - dx / L * 6 + nx * o, q.y1 - dy / L * 6 + ny * o);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // ---------- reactions: near ----------
+  // Near misses and shockwaves: pieces landing beside him (not on him), pieces brushing past,
+  // and the choreography of getting out of the way. One reaction runs at a time in C.react
+  // ({ kind, t, dur, vx, drag, dir, s, next, piece }) while he is on the ground.
+  const NEAR_MASS = { I: 1.2, O: 1.15, T: 0.9, J: 0.9, L: 0.9, S: 0.85, Z: 0.85 };
+  const NEAR_MO = { glance: 'near_glance', flinch: 'near_flinch', hop: 'near_hop', stagger: 'near_stagger', bowl: 'near_bowl',
+                    teeter: 'near_teeter', recover: 'near_recover', skid: 'near_skid', watch: 'near_watch', phew: 'near_phew',
+                    roll: 'near_roll', rollup: 'near_rollup', slide: 'near_bellyslide', duck: 'near_duck', lean: 'near_lean', land: 'land' };
+  // these give way at once if a new piece comes for him; the rest play out first
+  const NEAR_SOFT = ['glance', 'flinch', 'watch', 'phew', 'duck', 'lean', 'land', 'skid'];
+  const NEAR_SAY = {
+    flinch: ['Yikes!', 'Hey!', 'Eek!'], hop: ['Whoa!', 'Hup!', 'Yipe!'],
+    stagger: ['Whoa-whoa-whoa!', 'Easy!', 'Hey, careful!'], bowl: ['Oof!', 'Bowled over…'],
+    teeter: ['Whoa… whoa…', "Don't look down…", 'Balance… balance…'], caught: ['…Safe.', 'Nailed it.', 'Steady.'],
+    fell: ['Nooo—', 'Aaah—'], phew: ['Phew…', 'Too close!', 'That was an inch!', 'Hoo boy.'],
+    dive: ['Eep!', 'Hup!', 'Gotta go!'], leap: ['Hup!', 'Up and over!'],
+    I: ['Timber!', 'Big one!'], O: ['THUD.', 'Heavy!'], T: ['Pointy!'], S: ['Wobbly one!'], Z: ['Wobbly one!'], J: ['Watch the corner!'], L: ['Watch the corner!'],
+  };
+
+  function nearStart(kind, o) {
+    const C = S.climber;
+    C.react = Object.assign({ kind, t: 0, dur: M.duration(NEAR_MO[kind]) || 0.4, vx: 0, drag: 0.02, lastT: C.t }, o || {});
+    C.crouchT = 0; C.stumbleT = 0; C.landT = 0; C.vx = 0; C.intent = null;
+    return C.react;
+  }
+  function nearEnd() {
+    const C = S.climber;
+    C.react = null; C.vx = 0; C.intent = null; C.think = 0.1;
+  }
+  // piece centre in board px (for looking at it)
+  function nearPieceAt(p) {
+    let x = 0, y = 0, n = 0;
+    p.m.forEach((row, r) => row.forEach((v, c) => { if (v) { x += (p.x + c + 0.5) * CELL; y += (p.y + r + 0.5) * CELL; n++; } }));
+    return n ? [x / n, y / n] : null;
+  }
+  // soft round dust puffs (drawn in drawNearFx) and a ground ripple for slams
+  function nearDust(x, y, dir, n, power) {
+    S.nearFx = S.nearFx || [];
+    for (let i = 0; i < n; i++) {
+      const d = dir || (Math.random() < 0.5 ? -1 : 1);
+      S.nearFx.push({ k: 'puff', x: x + (Math.random() - 0.5) * 6, y: y - 2, vx: d * power * (0.4 + Math.random() * 0.7), vy: -power * (0.1 + Math.random() * 0.3),
+                      r: 2 + Math.random() * 2, t: 0, life: 0.35 + Math.random() * 0.3 });
+    }
+  }
+
+  // a piece just locked: a shockwave through the ground, sized by piece mass, drop height, distance
+  function nearKnock(cells, hard, dist, cleared, riding) {
+    const C = S.climber;
+    if (riding || cleared || !cells.length) return false;
+    const t = S.board[cells[0][0]][cells[0][1]] || 'T';
+    const flatI = t === 'I' && cells.every(([r]) => r === cells[0][0]);
+    const bodyMid = C.y - BODYH / 2, headTop = C.y - BODYH;
+    let best = null;
+    for (const [r, c] of cells) {
+      const gx = Math.max(0, Math.abs(colX(c) - C.x) - CELL / 2 - HW);
+      const gy = Math.max(0, Math.abs(r * CELL + CELL / 2 - bodyMid) - CELL / 2 - BODYH / 2);
+      const d = Math.hypot(gx, gy * 1.3);
+      if (!best || d < best.d) best = { d, r, c, gx, gy };
+    }
+    const mass = NEAR_MASS[t] * (flatI ? 1.08 : 1);
+    const base = hard ? 0.75 + Math.min(dist, 20) * 0.03 : 0.5;
+    let s = mass * base * Math.pow(Math.max(0, 1 - best.d / (3.2 * CELL)), 1.3);
+    const overhead = best.gx === 0 && (best.r + 1) * CELL <= headTop + 1;
+    const away = Math.sign(C.x - colX(best.c)) || -C.f;
+    const R0 = C.react;
+    const dodging = (C.alert && C.alert.ran) || (R0 && ['watch', 'skid', 'roll', 'rollup', 'slide', 'land'].includes(R0.kind));
+    const close = best.d < 0.6 * CELL;
+    // dust where the piece meets the ground on his side, and round his feet
+    if (s > 0.15) {
+      const side = colX(best.c) + (overhead ? 0 : -away * -CELL / 2);
+      for (const [r, c] of cells) {
+        if (r + 1 >= ROWS || !cells.some(([r2, c2]) => r2 === r + 1 && c2 === c)) {
+          if (!flatI && c !== best.c) continue;
+          nearDust(flatI ? colX(c) : side, (r + 1) * CELL, flatI ? (Math.random() < 0.5 ? -1 : 1) : away, Math.round(1 + s * 3), 40 + s * 50);
+        }
+      }
+      const footY = Math.max(...cells.filter(([, c]) => c === best.c).map(([r]) => (r + 1) * CELL));
+      if (hard) S.nearFx.push({ k: 'ring', x: side, y: footY, t: 0, life: 0.4, s: Math.min(1.6, s) });
+      if (s > 0.35) { nearDust(C.x - 3, C.y, -1, 2, 30 + s * 30); nearDust(C.x + 3, C.y, 1, 2, 30 + s * 30); }
+    }
+    if (R0 && ['roll', 'rollup', 'slide', 'teeter', 'bowl'].includes(R0.kind)) {
+      // mid-move: no new pose, but remember to sigh once he is up
+      if (close && !R0.next) R0.next = 'phew';
+      R0.at = [colX(best.c), best.r * CELL + CELL / 2];
+      return true;
+    }
+    C.alert = null;
+    // pick the reaction tier
+    let kind = s < 0.12 ? null : s < 0.3 ? 'glance' : s < 0.55 ? 'flinch' : s < 0.8 ? 'hop' : s < 1.15 ? 'stagger' : 'bowl';
+    if (kind === 'bowl' && s > 1.5 && (t === 'I' || t === 'O')) {
+      nearEnd(); knockOff(away); C.vy = -260 - s * 40; return true;
+    }
+    if (overhead) kind = s < 0.12 ? null : 'duck';
+    if (dodging && (!kind || kind === 'glance' || kind === 'flinch' || kind === 'hop')) {
+      // he got out of the way: a close shave makes him flinch and sigh, a wide miss gets a taunt
+      if (close) kind = 'flinch';
+      else { if (R0 && R0.kind === 'watch') nearEnd(); if (Math.random() < 0.6) say(pick(SAY.missed), 1.4); if (!kind) return true; }
+    }
+    if (!kind) { if (R0 && R0.kind === 'watch') nearEnd(); return true; }
+    if (kind !== 'duck') C.f = -away;
+    const vx = { glance: 0, flinch: 30, hop: 55, stagger: 95, bowl: 60, duck: 0 }[kind] * away;
+    const R = nearStart(kind, { vx, drag: kind === 'stagger' ? 0.03 : 0.02, dir: away, s, at: [colX(best.c), best.r * CELL + CELL / 2] });
+    if (kind === 'duck') R.hold = C.t + 0.45;
+    if (dodging && close) R.next = 'phew';
+    else if (close && kind === 'stagger' && Math.random() < 0.6) R.next = 'phew';
+    if (kind !== 'glance' && kind !== 'duck' && C.sayT <= 0.3 && Math.random() < 0.7)
+      say(pick(s > 0.8 && Math.random() < 0.5 ? NEAR_SAY[t] : NEAR_SAY[kind]), 1.2);
+    if (kind === 'bowl') sfx('thud');
+    return true;
+  }
+
+  // he just landed: a dive turns into a forward roll (or a belly slide with no room), a leap into a look back
+  function nearLanded() {
+    const C = S.climber;
+    const dv = C.dive && C.t - C.dive.t0 < 1.5 ? C.dive : null, lp = C.leap && C.t - C.leap.t0 < 1.5 ? C.leap : null;
+    C.dive = C.leap = null;
+    if (C.state !== 'ground' || (!dv && !lp)) return;
+    const d = C.f || 1;
+    if (dv) {
+      const room = boxFree(C.x + d * 30, C.y) && supportUnder(C.x + d * 30, C.y);
+      if (dv.flat || !room) nearStart('slide', { vx: d * 150, drag: 0.004, dir: d, piece: dv.piece, next: 'watch' });
+      else nearStart('roll', { vx: d * 120, drag: 0.08, dir: d, piece: dv.piece, next: 'rollup' });
+      nearDust(C.x, C.y, -d, 3, 50);
+    } else nearStart('land', { piece: lp.piece, next: 'watch' });
+  }
+
+  // the threat is gone and he ran: skid to a stop and turn to watch it come down
+  function nearSafe() {
+    const C = S.climber, A = C.alert;
+    const piece = A && A.piece === S.cur ? S.cur : null;
+    if (C.react && !NEAR_SOFT.includes(C.react.kind)) { if (!C.react.next && piece) C.react.next = 'watch'; return; }
+    if (!piece) { if (Math.random() < 0.5) say(pick(SAY.missed), 1.4); return; }
+    if (Math.abs(C.vx) > 50) nearStart('skid', { vx: C.vx, drag: 0.0005, piece, next: 'watch' });
+    else nearStart('watch', { piece });
+  }
+
+  // a flat dodge path is blocked: a one-block step he can leap onto, out from under the piece
+  function nearLeapPlan() {
+    const C = S.climber, p = S.cur;
+    const r = Math.round(C.y / CELL), c = Math.max(0, Math.min(COLS - 1, Math.floor(C.x / CELL)));
+    const inPiece = col => p.m.some((row, pr) => row.some((v, pc) => v && p.x + pc === col));
+    let best = null;
+    for (const d of [-1, 1]) {
+      for (let k = 1; k < COLS; k++) {
+        const col = c + d * k;
+        if (col < 0 || col >= COLS) break;
+        if (solidB(r - 1, col)) {
+          if (!solidB(r - 2, col) && !solidB(r - 3, col) && !inPiece(col) && !solidB(r - 3, col - d) && !solidB(r - 4, col - d)) {
+            const x = d > 0 ? col * CELL - HW - 16 : (col + 1) * CELL + HW + 16;
+            if (!best || Math.abs(x - C.x) < Math.abs(best.x - C.x)) best = { x, d, col };
+          }
+          break;
+        }
+        if (!solidB(r, col)) break;
+      }
+    }
+    return best;
+  }
+
+  // called every frame while he dodges: choose the style by time left and what is around him
+  function nearDodge(th) {
+    const C = S.climber, A = C.alert, p = S.cur;
+    if (!p) return false;
+    A.piece = A.piece || p;
+    let it = C.intent;
+    if (it.type === 'brace') {
+      const lp = nearLeapPlan();
+      if (!lp) return false;
+      C.intent = it = { type: 'dodge', x: lp.x, leap: lp };
+    }
+    A.ran = true;
+    const gap = it.x - C.x, dist = Math.abs(gap), left = th ? th.time : 1, d = Math.sign(gap) || C.f;
+    // plenty of time: a brisk jog; otherwise a flat-out sprint
+    it.spd = left > dist / RUN + 0.5 ? RUN : DODGE;
+    A.spd = it.spd;
+    if (it.leap) {
+      if (dist < 5 || (left < 0.22 && dist < 26)) {
+        toAir(); C.f = d; C.steer = 0; C.vx = d * 140; C.vy = -Math.sqrt(2 * G * (CELL + 18)); C.wantGrab = true;   // carry well past the lip, clear of the piece
+        C.leap = { t0: C.t, piece: p };
+        say(pick(NEAR_SAY.leap), 0.9); sfx('jump');
+        return true;
+      }
+      return false;
+    }
+    // not enough time to run: dive - a low sliding dive when it is desperate or short
+    if (!A.dived && dist > 3 && left < dist / DODGE + 0.06) {
+      A.dived = true;
+      const flat = left < 0.14 || dist < 22;
+      toAir(); C.f = d; C.steer = 0;                 // no air steering: keep the full dive speed
+      if (flat) { C.vx = d * 200; C.vy = -90; } else { C.vx = d * 185; C.vy = -170; }
+      C.dive = { t0: C.t, flat, piece: p };
+      say(pick(NEAR_SAY.dive), 0.9);
+      return true;
+    }
+    return false;
+  }
+
+  // edge of his footing in direction dir, measured from x
+  function nearEdge(x, dir) {
+    const C = S.climber, r = Math.round(C.y / CELL);
+    let col = Math.floor((x - dir * (HW - 0.5)) / CELL);
+    if (!solidB(r, col)) return null;
+    while (col + dir >= 0 && col + dir < COLS && solidB(r, col + dir)) col += dir;
+    return dir > 0 ? (col + 1) * CELL : col * CELL;
+  }
+  // shoved to a ledge edge: heels on the edge, hips out over the drop, arms windmilling
+  function nearTeeter(R) {
+    const C = S.climber, dir = Math.sign(R.vx) || R.dir || 1;
+    const E = nearEdge(C.x, dir);
+    if (E === null) return false;
+    const x = E + dir * (HW - 3);
+    if (!boxFree(x, C.y) || !supportUnder(x, C.y)) return false;
+    C.x = x; C.f = -dir;
+    const s = R.s || 0.6;
+    nearStart('teeter', { dir, s, dur: 0.75 + Math.random() * 0.45, fall: Math.random() < Math.min(0.6, Math.max(0.1, 0.1 + (s - 0.4) * 0.6)) });
+    say(pick(NEAR_SAY.teeter), 1.2);
+    return true;
+  }
+
+  // brushes: a piece just over his head (duck), or sliding/falling right past his face (lean away)
+  function nearSense() {
+    const C = S.climber, p = S.cur;
+    if (!p || S.mode !== 'play') return false;
+    const c0 = Math.floor((C.x - HW) / CELL), c1 = Math.floor((C.x + HW - 0.001) / CELL), headTop = C.y - BODYH;
+    let duck = false, lean = 0;
+    for (let pr = 0; pr < p.m.length; pr++) for (let pc = 0; pc < p.m.length; pc++) {
+      if (!p.m[pr][pc]) continue;
+      const r = p.y + pr, c = p.x + pc, top = r * CELL, bot = top + CELL;
+      if (c >= c0 && c <= c1) { if (bot <= headTop + 0.5 && headTop - bot < 16) duck = true; }
+      else if (bot > headTop + 4 && top < C.y - 4) {
+        const gx = c < c0 ? (C.x - HW) - (c + 1) * CELL : c * CELL - (C.x + HW);
+        if (gx >= 0 && gx < 9) lean = c < c0 ? -1 : 1;
+      }
+    }
+    if (!duck && !lean) return false;
+    if (threat()) return false;                   // it is coming down on him: the dodge handles that
+    const R = C.react;
+    if (R && (R.kind === 'duck' || R.kind === 'lean')) { R.hold = C.t + 0.25; return true; }
+    if (R || Math.abs(C.vx) > 30 && !duck) return false;
+    if (duck) nearStart('duck', { hold: C.t + 0.25 });
+    else { C.f = lean; nearStart('lean', { hold: C.t + 0.25, piece: p }); }
+    if (C.sayT <= 0 && Math.random() < 0.3) say(pick(SAY.small), 0.9);
+    return true;
+  }
+
+  // ground-state hook: runs the current reaction; true = it owns this frame
+  function nearGround(dt) {
+    const C = S.climber;
+    let R = C.react;
+    if (R && C.t - R.lastT > 0.15) R = C.react = null;          // he left the ground in between: stale
+    if ((!R || R.kind === 'duck' || R.kind === 'lean') && !C.alert) nearSense();
+    R = C.react;
+    if (!R) return false;
+    R.lastT = C.t; R.t += dt;
+    if (NEAR_SOFT.includes(R.kind)) {
+      const th = threat();
+      if (th && th.time < 1.6) { C.react = null; return false; }
+    }
+    if (R.vx) {
+      const was = C.x;
+      if (moveX(R.vx * dt)) R.vx = 0;
+      R.vx *= Math.pow(R.drag, dt);
+      if (Math.abs(R.vx) < 2) R.vx = 0;
+      if (!supportUnder(C.x, C.y)) {
+        if (R.kind === 'roll' || R.kind === 'slide' || R.kind === 'recover') { const v = R.vx; nearEnd(); toAir(); C.vx = v * 0.6; return true; }
+        C.x = was;
+        if (R.kind !== 'teeter' && !nearTeeter(R)) R.vx = 0;
+        return true;
+      }
+      // shoved until his middle is out over a drop: he teeters there
+      if (['flinch', 'hop', 'stagger'].includes(R.kind) && !solidB(Math.round(C.y / CELL), Math.floor(C.x / CELL)) && nearTeeter(R)) return true;
+    }
+    C.vx = 0;
+    if (R.kind === 'watch') {
+      const p = S.cur, at = p === R.piece && nearPieceAt(p);
+      // keep an eye on it until it locks, unless it wanders off away from him
+      if (!at || R.t > 4 || (R.t > 1.2 && Math.abs(at[0] - C.x) > 3.5 * CELL)) { nearEnd(); return true; }
+      if (Math.abs(at[0] - C.x) > 4) C.f = Math.sign(at[0] - C.x);
+      return true;
+    }
+    if (R.kind === 'duck' || R.kind === 'lean') {
+      if (C.t > R.hold) nearEnd();
+      return true;
+    }
+    if (R.t < R.dur) return true;
+    // finished: chain into what comes next
+    switch (R.kind) {
+      case 'teeter':
+        if (R.fall) {
+          // over he goes, backwards: off the lip, and half the time his hands snag the ledge on the way down
+          const E = nearEdge(C.x, R.dir), x = E === null ? C.x : E + R.dir * (HW + 0.5);
+          nearEnd();
+          if (boxFree(x, C.y)) C.x = x;
+          toAir(); C.vy = 0;
+          const snag = Math.random() < 0.5;
+          C.vx = R.dir * (snag ? 4 : 45); C.wantGrab = snag;
+          say(pick(NEAR_SAY.fell), 1.1); sfx('fall');
+        } else {
+          nearStart('recover', { vx: -R.dir * 50, drag: 0.01 });
+          if (C.sayT <= 0.4) say(pick(NEAR_SAY.caught), 1.2);
+        }
+        return true;
+      case 'bowl':
+        nearEnd(); C.state = 'dazed'; C.dazedT = 0.6 + (R.s || 1) * 0.3;
+        return true;
+    }
+    const next = R.next, piece = R.piece, at = R.at;
+    nearEnd();
+    if (next === 'watch') {
+      if (S.cur && S.cur === piece) nearStart('watch', { piece });
+      else if (at) { C.f = Math.sign(at[0] - C.x) || C.f; nearStart('glance', { at }); }   // it already landed: look back at it
+    }
+    else if (next) {
+      nearStart(next, { piece, next: next === 'rollup' ? 'watch' : null });
+      if (next === 'phew') say(pick(NEAR_SAY.phew), 1.4);
+    }
+    return true;
+  }
+
+  // which motion to show for the near reactions (null = leave the normal choice)
+  function nearMotion(C) {
+    if (C.state === 'air') {
+      if (C.dive && C.t - C.dive.t0 < 1.5 && !C.tumble) return { name: C.dive.flat ? 'near_slidedive' : 'near_dive', t: C.t - C.dive.t0 };
+      if (C.leap && C.t - C.leap.t0 < 1.5 && !C.tumble && C.vy < 200) return { name: 'near_leap', t: C.t - C.leap.t0 };
+      return null;
+    }
+    if (C.state !== 'ground') return null;
+    const R = C.react;
+    if (R && C.t - R.lastT < 0.15) return { name: NEAR_MO[R.kind], t: M.loops(NEAR_MO[R.kind]) ? C.t : R.t };
+    const A = C.alert;
+    if (A) {
+      if (A.t < A.react) return { name: 'near_startle', t: A.t };
+      const it = C.intent;
+      if (it && it.type === 'dodge') {
+        if (A.t < A.react + 0.15 && Math.abs(it.x - C.x) > 8) return { name: 'near_burst', t: A.t - A.react };
+        if (Math.abs(C.vx) > 70 && A.spd === DODGE) return { name: 'near_sprint', t: C.t, speed: Math.abs(C.vx) / 128 };
+      }
+    }
+    return null;
+  }
+  // forward roll: spin the tucked pose once around its middle (worldPose pivots at 15px up)
+  function nearRot(C) {
+    const R = C.react;
+    if (C.state !== 'ground' || !R || R.kind !== 'roll' || C.t - R.lastT > 0.15) return 0;
+    return R.dir * Math.PI * 2 * Math.min(1, R.t / R.dur);
+  }
+  // aim his head at what he is watching (the falling piece, or the impact)
+  function nearPose(P) {
+    const C = S.climber, R = C.react;
+    if (C.state !== 'ground' || !R || !['watch', 'lean', 'glance', 'skid'].includes(R.kind)) return;
+    const at = R.kind === 'glance' ? R.at : S.cur && nearPieceAt(S.cur);
+    if (!at) return;
+    const nx = P.neck[0], ny = P.neck[1];
+    const vx = P.head[0] - nx, vy = P.head[1] - ny, len = Math.hypot(vx, vy) || 1;
+    let ux = at[0] - nx, uy = at[1] - ny;
+    const ul = Math.hypot(ux, uy) || 1; ux /= ul; uy /= ul;
+    if (ux * (P.f || 1) < -0.2) return;            // behind him: don't twist the head round
+    const k = 0.6, dx = vx / len * (1 - k) + ux * k, dy = vy / len * (1 - k) + uy * k, dl = Math.hypot(dx, dy) || 1;
+    P.head = [nx + dx / dl * len, ny + dy / dl * len];
+  }
+  // dust puffs and slam ripples (board coordinates)
+  function drawNearFx(dt) {
+    const L = S.nearFx;
+    if (!L || !L.length) return;
+    ctx.save();
+    ctx.strokeStyle = T.muted; ctx.fillStyle = T.muted; ctx.lineWidth = 1.2;
+    for (const q of L) {
+      q.t += dt;
+      const k = q.t / q.life;
+      if (k >= 1) continue;
+      if (q.k === 'puff') {
+        q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= Math.pow(0.05, dt); q.vy *= Math.pow(0.2, dt);
+        ctx.globalAlpha = 0.45 * (1 - k);
+        ctx.beginPath(); ctx.arc(q.x, q.y, q.r * (1 + k * 1.6), 0, Math.PI * 2); ctx.fill();
+      } else {
+        ctx.globalAlpha = 0.7 * (1 - k);
+        const rx = 6 + k * 60 * q.s, ry = 1.5 + k * 4;
+        ctx.beginPath(); ctx.ellipse(q.x, q.y - 1, rx, ry, 0, Math.PI, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.ellipse(q.x, q.y - 1, rx * 0.6, ry * 0.7, 0, Math.PI, Math.PI * 2); ctx.stroke();
+      }
+    }
+    S.nearFx = L.filter(q => q.t < q.life);
+    ctx.restore();
+  }
+  // faces: wide eyes, squeezed eyes, and a relieved puff of breath
+  function drawNearFace(face, hx, hy, f) {
+    ctx.beginPath();
+    if (face === 'near_wide') {
+      for (const ex of [-0.4, 3.6]) { ctx.moveTo(hx + ex * f + 1.6, hy - 1.4); ctx.arc(hx + ex * f, hy - 1.4, 1.6, 0, Math.PI * 2); }
+      ctx.stroke();
+      for (const ex of [-0.4, 3.6]) { ctx.beginPath(); ctx.arc(hx + ex * f + 0.3 * f, hy - 1.4, 0.6, 0, Math.PI * 2); ctx.fill(); }
+      ctx.beginPath(); ctx.arc(hx + 1.6 * f, hy + 2.8, 1.1, 0, Math.PI * 2); ctx.stroke();
+    } else if (face === 'near_shut') {
+      for (const ex of [0, 3.2]) { const x = hx + ex * f; ctx.moveTo(x - 1.3, hy - 2.4); ctx.lineTo(x + 0.2, hy - 1.4); ctx.lineTo(x - 1.3, hy - 0.4); }
+      ctx.moveTo(hx + 0.2 * f, hy + 2.6); ctx.lineTo(hx + 1.2 * f, hy + 2); ctx.lineTo(hx + 2.2 * f, hy + 2.7); ctx.lineTo(hx + 3.2 * f, hy + 2.1);
+      ctx.stroke();
+    } else {
+      for (const ex of [0, 3.2]) { const x = hx + ex * f; ctx.moveTo(x - 1.2, hy - 1.6); ctx.quadraticCurveTo(x, hy - 0.6, x + 1.2, hy - 1.6); }
+      ctx.moveTo(hx + 2.6 * f, hy + 2.4); ctx.arc(hx + 1.8 * f, hy + 2.4, 0.8, 0, Math.PI * 2);
+      ctx.stroke();
+      // little breath clouds
+      const k = (S.climber.t * 2) % 1;
+      ctx.globalAlpha *= 1 - k;
+      ctx.beginPath(); ctx.arc(hx + (6 + k * 5) * f, hy + 2 - k * 2, 1.2 + k, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(hx + (9.5 + k * 6) * f, hy + 0.5 - k * 3, 1.6 + k * 1.2, 0, Math.PI * 2); ctx.stroke();
+    }
+  }
 
   // ---------- game flow ----------
   function startGame() {
@@ -1881,9 +4417,11 @@
     switch (C.state) {
       case 'intro': name = 'wave'; break;
       case 'ground': {
+        if (C.topAnim && C.t < C.topAnim.until) { name = C.topAnim.name; t = C.topAnim.t; break; }
         const v = Math.abs(C.vx);
         const riding = supportUnder(C.x, C.y) === 'piece';
         if (C.alert && C.alert.t < C.alert.react) name = 'lookUp';
+        else if (C.alert && C.alert.left < 0.14 && Math.abs(C.vx) < 60) name = 'brace';   // flinch: it's about to hit
         else if (C.alert && C.intent && C.intent.type === 'brace') name = 'brace';
         else if (C.crouchT > 0) { name = 'crouch'; t = C.crouchLen - C.crouchT; }
         else if (C.stumbleT > 0) name = 'stumble';
@@ -1895,11 +4433,14 @@
         else name = C.mood;
         break;
       }
-      case 'air':
+      case 'air': {
+        const tm = topAirMotion();
+        if (tm) { name = tm.name; t = tm.t; break; }
         if (C.tumble) name = 'tumble';
         else if (C.vy < 0) { name = 'jumpUp'; t = C.airT; }
         else name = 'fallDown';
         break;
+      }
       case 'hang': case 'pull': {
         const A = anchorAbs();
         if (A) { ox = A.gx; oy = A.gy; }
@@ -1910,43 +4451,58 @@
       case 'button': name = 'idle'; break;
       case 'climb': name = 'climb'; speed = (26 + 3 * (S.level - 1) + C.grit) / 37; break;
       case 'dazed': name = 'dazed'; break;
-      case 'squash': name = 'squashed'; t = 0.7 - C.squashT; break;
+      case 'squash':
+        if (C.topHit) { ({ name, t } = topMotion()); break; }
+        name = 'squashed'; t = 0.7 - C.squashT; break;
       case 'win': name = 'celebrate'; oy = 0; t = C.winT; break;
     }
-    return { name, t, ox, oy, speed };
+    const nm = nearMotion(C);
+    if (nm) { name = nm.name; t = nm.t; speed = nm.speed || speed; }
+    // riding poses first, then recoveries take priority over them
+    return recoverMotion(sideMotion(rideMotion({ name, t, ox, oy, speed })));
   }
-  let lastWorld = null, fromWorld = null, fadeT = 0, lastName = '', animStart = 0;
+  let lastWorld = null, fromWorld = null, fadeT = 0, fadeLen = 0.12, fadeEase = 'smooth', lastName = '', lastF = 0, animStart = 0;
   function worldPose(clock) {
     const C = S.climber;
     const mo = currentMotion();
-    if (mo.name !== lastName) {
-      fromWorld = lastWorld; fadeT = 0.12; lastName = mo.name; animStart = clock;
-    }
-    const local = M.sample(mo.name, mo.t === C.t ? (clock - animStart) * mo.speed : mo.t, { speed: mo.speed }) || STAND;
     const f = C.state === 'hang' || C.state === 'pull' ? (anchorAbs() || { f: C.f }).f : C.f;
+    if (mo.name !== lastName || f !== lastF) {
+      // blend from whatever is on screen (even mid-blend); time and curve depend on the motions
+      const b = mo.name !== lastName ? blendFor(lastName, mo.name) : [0.1, 'smooth'];
+      fromWorld = lastWorld; fadeT = fadeLen = b[0]; fadeEase = b[1];
+      if (mo.name !== lastName) animStart = clock;
+      lastName = mo.name; lastF = f;
+    }
+    carryFrom(fromWorld);
+    const local = M.sample(mo.name, mo.t === C.t ? (clock - animStart) * mo.speed : mo.t, { speed: mo.speed }) || STAND;
     const w = { face: local.face };
-    const rot = C.state === 'air' && C.tumble ? C.rot : 0;
-    const cx = mo.ox, cy = mo.oy - 18, cs = Math.cos(rot), sn = Math.sin(rot);
+    const rot = C.state === 'air' && C.tumble ? C.rot : nearRot(C);
+    const cx = mo.ox, cy = mo.oy - (C.state === 'ground' ? 15 : 18), cs = Math.cos(rot), sn = Math.sin(rot);
     for (const j of JOINTS) {
       const p = local[j] || STAND[j];
       let x = mo.ox + p[0] * f, y = mo.oy + p[1];
       if (rot) { const dx = x - cx, dy = y - cy; x = cx + dx * cs - dy * sn; y = cy + dx * sn + dy * cs; }
       w[j] = [x, y];
     }
+    topDeform(w, mo, local);
     let out = w;
     if (fadeT > 0 && fromWorld) {
-      const k = 1 - fadeT / 0.12;
+      const k = (EASE[fadeEase] || EASE.smooth)(1 - fadeT / fadeLen);
       out = { face: local.face };
       for (const j of JOINTS) out[j] = [fromWorld[j][0] + (w[j][0] - fromWorld[j][0]) * k, fromWorld[j][1] + (w[j][1] - fromWorld[j][1]) * k];
     }
     out.f = f;
-    if (C.alert) out.face = 'scared';
+    if (C.alert && !/^near_/.test(out.face || '')) out.face = 'scared';
+    nearPose(out);
     lastWorld = out;
-    return out;
+    return animPost(out, mo, clock);
   }
   function drawClimber(clock, dt) {
     if (fadeT > 0) fadeT = Math.max(0, fadeT - dt);
+    drawNearFx(dt);
     const P = worldPose(clock);
+    rideDecorate(P);
+    sideDraw(P, dt);
     const C = S.climber, it = C.intent;
     const dj = C.state === 'ground' && !C.alert && it && it.type === 'drill' ? { tr: it.tr, tc: it.tc, side: it.side } : C.drillAt;
     let drill = null;
@@ -2075,14 +4631,14 @@
     const f = P.f || 1;
     ctx.lineWidth = 1.3; ctx.fillStyle = T.ink;
     const face = P.face || 'normal';
-    if (face === 'dizzy') {
+    if (face.startsWith('near_')) drawNearFace(face, hx, hy, f);
+    else if (face === 'dizzy') {
       ctx.beginPath();
       for (const ex of [-1, 3]) { const x = hx + ex * f; ctx.moveTo(x - 1.4, hy - 2.4); ctx.lineTo(x + 1.4, hy + 0.4); ctx.moveTo(x + 1.4, hy - 2.4); ctx.lineTo(x - 1.4, hy + 0.4); }
       ctx.stroke();
-      ctx.fillStyle = T.p.O;
-      for (let i = 0; i < 3; i++) { const a = S.climber.t * 4 + i * 2.1; star(hx + Math.cos(a) * 11, hy - 9 + Math.sin(a) * 3, 3); }
     } else {
-      for (const ex of [0, 3.2]) { ctx.beginPath(); ctx.arc(hx + ex * f, hy - 1.2, 0.95, 0, Math.PI * 2); ctx.fill(); }
+      const g = P.gaze || [0, 0];
+      for (const ex of [0, 3.2]) { ctx.beginPath(); ctx.arc(hx + ex * f + g[0], hy - 1.2 + g[1], 0.95, 0, Math.PI * 2); ctx.fill(); }
       ctx.beginPath();
       if (face === 'happy') ctx.arc(hx + 1.6 * f, hy + 1.2, 2.2, 0.15 * Math.PI, 0.85 * Math.PI);
       else if (face === 'scared') ctx.arc(hx + 1.6 * f, hy + 2.6, 1.3, 0, Math.PI * 2);
@@ -2097,6 +4653,7 @@
       }
       ctx.stroke();
     }
+    drawStars(hx, hy);
     if (btn) {
       // a little box with a big red button
       const { bx, by, pressed } = btn;
