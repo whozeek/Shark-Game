@@ -595,7 +595,9 @@
     loops: function (name) { return get(name).loop; },
     names: names,
     blend: blend,
-    joints: JOINTS.slice()
+    joints: JOINTS.slice(),
+    // add a motion from another file: StickMotions.define(name, spec), spec as for def() above
+    define: function (name, spec) { def(name, spec); if (names.indexOf(name) < 0) names.push(name); }
   };
 })();
 
