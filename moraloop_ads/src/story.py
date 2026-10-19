@@ -76,11 +76,8 @@ BEATS = [
       ["😂", "🤐", "⏳"], "worried", set="gamenight"),
     S("N", "But weeks later... Jordan never ended it.", [X, J, Y], "witness", ["💋"], "shock", set="street",
       xs=[-262, -100, 210], at=0.6),
-    S("N", "And then, Riley finds the messages.", [R], "see", ["📱", "💋", "💬"], "shock", set="home", at=0.5),
-    S("R", "Wait. You knew? You knew, and you just let me find out like this?", [R, Y], "say", ["😡", "❓"], "sad",
-      cont=True, set="home", speaker=0, you=1, voiced=True, spk_expr="angry", at=0.4),
-    S("N", "In the end, Riley stopped trusting both of them. Jordan... and you.", [Y], "think", ["💔", "💔"],
-      set="park"),
+    S("N", "Riley stays happy. Your friend group stays together. And the secret... stays with you.", [J, R, Y], "react",
+      ["❤️", "🤐"], "think", set="park", exprs={0: "happy", 1: "happy"}),
     # ---------------- the host
     M("Two choices. Two very different endings."),
     M("Tell your friend the truth... or keep the secret?"),
