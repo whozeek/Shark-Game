@@ -213,7 +213,7 @@ class Frame:
         for i in range(len(pts) - 1):
             self.cap(pts[i], pts[i + 1], rad, col, f"{seed}{i}", **kw)
 
-    def text(self, s, c, size_w, col, font=FONT_TITLE, seed="t", **kw):
+    def text(self, s, c, size_w, col, font=FONT_TITLE, seed="t", stroke_div=14, **kw):
         px = max(4, int(size_w * self.z))
         fnt = ImageFont.truetype(font, px * 2)
         sc = self.S([c])[0]
@@ -222,7 +222,7 @@ class Frame:
         jx, jy = self.wob(seed, 2, px * 0.03)
         cx, cy = sc[0] + jx, sc[1] + jy
         bbox = (cx + bb[0] / 2, cy + bb[1] / 2, cx + bb[2] / 2, cy + bb[3] / 2)
-        stroke = max(1, px // 14)
+        stroke = max(1, px // stroke_div)
         self._clay(bbox, lambda d, T, k: d.text(T(cx, cy), s, font=fnt, fill=255, anchor="mm",
                                                 stroke_width=stroke * 2, stroke_fill=255), col, **kw)
 

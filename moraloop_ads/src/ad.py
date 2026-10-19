@@ -16,9 +16,11 @@ BRAND_TTS = lambda s: s.replace("Moraloop", "Moral Loop")
 _kokoro = None
 
 
-def tts(text):
+def tts(text, voice="am_michael", speed=0.95):
     os.makedirs(f"{S_DIR}/tts", exist_ok=True)
     key = hashlib.md5(text.encode()).hexdigest()[:16]
+    if voice != "am_michael" or speed != 0.95:
+        key = hashlib.md5(f"{voice}|{speed}|{text}".encode()).hexdigest()[:16]
     path = f"{S_DIR}/tts/{key}.wav"
     if not os.path.exists(path):
         global _kokoro
@@ -26,7 +28,7 @@ def tts(text):
         if _kokoro is None:
             from kokoro_onnx import Kokoro
             _kokoro = Kokoro(f"{S_DIR}/models/kokoro-v1.0.onnx", f"{S_DIR}/models/voices-v1.0.bin")
-        s, sr = _kokoro.create(BRAND_TTS(text), voice="am_michael", speed=0.95, lang="en-us")
+        s, sr = _kokoro.create(BRAND_TTS(text), voice=voice, speed=speed, lang="en-us")
         sf.write(path, s, sr)
     return path
 
@@ -258,7 +260,7 @@ def draw_man(F, t):
         F.poly([(s * 6, -578), (s * 42, -578), (s * 26, -545)], SHIRT, f"collar{s}", smooth_it=1, shadow=0.3)
     for i, y in enumerate((-395, -340)):
         F.ell((0, y), 7, 7, DARK, f"btn{i}", spec=0.4, shadow=0.2)
-    F.poly([(-112, -468), (-72, -468), (-74, -458), (-110, -458)], SHIRT, "pocketsq", smooth_it=1, shadow=0.2)
+    F.poly([(-112, -462), (-100, -482), (-90, -470), (-80, -484), (-72, -462)], SHIRT, "pocketsq", smooth_it=1, shadow=0.2)
     cx, cy, rot = hx, hy, tilt
     cr, sr = math.cos(rot), math.sin(rot)
     H_ = lambda x, y: (cx + x * cr - y * sr, cy + x * sr + y * cr)
@@ -339,6 +341,8 @@ def scene_man(t, seg):
     F.cap((0, -1400), (0, -1150), 8, (0.12, 0.12, 0.12), "lampcord")
     draw_man(F, t)
     clay.lighting_man(F, t)
+    F.poly([(-40, -1150), (40, -1150), (75, -1000), (-75, -1000)], (0.30, 0.30, 0.33), "lamp2", spec=0.3, shadow=0)
+    F.cap((0, -1400), (0, -1150), 8, (0.22, 0.22, 0.22), "lampcord2", shadow=0)
     if t >= 1.0 and not (1.08 < t < 1.18):
         F.ell((0, -998), 60, 12, (1.6, 1.5, 1.2), "bulb", shade=0, shadow=0, tex=0.2)
     return F.cv
@@ -403,7 +407,7 @@ EXPR = {
     "sad": dict(eye=0.85, brow=3, browtilt=-5, smile=-0.55, look=(0, 4), mo=1),
     "happy": dict(eye=0.9, brow=5, smile=0.9, mo=8, mw=16),
     "laugh": dict(eye=0.45, brow=6, smile=1.0, mo=14, mw=16),
-    "angry": dict(brow=-3, browtilt=6, smile=-0.45, mo=4, mw=13),
+    "angry": dict(brow=-6, browtilt=10, smile=-0.6, mo=4, mw=13, eye=0.8),
     "worried": dict(brow=7, browtilt=-5, smile=-0.35, mo=2, mw=11),
     "think": dict(eye=0.85, brow=6, browtilt=-5, smile=-0.45, mo=1, mw=9),
     "smug": dict(eye=0.8, brow=2, browtilt=3, smile=0.6, mo=1, mw=14),
@@ -592,7 +596,7 @@ def scene_story(t, seg):
         cam = (0, -520 if n < 3 else -540, lerp(1240, 1140, u) if n < 3 else lerp(1360, 1260, u))
     if sc.get("cam"):
         cx_, cy_, vh_ = sc["cam"]
-        cam = (cx_, cy_, lerp(vh_, vh_ - 90, u))
+        cam = (cx_, cy_, lerp(vh_, vh_ - sc.get("push", 90), u))
     F = Frame(t, cam)
     import sets
     sets.OPTS = sc
@@ -602,7 +606,7 @@ def scene_story(t, seg):
     for j, (ch, gx, u0) in enumerate(sc.get("ground", [])):
         if u >= u0:
             emoji(F, ch, (gx, -22), 72 * back_out(ramp(t, ut(u0), ut(u0) + 0.25)), f"ground{j}")
-    rk = ramp(t, ut(at), ut(at) + 0.25)
+    rk = 1.0 if sc.get("hold") else ramp(t, ut(at), ut(at) + 0.25)
     heads = {}
     for i, cid in enumerate(chars):
         x = xs[i]
@@ -623,7 +627,7 @@ def scene_story(t, seg):
         expr = dict(EXPR["neutral"])
         if act == "witness" and i in (0, 1):
             f = 1.0 if i == 0 else -1.0
-            kk = ramp(t, ut(0.08), ut(0.3))
+            kk = 1.0 if sc.get("hold") else ramp(t, ut(0.08), ut(0.3))
             P["lean"] = f * 26 * kk
             P["arms"] = lerp_pose(POSE["rest"], facepose(f, "give"), kk)
             P["blush"] = kk
@@ -631,6 +635,9 @@ def scene_story(t, seg):
         elif i == spk and i != you and act in ("tell", "say", "give", "laugh", "react"):
             talking = win(t, ut(0.05), ut(0.6), 0.2, 0.2)
             flap = (abs(math.sin(t * 11)) * 6 + 1) * (0.05 < u < 0.6)
+            if sc.get("voiced"):
+                talking = win(t, ut(0.0), ut(1.0), 0.2, 0.3)
+                flap = 1 + 15 * min(1.0, env_at(t))
             if act == "tell":
                 P["arms"] = lerp_pose(POSE["rest"], facepose(f, "whisper"), talking)
                 P["lean"] = 16 * talking
@@ -642,6 +649,10 @@ def scene_story(t, seg):
                 if u < 0.38:
                     P["prop"] = icons[0] if icons else None
             expr = dict(mo=1 + flap, mw=12, smile=sc.get("spk_smile", 0.2), brow=3)
+            if sc.get("spk_expr"):
+                expr = mix_expr(EXPR[sc["spk_expr"]], {}, 0)
+                expr["mo"] = 1 + flap
+                expr["mw"] = 12
             if act == "laugh":
                 lk = ramp(t, ut(0.15), ut(0.3))
                 expr = mix_expr(expr, EXPR["laugh"], lk)
@@ -757,7 +768,30 @@ def seg_at(t):
 
 def seg_img(i, t):
     s = AD.segs[i]
+    if s["kind"] == "card":
+        return scene_card(t, s)
     return scene_man(t, s) if s["kind"] == "man" else scene_story(t, s)
+
+
+def scene_card(t, seg):
+    """Chapter title card (e.g. CHOICE A / TELL RILEY) in the brand colors."""
+    F = Frame(t, (0, 0, H))
+    F.cv = clay.end_card(t)
+    F.z, F.cx, F.cy = 1.0, W / 2, H / 2
+    k = t - seg["t0"]
+    p1 = back_out(ramp(k, 0.15, 0.6))
+    p2 = back_out(ramp(k, 0.5, 0.95))
+    p3 = back_out(ramp(k, 0.8, 1.3))
+    d = seg["data"]
+    if p1 > 0.02:
+        F.text(d["title"], (W / 2, H * 0.34), W * 0.16 * p1, d.get("color", (0.98, 0.70, 0.18)), font=FONT_CAP, seed="ct1",
+               stroke_div=60, shadow=0.6, spec=0.3)
+    if p2 > 0.02:
+        F.text(d["sub"], (W / 2, H * 0.45), W * 0.085 * p2, (0.96, 0.96, 0.92), font=FONT_CAP, seed="ct2",
+               stroke_div=60, shadow=0.5, spec=0.2)
+    if p3 > 0.02 and d.get("icon"):
+        emoji(F, d["icon"], (W / 2, H * 0.60 + math.sin(t * 3) * 10), W * 0.22 * p3, "cticon")
+    return F.cv
 
 
 XF = 0.14
@@ -823,6 +857,10 @@ def captions(im, t):
         ch = next(c for c in chunks if cur <= c[-1])
         text = " ".join(words[k] for k in ch)
         y = H * 0.75
+        if ln.get("name"):
+            nf = font(FONT_CAP, int(fs * 0.62))
+            d.text((W / 2, y - fs * 0.75), ln["name"].upper(), font=nf, fill=ln.get("color", (255, 214, 60)),
+                   stroke_width=max(2, fs // 12), stroke_fill=(0, 0, 0), anchor="mm")
         k = ch[0]
         for line in clay.wrap(d, text, fnt, W * 0.84):
             lw = d.textlength(line, font=fnt)
