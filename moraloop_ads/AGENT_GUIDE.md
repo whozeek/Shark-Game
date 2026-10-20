@@ -24,17 +24,22 @@ Moraloop asks people what *they* would do. Every video, short or long, has to ma
 
 ```bash
 cd <repo> && git fetch origin claude/moral-loop-claymation && git checkout claude/moral-loop-claymation && git pull
-pip install kokoro-onnx soundfile
+python3 -m pip install kokoro-onnx soundfile numpy pillow   # same interpreter you run with
 mkdir -p moraloop_ads/src/models && cd moraloop_ads/src/models
 curl -sSLO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx
 curl -sSLO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
 ```
 
-ffmpeg, Pillow, numpy and the Inter / Noto Color Emoji fonts are already in the image. If the repo isn't checked out, clone `https://github.com/whozeek/shark-game`. Work from `moraloop_ads/src/`.
+ffmpeg and the Inter / Noto Color Emoji fonts are already in the image. Always run the generator with the same `python3` you installed into (if `import numpy` fails, use `/usr/bin/python3`). If the repo isn't checked out, clone `https://github.com/whozeek/shark-game`. Work from `moraloop_ads/src/`.
 
 ## Short-form agent (2 trend shorts per run)
 
-1. **Research what people are talking about right now.** Use WebSearch (and WebFetch where a site allows it) for this week's trends: Reddit (r/AmItheAsshole, r/relationship_advice, r/popular), viral Facebook and X/Twitter discussions, and pop culture (shows, music, celebrity-adjacent moments, viral challenges, new tech). Look for everyday situations people argue about.
+1. **Research what people are talking about right now.** Use WebSearch (and WebFetch where a site allows it). Generic searches like "trending topics today" return stale pages, so use specific, dated queries that include this week's month and year, for example:
+   - "viral AITA post this week <Month> <Year>", "reddit relationship_advice viral <Month> <Year>"
+   - "trending on X this week <Month> <Year>", "viral Facebook debate <Month> <Year>", "TikTok trend <Month> <Year>"
+   - "pop culture news this week", "new show everyone is talking about <Month> <Year>", "viral wedding / roommate / coworker story <Month> <Year>"
+
+   Prefer results dated within the last 7 days. Look for everyday situations people argue about.
 2. **Turn two trends into two new dilemmas.** Check `ads_spec.py`, `ads_trends.py` and `plan/queue.csv` so you never repeat one.
    - The question is **very short and straight to the point**, ideally 12 words or fewer. No long setups, no hard words, nothing confusing. Good: "Your friend went viral for a lie. Do you call them out?"
    - The whole short runs about 15–30 seconds: "Hello. I have a question for you." (automatic), then 1–2 short scene lines (under ~20 words each), then the closing question.
