@@ -85,6 +85,20 @@ BEATS = [
 ]
 
 
+# Other storylines live in stories/<name>.py and are picked with STORY=<name>.
+# Each defines beats(S, CARD, M) -> list (same building blocks as BEATS above),
+# plus optional TITLE, NAMES {letter: (name, rgb)} and VOICES {letter: kokoro voice}.
+STORY = os.environ.get("STORY")
+TITLE = "Two Best Friends"
+if STORY:
+    import importlib
+    _m = importlib.import_module(f"stories.{STORY}")
+    BEATS = _m.beats(S, CARD, M)
+    NAMES.update(getattr(_m, "NAMES", {}))
+    VOICES.update(getattr(_m, "VOICES", {}))
+    TITLE = getattr(_m, "TITLE", STORY)
+
+
 def default_cam(sc):
     n = len(sc["chars"])
     xs = sc.get("xs") or {1: [0], 2: [-150, 150], 3: [-215, 0, 215]}[n]
@@ -95,7 +109,7 @@ def default_cam(sc):
 
 def build():
     A = ad.Ad()
-    A.spec = {"title": "Two Best Friends", "id": "storyline_two_best_friends"}
+    A.spec = {"title": TITLE, "id": STORY or "storyline_two_best_friends"}
     lines, segs, sfx, shrugs, gestures = [], [], [], [], []
 
     def say(text, voice, t0):
@@ -227,7 +241,7 @@ def _job(i):
 def render(out):
     from multiprocessing import Pool
     A = load()
-    wavp = f"{ad.S_DIR}/out/storyline.wav"
+    wavp = f"{ad.S_DIR}/out/{STORY or 'storyline'}.wav"
     os.makedirs(f"{ad.S_DIR}/out", exist_ok=True)
     ad.mix_audio(wavp)
     n = int(A.DUR * FPS)

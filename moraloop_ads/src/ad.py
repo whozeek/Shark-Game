@@ -967,7 +967,13 @@ def mix_audio(path):
 def load(ad_id):
     global AD
     import ads_spec
-    spec = next(a for a in ads_spec.ADS if a["id"] == ad_id)
+    allads = list(ads_spec.ADS)
+    try:  # new trend-based short ads made by the scheduled agent
+        import ads_trends
+        allads += ads_trends.ADS
+    except ImportError:
+        pass
+    spec = next(a for a in allads if a["id"] == ad_id)
     AD = build(spec)
     for i, s in enumerate(AD.segs):
         s["idx"] = sum(ord(ch) for ch in ad_id)  # one consistent look per ad

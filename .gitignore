@@ -1,0 +1,8 @@
+# Moraloop generator caches (re-created on each run)
+moraloop_ads/src/models/
+moraloop_ads/src/tts/
+moraloop_ads/src/out/
+moraloop_ads/src/__pycache__/
+moraloop_ads/src/stories/__pycache__/
+moraloop_ads/src/still_*.png
+moraloop_ads/src/review/

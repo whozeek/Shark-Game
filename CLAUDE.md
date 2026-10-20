@@ -15,3 +15,7 @@ Moraloop asks viewers what *they* would do, so an ad must never steer them towar
 
 - End card: logo + "COMING SOON". The official App Store badge is saved in `moraloop_ads/src/badge/` but stays off (`SHOW_APP_STORE_BADGE`) until the app is live on the App Store.
 - Question wording comes from the client's PDF and should match it exactly.
+
+## Content agents
+
+Scheduled agents make new videos every other day starting Friday, Oct 23, 2026: 2 trend shorts per run, and 1 long (2–3 min) storyline per run from `moraloop_ads/plan/long_30_day_plan.md`. Their full instructions are in `moraloop_ads/AGENT_GUIDE.md`, and new posts are queued in `moraloop_ads/plan/queue.csv`.
