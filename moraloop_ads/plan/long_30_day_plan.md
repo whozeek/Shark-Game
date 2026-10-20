@@ -19,7 +19,7 @@ Long-form videos are 2–3 minute claymation storylines built on dilemmas we alr
 
 | # | Post date (4:00 PM) | Storyline title | Source short | Theme | Status |
 |---|---|---|---|---|---|
-| 1 | Sat Oct 24, 2026 | The Plus One | 04_the_ex_plus_one — The Ex Plus One (short Nov 7) | Relationships | todo |
+| 1 | Sat Oct 24, 2026 | The Plus One | 04_the_ex_plus_one — The Ex Plus One (short Nov 7) | Relationships | done |
 | 2 | Mon Oct 26, 2026 | The Apology | 24_another_chance — Another Chance (short Nov 6) | Forgiveness / friendship | todo |
 | 3 | Wed Oct 28, 2026 | The Job Offer | 08_the_resume — The Résumé (short Nov 9) | Work / money | todo |
 | 4 | Fri Oct 30, 2026 | The Last Season | 18_the_team_secret — The Team Secret (short Nov 15) | Sports / loyalty | todo |
@@ -72,7 +72,7 @@ Note: Thu Nov 5 also has the "Two Best Friends" storyline in the 7:00 PM slot, s
 
 **Balance check:** one side protects your own comfort at the cost of a friend's hard night; the other gives trust and kindness at the cost of your unease and a lingering half-truth.
 
-Status: todo
+Status: done (2026-10-20) → long/the_plus_one.mp4
 
 ---
 
