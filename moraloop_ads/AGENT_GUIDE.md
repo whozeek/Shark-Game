@@ -4,11 +4,11 @@ Two scheduled agents make new claymation videos for the Moraloop Instagram. Read
 
 ## Schedule
 
-- Agents produce every other day, starting **Friday, October 23, 2026**: Oct 23, 25, 27, 29, 31, Nov 2, 4, and so on. A run on any other day exits without doing anything.
-- Posting slots (the owner's local time). Each slot is listed in `moraloop_ads/plan/queue.csv`.
+- **Production starts Tuesday, October 20, 2026** so a backlog is ready before posting starts. Agents produce every other day: Oct 20, 22, 24, 26, 28, 30, Nov 1, 3, and so on. A run on any other day exits without doing anything.
+- **Posting starts Friday, October 23, 2026.** Agents never post. They only make videos and add them to `moraloop_ads/plan/queue.csv`. All times are **US Eastern**.
   - **7:00 PM daily**: the existing 30-day plan (`plan/30_day_plan.md`, Oct 23 – Nov 21). Agents don't touch it.
-  - **12:00 PM daily**: new trend shorts. A run on day D makes 2 shorts, posted at 12:00 PM on D+1 and D+2.
-  - **4:00 PM every other day**: long storylines. A run on day D makes 1 long video, posted at 4:00 PM on D+1. The order comes from `plan/long_30_day_plan.md`.
+  - **12:00 PM daily, from Sat Oct 24**: new trend shorts. Each run makes 2 shorts and gives them the **next two free 12:00 PM dates** in `queue.csv` (never earlier than Oct 24, and never a date already taken).
+  - **4:00 PM every other day, Oct 24 – Nov 21**: long storylines, in the order of `plan/long_30_day_plan.md`. Each run makes the next not-done episode and queues it at **that episode's post date from the plan**, so episodes are made ahead of time.
 
 ## The one rule that matters most: never sway the viewer
 

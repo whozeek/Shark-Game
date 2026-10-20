@@ -35,7 +35,7 @@ Long-form videos are 2–3 minute claymation storylines built on dilemmas we alr
 | 14 | Thu Nov 19, 2026 | The Surprise | 21_the_birthday_plan — The Birthday Plan (short Nov 10) | Friendship | todo |
 | 15 | Sat Nov 21, 2026 | No Filter | 41_every_unfiltered_thought — Every Unfiltered Thought (no short in plan) | Big hypothetical / relationships | todo |
 
-Approval (from the PDF, as listed in `30_day_plan.md`): #1, 2, 3, 5, 7, 8, 10, 11, 12 are approved or saved favorites. #4, 6, 9, 13, 14, 15 come from the *Pending approval* inventory; confirm them with the owner before they go live.
+Approval: all 15 episodes are approved. #1, 2, 3, 5, 7, 8, 10, 11 and 12 were approved in the PDF, and the owner approved #4, 6, 9, 13, 14 and 15 on Oct 20, 2026. All posting times are US Eastern.
 
 Note: Thu Nov 5 also has the "Two Best Friends" storyline in the 7:00 PM slot, so that day's 4:00 PM episode (#7, work) is deliberately a different theme.
 
@@ -149,7 +149,7 @@ Status: todo
 
 ## Episode 4: The Last Season
 - **Posts:** Fri Oct 30, 2026, 4:00 PM (produce Thu Oct 29)
-- **Source:** `18_the_team_secret`, "The Team Secret" (pending approval; short airs Nov 15)
+- **Source:** `18_the_team_secret`, "The Team Secret" (approved by owner Oct 20; short airs Nov 15)
 - **Slug:** `the_last_season`
 - **Cast:** You (`you`); Jesse, your teammate and close friend (`teammate`); Coach Lane (`coach`); Kit, a younger player (`kid`)
 - **Settings:** field, hall, street, home_night
@@ -219,7 +219,7 @@ Status: todo
 
 ## Episode 6: The Offer Letter
 - **Posts:** Tue Nov 3, 2026, 4:00 PM (produce Mon Nov 2)
-- **Source:** `45_your_dream_or_your_family`, "Your Dream or Your Family" (pending approval; short airs Nov 16)
+- **Source:** `45_your_dream_or_your_family`, "Your Dream or Your Family" (approved by owner Oct 20; short airs Nov 16)
 - **Slug:** `the_offer_letter`
 - **Cast:** You (`you`); Rae, your grandparent (`elder`); Milo, your little brother (`kid`); Sasha, your best friend (`friend`)
 - **Settings:** home, dinner, office, moving, field
@@ -323,7 +323,7 @@ Status: todo
 
 ## Episode 9: The Voice
 - **Posts:** Mon Nov 9, 2026, 4:00 PM (produce Sun Nov 8)
-- **Source:** `51_the_urgent_call`, "The Urgent Call" (pending approval; short aired Nov 1)
+- **Source:** `51_the_urgent_call`, "The Urgent Call" (approved by owner Oct 20; short aired Nov 1)
 - **Slug:** `the_voice`
 - **Cast:** You (`you`); Nico, your sibling, backpacking abroad (`sibling`); Gran, who you call for advice (`elder`)
 - **Settings:** home_night, street, home, cafe
@@ -462,7 +462,7 @@ Status: todo
 
 ## Episode 13: One Saturday
 - **Posts:** Tue Nov 17, 2026, 4:00 PM (produce Mon Nov 16)
-- **Source:** `34_who_do_you_help`, "Who Do You Help?" (pending approval; no short in the 30-day plan)
+- **Source:** `34_who_do_you_help`, "Who Do You Help?" (approved by owner Oct 20; no short in the 30-day plan)
 - **Slug:** `one_saturday`
 - **Cast:** You (`you`); Mo, your oldest friend (`friend`); Ellis, a newcomer to town (`stranger`)
 - **Settings:** library, moving, street, office, home
@@ -497,7 +497,7 @@ Status: todo
 
 ## Episode 14: The Surprise
 - **Posts:** Thu Nov 19, 2026, 4:00 PM (produce Wed Nov 18)
-- **Source:** `21_the_birthday_plan`, "The Birthday Plan" (pending approval; short aired Nov 10)
+- **Source:** `21_the_birthday_plan`, "The Birthday Plan" (approved by owner Oct 20; short aired Nov 10)
 - **Slug:** `the_surprise`
 - **Cast:** You (`you`); Harper, the birthday friend (`friend`); Rio, the organizer (`friend2`)
 - **Settings:** cafe, home, party, yard
@@ -531,7 +531,7 @@ Status: todo
 
 ## Episode 15: No Filter
 - **Posts:** Sat Nov 21, 2026, 4:00 PM (produce Fri Nov 20)
-- **Source:** `41_every_unfiltered_thought`, "Every Unfiltered Thought" (pending approval; no short in the 30-day plan)
+- **Source:** `41_every_unfiltered_thought`, "Every Unfiltered Thought" (approved by owner Oct 20; no short in the 30-day plan)
 - **Slug:** `no_filter`
 - **Cast:** You (`you`); Skyler, your partner of three years (`partner`); a mysterious street vendor (`stranger`)
 - **Settings:** street, home, dinner, home_night

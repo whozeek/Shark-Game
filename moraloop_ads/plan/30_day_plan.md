@@ -1,6 +1,6 @@
 # Moraloop 30-day Instagram plan
 
-One Reel a day at 7:00 PM your local time, from Friday, October 23 to Saturday, November 21, 2026. The videos are vertical 1080×1920, all under 3 minutes, so they work as Instagram Reels.
+One Reel a day at 7:00 PM US Eastern, from Friday, October 23 to Saturday, November 21, 2026. The videos are vertical 1080×1920, all under 3 minutes, so they work as Instagram Reels.
 
 Captions stay neutral on every dilemma (see `CLAUDE.md`), and each one ends with the same call to action as the end card.
 
