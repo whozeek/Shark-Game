@@ -23,4 +23,20 @@ ADS = [
           ["partner", "you"], "say", ["💬", "🐟", "🐟"], "shock", set="cafe"),
         S("Nothing serious yet. But you really like them.", ["you"], "think", ["❤️", "⏳"], "worried", set="cafe"),
     ], close="Do you wait it out, or walk away?"),
+
+    # Trend: viral HOA letter asking neighbors to hand out only fun-size Halloween candy (Oct 2026)
+    dict(id="t003_the_big_candy_bars", title="The Big Candy Bars", made_on="2026-10-24", beats=[
+        S("Your neighborhood asks everyone to give out fun-size candy only, so no family feels left out.",
+          ["stranger", "you"], "say", ["🏘️", "🍬", "🤝"], "worried", set="street"),
+        S("But you promised the kids on your street big bars this year.", ["you"], "think", ["🍫", "🎃", "🤞"], "worried",
+          set="home"),
+    ], close="Do you give out the big bars, or stick to fun-size?"),
+
+    # Trend: Reddit post about a sister asking someone to cancel a prepaid trip to babysit (Oct 2026)
+    dict(id="t004_the_babysitting_ask", title="The Babysitting Ask", made_on="2026-10-24", beats=[
+        S("Your sister’s sitter cancels. She asks you to watch her kid this weekend.",
+          ["friend2", "kid", "you"], "say", ["👶", "🧸", "🙏"], "worried", others="worried", set="home"),
+        S("It’s the weekend of your trip. Already paid. No refunds.", ["you"], "think", ["✈️", "🧳", "💸"],
+          "worried", set="home"),
+    ], close="Do you cancel your trip, or keep it?"),
 ]
