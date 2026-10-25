@@ -62,6 +62,7 @@ ffmpeg and the Inter / Noto Color Emoji fonts are already in the image. Always r
 ## Finishing a run
 
 - Append one row per video to `plan/queue.csv`: `post_date` (YYYY-MM-DD), `post_time` (12:00 PM for shorts, 4:00 PM for long), `kind`, `title`, `video_file` (repo path), `caption`, `made_on`. A caption is the hook question, a neutral call to action ("Comment A or B 👇", "What would you do? 👇"), the line "More questions like this on Moraloop. Coming soon.", and 5–8 hashtags (always `#moraloop #whatwouldyoudo #moraldilemma #claymation`).
+- Then rebuild the posting list with `python3 make_ready.py` (from `moraloop_ads/src/`). It regenerates `moraloop_ads/READY_TO_POST.md`, the one file the owner's posting assistant reads to find each video, its time and its caption. Commit it with everything else.
 - Commit the videos, specs, story files and queue/plan updates. Never commit `src/models/`, `src/tts/` or `src/out/` (they're in `.gitignore`). Then `git pull --rebase origin claude/moral-loop-claymation` and `git push origin claude/moral-loop-claymation`, retrying network failures up to 4 times with backoff.
 - End with a short summary: what was made, the trend each short came from, and the posting dates.
 
@@ -69,4 +70,4 @@ ffmpeg and the Inter / Noto Color Emoji fonts are already in the image. Always r
 
 - End card: logo + "COMING SOON". The App Store badge stays off until the owner says the app is live.
 - Vertical 1080×1920, the clay style and the man in the suit stay the same across all videos.
-- Agents never post to Instagram themselves. The owner, or a Claude session on the owner's Mac, schedules posts from `plan/queue.csv`.
+- Agents never post anywhere themselves. The owner's posting assistant (e.g. ChatGPT) reads `moraloop_ads/READY_TO_POST.md` and posts to Facebook and TikTok.
