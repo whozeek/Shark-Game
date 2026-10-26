@@ -14,6 +14,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 7 | 2026-10-28 | 12:00 PM | short | The Scratched Car | `moraloop_ads/trends/t005_the_scratched_car.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t005_the_scratched_car.mp4) |
 | 8 | 2026-10-28 | 4:00 PM | long | The Job Offer | `moraloop_ads/long/the_job_offer.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_job_offer.mp4) |
 | 9 | 2026-10-29 | 12:00 PM | short | The Notice Period | `moraloop_ads/trends/t006_the_notice_period.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t006_the_notice_period.mp4) |
+| 10 | 2026-10-30 | 4:00 PM | long | The Last Season | `moraloop_ads/long/the_last_season.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_last_season.mp4) |
 
 ## Captions
 
@@ -96,5 +97,14 @@ Video: `moraloop_ads/trends/t006_the_notice_period.mp4`
 Ten weeks left after giving notice. You’re burned out, but your team still counts on you. Do you push hard to the end, or ease off? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #work #worklife #career
+```
+
+### 10. 2026-10-30 4:00 PM: The Last Season (long)
+Video: `moraloop_ads/long/the_last_season.mp4`
+
+```
+Your best teammate might quit and asks you to keep it quiet, but the coach is planning around them. Do you tell the coach the team needs a backup, or keep your teammate’s secret for now? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #sports #teamwork #friendship
 ```
 

@@ -22,7 +22,7 @@ Long-form videos are 2–3 minute claymation storylines built on dilemmas we alr
 | 1 | Sat Oct 24, 2026 | The Plus One | 04_the_ex_plus_one — The Ex Plus One (short Nov 7) | Relationships | done |
 | 2 | Mon Oct 26, 2026 | The Apology | 24_another_chance — Another Chance (short Nov 6) | Forgiveness / friendship | done |
 | 3 | Wed Oct 28, 2026 | The Job Offer | 08_the_resume — The Résumé (short Nov 9) | Work / money | done |
-| 4 | Fri Oct 30, 2026 | The Last Season | 18_the_team_secret — The Team Secret (short Nov 15) | Sports / loyalty | todo |
+| 4 | Fri Oct 30, 2026 | The Last Season | 18_the_team_secret — The Team Secret (short Nov 15) | Sports / loyalty | done |
 | 5 | Sun Nov 1, 2026 | Rent Night | 07_the_wallet — The Wallet (short Oct 24) | Money / honesty | todo |
 | 6 | Tue Nov 3, 2026 | The Offer Letter | 45_your_dream_or_your_family — Your Dream or Your Family (short Nov 16) | Family / life choices | todo |
 | 7 | Thu Nov 5, 2026 | Overheard | 23_the_promotion — The Promotion (short Oct 27) | Work | todo |
@@ -178,7 +178,7 @@ Status: done (2026-10-24) → long/the_job_offer.mp4
 
 **Balance check:** loyalty to one friend versus fairness to the whole team, and in each branch someone you care about pays a price.
 
-Status: todo
+Status: done (2026-10-26) → long/the_last_season.mp4
 
 ---
 
