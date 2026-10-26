@@ -211,7 +211,7 @@ body.rm .mini.loopon,body.rm .mini.loopon i{animation:none}
 .menugrid .btn{height:50px;font-size:15px;padding:0 10px}
 .menugrid .full{grid-column:1/-1}
 @media (max-width:560px){
-  .tbtn{width:60px!important;font-size:11px}
+  .tbtn{width:54px!important;font-size:10.5px}
   #bSound,#bFit{display:none}
   #satCard{flex:1 1 150px;padding:6px 12px}
   #clockCard{flex:1 1 120px;padding:6px 10px;order:2}
@@ -231,6 +231,7 @@ body.rm .mini.loopon,body.rm .mini.loopon i{animation:none}
   .card{padding:16px}.card h1{font-size:28px}
   .how{grid-template-columns:repeat(2,1fr);gap:8px}.how div{font-size:12.5px;padding:10px}.how b{font-size:14px}
   #sheet{max-height:34vh}
+  #town{max-height:36vh}.thsub canvas{width:96px}
   #ctrl{padding:5px;gap:4px}
 }
 
@@ -275,6 +276,28 @@ body.rm .mini.loopon,body.rm .mini.loopon i{animation:none}
 #advisor{position:absolute;left:50%;transform:translateX(-50%);bottom:92px;width:min(560px,calc(100% - 20px));display:flex;gap:8px;align-items:center;padding:8px 10px 8px 12px;box-sizing:border-box;font-weight:700;font-size:13px;line-height:1.35;z-index:6}
 #advisor span{flex:1}#advisor button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:6px 10px;font-weight:800;white-space:nowrap}#advisor button.go{background:var(--ok);border-color:var(--ok);color:#fff}
 .seth{text-align:left;margin:14px 0 2px;font-family:var(--font-display);font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+/* Town Voice */
+#town{width:min(600px,100%);max-height:min(46vh,calc(100vh - 230px));overflow:auto;padding:8px 8px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
+#town:not([hidden]){animation:sheetin .2s ease-out}
+.thead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:-8px;background:var(--panel);padding:4px 2px;z-index:1}
+.thead .tt{flex:1;font-family:var(--font-display);font-size:16px}
+.thsub{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:0 2px}.thsub span{font-size:12.5px;font-weight:700;color:var(--muted);flex:1}
+.thead u{text-decoration:none;color:var(--ink);font-weight:900;font-size:15px}
+.thsub canvas{width:120px;height:32px;border-radius:8px;flex:none}
+.thead .x{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:#f1f5f8;font-weight:800;font-size:16px;flex:none}
+.trow{border:2px solid var(--line);border-left-width:6px;border-radius:12px;background:#fff;overflow:hidden;flex:none}
+.trow.m0{border-left-color:var(--ok)}.trow.m1{border-left-color:var(--warn)}.trow.m2{border-left-color:var(--bad)}
+.trow.sel{background:var(--accent-soft)}
+.tmain{display:flex;align-items:center;gap:8px;width:100%;min-height:48px;padding:5px 10px 5px 8px;border:0;background:transparent;text-align:left;font:inherit;color:var(--ink)}
+.tmood{position:relative;font-size:24px;line-height:1;flex:none}.tmood i{position:absolute;right:-6px;bottom:-5px;font-style:normal;font-size:12px;font-weight:900;background:#fff;border-radius:4px;padding:0 2px;border:1px solid var(--line)}
+.tic{font-size:20px;flex:none;width:26px;text-align:center}
+.ttx{flex:1;display:flex;flex-direction:column;min-width:0}.ttx b{font-size:13.5px;line-height:1.25}.ttx small{color:var(--muted);font-weight:700;font-size:11.5px}
+.tn{flex:none;min-width:30px;height:30px;border-radius:99px;background:var(--ink);color:#fff;font-style:normal;font-weight:900;font-size:14px;display:grid;place-items:center;padding:0 6px;font-variant-numeric:tabular-nums}
+.tdet{padding:2px 12px 10px 44px}.tdet p{margin:4px 0;font-size:13px;font-weight:600}.tdet p.why{color:var(--muted);font-size:12.5px}
+.fixbtn{min-height:46px;padding:0 16px;border-radius:12px;border:0;background:var(--okd,var(--ok));color:#fff;font-weight:800;font-size:14px}.fixbtn:disabled{background:#c9d3da;color:#4b5a66}
+.tmore{font-size:11.5px;font-weight:600;color:var(--muted);padding:2px 6px}
+#rbubble span{display:block;margin-top:2px}#rbubble .rmood{font-weight:800;color:var(--ink)}#rbubble .rfix{color:var(--muted);font-weight:700;margin-top:2px}
+#rbubble button{margin-top:6px;min-height:44px;padding:0 14px;border-radius:12px;border:0;background:var(--okd,var(--ok));color:#fff;font-weight:800;font-size:13px;pointer-events:auto}#rbubble button:disabled{background:#c9d3da;color:#4b5a66;font-size:12px}
 .legend{position:absolute;left:10px;bottom:92px;max-width:250px;padding:9px 12px;font-size:12.5px;font-weight:700;line-height:1.4;pointer-events:none}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(0,0,0,.35)}
 @media (max-width:560px){.legend{left:8px;bottom:84px;max-width:210px;font-size:12px}}
@@ -413,6 +436,7 @@ body.rm .hm .btn,body.rm .hm h1 .l,body.rm .hm .tag,body.rm .hm small.ver{animat
     <div class="panel" id="coach" hidden></div>
     <div class="panel" id="stopcard" hidden></div>
     <div class="panel" id="drawbar" hidden></div>
+    <div class="panel" id="town" hidden></div>
     <div class="panel" id="sheet" hidden></div>
     <div class="panel" id="toolbar" role="toolbar" aria-label="Tools">
       <button class="tbtn on" data-act="tool" data-tool="select"><svg viewBox="0 0 24 24"><path d="M6 3l12 8-5.5 1.5L10 18z"/></svg>Select</button>
@@ -420,6 +444,7 @@ body.rm .hm .btn,body.rm .hm h1 .l,body.rm .hm .tag,body.rm .hm small.ver{animat
       <button class="tbtn" data-act="tool" data-tool="route"><svg viewBox="0 0 24 24"><circle cx="5" cy="18" r="2.6"/><circle cx="19" cy="6" r="2.6"/><path d="M7 17c7 0 1-10 10-10.5"/></svg>Route</button>
       <button class="tbtn" data-act="sheet"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"/></svg>Buses<span class="badge" id="fleetBadge" title="Buses in your fleet">0</span></button>
       <button class="tbtn" data-act="view" id="bView"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span id="viewLbl">Map view</span></button>
+      <button class="tbtn" data-act="town" id="bTown" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.3 14.3c1 1.6 2.3 2.4 3.7 2.4s2.7-.8 3.7-2.4"/><circle cx="9" cy="9.6" r=".7" fill="currentColor"/><circle cx="15" cy="9.6" r=".7" fill="currentColor"/></svg>Town</button>
     </div>
   </div>
 
@@ -1148,13 +1173,12 @@ function riderReason(c){
   return"All good. I'm heading to "+dn+".";
 }
 function riderBubble(c){
-  let el=$('#rbubble');if(!el){el=document.createElement('div');el.id='rbubble';el.className='panel';$('#app').appendChild(el)}
   const nm=c.story?c.story.name+', '+an(c.story.job):(RIDERS[c.type]?an(RIDERS[c.type].label).replace(/^./,m=>m.toUpperCase()):'A rider');
-  el.innerHTML='<b>'+esc(nm)+'</b><span>'+esc(riderReason(c))+'</span>';
-  el.style.borderLeftColor=pcol(c);el.hidden=false;
+  const rec=(c._tr&&G.town&&G.town.rec.get(c._tr.key)===c._tr)?c._tr:null;
+  const el=thoughtCard(nm,rec,riderReason(c),c);
   const x=c._wx!==undefined&&c.state==='wait'?c._wx:c.x,z=c._wy!==undefined&&c.state==='wait'?c._wy:c.y;
-  try{const v=new THREE.Vector3(x,14,z).project(T.camera);el.style.left=Math.max(10,Math.min(W-230,(v.x+1)/2*W-110))+'px';el.style.top=Math.max(80,(1-v.y)/2*H-90)+'px'}catch(e){}
-  clearTimeout(el._t);el._t=setTimeout(()=>{el.hidden=true},5200);snd('pop');
+  try{const v=new THREE.Vector3(x,14,z).project(T.camera);el.style.left=Math.max(10,Math.min(W-230,(v.x+1)/2*W-110))+'px';el.style.top=Math.max(80,(1-v.y)/2*H-(rec?150:90))+'px'}catch(e){}
+  if(rec)townMarkSeen(rec);
 }
 /* ================= rider stories ================= */
 const R_NAMES=['Maria','Tom','Aisha','Luis','Priya','Jack','Chen','Olga','Sam','Fatima','Diego','Nina','Omar','Ruth','Kofi','Elena','Raj','Hana','Leo','Zoe'];
@@ -1165,6 +1189,378 @@ function storiesHtml(){
   const st=G.stories||[];if(!st.length)return'';
   const bad=st.filter(x=>!x.ok).slice(0,1),good=st.filter(x=>x.ok).slice(0,2);
   return'<div class="worst" style="background:#fff4e0"><b>Rider stories</b>'+bad.concat(good).map(x=>'<div style="margin:3px 0">'+(x.ok?'♥ ':'✕ ')+esc(x.t)+'</div>').join('')+'</div>';
+}
+/* ================= Town Voice: what residents think (every thought is computed from real simulation facts) ================= */
+const FAR_D=170,COV_D=150;
+const MOOD_NAME=['happy','okay','annoyed','angry'],MOOD_IC=['\u{1F60A}','\u{1F610}','\u{1F61F}','\u{1F620}'],MOOD_ST=[0,1,1,2];
+const TH={
+ far:{ic:'\u{1F4CD}',short:'Needs a stop'},noroute:{ic:'\u{1F500}',short:'No bus there'},wait:{ic:'⏳',short:'Waiting too long'},full:{ic:'\u{1F68C}',short:'Bus too full'},
+ ramp:{ic:'♿',short:'Needs a ramp'},night:{ic:'\u{1F319}',short:'Needs night buses'},bike:{ic:'\u{1F6B2}',short:'Wants a bike dock'},express:{ic:'⚡',short:'Wants an express'},
+ park:{ic:'\u{1F333}',short:'Wants a park'},jam:{ic:'\u{1F6A6}',short:'Road jammed'},closed:{ic:'\u{1F6A7}',short:'Road closed'},praise:{ic:'\u{1F49A}',short:'Happy riders'},thanks:{ic:'\u{1F389}',short:'Thank you'}};
+const DK_ICON={uni:'\u{1F393}',school:'\u{1F392}',air:'✈️',venue:'\u{1F3DF}️',hosp:'\u{1F3E5}',mall:'\u{1F6CD}️',work:'\u{1F4BC}'};
+const THANKS_MSG={far:'Thank you, a stop right here!',ramp:'Thank you, the new ramp works!',wait:'Thanks, the bus comes more often now!',full:'Thanks, now there is room on the bus!',noroute:'Thank you, now I can get there!',express:'Thanks, the express is so quick!',night:'Thanks for the night bus!',bike:'Love the bike dock!',jam:'The bus flies now. Thanks!',park:'A park at last. Thank you!'};
+const moodOf=sev=>sev>=.72?3:sev>=.5?2:1;
+const moodBucket=m=>m>=.72?0:m>=.52?1:m>=.34?2:3;
+function townNew(){return{rec:new Map(),blk:new Map(),far:new Map(),served:new Set(),nightSt:new Set(),thanks:[],good:[],hist:[],list:[],happy:null,h0:null,tk:0,city:null}}
+function townInit(){
+  const tw=G.town,C=G.city;tw.rec.clear();tw.blk.clear();tw.city=C;tw.list=[];tw.good=[];tw.thanks=[];
+  for(const b of C.blocks)if(b.t==='H'||b.t==='B')tw.blk.set(b.c+','+b.r,{key:b.c+','+b.r,c:b.c,r:b.r,t:b.t,cx:b.x+S/2,cy:b.y+S/2,homes:0,m:null,mood:1,n:0,pat:0,nr:0,d:1e9,ds:1e9,ns:null,cit:null,citFr:1,top:null,topS:0});
+  for(const h of C.homes){const b=tw.blk.get(blockKey(h.x,h.y));if(b)b.homes++}
+  for(const w of C.works){const b=tw.blk.get(blockKey(w.x,w.y));if(b)b.homes++}
+  if(G.bubbles)G.bubbles.splice(0);
+  if(ui.tmark)ui.tmark=null;
+}
+function townRec(tw,type,key,x,y){
+  let r=tw.rec.get(key);
+  if(!r){r={type,key,x,y,live:0,tot:0,ref:0,born:G.t,seenT:G.t,minFr:1,cit:null,sev:0,mood:1,count:0,base:0,street:'',sid:null,rt:null,dest:null,dk:'',ctype:'',blk:null,snap:0,seen:false,shown:0,nv:G.netVer,wx:false,thx:false,cool:0};tw.rec.set(key,r)}
+  r.x=x;r.y=y;r.ref=tw.tk;r.seenT=G.t;return r;
+}
+function townStreet(x,y){let b=null,bd=1e9;for(const n of G.city.nodes){if(!n.alive||n.hwNode)continue;const d=(n.x-x)*(n.x-x)+(n.y-y)*(n.y-y);if(d<bd){bd=d;b=n}}return b?nodeName(b):'town'}
+function townHasPark(c,r){const L=G.L.map;for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){const row=L[r+dr];if(!row)continue;const ch=row[c+dc];if(ch==='P'||ch==='C')return true}return false}
+function townTick(){
+  const C=G.city;if(!C||!C.blocks||!G.L)return;
+  if(!G.town)G.town=townNew();
+  const tw=G.town;if(tw.city!==C)townInit();
+  tw.tk++;const now=G.t,bikes=has('bikes'),rain=G.stormMult>1||G.L.climate==='rain',eve=clockHour(now)>=18;
+  tw.served.clear();tw.nightSt.clear();
+  for(const r of G.routes){if(!r.buses.length)continue;for(const sid of r.stops){tw.served.add(sid);if(r.night)tw.nightSt.add(sid)}}
+  for(const b of tw.blk.values()){let d=1e9,ds=1e9,ns=null;for(const st of G.stops.values()){const k=Math.hypot(st.x-b.cx,st.y-b.cy);if(k<d){d=k;ns=st}if(k<ds&&tw.served.has(st.id))ds=k}b.d=d;b.ds=ds;b.ns=ns;b.n=0;b.pat=0;b.nr=0;b.cit=null;b.citFr=1;b.top=null;b.topS=0}
+  for(const r of tw.rec.values()){r.live=0;r.minFr=1;r.cit=null}
+  const hit=(type,key,x,y,c,fr)=>{const r=townRec(tw,type,key,x,y);r.live++;if(c._tr!==r){c._tr=r;r.tot++}if(fr<r.minFr||!r.cit){if(fr<r.minFr)r.minFr=fr;r.cit=c}return r};
+  const nrHit=(c,st,fr)=>{const r=hit('noroute','nr|'+st.id+'|'+c.dk,st.x,st.y,c,fr);r.sid=st.id;if(!r.dest){r.dest=c.dest;r.dk=c.dk;r.ctype=c.type}};
+  for(const c of G.citizens){
+    if(c.state==='ride')continue;
+    const fr=clamp(c.p/c.pm,0,1),b=tw.blk.get(c.ob),st=c.stop;
+    if(b){b.n++;b.pat+=fr;if(c.noRoute)b.nr++;if(!b.cit||fr<b.citFr){b.cit=c;b.citFr=fr}}
+    if(c.state==='walk'){
+      if(c.type==='wheel'&&!st){
+        let best=null,bd=1e9;for(const s of G.stops.values()){if(s.access)continue;const d=Math.hypot(s.x-c.x,s.y-c.y);if(d<bd){bd=d;best=s}}
+        if(best){const r=hit('ramp','ramp|'+best.id,best.x,best.y,c,fr);r.sid=best.id;continue}
+      }
+      if(st&&c.noRoute){nrHit(c,st,fr);continue}
+      if(st&&bikes&&b&&b.ns===st&&b.d>100&&b.d<=COV_D&&!st.bike){const r=hit('bike','bike|'+st.id,st.x,st.y,c,fr);r.sid=st.id}
+    }else if(c.state==='wait'&&st){
+      if(c.noRoute)nrHit(c,st,fr);
+      else if(st.missed>0){const r=hit('full','full|'+st.id,st.x,st.y,c,fr);r.sid=st.id}
+      else if(fr<.55){const r=hit('wait','wait|'+st.id,st.x,st.y,c,fr);r.sid=st.id;r.wx=rain}
+      else if(eve&&!tw.nightSt.has(st.id)&&tw.served.has(st.id)){const r=hit('night','night|'+st.id,st.x,st.y,c,fr);r.sid=st.id}
+      else if(c.plan&&!c.plan.exit&&c.plan.route&&G.L.express&&!c.plan.route.express&&c.plan.tot>=38&&c.plan.route.stops.length>=5&&c.plan.route.cum[c.plan.route.stops.length-1]>=800){const rt=c.plan.route,s0=G.stops.get(rt.stops[0])||st,r=hit('express','exp|'+rt.id,s0.x,s0.y,c,fr);r.rt=rt}
+    }
+  }
+  // areas with no stop within walking distance (grouped in 2x2 block cells)
+  tw.far.clear();tw.thxT=0;
+  for(const b of tw.blk.values()){
+    if(b.homes<=0)continue;
+    if(G.stops.size&&b.d<=COV_D)continue;
+    const g=(G.gaveBlock&&G.gaveBlock[b.key])||0,w=b.homes+g,ck=Math.floor(b.c/2)+','+Math.floor(b.r/2);
+    let e=tw.far.get(ck);if(!e){e={n:0,x:0,y:0,w:0,live:0,fr:1,best:null,bw:-1,cit:null,keys:[]};tw.far.set(ck,e)}
+    e.keys.push(b.key);e.n+=w;e.x+=b.cx*w;e.y+=b.cy*w;e.w+=w;e.live+=b.n;if(b.n&&b.pat/b.n<e.fr)e.fr=b.pat/b.n;if(w>e.bw){e.bw=w;e.best=b}if(b.cit&&(!e.cit||b.citFr<e.cfr)){e.cit=b.cit;e.cfr=b.citFr}
+  }
+  for(const[ck,e]of tw.far){const r=townRec(tw,'far','far|'+ck,e.x/e.w,e.y/e.w);
+    if(r.keys&&!tw.thxT){for(const k of r.keys)if(!e.keys.includes(k)){const bb=tw.blk.get(k);if(bb&&G.stops.size){tw.thxT=1;townThanks(tw,{type:'far',x:bb.cx,y:bb.cy,street:townStreet(bb.cx,bb.cy),count:1,key:'far|'+k});break}}}
+    r.keys=e.keys;r.base=Math.round(e.n);r.blk=e.best.key;r.live=e.live;r.minFr=e.fr;r.cit=e.cit;r.nb=e.best}
+  // buses stuck in traffic or blocked by a closed road
+  for(const bus of G.buses){
+    if(bus.state==='drive'&&bus.pax.length){const e=edgeBetween(bus.from,bus.to);if(e&&!e.hw&&!e.syn&&(e.cong||0)>=.3){const r=townRec(tw,'jam','jam|'+e.id,bus.x,bus.y);r.live+=bus.pax.length;r.minFr=Math.min(r.minFr,.5);r.rt=bus.route;if(!r.snap)r.snap=bus.route.lane?2:1}}
+    else if(bus.state==='blocked'){const r=townRec(tw,'closed','closed|'+bus.route.id,bus.x,bus.y);let w=bus.pax.length;for(const sid of bus.route.stops){const s=G.stops.get(sid);if(s)w+=s.waiters.length}r.live=Math.max(r.live,w);r.minFr=Math.min(r.minFr,.45);r.rt=bus.route}
+  }
+  for(const st of G.stops.values()){
+    if(!st.waiters.length)continue;const nd=C.nodes[st.id];if(!nd||!nd.adj.some(a=>a.e.closed))continue;
+    const r=townRec(tw,'closed','closed|s'+st.id,st.x,st.y);r.live=st.waiters.length;r.minFr=.45;r.rt=routesAt(st.id)[0]||null;r.sid=st.id;
+  }
+  // praise: frequent service with short waits
+  {const cand=[];for(const r of G.routes){const t=r.stat;if(t.boarded>=6&&r.buses.length>=2&&now>20&&t.waitSum/t.boarded<=14)cand.push(r)}
+   cand.sort((a,b)=>b.stat.boarded-a.stat.boarded);
+   for(const r of cand.slice(0,2)){const s=G.stops.get(r.stops[r.stops.length>>1])||G.stops.get(r.stops[0]);if(!s)continue;const q=townRec(tw,'praise','praise|'+r.id,s.x,s.y);q.base=r.stat.boarded;q.rt=r;q.minFr=1}}
+  // parks: crowded homes with no park within two blocks
+  if(G.L.growth!==false){
+    let best=null,bs=1.4;
+    for(const b of tw.blk.values()){
+      if(b.t!=='H'||b.m==null||townHasPark(b.c,b.r))continue;
+      const g=(G.gaveBlock&&G.gaveBlock[b.key])||0,sc=g*2+(b.m<.6?(.6-b.m)*5:0)+b.homes*.1;
+      if(sc>bs){bs=sc;best=b}
+    }
+    if(best){const r=townRec(tw,'park','park|'+best.key,best.cx,best.cy);r.base=best.homes+Math.round((G.gaveBlock&&G.gaveBlock[best.key])||0);r.blk=best.key;r.minFr=Math.max(.2,best.m)}
+  }
+  // finalize: expire, detect fixes, count, severity
+  const gone=[];
+  for(const r of tw.rec.values()){
+    const stat=r.type==='far'||r.type==='park'||r.type==='praise'||r.type==='jam'||r.type==='closed';
+    let dead=stat?r.ref!==tw.tk:(now-r.seenT>12),solved=false;
+    if(stat&&dead&&(r.type==='far'||r.type==='park')&&r.count>=1)solved=r.type==='far'?G.stops.size>0:townHasPark(+r.blk.split(',')[0],+r.blk.split(',')[1]);
+    if(stat&&dead&&r.type==='jam'&&r.rt&&r.snap===1&&r.rt.lane)solved=true;
+    if(!dead){
+      const st=r.sid!=null?G.stops.get(r.sid):null;
+      switch(r.type){
+       case'ramp':if(!st)dead=true;else if(st.access){dead=true;solved=true}break;
+       case'bike':if(!st)dead=true;else if(st.bike){dead=true;solved=true}break;
+       case'noroute':if(!st){dead=true;break}if(r.nv!==G.netVer){r.nv=G.netVer;if(r.dest&&planFrom(st.id,r.dest,r.ctype==='wheel')){dead=true;solved=true}}break;
+       case'wait':case'full':{if(!st){dead=true;break}let n=0;for(const q of routesAt(st.id))n+=q.buses.length;if(!r.snap)r.snap=n+1;else if(n+1>r.snap){dead=true;solved=r.count>=2}break}
+       case'express':if(!r.rt||!G.routes.includes(r.rt)){dead=true;break}if(r.rt.express){dead=true;solved=true}break;
+       case'night':if(tw.nightSt.has(r.sid)){dead=true;solved=true}break;
+      }
+    }
+    if(dead){if(solved&&r.count>=1&&!tutOn())townThanks(tw,r);gone.push(r.key);continue}
+    r.tot*=.96;
+    r.count=Math.max(r.live,Math.round(r.tot),r.base||0);
+    r.sev=r.type==='praise'?0:clamp(.25+.5*(1-r.minFr)+.04*Math.min(12,r.count),0,1);
+    r.mood=r.type==='praise'?0:moodOf(r.sev);
+    if(!r.street||r.type==='jam'||r.type==='closed'||r.type==='far')r.street=townStreet(r.x,r.y);
+  }
+  for(const k of gone)tw.rec.delete(k);
+  const list=[],good=[];
+  for(const r of tw.rec.values()){if(r.type==='praise'){good.push(r);continue}if(r.count>=2||r.sev>=.55||r.type==='ramp'||r.type==='far')list.push(r)}
+  list.sort((a,b)=>b.count-a.count||b.sev-a.sev);tw.list=list;tw.good=good;
+  for(let i=tw.thanks.length-1;i>=0;i--)if(tw.thanks[i].until<=now)tw.thanks.splice(i,1);
+  // mood of every block, from stops in reach, patience of its riders, give-ups and recent happy trips
+  let hs=0,hw=0;
+  for(const b of tw.blk.values()){
+    const d=b.d;let cv=!isFinite(d)||d>=1e8?0:d<=COV_D?1-.25*clamp((d-60)/(COV_D-60),0,1):.45-clamp((d-COV_D)/200,0,1)*.45;
+    if(d<=COV_D&&!(b.ds<=COV_D))cv*=.6;
+    const gave=(G.gaveBlock&&G.gaveBlock[b.key])||0,ok=(G.okBlock&&G.okBlock[b.key])||0,pat=b.n?b.pat/b.n:.8;
+    const tgt=clamp(.55*cv+.45*pat-.1*Math.min(3,gave)-.3*(b.n?b.nr/b.n:0)+.04*Math.min(3,ok),0,1);
+    b.m=b.m==null?tgt:b.m+(tgt-b.m)*.4;b.mood=moodBucket(b.m);
+    if(b.t==='H'){hs+=b.m*b.homes;hw+=b.homes}
+  }
+  for(const r of list){const rad=r.type==='far'?150:130;for(const b of tw.blk.values()){if(r.sev>b.topS&&Math.hypot(b.cx-r.x,b.cy-r.y)<rad){b.top=r;b.topS=r.sev}}}
+  tw.happy=hw?Math.round(100*hs/hw):null;
+  if(tw.h0==null||now<3)tw.h0=tw.happy;
+  if(!G.paused&&tw.tk%4===1&&tw.happy!=null){tw.hist.push(tw.happy);if(tw.hist.length>40)tw.hist.shift()}
+  townPick(tw);
+  if(ui.town)ui.dirty=true;
+}
+function townThanks(tw,r){
+  const msg=THANKS_MSG[r.type];if(!msg)return;
+  for(const t of tw.thanks)if(t.of===r.type&&t.tk===tw.tk)return;
+  tw.thanks.unshift({type:'thanks',of:r.type,key:'thx|'+tw.tk+'|'+r.key,x:r.x,y:r.y,street:r.street,msg,count:1,live:1,sev:0,mood:0,tk:tw.tk,born:G.t,until:G.t+16,thx:true,seen:false,shown:0,cit:null,ref:0,cool:0});
+  if(tw.thanks.length>4)tw.thanks.pop();
+  fx.text(r.x,r.y-4,'Thank you!',COL.ok);
+}
+/* choose the few thoughts that float above the town (cap 6, 3 in Battery saver) */
+function townPick(tw){
+  const bs=G.bubbles;
+  if(tutOn()||G.over){for(const b of bs)if(b.life>b.t+1)b.life=b.t+.8;return}
+  const cap=PROF.gfx==='saver'?3:6,seenMap=PROF.thSeen||{},cands=[],now=G.t;
+  const add=r=>{
+    if(r.cool>now)return;
+    const c=r.cit,live=c&&(c.state==='walk'||c.state==='wait')&&G.citizens.includes(c),x=live?c.x:r.x,y=live?c.y:r.y;
+    let pr=(r.thx?9:r.sev*8)+(r.type==='ramp'?3.5:0)+(seenMap[r.type]?0:3)+(r.seen?0:1.5)+Math.min(3,r.count*.25)-r.shown*.08;
+    if(Math.hypot(x-cam.x,y-cam.y)<520/cam.zoom)pr+=3;
+    for(const b of bs)if(b.rec===r&&b.life>1e8){pr+=1.5;break}
+    cands.push({r,x,y,pr,c:live?c:null});
+  };
+  for(const r of tw.list)add(r);for(const r of tw.good)add(r);for(const r of tw.thanks)add(r);
+  const pick=[],used=new Map();
+  while(pick.length<cap){
+    let best=null,bp=-1e9;
+    for(const cd of cands){
+      if(cd.used)continue;
+      let near=false;for(const p of pick)if(Math.hypot(p.x-cd.x,p.y-cd.y)<80){near=true;break}
+      if(near){cd.used=true;continue}
+      const v=cd.pr-1.6*(used.get(cd.r.type)||0);
+      if(v>bp){bp=v;best=cd}
+    }
+    if(!best)break;
+    best.used=true;pick.push(best);used.set(best.r.type,(used.get(best.r.type)||0)+1);
+  }
+  const want=new Set(pick.map(p=>p.r));
+  for(const b of bs)if(b.rec&&!want.has(b.rec)&&b.life>b.t+1)b.life=b.t+.8;
+  for(const p of pick){
+    let have=false;for(const b of bs)if(b.rec===p.r&&b.life>b.t+.9){have=true;break}
+    if(have||bs.length>=cap+2)continue;
+    bs.push({c:p.c,rec:p.r,x:p.x,y:p.y,t:0,life:1e9,wheel:p.r.type==='ramp'});
+    if(!G.thinkSeen){G.thinkSeen=true;toast('Thought bubbles show what residents need. Tap one, or open Town (H) to see them all.',4200)}
+    else if(p.r.type==='ramp'&&!G.wheelSeen){G.wheelSeen=true;toast('A wheelchair user needs a step-free stop. Upgrade a stop with a ramp.',4200)}
+  }
+}
+function townMarkSeen(r){
+  r.seen=true;const m=PROF.thSeen||(PROF.thSeen={});
+  if(!m[r.type]&&r.type!=='thanks'){m[r.type]=true;saveProfile()}
+}
+function townHappy(){return G.town?G.town.happy:null}
+function townFindRec(key){
+  const tw=G.town;if(!tw)return null;
+  let r=tw.rec.get(key);if(r)return r;
+  for(const t of tw.thanks)if(t.key===key)return t;
+  return null;
+}
+/* text of a thought: a headline for lists and a first-person quote for bubbles */
+function townText(r){
+  const n=r.count,rs=n+' rider'+(n===1?'':'s'),st=r.street||'town',dn=DK_NAME[r.dk]||(r.dk==='work'?'the offices':'where they are going'),rn=r.rt?r.rt.name:'this route';
+  switch(r.type){
+   case'far':return{title:rs+' want a stop near '+st,quote:'I live too far from any stop. Please put a stop near me!'};
+   case'noroute':{const q=r.ctype==='student'&&(r.dk==='uni'||r.dk==='school')?'I need a bus to '+dn+' for class.':r.ctype==='patient'?'I need to get to the hospital. Please connect me!':r.ctype==='shopper'?'I want to go shopping at the mall. Is there a bus?':r.ctype==='tourist'?'I am visiting. How do I get to '+dn+'?':'No bus from here goes to '+dn+'. Please connect me!';
+     return{title:rs+' at '+st+' cannot get to '+dn,quote:q}}
+   case'wait':return{title:rs+' waiting too long at '+st,quote:r.wx?'Standing in the rain and still no bus. I need buses that come more often.':'I have waited for ages. Where is my bus?'};
+   case'full':return{title:rs+' could not board at '+st,quote:'The last bus was too full for me!'};
+   case'ramp':return{title:n+' wheelchair user'+(n===1?'':'s')+' need a step-free stop near '+st,quote:'There is no step-free stop I can use, so I cannot board.'};
+   case'night':return{title:rs+' at '+st+' want night buses',quote:has('night')?'My shift ends late and the last bus is gone. I need night service.':'My shift ends late and the last bus is gone. Night service is not available yet.'};
+   case'bike':return{title:rs+' near '+st+' would use a bike dock',quote:'The stop is a long walk. A bike dock would get me there fast.'};
+   case'express':return{title:rs+' on '+rn+' face a long trip',quote:'This trip takes forever. An express bus would be quicker.'};
+   case'park':return{title:'The homes near '+st+' want a park',quote:'There is no park nearby, and people here are running out of patience.'};
+   case'jam':return{title:rs+' stuck in traffic on '+st,quote:'The road is jammed and my bus is crawling.'};
+   case'closed':return{title:'Road closed near '+st+': '+rs+' affected',quote:G.event&&G.event.type==='flood'?'The road is flooded. My bus cannot get through.':'The road is closed and my bus cannot get through.'};
+   case'praise':return{title:rn+' riders are happy at '+st,quote:'Finally, a bus that comes often!'};
+   case'thanks':return{title:r.msg,quote:r.msg};
+  }
+  return{title:'',quote:''};
+}
+/* nearest free junction for a new stop */
+function townNodeFor(x,y,lim){
+  let best=null,bs=1e9;
+  for(const n of G.city.nodes){
+    if(!n.alive||n.hwNode||G.stops.has(n.id))continue;
+    const d=Math.hypot(n.x-x,n.y-y);if(d>lim)continue;
+    let dn=0;if(G.stops.size){dn=1e9;for(const st of G.stops.values()){const k=Math.hypot(st.x-n.x,st.y-n.y);if(k<dn)dn=k}}
+    const sc=d+.02*dn;if(sc<bs){bs=sc;best=n}
+  }
+  return best;
+}
+/* the one-tap fix for a thought: always one of the real game actions */
+function townFix(r){
+  const none=why=>({act:'',label:'',cost:0,ok:false,why,run:null});
+  const mk=(act,label,cost,fn,keep)=>{const ok=G.money>=cost;return{act,label:label+(cost?' · '+money(cost):''),cost,ok,why:ok?'':'Needs '+money(cost)+', you have '+money(G.money)+'.',run:()=>{if(!keep)pushUndo();fn()}}};
+  const bestRoute=st=>{const rs=routesAt(st.id);let b=null,bs=-1;for(const q of rs){let w=0;for(const sid of q.stops){const s=G.stops.get(sid);if(s)w+=s.waiters.length}const sc=w/(q.buses.length||.5);if(sc>bs){bs=sc;b=q}}return b};
+  const addBusFix=q=>{
+    if(G.buses.length>=30)return none('Fleet limit reached (30 buses). Upgrade vehicle sizes instead.');
+    return mk('addbus','Add a bus to '+q.name,BUS_MODELS[q.model||0].price,()=>{if(addBus(q))toast('Bus added to '+q.name+'.',1800)});
+  };
+  const addStopFix=(x,y,label)=>{const nd=townNodeFor(x,y,110);if(!nd)return none('There is no free junction close by.');return mk('addstop',label+' ('+nodeName(nd)+')',PRICE.stop,()=>{const s=addStop(nd.id);if(s){s.popT=performance.now();fx.ring(nd.x,nd.y,'#2a7de1',34);netChanged();snd('pop')}})};
+  const shapeFix=q=>q?mk('shape','Reshape '+q.name,0,()=>{ui.shape=q.id;ui.sel={type:'route',id:q.id};ui.sheet=false;ui.town=false;setTool('select');ui.dirty=true;toast('Tap junctions to steer '+q.name+' along different streets.')},true):none('Select the route and use Shape road to avoid it.');
+  const st=r.sid!=null?G.stops.get(r.sid):null;
+  switch(r.type){
+   case'far':{const tw=G.town,b=tw.blk.get(r.blk);return addStopFix(b?b.cx:r.x,b?b.cy:r.y,'Add a stop')}
+   case'ramp':if(!st)return none('That stop is gone.');return mk('ramp','Add a ramp at '+nodeName(G.city.nodes[st.id]),PRICE.ramp,()=>makeAccessible(st.id));
+   case'wait':case'full':{if(!st)return none('That stop is gone.');const q=bestRoute(st);if(!q)return none('This stop is not on a route yet.');return addBusFix(q)}
+   case'noroute':{
+     if(!st)return none('That stop is gone.');
+     const rs=routesAt(st.id);
+     const nb=rs.find(q=>!q.buses.length);if(nb)return addBusFix(nb);
+     const idle=rs.find(q=>q.buses.length&&!routeActive(q)&&q.sched==='peak');if(idle)return mk('sched','Run '+idle.name+' all day',0,()=>toggleSched(idle));
+     if(!r.dest)return none('');
+     let ds=null,dd=1e9;for(const s of G.stops.values()){const k=Math.hypot(s.x-r.dest.x,s.y-r.dest.y);if(k<dd){dd=k;ds=s}}
+     if(!ds||dd>160)return addStopFix(r.dest.x,r.dest.y,'Add a stop near '+(DK_NAME[r.dk]||'the destination'));
+     if(ds.id===st.id)return none('The stop is already there. Connect it to a route that reaches the rest of town.');
+     if(G.buses.length>=30)return none('Fleet limit reached (30 buses).');
+     const price=BUS_MODELS[0].price;
+     return mk('connect','Link '+nodeName(G.city.nodes[st.id])+' to '+nodeName(G.city.nodes[ds.id]),price,()=>{const q=newRoute([st.id,ds.id]);addBus(q);netChanged();toast(q.name+' now links the two areas.',2400)});
+   }
+   case'express':{const q=r.rt;if(!q||!G.routes.includes(q))return none('That route is gone.');return mk('express','Make '+q.name+' express',q.expressPaid?0:PRICE.express,()=>toggleExpress(q))}
+   case'night':{
+     if(!has('night')){const u=UNLOCKS.find(x=>x.id==='night');return none('Night service unlocks in City Hall at company level '+(u?u.lvl:4)+'. Keep playing to earn XP.')}
+     if(!st)return none('That stop is gone.');const q=routesAt(st.id).sort((a,b)=>b.buses.length-a.buses.length)[0];if(!q)return none('This stop is not on a route yet.');
+     return mk('night','Night service on '+q.name,0,()=>toggleNight(q));
+   }
+   case'bike':if(!st)return none('That stop is gone.');if(!has('bikes'))return none('Bike share unlocks in City Hall.');return mk('bike','Add a bike dock (tap twice)',450,()=>{pushUndo();buyBike(st.id)},true);
+   case'jam':{const q=r.rt;if(!q||!G.routes.includes(q))return none('That route is gone.');if(!q.lane)return mk('lane','Priority lanes on '+q.name,PRICE.lane,()=>buyLane(q));return shapeFix(q)}
+   case'closed':return shapeFix(r.rt&&G.routes.includes(r.rt)?r.rt:null);
+   case'park':return none('A park makes every rider 3% more patient. Choose the green park circle the next time the city grows.');
+  }
+  return none('');
+}
+function townDoFix(key){
+  const r=townFindRec(key);if(!r){toast('That thought has already passed.');return false}
+  const f=townFix(r);
+  if(!f.run){if(f.why)toast(f.why,3400);return false}
+  if(!f.ok){toast(f.why,3200);return false}
+  f.run();townTick();ui.dirty=true;return true;
+}
+/* the camera target that puts a world point in the middle of the free band of screen between the top cards and the bottom panels */
+function townFrame(x,y,zoom){
+  const sv={x:cam.x,y:cam.y,zoom:cam.zoom};
+  try{
+    const r1=$('#row1').getBoundingClientRect(),mi=$('#missions'),top=Math.max(r1.bottom,(mi&&!mi.hidden)?mi.getBoundingClientRect().bottom:0)+8,bot=$('#bottom').getBoundingClientRect().top-8;
+    if(!(bot-top>60))return{x,y};
+    cam.x=x;cam.y=y;cam.zoom=zoom;updateCamera();
+    const a=toWorld(W/2,H/2),b=toWorld(W/2,(top+bot)/2);
+    cam.x=sv.x;cam.y=sv.y;cam.zoom=sv.zoom;updateCamera();
+    if(!a||!b)return{x,y};
+    return{x:clamp(x-(b.x-a.x),0,G.city.w),y:clamp(y-(b.y-a.y),0,G.city.h)};
+  }catch(e){cam.x=sv.x;cam.y=sv.y;cam.zoom=sv.zoom;try{updateCamera()}catch(e2){}return{x,y}}
+}
+/* camera to the thought, with the flashing ring and street label (same style as the city-growth markers) */
+function townLook(r){
+  if(!r||!G.city)return;
+  ui.follow=null;
+  const z=Math.max(cam.zoom,1.35),to=townFrame(clamp(r.x,0,G.city.w),clamp(r.y,0,G.city.h),z);
+  glideCam({x:to.x,y:to.y,zoom:z});
+  ui.tmark={x:r.x,y:r.y,t0:performance.now(),dur:9000,place:r.street||townStreet(r.x,r.y),title:TH[r.type].short,ic:TH[r.type].ic,col:r.thx?COL.ok:MOOD_ST[r.mood]===2?COL.bad:MOOD_ST[r.mood]===1?COL.warn:COL.ok};
+  townMarkSeen(r);
+}
+function tapBubble(sx,sy){
+  if(!T.bubbleObjs||!T.camera)return false;
+  let best=null,bd=1e9;
+  const v=T.bv||(T.bv=new THREE.Vector3());
+  for(const b of G.bubbles){
+    if(!b.rec||b.t<.3)continue;const o=T.bubbleObjs.get(b);if(!o)continue;
+    v.copy(o.position).project(T.camera);if(v.z>1)continue;
+    const px=(v.x+1)/2*W+(b.wide?38:0),py=(1-v.y)/2*H-6,d=Math.hypot(px-sx,py-sy),lim=b.wide?72:34;
+    if(d<lim&&d<bd){bd=d;best=b}
+  }
+  if(!best)return false;
+  showThought(best.rec,best.c);return true;
+}
+function townMoodName(m){return MOOD_NAME[m]}
+function thoughtCard(nm,rec,fallback,c){
+  let el=$('#rbubble');if(!el){el=document.createElement('div');el.id='rbubble';el.className='panel';$('#app').appendChild(el)}
+  const fr=c?clamp(c.p/c.pm,0,1):.7,mood=rec?rec.mood:fr>=.8?0:fr>=.5?1:fr>=.25?2:3,f=rec?townFix(rec):null,cb=PROF.a11y.cb;
+  let h='<b>'+esc(nm)+'</b><span class="rmood">'+MOOD_IC[mood]+' '+(cb?GL[MOOD_ST[mood]]+' ':'')+'Feeling '+MOOD_NAME[mood]+'</span><span>'+esc(rec?'“'+townText(rec).quote+'”':fallback)+'</span>';
+  if(f&&f.run)h+='<span class="rfix">Suggested fix: '+esc(f.label)+'</span><button data-act="townfix" data-key="'+esc(rec.key)+'"'+(f.ok?'':' disabled')+'>'+esc(f.ok?'Do it':f.why)+'</button>';
+  else if(f&&f.why)h+='<span class="rfix">'+esc(f.why)+'</span>';
+  el.innerHTML=h;el.style.pointerEvents=(f&&f.run)?'auto':'none';
+  el.style.borderLeftColor=MOOD_ST[mood]===2?COL.bad:MOOD_ST[mood]===1?COL.warn:COL.ok;el.hidden=false;
+  clearTimeout(el._t);el._t=setTimeout(()=>{el.hidden=true},(f&&f.run)?9000:5200);snd('pop');
+  return el;
+}
+function showThought(rec,c){
+  const el=thoughtCard(c&&c.story?c.story.name+', '+an(c.story.job):(c&&RIDERS[c.type]?an(RIDERS[c.type].label).replace(/^./,m=>m.toUpperCase()):(rec.thx?'A happy resident':'Residents')),rec,'',c);
+  const x=c?c.x:rec.x,z=c?c.y:rec.y;
+  try{const v=new THREE.Vector3(x,30,z).project(T.camera);el.style.left=Math.max(10,Math.min(W-230,(v.x+1)/2*W-110))+'px';el.style.top=Math.max(80,(1-v.y)/2*H-130)+'px'}catch(e){}
+  townMarkSeen(rec);
+}
+/* ---- Town Voice panel ---- */
+function townSpark(cv2){
+  const h=G.town.hist,g=cv2.getContext('2d'),w=cv2.width,hh=cv2.height;g.clearRect(0,0,w,hh);
+  g.fillStyle='#eef3f6';g.fillRect(0,0,w,hh);
+  if(h.length<2){g.fillStyle='#8896a3';g.font='11px sans-serif';g.fillText('trend builds as the day runs',6,hh/2+4);return}
+  const lo=Math.max(0,Math.min.apply(null,h)-8),hi=Math.min(100,Math.max.apply(null,h)+8),py=v=>hh-4-(hh-8)*(v-lo)/Math.max(1,hi-lo),px=i=>4+(w-8)*i/(h.length-1);
+  g.strokeStyle=COL.ok;g.lineWidth=2.5;g.lineJoin='round';g.beginPath();h.forEach((v,i)=>{i?g.lineTo(px(i),py(v)):g.moveTo(px(i),py(v))});g.stroke();
+  g.fillStyle=COL.ok;g.beginPath();g.arc(px(h.length-1),py(h[h.length-1]),3.5,0,6.3);g.fill();
+}
+function townHtml(){
+  const tw=G.town,cb=PROF.a11y.cb;
+  if(!tw)return'';
+  const hp=tw.happy,d=hp!=null&&tw.h0!=null?hp-tw.h0:0,trend=hp==null?'':(d>0?' · up '+d+' since this morning':d<0?' · down '+(-d)+' since this morning':' · steady');
+  let h='<div class="thead"><b class="tt">Town Voice</b><button class="mini" data-act="townmood" aria-label="Show the Mood map view">Mood map</button><button class="x" data-act="town" aria-label="Close Town Voice">✕</button></div><div class="thsub"><span>Resident happiness <u>'+(hp==null?'–':hp+'%')+'</u>'+esc(trend)+'</span><canvas id="thspark" width="120" height="32" role="img" aria-label="Resident happiness trend"></canvas></div>';
+  const rows=tw.list.slice(0,8);
+  if(!rows.length&&!tw.thanks.length)h+='<div class="empty">'+(G.stops.size?'Nobody is complaining right now. Residents are fine with the service.':'No stops yet. Place a stop near the homes and residents will start telling you what they need.')+'</div>';
+  for(const t of tw.thanks)h+='<div class="trow m0"><button class="tmain" data-act="townrow" data-key="'+esc(t.key)+'"><span class="tmood" aria-hidden="true">'+MOOD_IC[0]+(cb?'<i>'+GL[0]+'</i>':'')+'</span><span class="tic" aria-hidden="true">'+TH.thanks.ic+'</span><span class="ttx"><b>'+esc(t.msg)+'</b><small>happy · '+esc(t.street)+'</small></span></button></div>';
+  for(const r of rows){
+    const sel=ui.townSel===r.key,t=townText(r),st=MOOD_ST[r.mood];
+    h+='<div class="trow m'+st+(sel?' sel':'')+'"><button class="tmain" data-act="townrow" data-key="'+esc(r.key)+'" aria-expanded="'+sel+'"><span class="tmood" aria-hidden="true">'+MOOD_IC[r.mood]+(cb?'<i>'+GL[st]+'</i>':'')+'</span><span class="tic" aria-hidden="true">'+(r.type==='noroute'&&DK_ICON[r.dk]?DK_ICON[r.dk]:TH[r.type].ic)+'</span><span class="ttx"><b>'+esc(t.title)+'</b><small>'+MOOD_NAME[r.mood]+' · '+esc(TH[r.type].short)+'</small></span><em class="tn" aria-label="'+r.count+' affected">'+r.count+'</em></button>';
+    if(sel){const f=townFix(r);h+='<div class="tdet"><p>“'+esc(t.quote)+'”</p>'+(f.run?'<button class="fixbtn" data-act="townfix" data-key="'+esc(r.key)+'"'+(f.ok?'':' disabled')+'>'+esc(f.label)+'</button>'+(f.ok?'':'<p class="why">'+esc(f.why)+'</p>'):'<p class="why">'+esc(f.why||'Nothing to build for this one.')+'</p>')+'</div>'}
+    h+='</div>';
+  }
+  if(tw.list.length>rows.length)h+='<div class="tmore">'+(tw.list.length-rows.length)+' smaller needs not shown.</div>';
+  for(const r of tw.good){const t=townText(r);h+='<div class="trow m0"><button class="tmain" data-act="townrow" data-key="'+esc(r.key)+'"><span class="tmood" aria-hidden="true">'+MOOD_IC[0]+(cb?'<i>'+GL[0]+'</i>':'')+'</span><span class="tic" aria-hidden="true">'+TH.praise.ic+'</span><span class="ttx"><b>'+esc(t.title)+'</b><small>happy · “'+esc(t.quote)+'”</small></span></button></div>'}
+  h+='<div class="tmore">Counts are riders affected. For areas with no stop yet they are the homes there.</div>';
+  return h;
+}
+function renderTown(){
+  const el=$('#town');if(!el)return;
+  if(!ui.town){el.hidden=true;return}
+  el.hidden=false;
+  const html=townHtml();
+  if(el._h===html)return;
+  const ae=document.activeElement,fk=ae&&el.contains(ae)?(ae.dataset.act||'')+'|'+(ae.dataset.key||''):'',sc=el.scrollTop;
+  el._h=html;el.innerHTML=html;el.scrollTop=sc;
+  const cv2=$('#thspark');if(cv2)townSpark(cv2);
+  if(fk&&fk!=='|'){for(const b of el.querySelectorAll('button')){if((b.dataset.act||'')+'|'+(b.dataset.key||'')===fk){try{b.focus({preventScroll:true})}catch(e){}break}}}
+}
+function townToggle(on){
+  ui.town=on==null?!ui.town:!!on;
+  if(ui.town){ui.sheet=false;townTick()}
+  ui.dirty=true;
 }
 /* ================= replay ================= */
 function showReplay(id){
@@ -1207,7 +1603,7 @@ function showDrivers(){
 }
 
 
-const GUIDE_TABS=[['start','Start here'],['tools','Tools & top bar'],['routes','Route buttons'],['stops','Stop buttons'],['riders','Riders'],['money','Money'],['events','Events'],['unlocks','Unlocks'],['strategy','Strategy'],['access','Accessibility']];
+const GUIDE_TABS=[['start','Start here'],['town','Town Voice and Mood'],['tools','Tools & top bar'],['routes','Route buttons'],['stops','Stop buttons'],['riders','Riders'],['money','Money'],['events','Events'],['unlocks','Unlocks'],['strategy','Strategy'],['access','Accessibility']];
 const GUIDE={
 start:`<p><button class="btn alt" data-act="tour">Take the interactive tour</button></p><h3>The goal</h3><p>You run the city's buses. Riders appear at homes in the morning and at offices in the evening, walk to the nearest stop, wait, ride, and walk to where they are going. Get them there before they lose patience.</p>
 <ul><li><b>You lose</b> if satisfaction drops below 50% (a bit more forgiving on day 1), or if you go more than $800 into debt.</li><li><b>Satisfaction</b> (the big number) is the share of the last 50 riders who reached their destination instead of giving up. It is the one that decides game over. <b>Today</b> beside it is the share of today's riders, and the level goals use all riders on the level. Each screen says which one it shows.</li><li><b>You win a level</b> by finishing all its days. Stars come from the level's goals (satisfaction, riders who gave up, profit).</li></ul>
@@ -1218,7 +1614,8 @@ tools:`<h3>Bottom toolbar</h3><dl><dt>Select</dt><dd>Tap a stop to open its card
 <dt>Stops</dt><dd>Tap a road junction to build a stop ($30). Stops sit on the pavement beside the junction.</dd>
 <dt>Route</dt><dd>Tap stops in order. The second stop creates the route and gives it a bus. Keep tapping to add more stops. Tap the last stop again, or press Done, to finish. Tap the last stop of an existing route to keep extending it.</dd>
 <dt>Buses</dt><dd>Opens the fleet panel with every route and its controls. The number is how many buses you own.</dd>
-<dt>Map view</dt><dd>Cycles through Demand (where riders are waiting or being missed), Traffic (where roads are slow) and Coverage (which blocks have a stop within walking distance), then off.</dd></dl>
+<dt>Map view</dt><dd>Cycles through Demand (where riders are waiting or being missed), Traffic (where roads are slow), Coverage (which blocks have a stop within walking distance) and Mood (how happy the residents of each block are), then off.</dd>
+<dt>Town</dt><dd>Opens Town Voice: a ranked list of what residents need, each with a one-tap fix. Press <b>H</b> as a shortcut.</dd></dl>
 <h3>Top bar</h3><dl><dt>▶ / ❚❚</dt><dd>Play and pause. You can edit freely while paused. Space also toggles it.</dd><dt>1× 2× 3×</dt><dd>Game speed.</dd><dt>Speaker</dt><dd>Sound on or off.</dd><dt>Undo</dt><dd>Reverses your last change. While you are drawing a route it removes the last stop and keeps you on that route. Your earnings are kept.</dd><dt>Fit map</dt><dd>Re-centres the camera on the whole city.</dd><dt>Menu</dt><dd>Restart today, City Hall, Garage, Share card, Goals, Photo mode, Settings, Trophies, Save slots, Shop, Drivers and this Guide.</dd></dl>
 <h3>Helpful extras</h3><ul><li>Phones: the <b>Saver</b> graphics option (Settings) uses lighter scenery and 30 frames a second. It turns on automatically on low-power phones.</li><li>People wave at arriving buses, hurry when they are running out of patience, and open umbrellas in the rain.</li><li>When the hint bar says riders cannot reach their destination, <b>tap it</b>. Red rings show the places they are trying to get to.</li><li>Missions that need a landmark have a <b>Show me</b> button that flies the camera there.</li><li>The <b>Level goals</b> line under the clock tracks your cumulative goals live.</li><li>At the end of a day, <b>Show me</b> on the Worst moment plays a replay of the crowd building up at that stop.</li></ul>
 <h3>Drawing bar</h3><p>While you draw a route a bar appears: <b>Undo</b> removes the last stop, <b>New route</b> starts a separate route (useful from the end stop of another route), <b>Done</b> finishes.</p>`,
@@ -1248,7 +1645,7 @@ stops:`<p>Tap a stop (with Select) to open its card.</p><dl>
 <div class="tip">Transfer stops (a stop on more than one route) unlock at Metro Heights, level 3 of the campaign. They let riders change buses, which is how big cities work.</div>`,
 riders:`<dl><dt>Commuters</dt><dd>The bulk of your riders. Home to work in the morning, back in the evening.</dd><dt>Students</dt><dd>Pay lower fares and head to schools and the university.</dd><dt>Tourists</dt><dd>Pay more and are more patient. They go to the airport and the stadium.</dd><dt>In a hurry</dt><dd>Pay the most but run out of patience fastest.</dd><dt>Wheelchair users</dt><dd>Need stops with a ramp.</dd><dt>Patients and shoppers</dt><dd>Appear when a hospital or shopping centre opens. Patients are very impatient.</dd></dl>
 <h3>Patience colours</h3><ul><li><b>Green</b>: calm.</li><li><b>Amber</b>: getting impatient.</li><li><b>Red</b>: about to give up. Every rider who gives up lowers satisfaction.</li></ul>
-<h3>Thought bubbles</h3><p>Now and then a bubble appears near people who cannot reach where they want to go. Build a stop there or connect their area to the route network.</p>
+<h3>Thought bubbles</h3><p>Bubbles float above the places where residents have a need: no stop nearby, no bus to where they are going, a long wait, a full bus, no ramp, a jammed road and more. Zoom in to read a few words, or tap a bubble or a rider to see the full thought, their mood and a suggested fix. See <b>Town Voice and Mood</b> for the full list.</p>
 <h3>Landmarks</h3><p>As you deliver more riders, a university, school, airport, shopping centre and hospital open on empty blocks. They create new destinations, so give them a stop nearby.</p>`,
 money:`<ul><li><b>Income</b>: every rider who arrives pays a fare ($3 to $10; night fares are higher). You also get a grant at the end of each day and mission rewards.</li><li><b>Costs</b>: stops, buses, upgrades, and a running cost for each moving bus (bigger vehicles cost more). Running costs are why too many buses on a quiet route loses money.</li><li><b>Faster engines</b>: speeds every bus up 12% (twice available). Costs a lot, so wait until you have spare cash.</li><li><b>Bankruptcy</b>: below -$800 you lose. If you get stuck, 'Retry from today' restores the start of the day with a small relief grant.</li></ul>
 <div class="tip">Feel options: flick the map and it keeps gliding, double-tap (or double-click) in Select mode to zoom to a stop and again to zoom out, and coins fly to your cash when riders pay. Phones can also buzz briefly: turn <b>Haptics</b> on or off in Settings. Reduce motion turns all of this off.</div>
@@ -1263,13 +1660,29 @@ strategy:`<h3>Build well</h3><ul><li>Put your first two stops between the bigges
 <h3>Get ahead</h3><ul><li>Finish missions: they are an easy source of cash and XP.</li><li>Unlock Priority dispatch, Arrival signs and Electric buses in City Hall early, since they help every game.</li><li>Keep your best drivers on your busiest routes by not deleting those buses.</li></ul>`
 };
 GUIDE.access=`<h3>Settings &rarr; Accessibility</h3><dl>
-<dt>Colour-blind mode</dt><dd>Swaps green, amber and red for blue, yellow and orange in the satisfaction bar, stop rings and badges, riders, the Demand, Traffic and Coverage views and their keys. Every stop badge also gets a shape: &#9679; calm, &#9650; impatient, &#9632; about to leave. The stop card spells the state out in words. Routes switch to a colour-blind safe palette and each route shows its letter in the Buses panel.</dd>
+<dt>Colour-blind mode</dt><dd>Swaps green, amber and red for blue, yellow and orange in the satisfaction bar, stop rings and badges, riders, the Demand, Traffic, Coverage and Mood views, thought bubbles and their keys. Every stop badge also gets a shape: &#9679; calm, &#9650; impatient, &#9632; about to leave. The stop card spells the state out in words. Routes switch to a colour-blind safe palette and each route shows its letter in the Buses panel.</dd>
 <dt>Text size</dt><dd>Normal, Large or Extra large. Scales menus, panels, cards and buttons. All buttons are at least 44 px tall.</dd>
 <dt>Reduce motion</dt><dd>Auto follows your device's reduced-motion setting. On stops the intro animation, the map-growing animation, confetti, pulsing rings and halos, flashing full-bus and roadworks lights the camera glide when following a bus, flick momentum, smooth zoom, stops popping up, routes drawing themselves, flying coins and the bus lean. Nothing in the game flashes more than three times a second even with it off.</dd>
 <dt>Sound captions</dt><dd>Shows a short caption for important sounds, such as the bus horn, a full bus, a crowded stop and event alerts.</dd>
 <dt>Mute everything</dt><dd>Silences effects, ambience and music together. Press <b>M</b> any time, or use the Pause menu.</dd></dl>
-<h3>Keyboard</h3><dl><dt>S &middot; T &middot; R</dt><dd>Select, Stops and Route tools.</dd><dt>B</dt><dd>Open or close the Buses panel.</dd><dt>V</dt><dd>Cycle the map view.</dd><dt>Space</dt><dd>Play or pause (when a button is not focused).</dd><dt>+ and &minus;</dt><dd>Zoom in and out. <b>F</b> fits the whole map.</dd><dt>Q &middot; E</dt><dd>Rotate the camera.</dd><dt>M</dt><dd>Mute everything.</dd><dt>Escape</dt><dd>Closes menus, deselects a stop, or finishes drawing a route.</dd><dt>Tab</dt><dd>Moves between buttons. Menus keep focus inside them and give it back when they close.</dd></dl>
+<h3>Keyboard</h3><dl><dt>S &middot; T &middot; R</dt><dd>Select, Stops and Route tools.</dd><dt>B</dt><dd>Open or close the Buses panel.</dd><dt>V</dt><dd>Cycle the map view (Demand, Traffic, Coverage, Mood).</dd><dt>H</dt><dd>Open or close Town Voice.</dd><dt>Space</dt><dd>Play or pause (when a button is not focused).</dd><dt>+ and &minus;</dt><dd>Zoom in and out. <b>F</b> fits the whole map.</dd><dt>Q &middot; E</dt><dd>Rotate the camera.</dd><dt>M</dt><dd>Mute everything.</dd><dt>Escape</dt><dd>Closes menus, deselects a stop, or finishes drawing a route.</dd><dt>Tab</dt><dd>Moves between buttons. Menus keep focus inside them and give it back when they close.</dd></dl>
 <p>Screen readers: the clock, day and satisfaction are announced about every 20 seconds, and messages (toasts) are read out as they appear.</p>`;
+GUIDE.town=`<p>Residents tell you what they think. Every thought is worked out from what is really happening in your city, never at random, and each one points at something you can build.</p>
+<h3>Thought bubbles</h3><p>Up to six bubbles (three in Battery saver) float above the places that need help most. Thoughts you have not seen before come first. Zoom in to read a few words under the icon. Tap a bubble, or tap a rider, to read the whole thought, how they feel (happy, okay, annoyed or angry, always written out and given a shape: &#9679; calm, &#9650; impatient, &#9632; angry) and a suggested fix with a button.</p>
+<h3>Town Voice (button <b>Town</b> or key <b>H</b>)</h3><p>The list ranks what residents need by how many are affected. Tap a row to fly the camera there: a flashing ring and a street label mark the spot. The row opens with the thought and a one-tap fix that uses the real game action and costs the real price. If you cannot afford it, it tells you how much you need. The number at the top is <b>resident happiness</b>, with a small trend line for the day. Fixed needs turn into a happy thank-you.</p>
+<h3>What residents can ask for</h3><dl>
+<dt>&#128205; Needs a stop</dt><dd>A block has no stop within walking distance. The fix adds a stop at the junction closest to your network.</dd>
+<dt>&#128256; No bus there</dt><dd>Riders at a stop cannot reach where they are going (the university, school, airport, hospital, mall, arena or downtown). The fix adds the missing bus, runs a rush-only route all day, adds a stop near the destination or links the two areas with a new route.</dd>
+<dt>&#9203; Waiting too long, &#128652; bus too full</dt><dd>Add a bus to the route that serves the stop.</dd>
+<dt>&#9855; Needs a ramp</dt><dd>A wheelchair user has no step-free stop. Add a ramp to the nearest stop.</dd>
+<dt>&#127769; Needs night buses</dt><dd>Evening riders at stops with no night route. Turn on Night service once it is unlocked.</dd>
+<dt>&#128690; Wants a bike dock</dt><dd>A stop is a long walk from the homes it serves (needs Bike share).</dd>
+<dt>&#9889; Wants an express</dt><dd>Riders face a very long trip on a stopping route.</dd>
+<dt>&#128678; Road jammed, &#128679; road closed</dt><dd>Buses carrying riders are stuck. Buy priority lanes or reshape the route.</dd>
+<dt>&#127795; Wants a park</dt><dd>Homes with no park nearby where riders keep giving up. Pick the green park circle the next time the city grows. Each park makes every rider 3% more patient.</dd>
+<dt>&#128154; Happy riders</dt><dd>Frequent buses with short waits earn praise.</dd></dl>
+<h3>Mood map view</h3><p>Press <b>V</b> (or Map view) until it says Mood, or tap Mood map inside Town Voice. Each home and office block is coloured by how its residents feel: green happy, amber annoyed, red angry. With Colour-blind mode on the colours become blue, yellow and orange and icons carry the shapes. Small icons mark the biggest need on the unhappiest blocks. Fix a need and the block turns greener within seconds.</p>
+<div class="tip">Counts are riders affected. For an area with no stop yet the count is the homes there. Mood is only information: it never changes how hard the game is. The only patience effect is the existing park bonus.</div>`;
 function showGuide(tab,from){
   tab=tab||ui.guideTab||'start';ui.guideTab=tab;ui.setFrom=from||ui.setFrom||'game';
   showOv('<div class="card"><h2 style="margin:0">Guide</h2><p class="sub">Everything in the game, what each button does and how to play well.</p><div class="gtabs">'+GUIDE_TABS.map(t=>'<button class="'+(t[0]===tab?'on':'')+'" data-act="guidetab" data-tab="'+t[0]+'" data-from="'+ui.setFrom+'">'+t[1]+'</button>').join('')+'</div><div class="gbody">'+GUIDE[tab]+'</div><div class="btnrow"><button class="btn ok" data-act="'+(ui.setFrom==='howto'?'howto':'resume')+'">'+(ui.setFrom==='howto'?'Back':'Back to game')+'</button></div></div>');
@@ -1313,11 +1726,14 @@ function advise(){
   // 3. a route that keeps losing money
   if(G.t>45)for(const r of G.routes){const t=r.stat,pf=t.rev-t.cost;if(r.buses.length>1&&pf<-40&&ok('cut'+r.id))return{key:'cut'+r.id,text:r.name+' is losing '+money(-pf)+' today with '+r.buses.length+' buses.',btn:'Remove a bus',act:'advcut',id:r.id};
     if(r.buses.length===1&&pf<-60&&r.sched!=='peak'&&!r.night&&ok('rush'+r.id))return{key:'rush'+r.id,text:r.name+' is losing '+money(-pf)+' today. Quiet routes can run in rush hours only.',btn:'Rush hours only',act:'advrush',id:r.id}}
+  // 4. Town Voice: the biggest need residents have, when we can afford the fix
+  {const tw=G.town;if(tw&&tw.list.length&&G.t>20){const r=tw.list[0];
+    if(r.count>=4&&r.sev>=.5&&ok('tv|'+r.key)){const f=townFix(r);if(f.run&&f.ok&&G.money>=f.cost+150)return{key:'tv|'+r.key,text:'Town Voice: '+townText(r).title+'.',btn:f.label,act:'townfix'}}}}
   return null;
 }
 function advisorTick(){
   let el=$('#advisor');if(!el){el=document.createElement('div');el.id='advisor';el.className='panel';el.hidden=true;$('#app').appendChild(el)}
-  const busy=!$('#stopcard').hidden||ui.sheet||ui.tour||ui.drawing||ui.shape||!$('#coach').hidden||G.modal||PROF.advisor===false;
+  const busy=!$('#stopcard').hidden||ui.sheet||ui.town||ui.tour||ui.drawing||ui.shape||!$('#coach').hidden||G.modal||PROF.advisor===false;
   const a=busy?null:advise();
   if(!a){if(!el.hidden)el.hidden=true;ui.advKey=null;return}
   if(ui.advKey!==a.key){ui.advKey=a.key;el.innerHTML='<span>💡 '+esc(a.text)+'</span><button class="go" data-act="'+a.act+'" data-id="'+(a.id||'')+'" data-key="'+a.key+'">'+esc(a.btn)+'</button><button data-act="advx" data-key="'+a.key+'" aria-label="Dismiss">✕</button>'}
@@ -1356,7 +1772,7 @@ function showDiag(from){
    (DIAG.log.length?'<div class="gbody"><ul>'+DIAG.log.slice(-8).map(x=>'<li>Day '+x.d+' · '+esc(x.l)+': '+esc(x.m)+'</li>').join('')+'</ul></div>':'')+
    '<textarea id="bk" readonly class="bk" style="height:90px">'+esc(diagReport())+'</textarea><div class="btnrow" style="margin-top:8px"><button class="btn alt" data-act="copybk">Copy report</button></div><div class="btnrow"><button class="btn ok" data-act="'+(ui.setFrom==='howto'?'howto':'resume')+'">'+(ui.setFrom==='howto'?'Back':'Back to game')+'</button></div></div>');
 }
-let _scT=0;
+let _scT=0,_tvT=0;
 /* ================= offline ================= */
 function initOffline(){
   ui.offline='checking';
@@ -1372,7 +1788,8 @@ const OFFLINE_TXT={ready:'Cached on this device. The game can start without a co
 const TOUR=[
  {sel:'#bPlay',title:'Play and pause',text:'Press ▶ to start the clock. Pause any time to edit your network freely.'},
  {sel:'.tbtn[data-act="sheet"]',title:'Buses',text:'Open your fleet. Add buses with + and tap a route for Express, Loop, Shape road and more.'},
- {sel:'#bView',title:'Map views',text:'Cycle through Demand, Traffic and Coverage to see where riders are missed, where roads jam, and which blocks have no stop.'},
+ {sel:'#bView',title:'Map views',text:'Cycle through Demand, Traffic, Coverage and Mood to see where riders are missed, where roads jam, which blocks have no stop, and how happy residents are.'},
+ {sel:'#bTown',title:'Town Voice',text:'Residents tell you what they need: a stop, a ramp, a bus that comes more often. Open the list, tap a thought to fly there, then tap the fix.'},
  {sel:'#missions',title:'Missions and goals',text:'Daily missions and your level goals live here. The mayor sometimes makes a special request. Tap to see everything.'},
  {sel:'#bUndo',title:'Undo',text:'Made a mistake? Undo removes the last change. While you draw a route it removes the last stop.'},
  {sel:'#satCard',title:'Satisfaction',text:'The share of the last 50 riders who got where they wanted. Keep it above 50%, and above 60% to stay safe.'},
@@ -1903,6 +2320,7 @@ function deliver(c){
   const i=G.citizens.indexOf(c);if(i>=0)G.citizens.splice(i,1);
   if(c.lastBus&&c.lastBus.drv)drvXp(c.lastBus.drv);
   if(c.story){addStory(true,c.story.name+', '+an(c.story.job)+', arrived '+(G.t-c.wstart>14?'after waiting '+Math.round(G.t-c.wstart)+'s. Thank you!':'without a fuss.'));if(rnd()<.5)fx.text(c.dest.x,c.dest.y-34,'Thanks, '+c.story.name+'!','#e0509a')}
+  if(c.ob){G.okBlock=G.okBlock||{};G.okBlock[c.ob]=(G.okBlock[c.ob]||0)+1}
   G.delivered++;G.dayDel++;if(c.xfer)G.xferDelivered=(G.xferDelivered||0)+1;outcome(true);
   G.combo=(G.combo||0)+1;if(G.combo%12===0){const bn=20+G.combo;G.money+=bn;G.rev+=bn;fx.text(c.dest.x,c.dest.y-24,'Streak '+G.combo+'! +$'+bn,'#e0509a');if(G.combo>=50)ach('combo50');if(PROF.cos.confetti==='on')fx.confetti(c.dest.x,c.dest.y)}
   G.money+=c.fare;G.rev+=c.fare;G.dayRev+=c.fare;G.mDel++;G.mDest[c.dk]=(G.mDest[c.dk]||0)+1;addXp(1);PROF.stat.delivered++;if(PROF.stat.delivered>=5000)ach('tycoon');
@@ -1914,30 +2332,13 @@ function moveTo(c,tx,ty,dt){const dx=tx-c.x,dy=ty-c.y,d=Math.hypot(dx,dy),s=WALK
 function thinkTick(dt){
   for(let i=G.bubbles.length-1;i>=0;i--){
     const b=G.bubbles[i];b.t+=dt;
-    if(b.c&&G.citizens.includes(b.c)&&(b.c.state==='walk'||b.c.state==='wait')){b.x=b.c.x;b.y=b.c.y}
+    if(b.rec){b.rec.shown+=dt;if(b.t>2.5&&!b.rec.seen)townMarkSeen(b.rec);if(b.life>1e8&&b.t>26){b.life=b.t+.8;b.rec.cool=G.t+30}}
+    if(b.c&&(b.c.state==='walk'||b.c.state==='wait')&&G.citizens.includes(b.c)){b.x=b.c.x;b.y=b.c.y}
+    else if(b.rec){b.x=b.rec.x;b.y=b.rec.y}
     if(b.t>=b.life)G.bubbles.splice(i,1);
   }
-  G.thinkT-=dt;
-  if(G.thinkT>0||G.bubbles.length||tutOn())return;
-  const pool=[];
-  for(const c of G.citizens){
-    let neglected=false;
-    if(c.state==='walk'){
-      if(!c.stop)neglected=c.p<c.pm*.97;
-      else neglected=Math.hypot(c.stop.x-c.x,c.stop.y-c.y)>170;
-    }else if(c.state==='wait')neglected=c.noRoute&&c.p<c.pm*.8;
-    if(!neglected)continue;
-    let near=false;
-    for(const m of G.thinkMem)if(G.t-m.t<70&&Math.hypot(m.x-c.x,m.y-c.y)<140){near=true;break}
-    if(!near)pool.push(c);
-  }
-  if(!pool.length){G.thinkT=3;return}
-  const c=pool[Math.floor(rnd()*pool.length)];
-  G.bubbles.push({c,x:c.x,y:c.y,t:0,life:6,wheel:c.type==='wheel'});
-  G.thinkMem.push({x:c.x,y:c.y,t:G.t});if(G.thinkMem.length>8)G.thinkMem.shift();
-  G.thinkT=22+rnd()*16;
-  if(!G.thinkSeen){G.thinkSeen=true;toast('A thought bubble: someone has no good bus service nearby.',3600)}
-  else if(c.type==='wheel'&&!G.wheelSeen){G.wheelSeen=true;toast('A wheelchair user needs a step-free stop. Upgrade a stop with a ramp.',4200)}
+  G.townT=(G.townT||0)-dt;
+  if(G.townT<=0){G.townT=1.5;townTick()}
 }
 function updCitizens(dt){
   const m=G.umbrellaT>0?1:G.stormMult;
@@ -2443,6 +2844,7 @@ function step(dt){
   if(G.prioCD>0)G.prioCD-=dt;if(G.umbrellaT>0)G.umbrellaT-=dt;
   for(const st of G.stops.values()){if(st.cheer>0)st.cheer-=dt;if(st.missed>0)st.missed-=dt;if(st.prio>0)st.prio-=dt}
   for(const k in G.gaveBlock){G.gaveBlock[k]*=1-dt*.012;if(G.gaveBlock[k]<.05)delete G.gaveBlock[k]}
+  for(const k in G.okBlock){G.okBlock[k]*=1-dt*.012;if(G.okBlock[k]<.05)delete G.okBlock[k]}
   for(let i=G.parts.length-1;i>=0;i--){const p=G.parts[i];p.a+=dt/p.life;if(p.a>=1)G.parts.splice(i,1)}
   if(G.flashSat>0)G.flashSat-=dt*2;
   G.lmT-=dt;if(G.lmT<=0){G.lmT=2;landmarkTick();tickMissions()}
@@ -2465,6 +2867,7 @@ function makeMissions(){
   if(lm.air)pool.push({id:'air',text:'Take 8 riders to the airport',goal:8,prog:()=>G.mDest.air||0,reward:450,xp:45});
   if(lm.uni)pool.push({id:'uni',text:'Take 10 students to the university',goal:10,prog:()=>G.mDest.uni||0,reward:400,xp:40});
   if(G.city.venue)pool.push({id:'arena',text:'Take 8 riders to the arena',goal:8,prog:()=>G.mDest.venue||0,reward:400,xp:40});
+  if(G.day>=2&&G.town&&G.town.happy!=null&&G.town.happy<=85){const base=G.town.happy;pool.push({id:'town',text:'Raise resident happiness by 8 points (now '+base+'%)',goal:1,prog:()=>(G.town&&G.town.happy!=null&&G.town.happy>=base+8)?1:0,reward:350,xp:35})}
   const picks=[];while(picks.length<2&&pool.length){picks.push(pool.splice(Math.floor(rnd()*pool.length),1)[0])}
   G.missions=picks.map(m=>Object.assign({done:false,failed:false},m));{const my=mayorRequest();if(my){G.missions.push(my);if(!tutOn())setTimeout(()=>toast('The mayor has a special request today. See the missions panel.',3600),600)}}G.mDel=0;G.mClears=0;G.mDest={};G.gaveMark=-1;ui.dirty=true;
 }
@@ -2711,6 +3114,7 @@ const COACH=[
  {id:'cover',when:()=>G.dayGave>=3,text:'Riders are giving up. Try Map view: Demand shows where, and Coverage shows blocks with no stop nearby.'},
  {id:'undo',when:()=>G.stops.size>=3,text:'Made a mistake? The undo arrow next to play takes back your last change.'},
  {id:'shape',when:()=>G.routes.length>=1&&G.day>=2,text:'You can steer a route. Select it in Buses, press Shape road, then tap junctions to send it down different streets.'},
+ {id:'town',when:()=>G.day>=1&&G.t>30&&!!G.town&&G.town.list.length>=2&&G.dayGave>=1,text:'Residents are telling you what they need. Open Town (or press H) to see the top needs, tap one to fly there and use the one-tap fix. Map view: Mood shows how happy each block is.'},
  {id:'depot',when:()=>G.day>=3&&G.money>3000,text:'Spend cash wisely: City Hall has permanent upgrades, and a Priority call on a stop calms a crowd for a moment.'}];
 let coachT=-1e9;
 function coachTick(){
@@ -2983,7 +3387,7 @@ function retryDay(){
 function resetState(){
   G.parkBonus=0;G.boosts={};G.umbrellaT=0;ui.shopHome=false;ui.shopArm=null;G.hist={};G.histT=0;G.stories=[];G.dayEnding=false;G.warned=false;G.stops=new Map();G.routes=[];G.buses=[];G.citizens=[];G.parts=[];G.day=1;G.t=0;G.acc=0;G.over=false;G.netVer++;
   G.bubbles=[];G.thinkMem=[];G.thinkT=20;G.thinkSeen=false;G.wheelSeen=false;G.xferDelivered=0;G.delivered=0;G.gaveUp=0;G.dayDel=0;G.dayGave=0;G.win=[];G.event=null;G.stormMult=1;G.routeCount=0;G.lastEv='';G.flashSat=0;
-  G.gaveBlock={};G.depots=new Map();G.rival={stops:[],routes:[]};G.missions=[];G.mDel=0;G.mClears=0;G.mDest={};G.prioCD=0;G.lostRival=0;G.dayLost=0;G.snap=null;G.xpDay=0;G.lmT=0;G.fogMult=1;G.rev=0;G.cost=0;G.dayRev=0;G.dayCost=0;G.engine=0;G.pendingNext=false;G.congT=0;G.lastPhase='';
+  G.gaveBlock={};G.okBlock={};G.town=townNew();G.townT=0;ui.town=false;ui.townSel=null;ui.tmark=null;G.depots=new Map();G.rival={stops:[],routes:[]};G.missions=[];G.mDel=0;G.mClears=0;G.mDest={};G.prioCD=0;G.lostRival=0;G.dayLost=0;G.snap=null;G.xpDay=0;G.lmT=0;G.fogMult=1;G.rev=0;G.cost=0;G.dayRev=0;G.dayCost=0;G.engine=0;G.pendingNext=false;G.congT=0;G.lastPhase='';
   ui.drawing=null;ui.sel=null;ui.tool='select';ui.sheet=false;ui.moving=null;ui.view='off';ui.follow=null;ui.undo=[];ui.undoSig='';ui.shape=null;
 }
 function loadLevel(i,opts){
@@ -3125,6 +3529,7 @@ function onTap(sx,sy){
   const tool=ui.tool;
   if(tool==='select'){
     const w=toWorld(sx,sy);if(!w)return;
+    if(tapBubble(sx,sy))return;
     for(const b of G.buses){if(Math.hypot(b.x-w.x,b.y-w.y)<Math.max(22,24/cam.zoom)){ui.follow=b.id;cam.zoom=Math.max(cam.zoom,2);ui.dirty=true;return}}
     let best=null,bd=Math.max(30,30/cam.zoom);
     for(const st of G.stops.values()){const d=Math.hypot(st.x-w.x,st.y-w.y);if(d<bd){bd=d;best=st}}
@@ -4642,8 +5047,9 @@ function effView(){
   if(G.paused&&!G.modal&&(ui.tool==='stop'||ui.tool==='route'||ui.drawing))return'coverage';
   return'off';
 }
-function syncViews(now){
+function syncViews(now,u){
   expandAnimTick(now);
+  townMarkerTick(now,u||1);
   if(T.flow){const f=T.flow,m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),p=new THREE.Vector3(),sc=new THREE.Vector3(1,1,1),off=ui.rm?0:now/24;
     for(let i=0;i<f.n;i++){let d=(off+i*f.total/f.n)%f.total,k=0;while(k<f.segs.length-1&&d>f.cum[k+1])k++;const sg=f.segs[k],t=Math.min(1,Math.max(0,(d-f.cum[k])/(sg[2]||1)));
       p.set(sg[0][0]+(sg[1][0]-sg[0][0])*t,.95,sg[0][1]+(sg[1][1]-sg[0][1])*t);q.setFromEuler(e.set(0,-Math.atan2(sg[1][1]-sg[0][1],sg[1][0]-sg[0][0]),0));m4.compose(p,q,sc);f.im.setMatrixAt(i,m4)}
@@ -4668,7 +5074,8 @@ function syncViews(now){
   if(T.streetG)T.streetG.visible=PROF.streets!==false&&cam.zoom>=.75&&!ui.photo;
   if(!T.heatG)return;
   const view=effView();
-  T.heatG.visible=view==='demand'||view==='coverage';T.trafG.visible=view==='traffic';
+  T.heatG.visible=view==='demand'||view==='coverage'||view==='mood';T.trafG.visible=view==='traffic';
+  if(T.moodG)T.moodG.visible=view==='mood';
   if(!T.covG){T.covG=new THREE.Group();T.dyn.add(T.covG);T.covMap=new Map()}
   T.covG.visible=view==='coverage';
   if(view==='coverage'){
@@ -4688,6 +5095,17 @@ function syncViews(now){
       const[c,r]=h.key.split(',').map(Number),cx=MARGIN+c*S+S/2,cy=MARGIN+r*S+S/2;
       let ok=false;for(const st of G.stops.values())if(Math.hypot(st.x-cx,st.y-cy)<150){ok=true;break}
       const m=h.m.material;m.color.copy(lin(ok?COL.ok:COL.bad));m.opacity=ok?.22:.5;
+    }
+  }else if(view==='mood'){
+    const tw=G.town;
+    if(tw){
+      for(const h of T.heat){
+        const b=tw.blk.get(h.key),m=h.m.material;
+        if(!b||b.m==null){m.opacity=.08;continue}
+        const t=clamp((b.m-.3)/.5,0,1);
+        m.color.copy(t<.5?lin(COL.bad):lin(COL.warn)).lerp(t<.5?lin(COL.warn):lin(COL.ok),(t<.5?t:t-.5)*2);m.opacity=.4+.24*(1-b.m);
+      }
+      moodIcons(tw,u||1);
     }
   }else if(view==='traffic'){
     for(const t of T.traf){const c=t.e.cong||0,m=t.m.material;m.color.copy(lin(c<.12?COL.ok:c<.28?COL.warn:COL.bad));m.opacity=c<.05?.1:.25+c*.8}
@@ -4722,15 +5140,90 @@ const thinkTex=(w)=>spriteTex(w?'thinkW':'think',192,160,(g)=>{
   g.fillStyle='#1b2733';g.beginPath();g.arc(80,89,6,0,6.3);g.arc(120,89,6,0,6.3);g.fill();}
   g.fillStyle='#e2483d';g.font='800 40px Outfit,Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('?',150,52);
 });
+const EMOJI_FONT='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+function townIcon(r){return r.type==='noroute'&&DK_ICON[r.dk]?DK_ICON[r.dk]:TH[r.type].ic}
+const townBubTex=(r,wide)=>{
+  const cb=PROF.a11y.cb,st=MOOD_ST[r.mood],ic=townIcon(r),key='tb|'+r.type+'|'+ic+'|'+r.mood+'|'+(cb?1:0)+'|'+(wide?TH[r.type].short:'');
+  return spriteTex(key,wide?400:192,160,(g)=>{
+    g.fillStyle='rgba(0,0,0,.18)';g.beginPath();for(const[x,y,rr]of[[70,70,34],[104,56,40],[138,72,32],[100,86,36]]){g.moveTo(x+rr+3,y+5);g.arc(x+3,y+5,rr,0,6.3)}g.fill();
+    g.fillStyle='#ffffff';g.strokeStyle='#8a99a8';g.lineWidth=3;
+    for(const[x,y,rr]of[[70,66,34],[104,50,40],[138,68,32],[100,82,36]]){g.beginPath();g.arc(x,y,rr,0,6.3);g.fill()}
+    g.beginPath();g.arc(70,66,34,2.2,4.3);g.arc(104,50,40,3.5,5.6);g.arc(138,68,32,4.7,7.2);g.arc(100,82,36,.6,2.6);g.stroke();
+    g.fillStyle='#fff';for(const[x,y,rr]of[[70,66,33],[104,50,39],[138,68,31],[100,82,35]]){g.beginPath();g.arc(x,y,rr-1.5,0,6.3);g.fill()}
+    g.fillStyle='#fff';g.strokeStyle='#8a99a8';for(const[x,y,rr]of[[58,122,9],[40,142,6]]){g.beginPath();g.arc(x,y,rr,0,6.3);g.fill();g.stroke()}
+    if(r.type==='ramp'){
+      g.strokeStyle='#2f7de1';g.fillStyle='#2f7de1';g.lineWidth=6;g.lineCap='round';g.lineJoin='round';
+      g.beginPath();g.arc(92,42,6,0,6.3);g.fill();
+      g.beginPath();g.moveTo(92,52);g.lineTo(92,70);g.lineTo(110,70);g.lineTo(118,86);g.moveTo(92,60);g.lineTo(106,60);g.stroke();
+      g.lineWidth=5;g.beginPath();g.arc(88,76,13,0.6,5.6);g.stroke();
+    }else{g.font='54px '+EMOJI_FONT;g.textAlign='center';g.textBaseline='middle';g.fillStyle='#000';g.fillText(ic,104,68)}
+    const col=COL[['ok','warn','bad'][st]];
+    g.fillStyle=col;g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(150,38,22,0,6.3);g.fill();g.stroke();
+    g.fillStyle=inkOn(col);g.font='800 24px Outfit,Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(GL[st],150,39);
+    if(wide){
+      g.fillStyle='#fff';g.strokeStyle='#8a99a8';g.lineWidth=3;rrect(g,180,44,212,56,16);g.fill();g.stroke();
+      g.fillStyle='#1b2733';g.font='800 29px Outfit,Arial,sans-serif';g.textAlign='left';g.textBaseline='middle';g.fillText(TH[r.type].short,194,73,184);
+    }
+  });
+};
+const townIconTex=(r)=>{
+  const cb=PROF.a11y.cb,st=MOOD_ST[r.mood],ic=townIcon(r),key='tm|'+r.type+'|'+ic+'|'+r.mood+'|'+(cb?1:0);
+  return spriteTex(key,96,96,(g)=>{
+    const col=COL[['ok','warn','bad'][st]];
+    g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.arc(50,52,38,0,6.3);g.fill();
+    g.fillStyle='#fff';g.strokeStyle=col;g.lineWidth=8;g.beginPath();g.arc(48,48,38,0,6.3);g.fill();g.stroke();
+    g.font='44px '+EMOJI_FONT;g.textAlign='center';g.textBaseline='middle';g.fillStyle='#000';g.fillText(ic,48,52);
+    g.fillStyle=col;g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(78,18,16,0,6.3);g.fill();g.stroke();
+    g.fillStyle=inkOn(col);g.font='800 19px Outfit,Arial,sans-serif';g.fillText(GL[st],78,19);
+  });
+};
 function syncBubbles(u,now){
   const live=new Set(G.bubbles);
   if(!T.bubbleObjs)T.bubbleObjs=new Map();
   for(const[b,o]of T.bubbleObjs)if(!live.has(b)){T.dyn.remove(o);o.material.dispose();T.bubbleObjs.delete(b)}
+  const wideOk=cam.zoom>=1.5&&PROF.gfx!=='saver'&&!ui.photo;
   for(const b of G.bubbles){
+    const r=b.rec,wide=!!r&&wideOk;
     let o=T.bubbleObjs.get(b);
-    if(!o){o=mkSprite(thinkTex(b.wheel),56,46);o.renderOrder=30;T.dyn.add(o);T.bubbleObjs.set(b,o)}
-    const k=Math.min(1,b.t/.5),out=Math.min(1,(b.life-b.t)/.8),a=Math.min(k,out),sc=u*(.6+.4*k);
-    o.scale.set(56*sc,46*sc,1);o.position.set(b.x,34*u+Math.sin(now/380)*2.2*u,b.y);o.material.opacity=a;
+    if(!o){o=mkSprite(r?townBubTex(r,wide):thinkTex(b.wheel),56,46);o.renderOrder=30;o._w=wide;o._m=r?r.mood:0;T.dyn.add(o);T.bubbleObjs.set(b,o)}
+    if(r&&(o._w!==wide||o._m!==r.mood)){o.material.map=townBubTex(r,wide);o._w=wide;o._m=r.mood}
+    const k=ui.rm?1:Math.min(1,b.t/.5),out=ui.rm?((b.life-b.t)>.05?1:0):Math.min(1,(b.life-b.t)/.8),a=Math.min(k,out),sc=u*(ui.rm?1:(.6+.4*k));
+    b.wide=wide;o.center.set(wide?.26:.5,.5);
+    o.scale.set((wide?115:56)*sc,46*sc,1);o.position.set(b.x,34*u+(ui.rm?0:Math.sin(now/380)*2.2*u),b.y);o.material.opacity=a;
+  }
+}
+function tmClear(){const g=T.tmG;for(const c of g.children)if(c.isSprite&&c.material){if(c.material.map)c.material.map.dispose();c.material.dispose()}clearGroup(g)}
+function townMarkerTick(now,u){
+  if(ui.tmark&&performance.now()-ui.tmark.t0>ui.tmark.dur)ui.tmark=null;
+  const m=ui.tmark;
+  if(m){
+    if(!T.tmG){T.tmG=new THREE.Group();T.dyn.add(T.tmG)}
+    const g=T.tmG;
+    if(g._k!==m){
+      tmClear();g._k=m;const col=m.col;
+      const ring=new THREE.Mesh(T.gRing,basic(col,{transparent:true,opacity:.95,depthWrite:false}));ring.position.set(m.x,1.4,m.y);ring.scale.setScalar(50);ring.renderOrder=6;g.add(ring);
+      const ring2=new THREE.Mesh(T.gRing,basic(col,{transparent:true,opacity:.6,depthWrite:false}));ring2.position.set(m.x,1.3,m.y);ring2.renderOrder=6;g.add(ring2);
+      const disc=new THREE.Mesh(T.gDisc,basic(col,{transparent:true,opacity:.22,depthWrite:false}));disc.position.set(m.x,1.2,m.y);disc.scale.setScalar(46);disc.renderOrder=5;g.add(disc);
+      const pil=new THREE.Mesh(T.gCyl,basic(col,{transparent:true,opacity:.35,depthWrite:false}));pil.scale.set(3,60,3);pil.position.set(m.x,30,m.y);g.add(pil);
+      const lb=mkSprite(growLabelTex(m.ic,{place:m.place,title:m.title},col),270,84);lb.position.set(m.x,78,m.y);g.add(lb);
+      g._r=ring;g._r2=ring2;g._d=disc;g._l=lb;
+    }
+    const fl=ui.rm?1:.45+.55*Math.abs(Math.sin(now/230)),ls=Math.max(.5,u*.5);
+    g._r.scale.setScalar(ui.rm?50:46+9*Math.sin(now/280));g._r.material.opacity=fl;
+    const ph=ui.rm?.5:((now/900)%1);g._r2.scale.setScalar(40+40*ph);g._r2.material.opacity=ui.rm?.5:.7*(1-ph);g._d.material.opacity=.12+.2*fl;
+    g._l.scale.set(270*ls,84*ls,1);g._l.position.y=60+30*ls;
+  }else if(T.tmG&&T.tmG._k){tmClear();T.tmG._k=null}
+}
+/* Mood view: small icons on the unhappiest blocks, showing their biggest need */
+function moodIcons(tw,u){
+  if(!T.moodG){T.moodG=new THREE.Group();T.dyn.add(T.moodG);T.moodS=[];for(let i=0;i<14;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,depthTest:false,toneMapped:false,fog:false}));s.renderOrder=12;s.visible=false;T.moodG.add(s);T.moodS.push(s)}}
+  const hs=[];for(const b of tw.blk.values())if(b.top&&b.m!=null&&b.m<.72)hs.push(b);
+  hs.sort((a,b)=>b.topS-a.topS);
+  for(let i=0;i<T.moodS.length;i++){
+    const s=T.moodS[i],b=hs[i];
+    if(!b){s.visible=false;continue}
+    const tex=townIconTex(b.top);if(s.material.map!==tex){s.material.map=tex;s.material.needsUpdate=true}
+    s.visible=true;s.position.set(b.cx,26,b.cy);const k=34*Math.max(1,u*.9);s.scale.set(k,k,1);
   }
 }
 function syncMeta(u,now){
@@ -4924,7 +5417,7 @@ function render3D(now,simDt,realDt){
   if(!T.ok||!G.city)return;
   updateCamera();T.simDt=simDt;T.rdt=Math.min(.1,realDt||.016);wxUpdate(now);
   const u=clamp(1.1/cam.zoom,1,2.7);
-  syncRoutes();syncStops(u,now);syncBuses(u,now);syncCitizens(u,now);syncClosures(now);syncParts(u);syncMarkers(u,now);syncTut(now);syncViews(now);syncBubbles(u,now);syncMeta(u,now);syncSeason(now);
+  syncRoutes();syncStops(u,now);syncBuses(u,now);syncCitizens(u,now);syncClosures(now);syncParts(u);syncMarkers(u,now);syncTut(now);syncViews(now,u);syncBubbles(u,now);syncMeta(u,now);syncSeason(now);
   if(simDt>0)updCars(simDt);
   lighting(now);lifeUpdate(now,T.night||0);syncVehicleLights();
   T.shadowTick=(T.shadowTick||0)+1;if(T.shadowTick%2===0||T.shadowTick<4)T.r.shadowMap.needsUpdate=true;
@@ -5044,14 +5537,16 @@ function refreshUI(){
   const sc=$('#stopcard');
   if(ui.sel&&ui.sel.type==='stop'&&G.stops.has(ui.sel.id)){sc.hidden=false;updateStopCard(true)}else sc.hidden=true;
   applyHint();
-  if(ui.sheet&&!sc.hidden&&W<560)sc.hidden=true;
+  if((ui.sheet||ui.town)&&!sc.hidden&&W<560)sc.hidden=true;
+  renderTown();
+  {const tb=$('#bTown');if(tb){tb.classList.toggle('on',!!ui.town);tb.setAttribute('aria-pressed',ui.town?'true':'false')}}
   document.querySelector('.tbtn[data-act="sheet"]').classList.toggle('on',ui.sheet);document.querySelector('.tbtn[data-act="sheet"]').setAttribute('aria-pressed',ui.sheet?'true':'false');
   $('#bView').classList.toggle('on',ui.view!=='off');
   {let lg=$('#legend');if(!lg){lg=document.createElement('div');lg.id='legend';lg.className='panel legend';lg.hidden=true;$('#app').appendChild(lg)}
    const cb=PROF.a11y.cb,sw=(c,k)=>'<i style="background:'+c+'"></i>'+(cb?GL[k]+' ':'');
-   const L={demand:'<b>Demand</b><br>'+sw(COL.ok,0)+'Few riders waiting<br>'+sw(COL.warn,1)+'A crowd is building<br>'+sw(COL.bad,2)+'Riders waiting or giving up',traffic:'<b>Traffic</b><br>'+sw(COL.ok,0)+'Flowing<br>'+sw(COL.warn,1)+'Slowing<br>'+sw(COL.bad,2)+'Jammed',coverage:'<b>Coverage</b><br>'+sw(COL.ok,0)+'Stop within walking distance<br>'+sw(COL.bad,2)+'No stop nearby'};
-   const eff=ui.view,h=L[eff]||'';if(lg._h!==h){lg._h=h;lg.innerHTML=h}lg.hidden=!h||ui.photo||(ui.sheet&&W<760)}
-  $('#viewLbl').textContent=ui.view==='demand'?'Demand':ui.view==='traffic'?'Traffic':ui.view==='coverage'?'Coverage':'Map view';
+   const L={demand:'<b>Demand</b><br>'+sw(COL.ok,0)+'Few riders waiting<br>'+sw(COL.warn,1)+'A crowd is building<br>'+sw(COL.bad,2)+'Riders waiting or giving up',traffic:'<b>Traffic</b><br>'+sw(COL.ok,0)+'Flowing<br>'+sw(COL.warn,1)+'Slowing<br>'+sw(COL.bad,2)+'Jammed',coverage:'<b>Coverage</b><br>'+sw(COL.ok,0)+'Stop within walking distance<br>'+sw(COL.bad,2)+'No stop nearby',mood:'<b>Mood</b>'+(G.town&&G.town.happy!=null?' \u00B7 happiness '+G.town.happy+'%':'')+'<br>'+sw(COL.ok,0)+'Happy residents<br>'+sw(COL.warn,1)+'Annoyed<br>'+sw(COL.bad,2)+'Angry<br>Icons mark the biggest need'};
+   const eff=ui.view,h=L[eff]||'';if(lg._h!==h){lg._h=h;lg.innerHTML=h}lg.hidden=!h||ui.photo||((ui.sheet||ui.town)&&W<760)}
+  $('#viewLbl').textContent=ui.view==='demand'?'Demand':ui.view==='traffic'?'Traffic':ui.view==='coverage'?'Coverage':ui.view==='mood'?'Mood':'Map view';
 }
 function riderSummary(st){
   const c={};for(const w of st.waiters)c[w.type]=(c[w.type]||0)+1;
@@ -5189,7 +5684,11 @@ document.addEventListener('click',e=>{
     case'level':startLevel(+el.dataset.i);break;
     case'nextday':nextDay();break;
     case'tool':setTool(el.dataset.tool);break;
-    case'sheet':ui.sheet=!ui.sheet;ui.dirty=true;break;
+    case'sheet':ui.sheet=!ui.sheet;if(ui.sheet)ui.town=false;ui.dirty=true;break;
+    case'town':townToggle();break;
+    case'townmood':ui.view='mood';townTick();if(W<760)ui.town=false;ui.dirty=true;toast('Mood view: green blocks are happy, red are angry. Icons show the biggest need there (see the key).',3200);break;
+    case'townrow':{const r=townFindRec(el.dataset.key);if(r){ui.townSel=(ui.townSel===r.key&&!r.thx)?null:r.key;townLook(r);ui.dirty=true}break}
+    case'townfix':{let k=el.dataset.key||'';if(k.slice(0,3)==='tv|'){advSnooze(k,120);k=k.slice(3)}townDoFix(k);break}
     case'selroute':if(e.target.closest('button'))break;ui.sel={type:'route',id};ui.dirty=true;break;
     case'busup':if(route){addBus(route);ui.sel={type:'route',id}}break;
     case'busdown':if(route){removeBus(route)}break;
@@ -5207,7 +5706,7 @@ document.addEventListener('click',e=>{
     case'follow':if(route&&route.buses.length){ui.follow=route.buses[0].id;cam.zoom=Math.max(cam.zoom,2);ui.sheet=false;ui.dirty=true}else toast('This route has no buses yet.');break;
     case'movestop':if(ui.sel&&ui.sel.type==='stop'){ui.moving=ui.sel.id;ui.sel=null;setTool('select');ui.dirty=true}break;
     case'ramp':if(ui.sel&&ui.sel.type==='stop')makeAccessible(ui.sel.id);break;
-    case'view':ui.view=ui.view==='off'?'demand':ui.view==='demand'?'traffic':ui.view==='traffic'?'coverage':'off';ui.dirty=true;toast(ui.view==='demand'?'Demand view: homes and offices glow where riders are being missed.':ui.view==='traffic'?'Traffic view: roads change colour where buses slow down (see the key).':ui.view==='coverage'?'Coverage view: blocks marked OK have a stop within walking distance, the others do not (see the key).':'Map view off.');break;
+    case'view':ui.view=ui.view==='off'?'demand':ui.view==='demand'?'traffic':ui.view==='traffic'?'coverage':ui.view==='coverage'?'mood':'off';ui.dirty=true;if(ui.view==='mood')townTick();toast(ui.view==='mood'?'Mood view: green blocks are happy, red are angry. Icons show the biggest need there (see the key).':ui.view==='demand'?'Demand view: homes and offices glow where riders are being missed.':ui.view==='traffic'?'Traffic view: roads change colour where buses slow down (see the key).':ui.view==='coverage'?'Coverage view: blocks marked OK have a stop within walking distance, the others do not (see the key).':'Map view off.');break;
     case'showworst':{const st=G.stops.get(id);hideOv();G.modal=false;if(st){cam.x=st.x;cam.y=st.y;cam.zoom=Math.max(cam.zoom,1.8);ui.sel={type:'stop',id:st.id};ui.dirty=true}if(isFinite(G.L.days)&&G.day>=G.L.days){}else G.pendingNext=true;syncPlay();showReplay(id);break}
     case'photo':hideOv();ui.photo=true;ui.follow=null;document.getElementById('app').classList.add('photo');$('#photoX').hidden=false;break;
     case'photox':ui.photo=false;document.getElementById('app').classList.remove('photo');$('#photoX').hidden=true;break;
@@ -5261,6 +5760,7 @@ document.addEventListener('keydown',e=>{
     if(ui.shape){ui.shape=null;ui.dirty=true}
     else if(ui.moving){ui.moving=null;ui.dirty=true}
     else if(ui.drawing)finishDrawing();
+    else if(ui.town){ui.town=false;ui.dirty=true}
     else if(ui.sel){ui.sel=null;ui.dirty=true}
     return;
   }
@@ -5276,6 +5776,7 @@ document.addEventListener('keydown',e=>{
   else if(k==='r')clickAct('.tbtn[data-tool="route"]');
   else if(k==='b')clickAct('.tbtn[data-act="sheet"]');
   else if(k==='v')clickAct('#bView');
+  else if(k==='h')clickAct('#bTown');
   else if(k==='f')clickAct('#bFit');
   else if(k==='m')toggleMute();
   else if(e.key==='+'||e.key==='='||e.key==='-'||e.key==='_'){const r=cv.getBoundingClientRect();zoomAt(r.width/2,r.height/2,(e.key==='-'||e.key==='_')?1/1.25:1.25);ui.dirty=true}
@@ -5472,7 +5973,7 @@ function frame(now){
     if(ui.camAnim){const a=ui.camAnim,k=Math.max(0,Math.min(1,(now-a.t0)/a.dur)),e=k*k*(3-2*k);for(const f of['x','y','zoom','yaw','pitch'])cam[f]=a.from[f]+(a.to[f]-a.from[f])*e;updateCamera();if(k>=1)ui.camAnim=null}
     uiT+=rdt;
     if(ui.dirty)refreshUI();
-    if(uiT>.25){uiT=0;if(!G.paused&&++_scT%40===0)selfCheck();if(_scT%12===0)advisorTick();ui.vibrate=true;coachTick();hud();updateStopCard(false);liveInfo();applyHint()}
+    if(uiT>.25){uiT=0;if(!G.paused&&++_scT%40===0)selfCheck();if(_scT%12===0)advisorTick();if(G.paused&&!G.over&&++_tvT%6===0)townTick();ui.vibrate=true;coachTick();hud();updateStopCard(false);liveInfo();applyHint()}
     if(ui.follow){const fb=G.buses.find(x=>x.id===ui.follow);if(!fb){ui.follow=null;ui.dirty=true}else{const k=ui.rm?1:Math.min(1,rdt*5),la=ui.rm?0:(fb.state==='drive'?26:0);cam.x+=(fb.x+Math.cos(fb.ang)*la-cam.x)*k;cam.y+=(fb.y+Math.sin(fb.ang)*la-cam.y)*k;clampCam()}}
     if(ui.photo)cam.yaw+=rdt*.1;
     feelTick(rdt);
@@ -5485,7 +5986,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={meta:{showCampaign,showFree,campIdx,winButtons,showHowToPlay,snd,toggleMute,rmOn,patHtml,routeCols,ac:()=>({ac:AC,out:AOUT}),showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,shopTap,buyShop,useItem,equipLook,showItems,applyBank,shopItem,savePct,realSeason,bo,sp,boostIcons,invCount,applyLooks,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,removeStop,addStop,feel,haptic,moneyTick,coinFly,routeGrowTick,doubleTapZoom,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},wx:WX,vg:VG,info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={meta:{townTick,townFix,townDoFix,townLook,townText,townHtml,townHappy,townToggle,renderTown,showThought,tapBubble,townNodeFor,TH,townThanks,moodBucket,showCampaign,showFree,campIdx,winButtons,showHowToPlay,snd,toggleMute,rmOn,patHtml,routeCols,ac:()=>({ac:AC,out:AOUT}),showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,shopTap,buyShop,useItem,equipLook,showItems,applyBank,shopItem,savePct,realSeason,bo,sp,boostIcons,invCount,applyLooks,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,removeStop,addStop,feel,haptic,moneyTick,coinFly,routeGrowTick,doubleTapZoom,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},wx:WX,vg:VG,info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 /* boot (deferred one frame so the splash screen can paint first) */
 function bootGame(){
 performance.mark('rhr:boot');
