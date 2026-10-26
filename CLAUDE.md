@@ -18,4 +18,4 @@ Moraloop asks viewers what *they* would do, so an ad must never steer them towar
 
 ## Content agents
 
-Scheduled agents make new videos every other day (production started Oct 20, 2026; posting starts Fri Oct 23, US Eastern times): 2 trend shorts per run, and 1 long (2–3 min) storyline per run from `moraloop_ads/plan/long_30_day_plan.md`. Their full instructions are in `moraloop_ads/AGENT_GUIDE.md`, and new posts are queued in `moraloop_ads/plan/queue.csv`.
+Scheduled agents make new videos every other day (production started Oct 20, 2026; posting starts Fri Oct 23, US Eastern times): 2 trend shorts per run, and 1 long (2–3 min) storyline per run from `moraloop_ads/plan/long_30_day_plan.md`. A second pair of loop agents makes 2 loop-format shorts and 1 loop-format storyline per run with `moraloop_ads/src/loop_ad.py` (videos in `moraloop_ads/loops/`). Their full instructions are in `moraloop_ads/AGENT_GUIDE.md`, and new posts are queued in `moraloop_ads/plan/queue.csv`.

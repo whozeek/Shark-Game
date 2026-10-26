@@ -71,3 +71,37 @@ ffmpeg and the Inter / Noto Color Emoji fonts are already in the image. Always r
 - End card: logo + "COMING SOON". The App Store badge stays off until the owner says the app is live.
 - Vertical 1080×1920, the clay style and the man in the suit stay the same across all videos.
 - Agents never post anywhere themselves. The owner's posting assistant (e.g. ChatGPT) reads `moraloop_ads/READY_TO_POST.md` and posts to Facebook and TikTok.
+
+## Loop agents (loop-format shorts and storylines)
+
+A second pair of scheduled agents makes the same kinds of videos as the agents above (a short-form one and a long-form one), with the same rules, research, neutrality check, review steps and posting list. The only difference is that their videos are rendered with `src/loop_ad.py`, which adds the **loop format** on top of the normal video:
+
+1. **Open loop in the first frame.** The video opens on a hidden detail for a quarter second: a phone text thread (`thread=`) or a paper note (`note=`). Only its last line is readable, and a hook question sits above it (`hook=`, lowercase, e.g. "what did the last text say?"). The question only pays off near the end.
+2. **A buried 1-second fast cut mid-video.** Four glitchy shots of the full detail, too fast to read at normal speed, so viewers pause, scroll back or rewatch. It lands inside a scene chosen with `cut_beat` (shorts) or `cut_scene` (long).
+3. **A payoff that sends people back.** A host line near the end points at the detail ("Did you catch the whole thread?"), then the question.
+4. **A seamless loop.** After the end card the last frame is the same as the first, so the video replays straight into its hook.
+
+**The hidden detail must stay neutral.** It adds ambiguity (it could mean either thing), never information that makes one answer obvious. Ask: "If someone paused and read every word, would they lean one way?" If yes, rewrite it.
+
+Its text is small and fast but must be readable in a paused frame: at most 5 short lines, no real names of private people, and nothing that breaks the brand-safety rules above.
+
+### Loop short-form agent (2 loop shorts per run)
+
+Same as "Short-form agent" above, except:
+- Add each short to `src/ads_loop.py` (not `ads_trends.py`) with id `l###_slug` (next free number), `made_on`, `hook`, `thread` (contact, stamp, msgs) or `note` (title, lines), and `cut_beat` (the 0-based scene beat the fast cut lands in, usually the 2nd scene). Put a host line `M("Did you catch ...?")` (or similar) before `close=`. `l001_dont_tell_her` is the worked example.
+- Never repeat a dilemma already in `ads_spec.py`, `ads_trends.py`, `ads_loop.py` or `plan/queue.csv`.
+- Stills: `python3 loop_ad.py still <id> 0.1 <cut time + 0.1> <cut time + 0.4> ...` (it prints the cut time and length; PNGs land in `src/out/`). Check the flash frame, every fast-cut shot and the last frame.
+- Render: `python3 loop_ad.py render ../loops <id>` → `moraloop_ads/loops/<id>.mp4`.
+- Queue both at the **next two free 9:00 AM dates** in `plan/queue.csv` (never earlier than Oct 27, 2026), `kind` = `loop short`.
+
+### Loop long-form agent (1 loop storyline per run)
+
+Same as "Long-form agent" above, except:
+- Take the next `todo` episode in `plan/loop_long_plan.md` (not the regular long plan).
+- In `stories/<slug>.py` also define `LOOP = dict(hook=..., thread=... or note=..., cut_scene=N)`, where `cut_scene` is the 0-based index of the (non-continuing) scene where the fast cut lands, usually in the setup before CHOICE A. Add one host line near the end that points back at the detail, before "Two choices. Two very different endings."
+- Plan with `STORY=<slug> python3 story.py plan`, stills with `STORY=<slug> python3 loop_ad.py still <slug> 0.1 ...`, render with `STORY=<slug> python3 loop_ad.py render ../loops/long <slug>` → `moraloop_ads/loops/long/<slug>.mp4`.
+- Mark the episode done in `plan/loop_long_plan.md` (`done (YYYY-MM-DD) → loops/long/<slug>.mp4`), and queue it at that episode's post date at **8:00 PM**, `kind` = `loop long`.
+
+Both loop agents finish exactly like the others: append to `plan/queue.csv`, run `python3 make_ready.py` so the videos appear in `moraloop_ads/READY_TO_POST.md` for the posting assistant, commit, pull with rebase and push to `claude/moral-loop-claymation`. They never post anywhere themselves.
+
+**Posting slots (US Eastern), all agents:** 9:00 AM loop shorts (daily), 12:00 PM trend shorts (daily), 4:00 PM long storylines (every other day), 7:00 PM 30-day plan (daily), 8:00 PM loop storylines (every other day).

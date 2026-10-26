@@ -10,11 +10,12 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 3 | 2026-10-25 | 12:00 PM | short | Two Fishes | `moraloop_ads/trends/t002_two_fishes.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t002_two_fishes.mp4) |
 | 4 | 2026-10-26 | 12:00 PM | short | The Big Candy Bars | `moraloop_ads/trends/t003_the_big_candy_bars.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t003_the_big_candy_bars.mp4) |
 | 5 | 2026-10-26 | 4:00 PM | long | The Apology | `moraloop_ads/long/the_apology.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_apology.mp4) |
-| 6 | 2026-10-27 | 12:00 PM | short | The Babysitting Ask | `moraloop_ads/trends/t004_the_babysitting_ask.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t004_the_babysitting_ask.mp4) |
-| 7 | 2026-10-28 | 12:00 PM | short | The Scratched Car | `moraloop_ads/trends/t005_the_scratched_car.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t005_the_scratched_car.mp4) |
-| 8 | 2026-10-28 | 4:00 PM | long | The Job Offer | `moraloop_ads/long/the_job_offer.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_job_offer.mp4) |
-| 9 | 2026-10-29 | 12:00 PM | short | The Notice Period | `moraloop_ads/trends/t006_the_notice_period.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t006_the_notice_period.mp4) |
-| 10 | 2026-10-30 | 4:00 PM | long | The Last Season | `moraloop_ads/long/the_last_season.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_last_season.mp4) |
+| 6 | 2026-10-27 | 9:00 AM | loop short | Don’t Tell Her | `moraloop_ads/loops/l001_dont_tell_her.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l001_dont_tell_her.mp4) |
+| 7 | 2026-10-27 | 12:00 PM | short | The Babysitting Ask | `moraloop_ads/trends/t004_the_babysitting_ask.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t004_the_babysitting_ask.mp4) |
+| 8 | 2026-10-28 | 12:00 PM | short | The Scratched Car | `moraloop_ads/trends/t005_the_scratched_car.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t005_the_scratched_car.mp4) |
+| 9 | 2026-10-28 | 4:00 PM | long | The Job Offer | `moraloop_ads/long/the_job_offer.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_job_offer.mp4) |
+| 10 | 2026-10-29 | 12:00 PM | short | The Notice Period | `moraloop_ads/trends/t006_the_notice_period.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t006_the_notice_period.mp4) |
+| 11 | 2026-10-30 | 4:00 PM | long | The Last Season | `moraloop_ads/long/the_last_season.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_last_season.mp4) |
 
 ## Captions
 
@@ -63,7 +64,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #forgiveness #storytime
 ```
 
-### 6. 2026-10-27 12:00 PM: The Babysitting Ask (short)
+### 6. 2026-10-27 9:00 AM: Don’t Tell Her (loop short)
+Video: `moraloop_ads/loops/l001_dont_tell_her.mp4`
+
+```
+Your best friend’s partner texts you: “don’t tell her.” Do you tell your friend, or keep quiet? Did you catch the whole thread? 👀 Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #relationships #pov
+```
+
+### 7. 2026-10-27 12:00 PM: The Babysitting Ask (short)
 Video: `moraloop_ads/trends/t004_the_babysitting_ask.mp4`
 
 ```
@@ -72,7 +82,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #siblings #aita
 ```
 
-### 7. 2026-10-28 12:00 PM: The Scratched Car (short)
+### 8. 2026-10-28 12:00 PM: The Scratched Car (short)
 Video: `moraloop_ads/trends/t005_the_scratched_car.mp4`
 
 ```
@@ -81,7 +91,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #neighbors #honesty #aita
 ```
 
-### 8. 2026-10-28 4:00 PM: The Job Offer (long)
+### 9. 2026-10-28 4:00 PM: The Job Offer (long)
 Video: `moraloop_ads/long/the_job_offer.mp4`
 
 ```
@@ -90,7 +100,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #worklife #storytime
 ```
 
-### 9. 2026-10-29 12:00 PM: The Notice Period (short)
+### 10. 2026-10-29 12:00 PM: The Notice Period (short)
 Video: `moraloop_ads/trends/t006_the_notice_period.mp4`
 
 ```
@@ -99,7 +109,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #work #worklife #career
 ```
 
-### 10. 2026-10-30 4:00 PM: The Last Season (long)
+### 11. 2026-10-30 4:00 PM: The Last Season (long)
 Video: `moraloop_ads/long/the_last_season.mp4`
 
 ```

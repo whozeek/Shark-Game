@@ -1,4 +1,15 @@
-"""Wraps an ad.py short in the open-loop format (see ads_loop.py)."""
+"""Wraps a Moraloop video in the open-loop format.
+
+Shorts:  python3 loop_ad.py render ../loops <id>                  (spec in ads_loop.py)
+Long:    STORY=<slug> python3 loop_ad.py render ../loops/long <slug>   (LOOP dict in stories/<slug>.py)
+Stills:  same, with `still <id> <t1> <t2> ...` (PNGs land in src/out/)
+
+Three layers on top of the normal video:
+ 1. Open loop: the first FLASH seconds show the hidden detail (a phone thread or a note) with only its
+    last line readable, plus the hook question.
+ 2. Buried cut: a CUT-second burst of 4 glitchy shots of the full detail mid-video, too fast to read.
+ 3. Seamless loop: the end card is followed by the same flash frame as frame 0.
+"""
 import os, sys, math, subprocess
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -16,16 +27,25 @@ SPEC = None
 
 def load(ad_id):
     global SPEC, DUR, CUT_T
-    import ads_loop
-    SPEC = next(a for a in ads_loop.ADS if a["id"] == ad_id)
-    A = ad.build(SPEC)
-    ad.AD = A
-    for s in A.segs:
-        s["idx"] = sum(ord(ch) for ch in ad_id)
-    clay.CARD, clay.DUR, clay.DURS = A.CARD, A.DUR, []
-    # fast cut starts 0.35s into the chosen scene's narration
-    scenes = [s for s in A.segs if s["kind"] == "scene"]
-    CUT_T = scenes[SPEC.get("cut_beat", 0)]["vs"] + 0.35 - SKIP
+    if os.environ.get("STORY"):  # long-form storyline
+        import story
+        A = story.load()
+        SPEC = story._m.LOOP
+        scenes = [s for s in A.segs if s["kind"] == "scene" and not s.get("cont")]
+        cut = scenes[SPEC.get("cut_scene", 0)]["t0"] + 0.7
+    else:
+        import ads_loop
+        SPEC = next(a for a in ads_loop.ADS if a["id"] == ad_id)
+        A = ad.build(SPEC)
+        ad.AD = A
+        for s in A.segs:
+            s["idx"] = sum(ord(ch) for ch in ad_id)
+        clay.CARD, clay.DUR, clay.DURS = A.CARD, A.DUR, []
+        # fast cut starts 0.35s into the chosen scene's narration
+        scenes = [s for s in A.segs if s["kind"] == "scene"]
+        cut = scenes[SPEC.get("cut_beat", 0)]["vs"] + 0.35
+    CUT_T = cut + SPEC.get("cut_delay", 0.0) - SKIP
+    SPEC.setdefault("hook_until", A.lines[0]["t"] + 0.1 - SKIP)
     # end on the end card, then cut straight to the flash frame (= frame 0)
     DUR = A.DUR - 0.7 - SKIP + FLASH
     return A
@@ -47,6 +67,56 @@ def _text(d, xy, s, fnt, fill):
         else:
             d.text((x, y), ch, font=fnt, fill=fill)
             x += d.textlength(ch, font=fnt)
+
+
+def detail(scroll=0.0, focus_last=False, seed=0):
+    return phone(scroll, focus_last, seed) if "thread" in SPEC else note(scroll, focus_last, seed)
+
+
+def note(scroll=0.0, focus_last=False, seed=0):
+    """A paper note / letter / list on a table. SPEC["note"] = dict(title=..., lines=[...]).
+    focus_last: only the last line is sharp (the hook frame)."""
+    nt = SPEC["note"]
+    rng = np.random.default_rng(seed)
+    g = np.linspace(0, 1, H)[:, None, None]
+    bg = (np.array([92, 64, 44]) * (1 - g) + np.array([46, 30, 20]) * g).repeat(W, axis=1)
+    img = Image.fromarray(bg.astype(np.uint8))
+    d = ImageDraw.Draw(img)
+    for k in range(0, H, 90):  # wood grain
+        d.line((0, k + 20 * math.sin(k), W, k + 30), fill=(70, 48, 32), width=3)
+    px0, py0, px1, py1 = 110, 330, W - 110, H - 140
+    sh = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(sh).rectangle((px0 + 24, py0 + 36, px1 + 24, py1 + 36), fill=160)
+    img.paste((0, 0, 0), (0, 0), sh.filter(ImageFilter.GaussianBlur(36)))
+    pap = Image.new("RGB", (px1 - px0, py1 - py0), (250, 246, 232))
+    pd = ImageDraw.Draw(pap)
+    for k in range(260, pap.height, 76):
+        pd.line((40, k, pap.width - 40, k), fill=(190, 210, 235), width=3)
+    pd.line((120, 0, 120, pap.height), fill=(235, 150, 150), width=3)
+    f = font(FONT_REG, 46)
+    y = 260 - 56 - scroll
+    rows = []
+    for m in nt["lines"]:
+        for l in clay.wrap(pd, m, f, pap.width - 210):
+            rows.append(l)
+    for i, l in enumerate(rows):
+        _text(pd, (150, y + i * 76), l, f, (25, 25, 50))
+    pd.rectangle((0, 0, pap.width, 230), fill=(250, 246, 232))
+    pd.text((150, 120), nt["title"], font=font(FONT_SEMI, 60), fill=(30, 30, 60))
+    if focus_last:
+        pap = pap.filter(ImageFilter.GaussianBlur(12))
+        pd = ImageDraw.Draw(pap)
+        fb = font(FONT_SEMI, 84)
+        last = nt["lines"][-1]
+        lines = clay.wrap(pd, last, fb, pap.width - 140)
+        yy = pap.height * 0.5
+        for l in lines:
+            lw = pd.textlength(l, font=fb)
+            pd.rectangle(((pap.width - lw) / 2 - 30, yy - 10, (pap.width + lw) / 2 + 30, yy + 105), fill=(255, 240, 140))
+            _text(pd, ((pap.width - lw) / 2, yy), l, fb, (20, 20, 40))
+            yy += 120
+    img.paste(pap.rotate(1.2 * (1 if seed % 2 else -1), expand=False, fillcolor=(250, 246, 232)), (px0, py0))
+    return img
 
 
 def phone(scroll=0.0, focus_last=False, seed=0):
@@ -144,7 +214,7 @@ _cache = {}
 
 def hook_frame(t):
     if "hook" not in _cache:
-        _cache["hook"] = phone(focus_last=True)
+        _cache["hook"] = detail(focus_last=True)
     im = glitch(_cache["hook"], t, 0.6)
     hook_caption(im)
     return im
@@ -158,11 +228,11 @@ def frame(u):
         i = int((u - CUT_T) / (CUT / 4))
         key = f"cut{i}"
         if key not in _cache:
-            _cache[key] = phone(scroll=[0, 60, 130, 30][i], seed=i)
+            _cache[key] = detail(scroll=[0, 60, 130, 30][i], seed=i)
         im = _cache[key]
         return glitch(im, u, 1.0 if i % 2 else 0.4)
     im = ad.render(t)
-    if u < 2.4:  # keep the question on screen until the man starts talking
+    if u < SPEC["hook_until"]:  # keep the question on screen until the first line is spoken
         hook_caption(im)
     return im
 
@@ -175,7 +245,7 @@ def mix_audio(path):
     a, sr = sf.read(src, dtype="float32")
     a = a[int(SKIP * sr):]
     N = int(DUR * sr)
-    a = np.concatenate([np.zeros(int(FLASH * sr * 0), np.float32), a])[:N]
+    a = a[:N]
     a = np.pad(a, (0, max(0, N - len(a))))
     rng = np.random.default_rng(3)
 
@@ -205,8 +275,10 @@ def render_ad(ad_id, out):
     from multiprocessing import Pool
     n = int(DUR * FPS)
     with Pool(int(os.environ.get("PROCS", 4)), initializer=load, initargs=(ad_id,)) as p:
-        for b in p.imap(_job, range(n), chunksize=2):
+        for k, b in enumerate(p.imap(_job, range(n), chunksize=2)):
             ff.stdin.write(b)
+            if k % 480 == 0:
+                print(f"{k}/{n}", flush=True)
     ff.stdin.close()
     ff.wait()
     return DUR
