@@ -39,4 +39,20 @@ ADS = [
         S("It’s the weekend of your trip. Already paid. No refunds.", ["you"], "think", ["✈️", "🧳", "💸"],
           "worried", set="home"),
     ], close="Do you cancel your trip, or keep it?"),
+
+    # Trend: viral post about a brand-new car found scratched overnight outside a home (Oct 2026)
+    dict(id="t005_the_scratched_car", title="The Scratched Car", made_on="2026-10-26", beats=[
+        S("Late at night, you see your neighbor’s kid scratch a brand-new car.", ["you"], "react",
+          ["🧒", "🔑", "🚗"], "shock", set="home_night"),
+        S("The next morning, the car’s owner asks if anyone saw anything.", ["stranger", "you"], "say",
+          ["🚗", "❓"], "worried", set="street"),
+    ], close="Do you tell the owner, or talk to the neighbor first?"),
+
+    # Trend: Reddit thread about feeling checked out during a 10-week notice period (Oct 2026)
+    dict(id="t006_the_notice_period", title="The Notice Period", made_on="2026-10-26", beats=[
+        S("You gave notice at work. Ten more weeks to go.", ["you"], "think", ["💼", "⏳", "👋"], "worried",
+          set="office"),
+        S("You’re burned out, and your new job starts right after. But your team still counts on you.",
+          ["coworker", "you"], "say", ["🪫", "📋"], "worried", others="worried", set="office"),
+    ], close="Do you push hard to the end, or ease off?"),
 ]

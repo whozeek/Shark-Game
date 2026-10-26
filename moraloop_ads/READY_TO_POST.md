@@ -11,7 +11,9 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 4 | 2026-10-26 | 12:00 PM | short | The Big Candy Bars | `moraloop_ads/trends/t003_the_big_candy_bars.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t003_the_big_candy_bars.mp4) |
 | 5 | 2026-10-26 | 4:00 PM | long | The Apology | `moraloop_ads/long/the_apology.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_apology.mp4) |
 | 6 | 2026-10-27 | 12:00 PM | short | The Babysitting Ask | `moraloop_ads/trends/t004_the_babysitting_ask.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t004_the_babysitting_ask.mp4) |
-| 7 | 2026-10-28 | 4:00 PM | long | The Job Offer | `moraloop_ads/long/the_job_offer.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_job_offer.mp4) |
+| 7 | 2026-10-28 | 12:00 PM | short | The Scratched Car | `moraloop_ads/trends/t005_the_scratched_car.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t005_the_scratched_car.mp4) |
+| 8 | 2026-10-28 | 4:00 PM | long | The Job Offer | `moraloop_ads/long/the_job_offer.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_job_offer.mp4) |
+| 9 | 2026-10-29 | 12:00 PM | short | The Notice Period | `moraloop_ads/trends/t006_the_notice_period.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t006_the_notice_period.mp4) |
 
 ## Captions
 
@@ -69,12 +71,30 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #siblings #aita
 ```
 
-### 7. 2026-10-28 4:00 PM: The Job Offer (long)
+### 7. 2026-10-28 12:00 PM: The Scratched Car (short)
+Video: `moraloop_ads/trends/t005_the_scratched_car.mp4`
+
+```
+You see your neighbor’s kid scratch a brand-new car. The owner asks if anyone saw anything. Do you tell the owner, or talk to the neighbor first? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #neighbors #honesty #aita
+```
+
+### 8. 2026-10-28 4:00 PM: The Job Offer (long)
 Video: `moraloop_ads/long/the_job_offer.mp4`
 
 ```
 Your partner’s new job saves your home, but their résumé lists a degree they never finished. Would you expose the lie? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #worklife #storytime
+```
+
+### 9. 2026-10-29 12:00 PM: The Notice Period (short)
+Video: `moraloop_ads/trends/t006_the_notice_period.mp4`
+
+```
+Ten weeks left after giving notice. You’re burned out, but your team still counts on you. Do you push hard to the end, or ease off? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #work #worklife #career
 ```
 
