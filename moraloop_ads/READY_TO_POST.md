@@ -14,8 +14,9 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 7 | 2026-10-27 | 12:00 PM | short | The Babysitting Ask | `moraloop_ads/trends/t004_the_babysitting_ask.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t004_the_babysitting_ask.mp4) |
 | 8 | 2026-10-28 | 12:00 PM | short | The Scratched Car | `moraloop_ads/trends/t005_the_scratched_car.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t005_the_scratched_car.mp4) |
 | 9 | 2026-10-28 | 4:00 PM | long | The Job Offer | `moraloop_ads/long/the_job_offer.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_job_offer.mp4) |
-| 10 | 2026-10-29 | 12:00 PM | short | The Notice Period | `moraloop_ads/trends/t006_the_notice_period.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t006_the_notice_period.mp4) |
-| 11 | 2026-10-30 | 4:00 PM | long | The Last Season | `moraloop_ads/long/the_last_season.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_last_season.mp4) |
+| 10 | 2026-10-28 | 8:00 PM | loop long | The Brother Rule | `moraloop_ads/loops/long/the_brother_rule.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/the_brother_rule.mp4) |
+| 11 | 2026-10-29 | 12:00 PM | short | The Notice Period | `moraloop_ads/trends/t006_the_notice_period.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t006_the_notice_period.mp4) |
+| 12 | 2026-10-30 | 4:00 PM | long | The Last Season | `moraloop_ads/long/the_last_season.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_last_season.mp4) |
 
 ## Captions
 
@@ -100,7 +101,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #worklife #storytime
 ```
 
-### 10. 2026-10-29 12:00 PM: The Notice Period (short)
+### 10. 2026-10-28 8:00 PM: The Brother Rule (loop long)
+Video: `moraloop_ads/loops/long/the_brother_rule.mp4`
+
+```
+Your brother cheated, and you always said you’d tell. Do you tell? Did you catch what Theo texted? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #siblings #storytime
+```
+
+### 11. 2026-10-29 12:00 PM: The Notice Period (short)
 Video: `moraloop_ads/trends/t006_the_notice_period.mp4`
 
 ```
@@ -109,7 +119,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #work #worklife #career
 ```
 
-### 11. 2026-10-30 4:00 PM: The Last Season (long)
+### 12. 2026-10-30 4:00 PM: The Last Season (long)
 Video: `moraloop_ads/long/the_last_season.mp4`
 
 ```
