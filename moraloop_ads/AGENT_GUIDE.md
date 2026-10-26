@@ -105,4 +105,4 @@ Same as "Long-form agent" above, except:
 
 Both loop agents finish exactly like the others: append to `plan/queue.csv`, run `python3 make_ready.py` so the videos appear in `moraloop_ads/READY_TO_POST.md` for the posting assistant, commit, pull with rebase and push to `claude/moral-loop-claymation`. They never post anywhere themselves.
 
-**Posting slots (US Eastern), all agents:** 9:00 AM loop shorts queued before Oct 26 (Oct 27–29 only), 12:00 PM trend shorts (daily), 12:30 PM loop shorts (daily), 4:00 PM long storylines (every other day), 7:00 PM 30-day plan (daily), 8:00 PM loop storylines (every other day).
+**Posting slots (US Eastern), all agents:** 9:00 AM the first three loop shorts (Oct 27–29 only), 12:00 PM trend shorts (daily), 12:30 PM loop shorts (daily), 4:00 PM long storylines (every other day), 7:00 PM 30-day plan (daily), 8:00 PM loop storylines (every other day).
