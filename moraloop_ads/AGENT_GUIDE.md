@@ -4,7 +4,7 @@ Two scheduled agents make new claymation videos for the Moraloop Instagram. Read
 
 ## Schedule
 
-- **Production starts Tuesday, October 20, 2026** so a backlog is ready before posting starts. Agents produce every other day: Oct 20, 22, 24, 26, 28, 30, Nov 1, 3, and so on. A run on any other day exits without doing anything.
+- **Production starts Tuesday, October 20, 2026** so a backlog is ready before posting starts. Agents produce every other day: Oct 20, 22, 24, 26, 28, 30, Nov 1, 3, and so on. A run on any other day exits without doing anything. Exception: the loop short-form agent runs every day (see "Loop short-form agent").
 - **Posting starts Friday, October 23, 2026.** Agents never post. They only make videos and add them to `moraloop_ads/plan/queue.csv`. All times are **US Eastern**.
   - **7:00 PM daily**: the existing 30-day plan (`plan/30_day_plan.md`, Oct 23 – Nov 21). Agents don't touch it.
   - **12:00 PM daily, from Sat Oct 24**: new trend shorts. Each run makes 2 shorts and gives them the **next two free 12:00 PM dates** in `queue.csv` (never earlier than Oct 24, and never a date already taken).
@@ -85,14 +85,15 @@ A second pair of scheduled agents makes the same kinds of videos as the agents a
 
 Its text is small and fast but must be readable in a paused frame: at most 5 short lines, no real names of private people, and nothing that breaks the brand-safety rules above.
 
-### Loop short-form agent (2 loop shorts per run)
+### Loop short-form agent (6 loop shorts per run, daily)
 
 Same as "Short-form agent" above, except:
 - Add each short to `src/ads_loop.py` (not `ads_trends.py`) with id `l###_slug` (next free number), `made_on`, `hook`, `thread` (contact, stamp, msgs) or `note` (title, lines), and `cut_beat` (the 0-based scene beat the fast cut lands in, usually the 2nd scene). Put a host line `M("Did you catch ...?")` (or similar) before `close=`. `l001_dont_tell_her` is the worked example.
 - Never repeat a dilemma already in `ads_spec.py`, `ads_trends.py`, `ads_loop.py` or `plan/queue.csv`.
 - Stills: `python3 loop_ad.py still <id> 0.1 <cut time + 0.1> <cut time + 0.4> ...` (it prints the cut time and length; PNGs land in `src/out/`). Check the flash frame, every fast-cut shot and the last frame.
 - Render: `python3 loop_ad.py render ../loops <id>` → `moraloop_ads/loops/<id>.mp4`.
-- Queue both at the **next two free 9:00 AM dates** in `plan/queue.csv` (never earlier than Oct 27, 2026), `kind` = `loop short`.
+- **Runs every day** (owner's rule since Oct 26, 2026; no every-other-day check) and makes **six** loop shorts per run, all distinct from each other.
+- Queue all six at the **next six free 12:30 PM dates** in `plan/queue.csv` (never earlier than Oct 27, 2026, never a date already taken at 12:30 PM), `kind` = `loop short`. Time-sensitive topics (e.g. a holiday) must land before the event. (Loop shorts made before this change were queued at 9:00 AM; leave those as they are.)
 
 ### Loop long-form agent (1 loop storyline per run)
 
@@ -104,4 +105,4 @@ Same as "Long-form agent" above, except:
 
 Both loop agents finish exactly like the others: append to `plan/queue.csv`, run `python3 make_ready.py` so the videos appear in `moraloop_ads/READY_TO_POST.md` for the posting assistant, commit, pull with rebase and push to `claude/moral-loop-claymation`. They never post anywhere themselves.
 
-**Posting slots (US Eastern), all agents:** 9:00 AM loop shorts (daily), 12:00 PM trend shorts (daily), 4:00 PM long storylines (every other day), 7:00 PM 30-day plan (daily), 8:00 PM loop storylines (every other day).
+**Posting slots (US Eastern), all agents:** 9:00 AM loop shorts queued before Oct 26 (Oct 27–29 only), 12:00 PM trend shorts (daily), 12:30 PM loop shorts (daily), 4:00 PM long storylines (every other day), 7:00 PM 30-day plan (daily), 8:00 PM loop storylines (every other day).
