@@ -94,7 +94,7 @@ def note(scroll=0.0, focus_last=False, seed=0):
         pd.line((40, k, pap.width - 40, k), fill=(190, 210, 235), width=3)
     pd.line((120, 0, 120, pap.height), fill=(235, 150, 150), width=3)
     f = font(FONT_REG, 46)
-    y = 260 - 56 - scroll
+    y = 336 - 46 - scroll * 0.4  # first row sits on the first ruled line below the title, even when scrolled
     rows = []
     for m in nt["lines"]:
         for l in clay.wrap(pd, m, f, pap.width - 210):
