@@ -164,6 +164,31 @@ body.rm .mini.loopon,body.rm .mini.loopon i{animation:none}
 .statgrid span{font-size:12px;font-weight:700;color:var(--muted)}
 #photoX{position:absolute;right:14px;bottom:14px;z-index:5;height:48px;padding:0 18px;border-radius:14px;border:0;background:rgba(20,30,40,.7);color:#fff;font-weight:800}
 .photo #top,.photo #bottom,.photo #vig{display:none}
+/* first-person bus ride */
+#ridefx{position:absolute;inset:0;pointer-events:none;display:none;overflow:hidden}
+.ride #ridefx{display:block}
+#ridefx .dash{position:absolute;left:0;right:0;bottom:0;height:17%;min-height:92px;background:linear-gradient(to top,rgba(9,12,16,.96) 0,rgba(13,18,23,.86) 52%,rgba(13,18,23,0) 100%)}
+#ridefx .dash::before{content:"";position:absolute;left:3%;right:3%;top:44%;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent)}
+#ridefx .pl,#ridefx .pr{position:absolute;top:0;bottom:0;width:6.5%;max-width:84px;background:linear-gradient(90deg,rgba(9,12,16,.9),rgba(9,12,16,0))}
+#ridefx .pl{left:0;clip-path:polygon(0 0,100% 0,38% 100%,0 100%)}
+#ridefx .pr{right:0;transform:scaleX(-1);clip-path:polygon(0 0,100% 0,38% 100%,0 100%)}
+#ridefx .vis{position:absolute;left:0;right:0;top:0;height:7%;background:linear-gradient(rgba(9,12,16,.55),rgba(9,12,16,0))}
+#ridecard{position:absolute;left:50%;transform:translateX(-50%);bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:6;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;width:min(580px,calc(100% - 20px));box-sizing:border-box}
+#ridecard .rsw{width:10px;align-self:stretch;border-radius:6px;flex:none}
+#ridecard .rinfo{flex:1;min-width:0;display:flex;flex-direction:column}
+#ridecard .rinfo b{font-family:var(--font-display);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ridecard .rinfo span{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ridecard .rload{font-family:var(--font-display);font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;padding:0 4px;white-space:nowrap}
+#ridecard button{height:46px;min-width:46px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:#f1f5f8;font-weight:800;font-size:14px;display:grid;place-items:center}
+#ridecard button svg{width:22px;height:22px}
+#ridecard button.go{background:var(--ok);color:#fff;border-color:transparent}
+#busbar{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border:2px solid var(--accent);width:min(520px,100%);box-sizing:border-box}
+#busbar .txt{font-weight:800;margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#busbar button{height:50px;min-width:50px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:#f1f5f8;font-weight:800;font-size:14px}
+#busbar button.go{background:var(--ok);color:#fff;border-color:transparent}
+.ride #bottom,.ride #missions,.ride #hint,.ride #coach,.ride #advisor,.ride #growbar,.ride #legend,.ride #rbubble,.ride #replay,.ride #bUndo,.ride #bFit,.ride #caps{display:none!important}
+.ride #cv{cursor:grab}
+@media (max-width:560px){#ridecard{gap:6px;padding:6px 6px 6px 10px}#ridecard button{padding:0 10px}#ridecard .rtxt{display:none}}
 .cash{margin-left:auto;font-family:var(--font-display);font-weight:800;color:var(--ink);font-size:14px}
 .cash.neg{color:var(--bad)}
 .shead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:2px 4px}
@@ -404,7 +429,7 @@ body.rm .hm .btn,body.rm .hm h1 .l,body.rm .hm .tag,body.rm .hm small.ver{animat
 <div id="app">
   <canvas id="cv" tabindex="0" role="img" aria-label="City map. Use the toolbar buttons or keys S, T, R to build stops and routes."></canvas>
 
-  <div id="vig"></div><div id="coins" aria-hidden="true"></div>
+  <div id="vig"></div><div id="ridefx" aria-hidden="true"><i class="vis"></i><i class="pl"></i><i class="pr"></i><i class="dash"></i></div><div id="coins" aria-hidden="true"></div>
   <div id="top">
     <div id="row1">
       <div class="panel" id="satCard">
@@ -437,6 +462,7 @@ body.rm .hm .btn,body.rm .hm h1 .l,body.rm .hm .tag,body.rm .hm small.ver{animat
     <div class="panel" id="stopcard" hidden></div>
     <div class="panel" id="drawbar" hidden></div>
     <div class="panel" id="town" hidden></div>
+    <div class="panel" id="busbar" hidden></div>
     <div class="panel" id="sheet" hidden></div>
     <div class="panel" id="toolbar" role="toolbar" aria-label="Tools">
       <button class="tbtn on" data-act="tool" data-tool="select"><svg viewBox="0 0 24 24"><path d="M6 3l12 8-5.5 1.5L10 18z"/></svg>Select</button>
@@ -449,6 +475,7 @@ body.rm .hm .btn,body.rm .hm h1 .l,body.rm .hm .tag,body.rm .hm small.ver{animat
   </div>
 
   <button id="photoX" hidden data-act="photox">Exit photo mode</button>
+  <div class="panel" id="ridecard" role="region" aria-label="Bus ride" hidden></div>
   <div id="caps" aria-hidden="true"></div>
   <div id="ov" hidden role="dialog" aria-modal="true" aria-label="Menu"></div>
 </div>
@@ -1016,7 +1043,7 @@ function audioUpdate(){
   musicTick();
   const on=ui.sound&&!G.modal,t=AC.currentTime,run=on&&!G.paused;
   let moving=0;for(const b of G.buses)if(b.state==='drive')moving++;
-  const z=clamp(((typeof cam!=='undefined'?cam.zoom:1)-.5)/2.2,0,1),hh=clockHour(G.t),dayT=hh>=6.4&&hh<19,nightT=hh>=19.6,wet=!!(G.event&&(G.event.type==='storm'||G.event.type==='flood'))||(G.L&&G.L.climate==='rain'),am=PROF.amb!==false;
+  const z=ui.ride?.85:clamp(((typeof cam!=='undefined'?cam.zoom:1)-.5)/2.2,0,1),hh=clockHour(G.t),dayT=hh>=6.4&&hh<19,nightT=hh>=19.6,wet=!!(G.event&&(G.event.type==='storm'||G.event.type==='flood'))||(G.L&&G.L.climate==='rain'),am=PROF.amb!==false;
   AUD.amb.gain.setTargetAtTime(on?((G.paused?.02:.03)+(am?.045*z:0)):0,t,.3);
   AUD.wind.gain.setTargetAtTime(on&&am?(1-z)*(wet?.045:G.season==='winter'?.034:.022)*(G.paused?.4:1):0,t,.5);
   if(run&&am){
@@ -1610,10 +1637,11 @@ start:`<p><button class="btn alt" data-act="tour">Take the interactive tour</but
 <h3>Your first three minutes</h3><ol><li>Pick <b>Stops</b> and tap a road junction next to a cluster of houses.</li><li>Tap another junction next to offices or shops.</li><li>Pick <b>Route</b>, then tap the first stop and the second stop. A route and a bus appear.</li><li>Press ▶ and watch. Colour tells you who needs help: green is calm, amber is impatient, red is about to give up. With Colour-blind mode on (Settings) the colours become blue, yellow and orange and every stop badge also shows a shape: \u25CF calm, \u25B2 impatient, \u25A0 about to give up.</li><li>Open <b>Buses</b> and press + on routes with red stops.</li></ol>
 <div class="tip">Rush hours matter most. Mornings move riders from homes to work. Evenings move them back.</div>
 <h3>The day</h3><p>Each day runs from 06:00 to 20:00 (plus a night shift if you unlock Night service). The coloured bar under the clock shows quiet, morning rush, midday, evening rush and wind-down. At the end of every day you get a report and a small grant, and the city may grow.</p>`,
-tools:`<h3>Bottom toolbar</h3><dl><dt>Select</dt><dd>Tap a stop to open its card. Tap a bus to follow it. Drag to pan, scroll or pinch to zoom, right-drag or twist to rotate.</dd>
+tools:`<h3>Bottom toolbar</h3><dl><dt>Select</dt><dd>Tap a stop to open its card. Tap a bus to follow it, then press Ride to see the city from its front window. Drag to pan, scroll or pinch to zoom, right-drag or twist to rotate.</dd>
 <dt>Stops</dt><dd>Tap a road junction to build a stop ($30). Stops sit on the pavement beside the junction.</dd>
 <dt>Route</dt><dd>Tap stops in order. The second stop creates the route and gives it a bus. Keep tapping to add more stops. Tap the last stop again, or press Done, to finish. Tap the last stop of an existing route to keep extending it.</dd>
 <dt>Buses</dt><dd>Opens the fleet panel with every route and its controls. The number is how many buses you own.</dd>
+<dt>Ride a bus</dt><dd>Tap a bus to follow it, then press <b>Ride</b> in the bar above the toolbar (or press <b>C</b>). You sit at the front of the bus and look down the street. Drag to look left, right, up or down; the view springs back when you let go. Scroll to change the field of view, tap to re-centre. At a stop the view slides to the door and glances at the people waiting. The game keeps running, and you can pause or change speed from the little ride card, which shows the route, the next stop and how many riders are on board. Press <b>Exit ride</b>, <b>C</b> or <b>Escape</b> to get off; your map view, tool and selection come back exactly as they were. The ride ends by itself if the bus is sold, the route is deleted, or a menu or the end-of-day report opens. Pedestrians you see on the pavements are scenery only.</dd>
 <dt>Map view</dt><dd>Cycles through Demand (where riders are waiting or being missed), Traffic (where roads are slow), Coverage (which blocks have a stop within walking distance) and Mood (how happy the residents of each block are), then off.</dd>
 <dt>Town</dt><dd>Opens Town Voice: a ranked list of what residents need, each with a one-tap fix. Press <b>H</b> as a shortcut.</dd></dl>
 <h3>Top bar</h3><dl><dt>▶ / ❚❚</dt><dd>Play and pause. You can edit freely while paused. Space also toggles it.</dd><dt>1× 2× 3×</dt><dd>Game speed.</dd><dt>Speaker</dt><dd>Sound on or off.</dd><dt>Undo</dt><dd>Reverses your last change. While you are drawing a route it removes the last stop and keeps you on that route. Your earnings are kept.</dd><dt>Fit map</dt><dd>Re-centres the camera on the whole city.</dd><dt>Menu</dt><dd>Restart today, City Hall, Garage, Share card, Goals, Photo mode, Settings, Trophies, Save slots, Shop, Drivers and this Guide.</dd></dl>
@@ -1632,6 +1660,7 @@ routes:`<p>Open <b>Buses</b>, then tap a route to see these buttons.</p><dl>
 <dt>Extend</dt><dd>Lets you tap more stops onto the end of this route.</dd>
 <dt>Shape road</dt><dd>Choose the exact streets the route uses. Tap a junction to bend the route through it, tap a white waypoint to remove it. Use it to avoid jams or to pass a block you want covered.</dd>
 <dt>Follow a bus</dt><dd>Camera rides along with one of the route's buses.</dd>
+<dt>Ride a bus</dt><dd>Jumps into the front of a bus for a first-person view of the city: the road, the stops, the people waiting and walking. See <b>Ride a bus</b> under Tools & top bar.</dd>
 <dt>Delete</dt><dd>Removes the route and refunds half the price of its buses. Stops stay.</dd>
 <dt>Name and colour</dt><dd>Tap the name to rename. Tap the colour dot to change colour.</dd></dl>`,
 stops:`<p>Tap a stop (with Select) to open its card.</p><dl>
@@ -1665,7 +1694,7 @@ GUIDE.access=`<h3>Settings &rarr; Accessibility</h3><dl>
 <dt>Reduce motion</dt><dd>Auto follows your device's reduced-motion setting. On stops the intro animation, the map-growing animation, confetti, pulsing rings and halos, flashing full-bus and roadworks lights the camera glide when following a bus, flick momentum, smooth zoom, stops popping up, routes drawing themselves, flying coins and the bus lean. Nothing in the game flashes more than three times a second even with it off.</dd>
 <dt>Sound captions</dt><dd>Shows a short caption for important sounds, such as the bus horn, a full bus, a crowded stop and event alerts.</dd>
 <dt>Mute everything</dt><dd>Silences effects, ambience and music together. Press <b>M</b> any time, or use the Pause menu.</dd></dl>
-<h3>Keyboard</h3><dl><dt>S &middot; T &middot; R</dt><dd>Select, Stops and Route tools.</dd><dt>B</dt><dd>Open or close the Buses panel.</dd><dt>V</dt><dd>Cycle the map view (Demand, Traffic, Coverage, Mood).</dd><dt>H</dt><dd>Open or close Town Voice.</dd><dt>Space</dt><dd>Play or pause (when a button is not focused).</dd><dt>+ and &minus;</dt><dd>Zoom in and out. <b>F</b> fits the whole map.</dd><dt>Q &middot; E</dt><dd>Rotate the camera.</dd><dt>M</dt><dd>Mute everything.</dd><dt>Escape</dt><dd>Closes menus, deselects a stop, or finishes drawing a route.</dd><dt>Tab</dt><dd>Moves between buttons. Menus keep focus inside them and give it back when they close.</dd></dl>
+<h3>Keyboard</h3><dl><dt>S &middot; T &middot; R</dt><dd>Select, Stops and Route tools.</dd><dt>B</dt><dd>Open or close the Buses panel.</dd><dt>V</dt><dd>Cycle the map view (Demand, Traffic, Coverage, Mood).</dd><dt>H</dt><dd>Open or close Town Voice.</dd><dt>Space</dt><dd>Play or pause (when a button is not focused).</dd><dt>+ and &minus;</dt><dd>Zoom in and out. <b>F</b> fits the whole map.</dd><dt>Q &middot; E</dt><dd>Rotate the camera.</dd><dt>C</dt><dd>Ride the bus you are following (first-person view). Press it again to get off. Arrow keys look around while riding.</dd><dt>M</dt><dd>Mute everything.</dd><dt>Escape</dt><dd>Closes menus, gets off a bus ride, deselects a stop, or finishes drawing a route.</dd><dt>Tab</dt><dd>Moves between buttons. Menus keep focus inside them and give it back when they close.</dd></dl>
 <p>Screen readers: the clock, day and satisfaction are announced about every 20 seconds, and messages (toasts) are read out as they appear.</p>`;
 GUIDE.town=`<p>Residents tell you what they think. Every thought is worked out from what is really happening in your city, never at random, and each one points at something you can build.</p>
 <h3>Thought bubbles</h3><p>Up to six bubbles (three in Battery saver) float above the places that need help most. Thoughts you have not seen before come first. Zoom in to read a few words under the icon. Tap a bubble, or tap a rider, to read the whole thought, how they feel (happy, okay, annoyed or angry, always written out and given a shape: &#9679; calm, &#9650; impatient, &#9632; angry) and a suggested fix with a button.</p>
@@ -1733,7 +1762,7 @@ function advise(){
 }
 function advisorTick(){
   let el=$('#advisor');if(!el){el=document.createElement('div');el.id='advisor';el.className='panel';el.hidden=true;$('#app').appendChild(el)}
-  const busy=!$('#stopcard').hidden||ui.sheet||ui.town||ui.tour||ui.drawing||ui.shape||!$('#coach').hidden||G.modal||PROF.advisor===false;
+  const busy=!!ui.ride||!$('#stopcard').hidden||ui.sheet||ui.town||ui.tour||ui.drawing||ui.shape||!$('#coach').hidden||G.modal||PROF.advisor===false;
   const a=busy?null:advise();
   if(!a){if(!el.hidden)el.hidden=true;ui.advKey=null;return}
   if(ui.advKey!==a.key){ui.advKey=a.key;el.innerHTML='<span>💡 '+esc(a.text)+'</span><button class="go" data-act="'+a.act+'" data-id="'+(a.id||'')+'" data-key="'+a.key+'">'+esc(a.btn)+'</button><button data-act="advx" data-key="'+a.key+'" aria-label="Dismiss">✕</button>'}
@@ -3385,6 +3414,7 @@ function retryDay(){
 
 /* ================= level setup ================= */
 function resetState(){
+  if(ui.ride)rideExit('reset');
   G.parkBonus=0;G.boosts={};G.umbrellaT=0;ui.shopHome=false;ui.shopArm=null;G.hist={};G.histT=0;G.stories=[];G.dayEnding=false;G.warned=false;G.stops=new Map();G.routes=[];G.buses=[];G.citizens=[];G.parts=[];G.day=1;G.t=0;G.acc=0;G.over=false;G.netVer++;
   G.bubbles=[];G.thinkMem=[];G.thinkT=20;G.thinkSeen=false;G.wheelSeen=false;G.xferDelivered=0;G.delivered=0;G.gaveUp=0;G.dayDel=0;G.dayGave=0;G.win=[];G.event=null;G.stormMult=1;G.routeCount=0;G.lastEv='';G.flashSat=0;
   G.gaveBlock={};G.okBlock={};G.town=townNew();G.townT=0;ui.town=false;ui.townSel=null;ui.tmark=null;G.depots=new Map();G.rival={stops:[],routes:[]};G.missions=[];G.mDel=0;G.mClears=0;G.mDest={};G.prioCD=0;G.lostRival=0;G.dayLost=0;G.snap=null;G.xpDay=0;G.lmT=0;G.fogMult=1;G.rev=0;G.cost=0;G.dayRev=0;G.dayCost=0;G.engine=0;G.pendingNext=false;G.congT=0;G.lastPhase='';
@@ -3425,6 +3455,7 @@ function resize(){
 }
 function updateCamera(){
   if(!T.ok)return;
+  if(ui.ride){rideCamSet();return}
   const dist=(H/2)/(Math.tan(cam.fov*Math.PI/360)*cam.zoom),cp=Math.cos(cam.pitch),sp=Math.sin(cam.pitch);
   T.camera.position.set(cam.x+Math.sin(cam.yaw)*cp*dist,sp*dist,cam.y+Math.cos(cam.yaw)*cp*dist);
   T.camera.near=Math.max(5,dist*.05);T.camera.far=dist*8;T.camera.updateProjectionMatrix();
@@ -3438,6 +3469,7 @@ function toWorld(sx,sy){
 }
 function fitCam(force){
   if(!G.city)return;
+  if(ui.ride){RD.refit=true;return}
   const topH=($('#row1').getBoundingClientRect().bottom||100)+10,botH=Math.max(60,H-($('#toolbar').getBoundingClientRect().top||H-90))+10;
   const availH=Math.max(120,H-topH-botH),z=Math.min(W/G.city.w,availH/(G.city.h*Math.sin(.92)))*1.04;
   cam.minZ=z*.7;cam.maxZ=3.2;T.fitZ=z;
@@ -3459,7 +3491,238 @@ function panBy(x0,y0,x1,y1){
   if(a&&b){cam.x+=a.x-b.x;cam.y+=a.y-b.y;clampCam();updateCamera()}
 }
 const pointers=new Map();let gesture=null,multi=false;
-cv.addEventListener('pointerdown',e=>{if(ui.expAnim){ui.expAnim.skipped=true;ui.expAnim.t0-=ui.expAnim.dur*2}ui.camAnim=null;feel.coast=false;feel.zOn=false;feel.vx=feel.vy=0;
+/* ================= RIDE: first-person bus camera (visual only: never saved, never touches the simulation) =================
+   rideEnter/rideExit/rideTick/rideCamSet own everything. updateCamera() defers to rideCamSet() while ui.ride is set; the normal camera (cam.*) is not touched
+   so rideExit() can put it back exactly. */
+const RD={id:0,bus:null,sv:null,px:0,pz:0,cx:0,cz:0,vx:0,vz:0,ex:0,ez:0,pf:-1,pt:-1,yaw:0,ly:0,lp:0,gy:0,gp:0,idle:9,db:0,dwT:0,fovAdj:0,ar:0,drag:null,tgt:null,pos:null,roll:0,mt:0,spd:0,eye:9.5,refit:false};
+const RIDE_DIST=140,RIDE_SH=360,RIDE_LY=1.3,RIDE_LP_LO=-.4,RIDE_LP_HI=.55;
+function rideCan(){return!!(T.ok&&G.city&&!G.over&&!G.modal&&!ui.tour&&!tutOn()&&!ui.photo&&!ui.drawing&&!ui.shape&&!ui.moving&&!ui.expAnim&&!(ui.growOpts&&ui.growOpts.length))}
+function rideBusFor(routeId){
+  let best=null;
+  for(const b of G.buses){if(routeId&&b.route.id!==routeId)continue;if(!best||(best.state==='parked'&&b.state!=='parked'))best=b}
+  return best;
+}
+function rideEnter(id){
+  if(ui.ride)return false;
+  if(!rideCan()){if(tutOn())toast('Finish the first-route lesson, then you can ride a bus.',2400);return false}
+  let b=null;const want=id||ui.follow;for(const x of G.buses)if(x.id===want){b=x;break}
+  if(!b){toast('Tap a bus on the map first, then press Ride.',2400);return false}
+  const r=RD;
+  r.sv={x:cam.x,y:cam.y,zoom:cam.zoom,yaw:cam.yaw,pitch:cam.pitch,fov:cam.fov,tool:ui.tool,sel:ui.sel,follow:ui.follow,hover:ui.hover};
+  ui.camAnim=null;feel.coast=false;feel.zOn=false;feel.vx=feel.vy=0;pointers.clear();multi=false;gesture=null;ui.hover=null;
+  r.id=b.id;r.bus=b;r.drag=null;r.ly=r.lp=r.gy=r.gp=0;r.idle=9;r.db=0;r.dwT=0;r.fovAdj=0;r.roll=0;r.mt=0;r.spd=0;r.refit=false;r.ar=0;
+  r.pf=-1;r.pt=-1;r.ex=r.ez=0;r.yaw=b.ang;r.cx=b.x;r.cz=b.y;r.vx=r.vz=0;
+  if(!r.pos){r.pos=new THREE.Vector3();r.tgt=new THREE.Vector3()}
+  ui.ride=r;ui.follow=b.id;
+  document.getElementById('app').classList.add('ride');
+  const sh=T.sun&&T.sun.shadow.camera;if(sh){sh.left=-RIDE_SH;sh.right=RIDE_SH;sh.top=RIDE_SH;sh.bottom=-RIDE_SH;sh.updateProjectionMatrix()}
+  rideCardBuild();rideTick(0);rideCamSet();T.shadowTick=0;
+  toast('Riding '+b.route.name+'. Drag to look around, scroll to change the view, Esc to get off.',3400);
+  ui.dirty=true;try{cv.focus({preventScroll:true})}catch(e){}
+  return true;
+}
+function rideExit(why){
+  if(!ui.ride)return;
+  const r=RD,sv=r.sv;
+  ui.ride=null;r.drag=null;r.bus=null;
+  document.getElementById('app').classList.remove('ride');
+  $('#ridecard').hidden=true;
+  if(T.ok){
+    T.camera.fov=sv?sv.fov:cam.fov;
+    const sh=T.sun&&T.sun.shadow.camera,c=T.cityC;if(sh&&c){const rr=c.r;sh.left=-rr;sh.right=rr;sh.top=rr;sh.bottom=-rr;sh.updateProjectionMatrix()}
+    if(T.snow)T.snow.material.size=2.6;
+    for(const o of T.buses.values())o.g.visible=true;
+    for(const o of T.stops.values())if(o.badge){o.badge.visible=true;o.badge.scale.set(37,18.5,1)}
+    rideWalkHide();
+    T.shadowTick=0;
+  }
+  if(sv){
+    cam.x=sv.x;cam.y=sv.y;cam.zoom=sv.zoom;cam.yaw=sv.yaw;cam.pitch=sv.pitch;cam.fov=sv.fov;
+    if(ui.tool!==sv.tool)setTool(sv.tool);
+    ui.sel=sv.sel;
+    ui.follow=why==='reset'?null:(sv.follow&&G.buses.some(x=>x.id===sv.follow)?sv.follow:null);
+  }
+  r.sv=null;
+  if(T.ok){if(r.refit&&G.city&&why!=='reset')fitCam(true);else updateCamera()}
+  ui.dirty=true;
+  if(why!=='reset'){try{cv.focus({preventScroll:true})}catch(e){}}
+}
+/* per-frame ride state: smooth heading with a look into corners, junction hop absorber, dwell glance toward the stop, look spring. dt is real time. */
+function rideTick(dt){
+  const r=RD;if(!ui.ride)return;
+  let b=null;for(const x of G.buses)if(x.id===r.id){b=x;break}
+  if(!b||!G.city||G.over||G.modal||ui.tour||ui.expAnim||(ui.growOpts&&ui.growOpts.length)||ui.photo){rideExit('end');return}
+  r.bus=b;
+  const rm=!!ui.rm,rt=b.route,sxs=1.1*(rt.express?1.25:1)*BUS_MODELS[rt.model||0].len,N=G.city.nodes;
+  // heading: eased toward the bus heading, leaning into the next turn over the last 46 units of an edge
+  let ta=b.ang;
+  if(!rm&&b.state==='drive'&&b.queue.length){
+    const rem=b.elen-b.s;
+    if(rem<46){const A=N[b.to],B=N[b.queue[0]];let d=Math.atan2(B.y-A.y,B.x-A.x)-b.ang;d=Math.atan2(Math.sin(d),Math.cos(d));const w=1-rem/46;ta=b.ang+d*w*w*(3-2*w)*.55}
+  }
+  let da=ta-r.yaw;da=Math.atan2(Math.sin(da),Math.cos(da));
+  r.yaw+=rm?da:da*(1-Math.exp(-dt*6.5));
+  // bus centre, with the lane-offset hop at junctions absorbed (decays quickly)
+  if(r.pf<0){r.cx=b.x;r.cz=b.y;r.vx=r.vz=0}
+  if(b.from!==r.pf||b.to!==r.pt){
+    if(!rm&&r.pf>=0){r.ex+=r.cx+r.vx-b.x;r.ez+=r.cz+r.vz-b.y;const m=Math.hypot(r.ex,r.ez);if(m>16){r.ex*=16/m;r.ez*=16/m}}
+    r.pf=b.from;r.pt=b.to;
+  }
+  r.vx=b.x-r.cx;r.vz=b.y-r.cz;r.cx=b.x;r.cz=b.y;
+  if(rm)r.ex=r.ez=0;else{const dk=Math.exp(-dt*7);r.ex*=dk;r.ez*=dk}
+  // dwell: slide back to the door seat and glance at the stop
+  if(b.state==='dwell')r.dwT+=dt;else r.dwT=0;
+  const st=b.state==='dwell'?G.stops.get(b.to):null,want=(!rm&&st&&r.dwT>.35)?1:0;
+  r.db+=(want-r.db)*(1-Math.exp(-dt*3));if(!want&&r.db<.003)r.db=0;
+  const nose=12.4*sxs,door=6.4*sxs,o=nose+(door-nose)*r.db;
+  let lat=0;if(st&&r.db>0)lat=busSide(b,st)*1.2*r.db;
+  const cy=Math.cos(r.yaw),sy=Math.sin(r.yaw);
+  r.px=r.cx+r.ex+cy*o-sy*lat;r.pz=r.cz+r.ez+sy*o+cy*lat;
+  // road feel
+  const mv=(b.state==='drive'&&!G.paused&&!rm)?1:0;r.spd+=(mv-r.spd)*(1-Math.exp(-dt*3));r.mt+=dt*(8+6*r.spd)*mv;
+  r.eye=9.5+(rm?0:Math.sin(r.mt)*.1*r.spd);
+  r.roll+=((rm?0:clamp(da*.05,-.04,.04))-r.roll)*(1-Math.exp(-dt*5));
+  // look: the user's offset springs back after a pause (not under Reduce motion); glance target while the doors are open
+  r.idle+=dt;
+  if(!r.drag&&!rm&&r.idle>2.2){const k=1-Math.exp(-dt*2.6);r.ly-=r.ly*k;r.lp-=r.lp*k}
+  let gt=0,gp=0;
+  if(want&&r.idle>2.5&&st){let a=Math.atan2(st.y-r.pz,st.x-r.px)-r.yaw;a=Math.atan2(Math.sin(a),Math.cos(a));gt=clamp(a,-RIDE_LY,RIDE_LY);gp=-.08}
+  const gk=rm?1:1-Math.exp(-dt*2.6);r.gy+=(gt-r.gy)*gk;r.gp+=(gp-r.gp)*gk;
+}
+function rideCamSet(){
+  const r=RD,c=T.camera;if(!r.pos)return;
+  const ar=W/H;
+  let fov=clamp(2*Math.atan(1/ar)*180/Math.PI,62,86)+r.fovAdj;fov=clamp(fov,50,92);
+  if(Math.abs(c.fov-fov)>.01||c.near!==1.5||r.ar!==ar){c.fov=fov;c.near=1.5;c.far=2600;c.aspect=ar;r.ar=ar;c.updateProjectionMatrix()}
+  const yw=r.yaw+r.ly+r.gy,pt=clamp(-.03+r.lp+r.gp,-.6,.8),cp=Math.cos(pt);
+  c.position.set(r.px,r.eye,r.pz);
+  r.tgt.set(r.px+Math.cos(yw)*cp*100,r.eye+Math.sin(pt)*100,r.pz+Math.sin(yw)*cp*100);
+  c.lookAt(r.tgt);if(r.roll)c.rotateZ(r.roll);
+  c.updateMatrixWorld(true);cam.dist=RIDE_DIST;
+}
+/* look-around input: drag to look (clamped, springs back), tap to re-centre, wheel nudges the field of view */
+function rideDown(e){
+  const r=RD;if(r.drag)return;
+  r.drag={id:e.pointerId,x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,t:performance.now(),moved:false};r.idle=0;
+  try{cv.setPointerCapture(e.pointerId)}catch(_){}
+  cv.style.cursor='grabbing';
+}
+function rideMove(e){
+  const r=RD,d=r.drag;if(!d||d.id!==e.pointerId)return;
+  const dx=e.clientX-d.x,dy=e.clientY-d.y;d.x=e.clientX;d.y=e.clientY;
+  if(Math.hypot(e.clientX-d.sx,e.clientY-d.sy)>6)d.moved=true;
+  if(!d.moved)return;
+  const k=T.camera.fov*Math.PI/180/Math.max(1,H);
+  r.ly=clamp(r.ly-dx*k,-RIDE_LY,RIDE_LY);r.lp=clamp(r.lp+dy*k,RIDE_LP_LO,RIDE_LP_HI);r.idle=0;
+}
+function rideUp(e){
+  const r=RD,d=r.drag;if(!d||d.id!==e.pointerId)return;
+  r.drag=null;cv.style.cursor='grab';
+  if(!d.moved&&performance.now()-d.t<600){r.ly=r.lp=r.gy=r.gp=0;r.idle=0}
+}
+function rideLook(dy,dp){const r=RD;if(!ui.ride)return;r.ly=clamp(r.ly+dy,-RIDE_LY,RIDE_LY);r.lp=clamp(r.lp+dp,RIDE_LP_LO,RIDE_LP_HI);r.idle=0}
+/* ride card (route, next stop, load, pause/play, exit) */
+function rideCardBuild(){
+  const c=$('#ridecard'),b=RD.bus;if(!c||!b)return;
+  c.innerHTML='<i class="rsw" style="background:'+esc(b.route.color)+'"></i><div class="rinfo"><b data-r="rt"></b><span data-r="nx"></span></div><span class="rload" data-r="ld" title="Passengers on board"></span>'+
+    '<button data-act="play" id="rdPlay" aria-label="Pause"></button><button class="go" data-act="rideexit" aria-label="Exit ride, get off the bus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M6 6l12 12M18 6L6 18"/></svg><span class="rtxt">Exit ride</span></button>';
+  c.hidden=false;c.dataset.k='';rideCardUpdate();
+  const bt=c.querySelector('[data-act=rideexit]');if(bt){bt.style.display='flex';bt.style.alignItems='center';bt.style.gap='6px'}
+}
+function rideCardUpdate(){
+  if(!ui.ride)return;const c=$('#ridecard'),b=RD.bus;if(!c||!b)return;
+  const nn=id=>{const n=G.city.nodes[id];return n?nodeName(n):''};
+  const txt=b.state==='parked'?'Parked at '+nn(b.to):b.state==='dwell'?'At '+nn(b.to):b.state==='blocked'?'Waiting for a clear road':'Next stop: '+nn(b.dst);
+  const rt=b.route.name+(b.route.model===3?' tram':''),ld=b.pax.length+'/'+b.cap,k=rt+'|'+txt+'|'+ld+'|'+G.paused;
+  if(c.dataset.k===k)return;c.dataset.k=k;
+  const q=s=>c.querySelector('[data-r='+s+']');
+  q('rt').textContent=rt;q('nx').textContent=txt;q('ld').textContent=ld;
+  c.setAttribute('aria-label','Bus ride. '+rt+'. '+txt+'. '+b.pax.length+' of '+b.cap+' seats taken.');
+  const pb=c.querySelector('#rdPlay');if(pb){pb.innerHTML=G.paused?ICON_PLAY:ICON_PAUSE;pb.setAttribute('aria-label',G.paused?'Play':'Pause');pb.classList.toggle('go',G.paused)}
+}
+/* bus bar: shown above the toolbar while a bus is followed */
+function busBarUpdate(){
+  const bb=$('#busbar');if(!bb)return;
+  let fb=null;if(ui.follow&&!ui.ride)for(const x of G.buses)if(x.id===ui.follow){fb=x;break}
+  const show=!!fb&&!ui.drawing&&!ui.shape&&!ui.moving&&!ui.tour&&!tutOn();
+  if(!show){if(!bb.hidden)bb.hidden=true;bb._k='';return}
+  const k=fb.id+'|'+fb.route.name+'|'+(fb.drv?fb.drv.name:'');
+  if(bb._k!==k){bb._k=k;bb.innerHTML='<span class="txt">'+esc(fb.route.name)+(fb.drv?' · '+esc(fb.drv.name):'')+'</span><button class="go" data-act="ride" aria-label="Ride this bus: first-person view from the front of the bus (key C)">Ride</button><button data-act="unfollow" aria-label="Stop following this bus">Stop</button>'}
+  bb.hidden=false;
+}
+/* ---- ambient strolling pedestrians (ride mode only; cosmetic, never read by the simulation) ---- */
+const RW={n:0,cap:60,leg:null,bod:null,head:null,city:null,near:null,nn:0,nearT:0,e:null,s:null,l:null,d:null,o:null,v:null,f:null,seed:null,on:null,dirty:false};
+function rideWalkInit(){
+  if(RW.leg)return;
+  VT.init();
+  const mk=geo=>{const m=new THREE.InstancedMesh(geo,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.8}),RW.cap);m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.frustumCulled=false;m.castShadow=false;m.setColorAt(0,lin('#ffffff'));m.count=RW.cap;m.visible=false;T.dyn.add(m);return m};
+  RW.leg=mk(new THREE.CylinderGeometry(.95,.85,2.6,6));RW.bod=mk(new THREE.CylinderGeometry(1.25,1.4,3.2,7));RW.head=mk(new THREE.SphereGeometry(1.15,8,6));
+  const n=RW.cap;RW.e=new Int16Array(n);RW.s=new Float32Array(n);RW.l=new Float32Array(n);RW.d=new Float32Array(n);RW.o=new Float32Array(n);RW.v=new Float32Array(n);RW.f=new Float32Array(n);RW.seed=new Float32Array(n);RW.on=new Uint8Array(n);
+}
+function rideWalkHide(){if(RW.leg)RW.leg.visible=RW.bod.visible=RW.head.visible=false}
+const RW_LEG=['#2b3a55','#3b3f46','#5a4a3a','#27313f','#4d5b6b','#6b5e50'];
+function rideWalkSpawn(i,edges,nodes){
+  if(RW.nn<=0)return false;
+  const k=RW.near[Math.floor(Math.random()*RW.nn)],e=edges[k],A=nodes[e.a],B=nodes[e.b],l=Math.hypot(B.x-A.x,B.y-A.y);
+  if(l<34)return false;
+  RW.e[i]=k;RW.l[i]=l;RW.s[i]=12+Math.random()*(l-24);RW.d[i]=Math.random()<.5?-1:1;RW.o[i]=(Math.random()<.5?-1:1)*(12.6+Math.random()*2.2);RW.v[i]=7+Math.random()*7;RW.f[i]=0;RW.seed[i]=Math.random();RW.on[i]=1;
+  const sd=RW.seed[i];
+  RW.leg.setColorAt(i,lin(RW_LEG[Math.floor(sd*97)%RW_LEG.length]));RW.bod.setColorAt(i,VIS_SHIRT[Math.floor(sd*131)%VIS_SHIRT.length]);RW.head.setColorAt(i,VIS_SKIN[Math.floor(sd*53)%VIS_SKIN.length]);
+  RW.dirty=true;return true;
+}
+function rideWalkers(simDt,realDt,now){
+  if(!ui.ride||PROF.gfx==='saver'){rideWalkHide();return}
+  rideWalkInit();
+  const C=G.city,edges=C.edges,nodes=C.nodes,cx=T.camera.position.x,cz=T.camera.position.z;
+  if(RW.city!==C){RW.city=C;RW.near=new Int16Array(edges.length);RW.nn=0;RW.nearT=0;RW.on.fill(0)}
+  RW.nearT-=realDt;
+  if(RW.nearT<=0){
+    RW.nearT=.9;let n=0;
+    for(let k=0;k<edges.length;k++){const e=edges[k];if(e.syn||e.hw||e.closed)continue;const A=nodes[e.a],B=nodes[e.b],mx=(A.x+B.x)/2-cx,mz=(A.y+B.y)/2-cz;if(mx*mx+mz*mz<62500)RW.near[n++]=k}
+    RW.nn=n;
+  }
+  const night=T.night||0,tgt=Math.floor((PROF.gfx==='light'?28:RW.cap)*(1-.65*night)*(1-.5*WX.storm)),calm=!!ui.rm,t=now/1000;
+  const m4=VT.m4,q=VT.q,ps=VT.ps,sc=VT.sc;q.set(0,0,0,1);
+  for(let i=0;i<RW.cap;i++){
+    let act=false,x=0,z=0,f=0;
+    if(i<tgt){
+      if(!RW.on[i]&&Math.random()<.5)rideWalkSpawn(i,edges,nodes);
+      if(RW.on[i]){
+        const e=edges[RW.e[i]];
+        if(!e||e.closed||e.syn)RW.on[i]=0;
+        else{
+          const A=nodes[e.a],B=nodes[e.b],l=RW.l[i];
+          if(!calm)RW.s[i]+=RW.d[i]*RW.v[i]*simDt;
+          const s=RW.s[i],px0=A.x+(B.x-A.x)*(s/l),pz0=A.y+(B.y-A.y)*(s/l),dxc=px0-cx,dzc=pz0-cz;
+          if(s<10||s>l-10||dxc*dxc+dzc*dzc>72000)RW.on[i]=0;
+          else{
+            const o=RW.o[i];x=px0-(B.y-A.y)/l*o;z=pz0+(B.x-A.x)/l*o;
+            RW.f[i]=calm?1:Math.min(1,RW.f[i]+realDt*1.5);
+            const ed=Math.min(1,Math.min(s-10,l-10-s)/10);f=RW.f[i]*ed*ed*(3-2*ed);act=f>.01;
+          }
+        }
+      }
+    }
+    if(act){
+      const bob=calm?0:Math.abs(Math.sin(t*9+RW.seed[i]*20))*.4*f,u=.85*f;
+      sc.set(u,u,u);ps.set(x,1.3*u,z);m4.compose(ps,q,sc);RW.leg.setMatrixAt(i,m4);
+      ps.set(x,4.2*u+bob,z);m4.compose(ps,q,sc);RW.bod.setMatrixAt(i,m4);
+      ps.set(x,6.1*u+bob,z);m4.compose(ps,q,sc);RW.head.setMatrixAt(i,m4);
+    }else{
+      sc.set(0,0,0);ps.set(0,-50,0);m4.compose(ps,q,sc);RW.leg.setMatrixAt(i,m4);RW.bod.setMatrixAt(i,m4);RW.head.setMatrixAt(i,m4);
+    }
+  }
+  RW.n=tgt;
+  RW.leg.visible=RW.bod.visible=RW.head.visible=true;
+  RW.leg.instanceMatrix.needsUpdate=RW.bod.instanceMatrix.needsUpdate=RW.head.instanceMatrix.needsUpdate=true;
+  if(RW.dirty){RW.dirty=false;RW.leg.instanceColor.needsUpdate=RW.bod.instanceColor.needsUpdate=RW.head.instanceColor.needsUpdate=true}
+}
+/* labels that float through buildings are only useful nearby at street level */
+function rideLabels(){
+  const px=T.camera.position.x,pz=T.camera.position.z;
+  for(const[id,o]of T.stops){if(!o.badge)continue;o.badge.scale.set(22,11,1);const st=G.stops.get(id);if(!st)continue;const dx=st.x-px,dz=st.y-pz;o.badge.visible=dx*dx+dz*dz<260*260}
+}
+cv.addEventListener('pointerdown',e=>{if(ui.ride){ensureAudio();rideDown(e);return}if(ui.expAnim){ui.expAnim.skipped=true;ui.expAnim.t0-=ui.expAnim.dur*2}ui.camAnim=null;feel.coast=false;feel.zOn=false;feel.vx=feel.vy=0;
   ensureAudio();
   if(e.isPrimary){pointers.clear();multi=false;gesture=null}
   try{cv.setPointerCapture(e.pointerId)}catch(_){}
@@ -3473,6 +3736,7 @@ function startGesture(){
   gesture={d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1,z:cam.zoom,ang:Math.atan2(a[1].y-a[0].y,a[1].x-a[0].x),cx:(a[0].x+a[1].x)/2,cy:(a[0].y+a[1].y)/2};
 }
 cv.addEventListener('pointermove',e=>{
+  if(ui.ride){rideMove(e);return}
   const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,p=pointers.get(e.pointerId);
   if(!p){if(e.pointerType==='mouse'){ui.hover=(ui.tool!=='select')?nearestNode(x,y,55):null}return}
   const px=p.x,py=p.y;p.x=x;p.y=y;
@@ -3490,6 +3754,7 @@ cv.addEventListener('pointermove',e=>{
   }
 });
 function endPointer(e,cancel){
+  if(ui.ride){rideUp(e);return}
   const p=pointers.get(e.pointerId);if(!p)return;
   pointers.delete(e.pointerId);
   const wasMulti=multi;
@@ -3508,7 +3773,7 @@ function endPointer(e,cancel){
 }
 cv.addEventListener('pointerup',e=>endPointer(e,false));
 cv.addEventListener('pointercancel',e=>endPointer(e,true));
-cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientRect(),f=Math.exp(-e.deltaY*(e.ctrlKey?.01:.0016));
+cv.addEventListener('wheel',e=>{e.preventDefault();if(ui.ride){RD.fovAdj=clamp(RD.fovAdj+e.deltaY*(e.ctrlKey?.05:.012),-14,14);return}const r=cv.getBoundingClientRect(),f=Math.exp(-e.deltaY*(e.ctrlKey?.01:.0016));
   if(ui.rm){zoomAt(e.clientX-r.left,e.clientY-r.top,f);return}
   feel.coast=false;feel.zt=clamp((feel.zOn?feel.zt:cam.zoom)*f,cam.minZ,cam.maxZ);feel.zx=e.clientX-r.left;feel.zy=e.clientY-r.top;feel.zOn=true},{passive:false});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
@@ -4876,7 +5141,7 @@ function syncBuses(u,now){
   for(const[id,o]of T.buses)if(!alive.has(id)){T.dyn.remove(o.g);disposeTree(o.g);T.buses.delete(id)}
   const k=Math.max(1.1,u*.9),vis=PROF.gfx!=='saver'&&!!T.bHead,calm=!!ui.rm;let hn=0,dn=0;VT.init();
   for(const b of G.buses){
-    const o=ensureBus(b),r=b.route,flash=b.flash>0&&(ui.rm||Math.floor(now/180)%2===0),f=b.pax.length/b.cap;
+    const o=ensureBus(b),r=b.route,own=!!ui.ride&&b.id===ui.ride.id,flash=b.flash>0&&(ui.rm||Math.floor(now/180)%2===0),f=b.pax.length/b.cap;
     o.liv.color.copy(lin(r.color));
     /* body feel: eased heading, lean into corners, nose dip when braking, a settle bounce on arrival (visual only) */
     const dtv=T.rdt||.016;let va=b.ang,bn=0;
@@ -4893,10 +5158,10 @@ function syncBuses(u,now){
       o.g.rotation.x=o.lean;o.g.rotation.z=o.pit;
     }else{o.vang=b.ang;if(o.g.rotation.x||o.g.rotation.z)o.g.rotation.x=o.g.rotation.z=0}
     o.g.position.set(b.x,0,b.y);o.g.rotation.y=-va;o.g.scale.set(k*(r.express?1.25:1)*BUS_MODELS[r.model||0].len*(1-bn*.4),k*(1+bn),k*(1-bn*.4));
-    o.stripeY.visible=!!r.express;o.pant.visible=r.model===3;o.band.visible=r.model===3;o.wire.visible=r.model===3;o.flashBox.visible=flash;o.full.visible=b.flash>0;
+    o.g.visible=!own;o.stripeY.visible=!!r.express;o.pant.visible=r.model===3;o.band.visible=r.model===3;o.wire.visible=r.model===3;o.flashBox.visible=flash;o.full.visible=b.flash>0;
     o.bar.scale.set(Math.max(.3,f*14),.6,1.6);o.bar.position.x=-9+Math.max(.3,f*14)/2-.5;
     o.bar.material.color.copy(lin(f>=1?COL.bad:f>.66?COL.warn:COL.ok));
-    if(vis){
+    if(vis&&!own){
       const sxs=k*(r.express?1.25:1)*BUS_MODELS[r.model||0].len,ca=Math.cos(va),sa=Math.sin(va),np=b.pax.length,shown=np?Math.min(12,Math.ceil(np/b.cap*12)):0,moving=b.state==='drive'&&!calm;
       VT.qb.setFromAxisAngle(VT.yAx,-va);
       for(let j=0;j<shown&&hn<480;j++){
@@ -4909,7 +5174,7 @@ function syncBuses(u,now){
     }
   }
   {const sb=ui.follow?G.buses.find(x=>x.id===ui.follow):null;
-   if(sb){if(!T.busSel){const m=new THREE.Mesh(T.gRing,basic('#ffd24d',{transparent:true,depthWrite:false}));m.renderOrder=6;T.busSel=m}
+   if(sb&&!ui.ride){if(!T.busSel){const m=new THREE.Mesh(T.gRing,basic('#ffd24d',{transparent:true,depthWrite:false}));m.renderOrder=6;T.busSel=m}
      const m=T.busSel;if(m.parent!==T.dyn)T.dyn.add(m);m.position.set(sb.x,1.7,sb.y);m.scale.setScalar(k*17*(calm?1:1+.07*Math.sin(now/230)));m.material.opacity=calm?.9:.7+.2*Math.sin(now/230);m.visible=true}
    else if(T.busSel)T.busSel.visible=false}
   if(vis){
@@ -5043,6 +5308,7 @@ function syncParts(u){
   }
 }
 function effView(){
+  if(ui.ride)return'off';
   if(ui.view!=='off')return ui.view;
   if(G.paused&&!G.modal&&(ui.tool==='stop'||ui.tool==='route'||ui.drawing))return'coverage';
   return'off';
@@ -5071,7 +5337,7 @@ function syncViews(now,u){
    }else if(T.growG&&T.growG._k){clearGroup(T.growG);T.growG._k=null}}
   if(T.waterTex&&!ui.rm){T.waterTex.offset.set((now/26000)%1,(now/41000)%1)}
   if(T.foamMat)T.foamMat.opacity=.22+.14*Math.sin(now/900);
-  if(T.streetG)T.streetG.visible=PROF.streets!==false&&cam.zoom>=.75&&!ui.photo;
+  if(T.streetG)T.streetG.visible=PROF.streets!==false&&(cam.zoom>=.75||!!ui.ride)&&!ui.photo;
   if(!T.heatG)return;
   const view=effView();
   T.heatG.visible=view==='demand'||view==='coverage'||view==='mood';T.trafG.visible=view==='traffic';
@@ -5181,7 +5447,7 @@ function syncBubbles(u,now){
   const live=new Set(G.bubbles);
   if(!T.bubbleObjs)T.bubbleObjs=new Map();
   for(const[b,o]of T.bubbleObjs)if(!live.has(b)){T.dyn.remove(o);o.material.dispose();T.bubbleObjs.delete(b)}
-  const wideOk=cam.zoom>=1.5&&PROF.gfx!=='saver'&&!ui.photo;
+  const wideOk=cam.zoom>=1.5&&PROF.gfx!=='saver'&&!ui.photo&&!ui.ride;
   for(const b of G.bubbles){
     const r=b.rec,wide=!!r&&wideOk;
     let o=T.bubbleObjs.get(b);
@@ -5190,6 +5456,7 @@ function syncBubbles(u,now){
     const k=ui.rm?1:Math.min(1,b.t/.5),out=ui.rm?((b.life-b.t)>.05?1:0):Math.min(1,(b.life-b.t)/.8),a=Math.min(k,out),sc=u*(ui.rm?1:(.6+.4*k));
     b.wide=wide;o.center.set(wide?.26:.5,.5);
     o.scale.set((wide?115:56)*sc,46*sc,1);o.position.set(b.x,34*u+(ui.rm?0:Math.sin(now/380)*2.2*u),b.y);o.material.opacity=a;
+    if(ui.ride){const dx=b.x-T.camera.position.x,dz=b.y-T.camera.position.z,d=Math.sqrt(dx*dx+dz*dz);o.scale.x*=.32;o.scale.y*=.32;o.position.y=16+(ui.rm?0:Math.sin(now/380)*.9);o.material.opacity=a*clamp(1.6-d/110,0,1)*clamp((d-26)/44,0,1)}
   }
 }
 function tmClear(){const g=T.tmG;for(const c of g.children)if(c.isSprite&&c.material){if(c.material.map)c.material.map.dispose();c.material.dispose()}clearGroup(g)}
@@ -5265,9 +5532,9 @@ function syncSeason(now){
   }
   const sI=WX.snow,on=sI>.01;T.snow.visible=on;
   if(on){
-    const a=T.snow.geometry.attributes.position.array,sc=Math.max(1,cam.dist/650),t=now/1000,n=Math.ceil((wxOn()?900:500)*sI);
+    const a=T.snow.geometry.attributes.position.array,sc=ui.ride?.42:Math.max(1,cam.dist/650),t=now/1000,n=Math.ceil((wxOn()?900:500)*sI);
     WX.sph+=WX.dt*.07*(ui.rm?.4:1)*(1+.5*sI);
-    T.snow.position.set(cam.x,0,cam.y);T.snow.scale.setScalar(sc);T.snow.material.opacity=.85*Math.min(1,sI*2);
+    T.snow.position.set(ui.ride?T.camera.position.x:cam.x,0,ui.ride?T.camera.position.z:cam.y);T.snow.scale.setScalar(sc);T.snow.material.size=ui.ride?.5:2.6;T.snow.material.opacity=.85*Math.min(1,sI*2);
     for(let i=0;i<n;i++){const b=T.snowBase[i];a[i*3]=b[0]*520+Math.sin(t*.8+b[3])*12;a[i*3+1]=300-((b[1]+WX.sph)%1)*310;a[i*3+2]=b[2]*520}
     T.snow.geometry.setDrawRange(0,n);T.snow.geometry.attributes.position.needsUpdate=true;
   }
@@ -5320,7 +5587,7 @@ function gradeUpdate(h,night,now){
   U.gLift.value.set((g.l[0]*(1-n)+g.nl[0]*n)*k,(g.l[1]*(1-n)+g.nl[1]*n)*k,(g.l[2]*(1-n)+g.nl[2]*n)*k);
   // tilt-shift: strong when zoomed out (fit view), gone once zoomed in 2x; softened (not animated) under Reduce motion
   const zr=cam.zoom/(T.fitZ||cam.zoom),ts=Math.max(0,Math.min(1,(2.1-zr)/1.1));
-  U.tilt.value=fx&&PROF.gfx!=='saver'?ts*ts*(3-2*ts)*(ui.rm?.6:1):0;
+  U.tilt.value=fx&&PROF.gfx!=='saver'&&!ui.ride?ts*ts*(3-2*ts)*(ui.rm?.6:1):0;
   U.tx.value.set(1/W,1/H);U.vig.value=fx?.7:.55;U.grain.value=fx?.026:.022;
 }
 function lighting(now){
@@ -5338,7 +5605,7 @@ function lighting(now){
   T.r.toneMappingExposure=ex;
   if(T.fin){T.fin.uniforms.exposure.value=ex;T.fin.uniforms.time.value=ui.rm?3.7:(now/1000)%10;T.fin.uniforms.heat.value=(cl==='hot'&&!ui.rm&&PROF.gfx!=='saver')?dayK:0;T.fin.uniforms.ht.value=(now/1000*3)%6.2831853;T.bloom.strength=(.22+.55*night)*(PROF.gfx==='ultra'?1.35:1);T.bloom.threshold=1.05-.3*night;T.bloom.radius=.55;gradeUpdate(h,night,now)}
   if(WX.u){const fx=T.fps.lvl<1&&PROF.gfx!=='saver'&&PROF.gfx!=='light';WX.u.uCloud.value=fx?(ui.rm?.55:.9)*(1-Math.min(1,night*1.3))*(1-.8*Math.max(WX.fog,WX.storm)):0;WX.u.uCT.value=ui.rm?3.1:(now/1000*.025)%500;WX.u.uGl.value=fx?.9*dayK*(1-WX.storm)*(1-WX.fog):0}
-  const c=T.cityC;if(c)T.sun.position.set(c.x+dir.x*1300,dir.y*1300,c.z+dir.z*1300),T.sun.target.position.set(c.x,0,c.z),T.sun.target.updateMatrixWorld();
+  const c=T.cityC;if(c){let sx=c.x,sz=c.z;if(ui.ride){sx=Math.round(T.camera.position.x/16)*16;sz=Math.round(T.camera.position.z/16)*16}T.sun.position.set(sx+dir.x*1300,dir.y*1300,sz+dir.z*1300),T.sun.target.position.set(sx,0,sz),T.sun.target.updateMatrixWorld()}
   T.scene.fog.color.copy(fogC);T.scene.fog.near=cam.dist*(1.7-1.25*fg);T.scene.fog.far=cam.dist*(6.6-4.95*fg);
   const emi=night,ev=1-Math.min(1,night*1.4);T.night=night;
   if(T.groundMat){const wt=WX.wet;T.groundMat.roughness=wxOn()?.95:.95-.5*wt;T.groundMat.envMapIntensity=.15+.55*wt*ev}
@@ -5349,8 +5616,8 @@ function lighting(now){
   T.sky.position.copy(T.camera.position);T.sky.scale.setScalar(T.camera.far*.85);
   const rI=WX.rain;T.rain.visible=rI>.01;
   if(rI>.01){
-    const a=T.rain.geometry.attributes.position.array,s=Math.max(1,cam.dist/650),n=Math.ceil((wxOn()?1600:800)*rI),ph=WX.ph*1.1;
-    T.rain.position.set(cam.x,0,cam.y);T.rain.scale.setScalar(s);T.rain.material.opacity=.45*Math.min(1,rI*1.5);
+    const a=T.rain.geometry.attributes.position.array,s=ui.ride?.42:Math.max(1,cam.dist/650),n=Math.ceil((wxOn()?1600:800)*rI),ph=WX.ph*1.1;
+    T.rain.position.set(ui.ride?T.camera.position.x:cam.x,0,ui.ride?T.camera.position.z:cam.y);T.rain.scale.setScalar(s);T.rain.material.opacity=.45*Math.min(1,rI*1.5);
     for(let i=0;i<n;i++){const b=T.rainBase[i],y=300-((b[1]+ph)%1)*320,x=b[0]*520,z=b[2]*520;a[i*6]=x;a[i*6+1]=y;a[i*6+2]=z;a[i*6+3]=x-3;a[i*6+4]=y-14;a[i*6+5]=z+2}
     T.rain.geometry.setDrawRange(0,n*2);T.rain.geometry.attributes.position.needsUpdate=true;
   }
@@ -5410,14 +5677,16 @@ function syncVehicleLights(){
   const a=T.vl.geometry.attributes.position.array;let n=0;
   const put=(x,y,ang,fwd,side)=>{if(n>=T.vlMax)return;const c=Math.cos(ang),s2=Math.sin(ang);a[n*3]=x+c*fwd-s2*side;a[n*3+1]=2.8;a[n*3+2]=y+s2*fwd+c*side;n++};
   for(const c of T.cars){put(c.x,c.y,c.ang,6.4,-1.7);put(c.x,c.y,c.ang,6.4,1.7)}
-  for(const b of G.buses){put(b.x,b.y,b.ang,13.5,-2.8);put(b.x,b.y,b.ang,13.5,2.8)}
+  for(const b of G.buses){if(ui.ride&&b.id===ui.ride.id)continue;put(b.x,b.y,b.ang,13.5,-2.8);put(b.x,b.y,b.ang,13.5,2.8)}
   T.vl.geometry.setDrawRange(0,n);T.vl.geometry.attributes.position.needsUpdate=true;
 }
 function render3D(now,simDt,realDt){
   if(!T.ok||!G.city)return;
   updateCamera();T.simDt=simDt;T.rdt=Math.min(.1,realDt||.016);wxUpdate(now);
-  const u=clamp(1.1/cam.zoom,1,2.7);
+  const u=ui.ride?1:clamp(1.1/cam.zoom,1,2.7);
   syncRoutes();syncStops(u,now);syncBuses(u,now);syncCitizens(u,now);syncClosures(now);syncParts(u);syncMarkers(u,now);syncTut(now);syncViews(now,u);syncBubbles(u,now);syncMeta(u,now);syncSeason(now);
+  T.routeG.visible=!ui.ride;
+  if(ui.ride){rideWalkers(simDt,T.rdt,now);rideLabels()}else if(RW.leg&&RW.leg.visible)rideWalkHide();
   if(simDt>0)updCars(simDt);
   lighting(now);lifeUpdate(now,T.night||0);syncVehicleLights();
   T.shadowTick=(T.shadowTick||0)+1;if(T.shadowTick%2===0||T.shadowTick<4)T.r.shadowMap.needsUpdate=true;
@@ -5466,6 +5735,7 @@ function syncPlay(){
   const b=$('#bPlay');b.innerHTML=G.paused?ICON_PLAY:ICON_PAUSE;
   b.classList.toggle('paused',G.paused);b.classList.toggle('ready',G.paused&&G.t===0&&G.day===1&&!G.modal);
   b.setAttribute('aria-label',G.paused?'Play':'Pause');
+  if(ui.ride){const rc=$('#ridecard');if(rc)rc.dataset.k=''}
   $('#bSound').innerHTML=ui.sound?ICON_SND:ICON_MUTE;$('#bSound').setAttribute('aria-label',ui.sound?'Sound on. Turn sound off':'Sound off. Turn sound on');
   $('#bSpeed').textContent=G.speed+'×';$('#bSpeed').setAttribute('aria-label','Game speed '+G.speed+' times. Change speed');
   ui.dirty=true;
@@ -5518,7 +5788,7 @@ function refreshUI(){
           '<button class="mini '+(r.lane?'on':'')+'" data-act="lane" data-id="'+r.id+'">'+(r.lane?'Priority lanes ✓':'Priority lanes $'+PRICE.lane)+'</button>'+
           '<button class="mini '+(r.sched==='peak'?'on':'')+'" data-act="sched" data-id="'+r.id+'">'+(r.sched==='peak'?'Rush hours only':'All day')+'</button>'+(has('night')?'<button class="mini '+(r.night?'on':'')+'" data-act="night" data-id="'+r.id+'">'+(r.night?'Night service ✓':'Night service')+'</button>':'')+
           '<button class="mini" data-act="extend" data-id="'+r.id+'">Extend</button><button class="mini" data-act="shape" data-id="'+r.id+'">Shape road</button>'+
-          '<button class="mini" data-act="follow" data-id="'+r.id+'">Follow a bus</button>'+
+          '<button class="mini" data-act="follow" data-id="'+r.id+'">Follow a bus</button><button class="mini" data-act="ride" data-id="'+r.id+'" aria-label="Ride a bus on '+esc(r.name)+': first-person view from the front of the bus">Ride a bus</button>'+
           '<button class="mini danger" data-act="delroute" data-id="'+r.id+'">Delete</button></div>';
       }
       return'<div class="rrow '+(sel?'sel':'')+'" data-act="selroute" data-id="'+r.id+'"><button class="sw" data-act="color" data-id="'+r.id+'" style="background:'+r.color+'" aria-label="Change colour of '+esc(r.name)+'"><b>'+esc(r.name.replace(/^Route\s*/,'').slice(0,2)||r.name[0])+'</b></button>'+
@@ -5536,7 +5806,7 @@ function refreshUI(){
   }
   const sc=$('#stopcard');
   if(ui.sel&&ui.sel.type==='stop'&&G.stops.has(ui.sel.id)){sc.hidden=false;updateStopCard(true)}else sc.hidden=true;
-  applyHint();
+  applyHint();busBarUpdate();
   if((ui.sheet||ui.town)&&!sc.hidden&&W<560)sc.hidden=true;
   renderTown();
   {const tb=$('#bTown');if(tb){tb.classList.toggle('on',!!ui.town);tb.setAttribute('aria-pressed',ui.town?'true':'false')}}
@@ -5708,6 +5978,9 @@ document.addEventListener('click',e=>{
     case'ramp':if(ui.sel&&ui.sel.type==='stop')makeAccessible(ui.sel.id);break;
     case'view':ui.view=ui.view==='off'?'demand':ui.view==='demand'?'traffic':ui.view==='traffic'?'coverage':ui.view==='coverage'?'mood':'off';ui.dirty=true;if(ui.view==='mood')townTick();toast(ui.view==='mood'?'Mood view: green blocks are happy, red are angry. Icons show the biggest need there (see the key).':ui.view==='demand'?'Demand view: homes and offices glow where riders are being missed.':ui.view==='traffic'?'Traffic view: roads change colour where buses slow down (see the key).':ui.view==='coverage'?'Coverage view: blocks marked OK have a stop within walking distance, the others do not (see the key).':'Map view off.');break;
     case'showworst':{const st=G.stops.get(id);hideOv();G.modal=false;if(st){cam.x=st.x;cam.y=st.y;cam.zoom=Math.max(cam.zoom,1.8);ui.sel={type:'stop',id:st.id};ui.dirty=true}if(isFinite(G.L.days)&&G.day>=G.L.days){}else G.pendingNext=true;syncPlay();showReplay(id);break}
+    case'ride':{if(ui.ride)break;const rb=route?rideBusFor(route.id):null;if(route&&!rb){toast('This route has no buses yet.');break}rideEnter(rb?rb.id:ui.follow);break}
+    case'rideexit':rideExit('user');break;
+    case'unfollow':ui.follow=null;ui.dirty=true;break;
     case'photo':hideOv();ui.photo=true;ui.follow=null;document.getElementById('app').classList.add('photo');$('#photoX').hidden=false;break;
     case'photox':ui.photo=false;document.getElementById('app').classList.remove('photo');$('#photoX').hidden=true;break;
     case'goals':showGoals();break;
@@ -5757,6 +6030,7 @@ document.addEventListener('keydown',e=>{
   }
   if(e.key==='Escape'){
     if(!o.hidden){if(ovBack())e.preventDefault();return}
+    if(ui.ride){rideExit('user');e.preventDefault();return}
     if(ui.shape){ui.shape=null;ui.dirty=true}
     else if(ui.moving){ui.moving=null;ui.dirty=true}
     else if(ui.drawing)finishDrawing();
@@ -5769,7 +6043,16 @@ document.addEventListener('keydown',e=>{
   if(e.code==='Space'){if(btn)return;if(!G.modal){e.preventDefault();G.paused=!G.paused;syncPlay()}return}
   if(G.modal||!G.city)return;
   const k=e.key.toLowerCase(),clickAct=(sel)=>{const b=document.querySelector(sel);if(b)b.click()};
-  if(k==='q'){cam.yaw-=.15;updateCamera()}
+  if(ui.ride){
+    if(k==='c'){rideExit('user')}
+    else if(k==='m')toggleMute();
+    else if(e.key==='ArrowLeft')rideLook(-.2,0);else if(e.key==='ArrowRight')rideLook(.2,0);else if(e.key==='ArrowUp')rideLook(0,.12);else if(e.key==='ArrowDown')rideLook(0,-.12);
+    else if(e.key==='Home'||e.key==='Enter'){if(btn)return;RD.ly=RD.lp=RD.gy=RD.gp=0}
+    else return;
+    e.preventDefault();return;
+  }
+  if(k==='c'){if(ui.follow)rideEnter(ui.follow);else toast('Tap a bus first, then press C to ride it.',2200)}
+  else   if(k==='q'){cam.yaw-=.15;updateCamera()}
   else if(k==='e'){cam.yaw+=.15;updateCamera()}
   else if(k==='s')clickAct('.tbtn[data-tool="select"]');
   else if(k==='t')clickAct('.tbtn[data-tool="stop"]');
@@ -5970,11 +6253,12 @@ function frame(now){
       let dt=rdt*G.speed;
       while(dt>0&&!G.modal&&!G.over){const s=Math.min(.05,dt);stepAll(s);dt-=s}
     }
+    if(ui.ride)rideTick(rdt);
     if(ui.camAnim){const a=ui.camAnim,k=Math.max(0,Math.min(1,(now-a.t0)/a.dur)),e=k*k*(3-2*k);for(const f of['x','y','zoom','yaw','pitch'])cam[f]=a.from[f]+(a.to[f]-a.from[f])*e;updateCamera();if(k>=1)ui.camAnim=null}
     uiT+=rdt;
     if(ui.dirty)refreshUI();
-    if(uiT>.25){uiT=0;if(!G.paused&&++_scT%40===0)selfCheck();if(_scT%12===0)advisorTick();if(G.paused&&!G.over&&++_tvT%6===0)townTick();ui.vibrate=true;coachTick();hud();updateStopCard(false);liveInfo();applyHint()}
-    if(ui.follow){const fb=G.buses.find(x=>x.id===ui.follow);if(!fb){ui.follow=null;ui.dirty=true}else{const k=ui.rm?1:Math.min(1,rdt*5),la=ui.rm?0:(fb.state==='drive'?26:0);cam.x+=(fb.x+Math.cos(fb.ang)*la-cam.x)*k;cam.y+=(fb.y+Math.sin(fb.ang)*la-cam.y)*k;clampCam()}}
+    if(uiT>.25){uiT=0;if(!G.paused&&++_scT%40===0)selfCheck();if(_scT%12===0)advisorTick();if(G.paused&&!G.over&&++_tvT%6===0)townTick();ui.vibrate=true;coachTick();hud();updateStopCard(false);liveInfo();applyHint();if(ui.ride)rideCardUpdate()}
+    if(ui.follow&&!ui.ride){const fb=G.buses.find(x=>x.id===ui.follow);if(!fb){ui.follow=null;ui.dirty=true}else{const k=ui.rm?1:Math.min(1,rdt*5),la=ui.rm?0:(fb.state==='drive'?26:0);cam.x+=(fb.x+Math.cos(fb.ang)*la-cam.x)*k;cam.y+=(fb.y+Math.sin(fb.ang)*la-cam.y)*k;clampCam()}}
     if(ui.photo)cam.yaw+=rdt*.1;
     feelTick(rdt);
     if(uiT===0)audioUpdate();
@@ -5987,6 +6271,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
 window.__rhr={meta:{townTick,townFix,townDoFix,townLook,townText,townHtml,townHappy,townToggle,renderTown,showThought,tapBubble,townNodeFor,TH,townThanks,moodBucket,showCampaign,showFree,campIdx,winButtons,showHowToPlay,snd,toggleMute,rmOn,patHtml,routeCols,ac:()=>({ac:AC,out:AOUT}),showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,shopTap,buyShop,useItem,equipLook,showItems,applyBank,shopItem,savePct,realSeason,bo,sp,boostIcons,invCount,applyLooks,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,removeStop,addStop,feel,haptic,moneyTick,coinFly,routeGrowTick,doubleTapZoom,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},wx:WX,vg:VG,info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr.ride={enter:rideEnter,exit:rideExit,tick:rideTick,camSet:rideCamSet,RD,RW,can:rideCan,look:rideLook,bar:busBarUpdate};
 /* boot (deferred one frame so the splash screen can paint first) */
 function bootGame(){
 performance.mark('rhr:boot');
