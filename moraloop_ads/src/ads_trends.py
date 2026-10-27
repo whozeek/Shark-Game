@@ -55,4 +55,52 @@ ADS = [
         S("You’re burned out, and your new job starts right after. But your team still counts on you.",
           ["coworker", "you"], "say", ["🪫", "📋"], "worried", others="worried", set="office"),
     ], close="Do you push hard to the end, or ease off?"),
+
+    # Trend: porch-light / teen trick-or-treating debates the week before Halloween (Oct 2026)
+    dict(id="t007_teen_trick_or_treaters", title="Teen Trick-or-Treaters", made_on="2026-10-27", beats=[
+        S("Halloween night. Two teens at your door. No costumes, just pillowcases.",
+          ["teammate", "cousin", "you"], "say", ["🎃", "🛍️"], "worried", others="happy", set="street"),
+        S("They’re still kids. But your bowl is almost empty.", ["you"], "think", ["🍬", "🥣", "👶"], "worried",
+          set="home"),
+    ], close="Do you give them candy, or save it for little kids?"),
+
+    # Trend: TikTok "Stop the Wedding" trend (Oct 2026)
+    dict(id="t008_stop_the_wedding", title="Stop the Wedding", made_on="2026-10-27", beats=[
+        S("Your best friend is getting married. You think it’s a mistake. They seem happy.", ["you"], "think",
+          ["💒", "💍", "😬"], "worried", set="hall"),
+        S("The officiant asks, “Does anyone object?” Everyone goes quiet.", ["elder", "friend", "you"], "say",
+          ["💒", "❓"], "shock", others="neutral", set="hall"),
+    ], close="Do you speak up, or stay quiet?"),
+
+    # Trend: viral post about a manager telling a Gen Z worker to "cut down" on accessories (Oct 2026)
+    dict(id="t009_the_dress_code", title="The Dress Code", made_on="2026-10-27", beats=[
+        S("Your reviews are great. But your boss asks you to tone down your style.", ["boss", "you"], "say",
+          ["⭐", "💍", "🎀"], "worried", set="office"),
+        S("Your look is part of who you are. But you want that promotion.", ["you"], "think", ["🎀", "🪞", "📈"],
+          "worried", set="office"),
+    ], close="Do you tone it down, or keep your style?"),
+
+    # Trend: viral question about grandparents crediting everyone but the mother for a baby's looks (Oct 2026)
+    dict(id="t010_the_baby_looks", title="The Baby Looks", made_on="2026-10-27", beats=[
+        S("Your mom holds your new baby. “Looks just like our side of the family.”", ["elder", "partner", "you"],
+          "say", ["👶", "👀", "👨‍👩‍👧"], "worried", others="sad", set="home"),
+        S("She means it kindly. But your partner seems hurt.", ["you"], "think", ["👶", "😕", "🤐"], "worried",
+          set="home"),
+    ], close="Do you say something to your mom, or let it go?"),
+
+    # Trend: Reddit HR thread on interview red flags, including AI-written answers (Oct 2026)
+    dict(id="t011_the_ai_interview", title="The AI Interview", made_on="2026-10-27", beats=[
+        S("Big job interview tomorrow. You always blank under pressure.", ["you"], "think", ["💼", "😰", "⏰"],
+          "worried", set="home_night"),
+        S("An AI app could write perfect answers for you to memorize.", ["you"], "see", ["📱", "🤖", "📝"],
+          "worried", set="home_night"),
+    ], close="Do you memorize the AI answers, or wing it?"),
+
+    # Trend: Reddit story about an ex asking for the wedding dress back before remarrying (Oct 2026)
+    dict(id="t012_the_wedding_dress", title="The Wedding Dress", made_on="2026-10-27", beats=[
+        S("Your ex is getting remarried. They want the wedding dress back. It was their grandma’s.",
+          ["ex", "you"], "say", ["👗", "💍", "👵"], "shock", set="home"),
+        S("But you paid to restore it, and it’s been yours for years.", ["you"], "think", ["👗", "💸", "🧵"], "worried",
+          set="home"),
+    ], close="Do you give it back, or keep it?"),
 ]

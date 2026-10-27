@@ -18,7 +18,13 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 11 | 2026-10-28 | 8:00 PM | loop long | The Brother Rule | `moraloop_ads/loops/long/the_brother_rule.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/the_brother_rule.mp4) |
 | 12 | 2026-10-29 | 9:00 AM | loop short | The Fifth Costume | `moraloop_ads/loops/l003_the_fifth_costume.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l003_the_fifth_costume.mp4) |
 | 13 | 2026-10-29 | 12:00 PM | short | The Notice Period | `moraloop_ads/trends/t006_the_notice_period.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t006_the_notice_period.mp4) |
-| 14 | 2026-10-30 | 4:00 PM | long | The Last Season | `moraloop_ads/long/the_last_season.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_last_season.mp4) |
+| 14 | 2026-10-30 | 12:00 PM | short | Teen Trick-or-Treaters | `moraloop_ads/trends/t007_teen_trick_or_treaters.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t007_teen_trick_or_treaters.mp4) |
+| 15 | 2026-10-30 | 4:00 PM | long | The Last Season | `moraloop_ads/long/the_last_season.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_last_season.mp4) |
+| 16 | 2026-10-31 | 12:00 PM | short | Stop the Wedding | `moraloop_ads/trends/t008_stop_the_wedding.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t008_stop_the_wedding.mp4) |
+| 17 | 2026-11-01 | 12:00 PM | short | The Dress Code | `moraloop_ads/trends/t009_the_dress_code.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t009_the_dress_code.mp4) |
+| 18 | 2026-11-02 | 12:00 PM | short | The Baby Looks | `moraloop_ads/trends/t010_the_baby_looks.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t010_the_baby_looks.mp4) |
+| 19 | 2026-11-03 | 12:00 PM | short | The AI Interview | `moraloop_ads/trends/t011_the_ai_interview.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t011_the_ai_interview.mp4) |
+| 20 | 2026-11-04 | 12:00 PM | short | The Wedding Dress | `moraloop_ads/trends/t012_the_wedding_dress.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t012_the_wedding_dress.mp4) |
 
 ## Captions
 
@@ -139,12 +145,66 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #work #worklife #career
 ```
 
-### 14. 2026-10-30 4:00 PM: The Last Season (long)
+### 14. 2026-10-30 12:00 PM: Teen Trick-or-Treaters (short)
+Video: `moraloop_ads/trends/t007_teen_trick_or_treaters.mp4`
+
+```
+Two teens with no costumes knock on Halloween. Your bowl is almost empty. Do you give them candy, or save it for little kids? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #halloween #trickortreat #neighbors
+```
+
+### 15. 2026-10-30 4:00 PM: The Last Season (long)
 Video: `moraloop_ads/long/the_last_season.mp4`
 
 ```
 Your best teammate might quit and asks you to keep it quiet, but the coach is planning around them. Do you tell the coach the team needs a backup, or keep your teammate’s secret for now? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #sports #teamwork #friendship
+```
+
+### 16. 2026-10-31 12:00 PM: Stop the Wedding (short)
+Video: `moraloop_ads/trends/t008_stop_the_wedding.mp4`
+
+```
+Your best friend seems happy, but you think it’s a mistake. The officiant asks if anyone objects. Do you speak up, or stay quiet? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #wedding #friendship #stopthewedding
+```
+
+### 17. 2026-11-01 12:00 PM: The Dress Code (short)
+Video: `moraloop_ads/trends/t009_the_dress_code.mp4`
+
+```
+Great reviews, but your boss asks you to tone down your style. Do you tone it down, or keep your style? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #work #worklife #genz
+```
+
+### 18. 2026-11-02 12:00 PM: The Baby Looks (short)
+Video: `moraloop_ads/trends/t010_the_baby_looks.mp4`
+
+```
+Your mom keeps saying the baby looks just like your side. Your partner seems hurt. Do you say something, or let it go? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #newparents #inlaws
+```
+
+### 19. 2026-11-03 12:00 PM: The AI Interview (short)
+Video: `moraloop_ads/trends/t011_the_ai_interview.mp4`
+
+```
+Big interview tomorrow and you blank under pressure. An AI app could write your answers. Do you memorize them, or wing it? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #jobinterview #ai #career
+```
+
+### 20. 2026-11-04 12:00 PM: The Wedding Dress (short)
+Video: `moraloop_ads/trends/t012_the_wedding_dress.mp4`
+
+```
+Your ex is remarrying and wants their grandma’s wedding dress back. You paid to restore it. Do you give it back, or keep it? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #wedding #divorce #aita
 ```
 
