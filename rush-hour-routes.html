@@ -4088,10 +4088,11 @@ function buildLandscape(g,city,th,sav){
   // ground: tiled texture (grass, sand, snow or city concrete), or open water
   let gmat;
   const gtint=th==='cobble'?'#d4d0b8':rg==='europe'?'#e9ecde':'#f1f1ee';
-  if(wet){gmat=new THREE.MeshStandardMaterial({color:lin(snowy?'#2a5f78':cl==='rain'?'#18505f':'#1b5b73').clone(),roughness:.08,metalness:.15,envMap:T.env,envMapIntensity:1.2,bumpMap:T.waterTex,bumpScale:.7});waterFx(gmat)}
+  if(world){gmat=null}   // campaign world: the world terrain is the ground around the town (T.far shows until it is built)
+  else if(wet){gmat=new THREE.MeshStandardMaterial({color:lin(snowy?'#2a5f78':cl==='rain'?'#18505f':'#1b5b73').clone(),roughness:.08,metalness:.15,envMap:T.env,envMapIntensity:1.2,bumpMap:T.waterTex,bumpScale:.7});waterFx(gmat)}
   else{
     gmat=new THREE.MeshStandardMaterial({map:groundTex((W_+3600)/200,(H_+3600)/200,gk),color:0xffffff,roughness:.97});gmat.userData.tint=new THREE.Color(gk==='grass'?gtint:'#ffffff');T.terrMats.push(gmat)}
-  const big=new THREE.Mesh(new THREE.PlaneGeometry(W_+3600,H_+3600),gmat);big.rotation.x=-Math.PI/2;big.position.set(cx,-.9,cz);big.userData.keep=true;g.add(big);
+  if(gmat){const big=new THREE.Mesh(new THREE.PlaneGeometry(W_+3600,H_+3600),gmat);big.rotation.x=-Math.PI/2;big.position.set(cx,-.9,cz);big.userData.keep=true;g.add(big)}
   // soft skirt: only needed where the surroundings are sand (the sea maps)
   if(wet){
     const pad=150,pw=W_+pad*2,ph=H_+pad*2,cwid=1024,chei=Math.round(1024*ph/pw),k=cwid/pw,col=snowy?'#e4ecf3':'#d9c998';
