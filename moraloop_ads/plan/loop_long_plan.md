@@ -9,9 +9,9 @@ Each run makes the first `todo` episode below. The question is the source short'
 | # | Post date (8:00 PM) | Title | Source short | Question | Hidden detail idea | Status |
 |---|---|---|---|---|---|---|
 | 1 | Wed Oct 28, 2026 | The Brother Rule | 01_your_brother | Your brother cheated, and you always said you’d tell. Do you tell? | thread: Theo’s texts to you, last line “just this once.” | done (2026-10-26) → loops/long/the_brother_rule.mp4 |
-| 2 | Fri Oct 30, 2026 | Swap Night | 03_the_phone_swap | Do you talk instead, or offer a limited look? | thread: the friend’s private messages, last line “please don’t tell anyone yet” | todo |
-| 3 | Sun Nov 1, 2026 | Screenshots | 05_the_group_chat_relationship | Do you ask for the screenshots to be removed, or ask them to correct the story? | thread: the group chat that quoted you, last line “lol wait till they see this” | todo |
-| 4 | Tue Nov 3, 2026 | Unread | 09_the_message | Do you keep reading? | thread: partner’s notification preview, last line cut off mid-sentence | todo |
+| 2 | Fri Oct 30, 2026 | Swap Night | 03_the_phone_swap | Do you talk instead, or offer a limited look? | thread: Rae’s messages on your phone, last line “not yet, ok?” | done (2026-10-27) → loops/long/swap_night.mp4 |
+| 3 | Sun Nov 1, 2026 | Screenshots | 05_the_group_chat_relationship | Do you ask for the screenshots to be removed, or ask them to correct the story? | thread: the group chat that got the screenshots, last line “did Jules ask?” | done (2026-10-27) → loops/long/screenshots.mp4 |
+| 4 | Tue Nov 3, 2026 | Unread | 09_the_message | Do you keep reading? | thread: Morgan’s messages on Robin’s laptop, last line cut off: “about Monday, I” | done (2026-10-27) → loops/long/unread.mp4 |
 | 5 | Thu Nov 5, 2026 | The Alibi | 10_the_cover_story | Do you tell their partner? | thread: “if anyone asks, I was with you” | todo |
 | 6 | Sat Nov 7, 2026 | Credit Due | 13_the_team_project | Do you give them credit this time, or credit only those who helped? | note: the task list with names, last line “(didn’t show up)” | todo |
 | 7 | Mon Nov 9, 2026 | Left Behind | 14_the_private_message | Do you explain that the phone was left behind, or tell them to ask the owner directly? | thread: the message on the left-behind phone | todo |
