@@ -144,10 +144,10 @@ body.rm .mini.loopon,body.rm .mini.loopon i{animation:none}
 .chip{font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px;background:#e6edf1}
 .chip.new{background:#ffe9a8;color:#7a5600}
 .trail{display:flex;flex-direction:column;gap:6px;margin:12px 0}
-.tn{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:#eef3f5;font-weight:800;font-size:14px}
-.tn i{font-style:normal;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#cfd8dd;color:#3b4a53;font-size:13px;flex:none}
-.tn.done i{background:var(--ok);color:#06361a}.tn.cur{background:#e4effd;border:2px solid var(--accent)}.tn.cur i{background:var(--accent);color:#fff}
-.tn.lock{opacity:.6}.tn small{margin-left:auto;color:#5a6a73;font-weight:700}
+.ctn{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:#eef3f5;font-weight:800;font-size:14px}
+.ctn i{font-style:normal;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#cfd8dd;color:#3b4a53;font-size:13px;flex:none}
+.ctn.done i{background:var(--ok);color:#06361a}.ctn.cur{background:#e4effd;border:2px solid var(--accent)}.ctn.cur i{background:var(--accent);color:#fff}
+.ctn.lock{opacity:.6}.ctn small{margin-left:auto;color:#5a6a73;font-weight:700}
 .rate{display:block;color:#1d6b3c;font-weight:800}
 .seg{display:flex;gap:6px;margin:10px 0}.seg button{flex:1;min-height:46px;border-radius:12px;border:2px solid var(--line);background:#fff;font-weight:800}
 .seg button.on{border-color:var(--ok);background:#d9f3e2}
@@ -700,6 +700,8 @@ const GLASS=['#a4c8e8','#b8d4ea','#8fb6dc','#a9cfe4','#c2d8ea'];
    Per side (north and south): a long highway chain, and at a few columns a roundabout just outside the town with a ramp from each direction.
    Buses follow these nodes like any other road, so the drawn road and the bus path are the same line. Rebuilt from scratch on every call. */
 const HW_OFF=130, HW_RUN=150, HW_R=26, HW_RC=55, HW_END=2800, HW_LANE=7.5;
+/* campaign world: the playable highway reaches only WORLD_E past its last junction (then the world road takes over); gaps between neighbouring towns */
+const WORLD_E=250, WGX=560, WGY=900;
 function markHighway(city){
   if(city.gridN==null){city.gridN=city.nodes.length;city.gridE=city.edges.length}
   city.nodes.length=city.gridN;city.edges.length=city.gridE;
@@ -731,7 +733,7 @@ function markHighway(city){
       ramps.push({ring:true,xn,cy});
     }
     jn.sort((a,b)=>N[a].x-N[b].x);
-    const e0=addN(N[jn[0]].x-HW_END,hy),e1=addN(N[jn[jn.length-1]].x+HW_END,hy),chain=[e0].concat(jn,[e1]);
+    const HE=worldOn()?WORLD_E:HW_END,e0=addN(N[jn[0]].x-HE,hy),e1=addN(N[jn[jn.length-1]].x+HE,hy),chain=[e0].concat(jn,[e1]);
     for(let k=0;k<chain.length-1;k++)link(chain[k],chain[k+1],true,'Highway',HW_LANE);
     sides.push({sg,rowY,hy,x0:N[e0].x,x1:N[e1].x,ramps});
   }
@@ -1124,6 +1126,7 @@ function applyGfx(){
     T.r.shadowMap.needsUpdate=true;
   }
   wxRefresh();resize();
+  if(G.city&&T.ok)worldSchedule();
 }
 function setOpt(k,v){
   if(k==='cb'||k==='mute'||k==='cap')PROF.a11y[k]=!PROF.a11y[k];
@@ -1636,7 +1639,8 @@ start:`<p><button class="btn alt" data-act="tour">Take the interactive tour</but
 <ul><li><b>You lose</b> if satisfaction drops below 50% (a bit more forgiving on day 1), or if you go more than $800 into debt.</li><li><b>Satisfaction</b> (the big number) is the share of the last 50 riders who reached their destination instead of giving up. It is the one that decides game over. <b>Today</b> beside it is the share of today's riders, and the level goals use all riders on the level. Each screen says which one it shows.</li><li><b>You win a level</b> by finishing all its days. Stars come from the level's goals (satisfaction, riders who gave up, profit).</li></ul>
 <h3>Your first three minutes</h3><ol><li>Pick <b>Stops</b> and tap a road junction next to a cluster of houses.</li><li>Tap another junction next to offices or shops.</li><li>Pick <b>Route</b>, then tap the first stop and the second stop. A route and a bus appear.</li><li>Press ▶ and watch. Colour tells you who needs help: green is calm, amber is impatient, red is about to give up. With Colour-blind mode on (Settings) the colours become blue, yellow and orange and every stop badge also shows a shape: \u25CF calm, \u25B2 impatient, \u25A0 about to give up.</li><li>Open <b>Buses</b> and press + on routes with red stops.</li></ol>
 <div class="tip">Rush hours matter most. Mornings move riders from homes to work. Evenings move them back.</div>
-<h3>The day</h3><p>Each day runs from 06:00 to 20:00 (plus a night shift if you unlock Night service). The coloured bar under the clock shows quiet, morning rush, midday, evening rush and wind-down. At the end of every day you get a report and a small grant, and the city may grow.</p>`,
+<h3>The day</h3><p>Each day runs from 06:00 to 20:00 (plus a night shift if you unlock Night service). The coloured bar under the clock shows quiet, morning rush, midday, evening rush and wind-down. At the end of every day you get a report and a small grant, and the city may grow.</p>
+<h3>The world</h3><p>In the campaign all the towns sit on one big map. The town you are playing is the one you can touch; the others are scenery. Zoom out and drag to look around: highways run from your town to its neighbours, and the towns you have already cleared stand finished while the next ones are still under construction. When you clear a map and press Next map, the camera follows the highway to the new town.</p>`,
 tools:`<h3>Bottom toolbar</h3><dl><dt>Select</dt><dd>Tap a stop to open its card. Tap a bus to follow it, then press Ride to see the city from its front window. Drag to pan, scroll or pinch to zoom, right-drag or twist to rotate.</dd>
 <dt>Stops</dt><dd>Tap a road junction to build a stop ($30). Stops sit on the pavement beside the junction.</dd>
 <dt>Route</dt><dd>Tap stops in order. The second stop creates the route and gives it a bus. Keep tapping to add more stops. Tap the last stop again, or press Done, to finish. Tap the last stop of an existing route to keep extending it.</dd>
@@ -3103,7 +3107,7 @@ function endOfDay(){
 function winButtons(st){
   const ci=CAMPAIGN.indexOf(G.levelIdx),a=G.free?'freelevel':'level';
   let h='';
-  if(!G.free&&st&&ci>=0){h+=ci<CAMPAIGN.length-1?'<button class="btn ok" data-act="level" data-i="'+CAMPAIGN[ci+1]+'">Next map</button>':'<button class="btn ok" data-act="mainmenu">Campaign complete!</button>'}
+  if(!G.free&&st&&ci>=0){h+=ci<CAMPAIGN.length-1?'<button class="btn ok" data-act="level" data-fly="1" data-i="'+CAMPAIGN[ci+1]+'">Next map</button>':'<button class="btn ok" data-act="mainmenu">Campaign complete!</button>'}
   return h+'<button class="btn alt" data-act="'+a+'" data-i="'+G.levelIdx+'">Replay</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="'+(G.free?'free':'mainmenu')+'">'+(G.free?'Free Play':'Main menu')+'</button>';
 }
 function starStr(n){let s='';for(let i=0;i<3;i++)s+=i<n?'★':'<span class="off">★</span>';return s}
@@ -3269,7 +3273,7 @@ function expandAnimTick(now){
   if(!g._k){
     g._k=1;g._m={};
     const base=(T.terrMats&&T.terrMats[0])||null,cm=new THREE.MeshStandardMaterial({color:base?base.color.clone():lin('#6c9a47'),roughness:.97});
-    if(base&&base.map){const mp=base.map.clone();mp.needsUpdate=true;mp.repeat.set(Math.max(1,w/200),Math.max(1,h/200));cm.map=mp}
+    if(base&&base.map){const mp=base.map.clone();mp.needsUpdate=true;mp.repeat.set(Math.max(1,w/200),Math.max(1,h/200));cm.map=mp;cm.userData.ownMap=true}
     const cover=new THREE.Mesh(T.gBox,cm);cover.renderOrder=3;g.add(cover);g._m.cover=cover;
     const front=new THREE.Mesh(T.gBox,basic('#ffffff',{transparent:true,opacity:.95,depthWrite:false}));front.renderOrder=8;g.add(front);g._m.front=front;
     const tint=new THREE.Mesh(T.gBox,basic('#3fb868',{transparent:true,opacity:.3,depthWrite:false}));tint.renderOrder=7;g.add(tint);g._m.tint=tint;
@@ -3472,7 +3476,7 @@ function fitCam(force){
   if(ui.ride){RD.refit=true;return}
   const topH=($('#row1').getBoundingClientRect().bottom||100)+10,botH=Math.max(60,H-($('#toolbar').getBoundingClientRect().top||H-90))+10;
   const availH=Math.max(120,H-topH-botH),z=Math.min(W/G.city.w,availH/(G.city.h*Math.sin(.92)))*1.04;
-  cam.minZ=z*.7;cam.maxZ=3.2;T.fitZ=z;
+  cam.minZ=z*(worldOn()?.3:.7);cam.maxZ=3.2;T.fitZ=z;
   cam.zoom=z;cam.yaw=0;cam.pitch=.92;cam.x=G.city.w/2;cam.y=G.city.h/2;updateCamera();
   const g=toWorld(W/2,(topH+(H-botH))/2);
   if(g){cam.x+=G.city.w/2-g.x;cam.y+=G.city.h/2-g.y}
@@ -3485,7 +3489,9 @@ function zoomAt(sx,sy,f){
   if(a&&b){cam.x+=a.x-b.x;cam.y+=a.y-b.y}
   clampCam();updateCamera();
 }
-function clampCam(){if(!G.city)return;cam.x=clamp(cam.x,0,G.city.w);cam.y=clamp(cam.y,0,G.city.h)}
+/* campaign world: the further you zoom out, the further you may pan (up to about 1.75 town widths from the centre); at the fitted zoom the camera stays over the town as before */
+function worldPan(){return(G.city&&worldOn()&&T.fitZ>cam.minZ)?clamp((T.fitZ-cam.zoom)/(T.fitZ-cam.minZ),0,1):0}
+function clampCam(){if(!G.city)return;const k=worldPan(),ex=k*1.25*G.city.w,ey=k*1.25*G.city.h;cam.x=clamp(cam.x,-ex,G.city.w+ex);cam.y=clamp(cam.y,-ey,G.city.h+ey)}
 function panBy(x0,y0,x1,y1){
   const a=toWorld(x0,y0),b=toWorld(x1,y1);
   if(a&&b){cam.x+=a.x-b.x;cam.y+=a.y-b.y;clampCam();updateCamera()}
@@ -3722,7 +3728,7 @@ function rideLabels(){
   const px=T.camera.position.x,pz=T.camera.position.z;
   for(const[id,o]of T.stops){if(!o.badge)continue;o.badge.scale.set(22,11,1);const st=G.stops.get(id);if(!st)continue;const dx=st.x-px,dz=st.y-pz;o.badge.visible=dx*dx+dz*dz<260*260}
 }
-cv.addEventListener('pointerdown',e=>{if(ui.ride){ensureAudio();rideDown(e);return}if(ui.expAnim){ui.expAnim.skipped=true;ui.expAnim.t0-=ui.expAnim.dur*2}ui.camAnim=null;feel.coast=false;feel.zOn=false;feel.vx=feel.vy=0;
+cv.addEventListener('pointerdown',e=>{if(ui.ride){ensureAudio();rideDown(e);return}if(ui.fly)flyFinish();if(ui.expAnim){ui.expAnim.skipped=true;ui.expAnim.t0-=ui.expAnim.dur*2}ui.camAnim=null;feel.coast=false;feel.zOn=false;feel.vx=feel.vy=0;
   ensureAudio();
   if(e.isPrimary){pointers.clear();multi=false;gesture=null}
   try{cv.setPointerCapture(e.pointerId)}catch(_){}
@@ -4332,8 +4338,8 @@ function portFar(g,o){
 }
 function buildLandscape(g,city,th,sav){
   T.terrMats=[];
-  const rg=(G.L&&G.L.region)||'maple',cl=(G.L&&G.L.climate)||'mild';
-  const W_=city.w,H_=city.h,cx=W_/2,cz=H_/2,R=rng(((G.L&&G.L.seed)||7)*13+5),wet=th==='harbor'||th==='sea',snowy=cl==='snow';
+  const rg=(G.L&&G.L.region)||'maple',cl=(G.L&&G.L.climate)||'mild',world=worldOn();   // campaign world: the terrain, trees, sea and skylines come from the world (see worldSchedule)
+  const W_=city.w,H_=city.h,cx=W_/2,cz=H_/2,R=rng(((G.L&&G.L.seed)||7)*13+5),wet=!world&&(th==='harbor'||th==='sea'),snowy=cl==='snow';
   const gk=snowy?'snow':rg==='dubai'?'sand':rg==='tokyo'?'city':'grass';
   // distance outside the board (0 inside)
   const dOut=(x,z)=>{const dx=Math.max(-70-x,0,x-(W_+70)),dz=Math.max(-70-z,0,z-(H_+70));return Math.hypot(dx,dz)};
@@ -4347,10 +4353,11 @@ function buildLandscape(g,city,th,sav){
   // ground: tiled texture (grass, sand, snow or city concrete), or open water
   let gmat;
   const gtint=th==='cobble'?'#d4d0b8':rg==='europe'?'#e9ecde':'#f1f1ee';
-  if(wet){gmat=new THREE.MeshStandardMaterial({color:lin(snowy?'#2a5f78':cl==='rain'?'#18505f':'#1b5b73').clone(),roughness:.08,metalness:.15,envMap:T.env,envMapIntensity:1.2,bumpMap:T.waterTex,bumpScale:.7});waterFx(gmat)}
+  if(world){gmat=null}   // campaign world: the world terrain is the ground around the town (T.far shows until it is built)
+  else if(wet){gmat=new THREE.MeshStandardMaterial({color:lin(snowy?'#2a5f78':cl==='rain'?'#18505f':'#1b5b73').clone(),roughness:.08,metalness:.15,envMap:T.env,envMapIntensity:1.2,bumpMap:T.waterTex,bumpScale:.7});waterFx(gmat)}
   else{
     gmat=new THREE.MeshStandardMaterial({map:groundTex((W_+3600)/200,(H_+3600)/200,gk),color:0xffffff,roughness:.97});gmat.userData.tint=new THREE.Color(gk==='grass'?gtint:'#ffffff');T.terrMats.push(gmat)}
-  const big=new THREE.Mesh(new THREE.PlaneGeometry(W_+3600,H_+3600),gmat);big.rotation.x=-Math.PI/2;big.position.set(cx,-.9,cz);big.userData.keep=true;g.add(big);
+  if(gmat){const big=new THREE.Mesh(new THREE.PlaneGeometry(W_+3600,H_+3600),gmat);big.rotation.x=-Math.PI/2;big.position.set(cx,-.9,cz);big.userData.keep=true;g.add(big)}
   // soft skirt: only needed where the surroundings are sand (the sea maps)
   if(wet){
     const pad=150,pw=W_+pad*2,ph=H_+pad*2,cwid=1024,chei=Math.round(1024*ph/pw),k=cwid/pw,col=snowy?'#e4ecf3':'#d9c998';
@@ -4358,7 +4365,7 @@ function buildLandscape(g,city,th,sav){
     const sk=new THREE.Mesh(new THREE.PlaneGeometry(pw,ph),new THREE.MeshStandardMaterial({map:skirt,transparent:true,roughness:1,depthWrite:false}));sk.rotation.x=-Math.PI/2;sk.position.set(cx,-.4,cz);sk.userData.keep=true;sk.renderOrder=-1;g.add(sk);
   }
   // rolling terrain ring (hills, mountains, dunes)
-  if(!sav&&amp>0){
+  if(!sav&&amp>0&&!world){
     const SEG=th==='alpine'?100:80,SZ=3000,geo=new THREE.PlaneGeometry(SZ+W_,SZ+H_,SEG,SEG);geo.rotateX(-Math.PI/2);
     const pos=geo.attributes.position,col=new Float32Array(pos.count*3),lo=new THREE.Color(0xffffff),rk=new THREE.Color('#f0f0ea'),tmp=new THREE.Color();
     const hi=new THREE.Color(th==='hills'?'#bcc9a2':th==='alpine'?(snowy?'#c9d6e4':'#9fa88f'):th==='desert'?'#f3d9a2':'#cfe3b6');
@@ -4386,11 +4393,12 @@ function buildLandscape(g,city,th,sav){
   }
   // backdrop: distant skyline, old-town roofline or container port (fewer in Battery saver)
   const sk={R,W:W_,H:H_,dOut,dMin:150,dMax:1100};
-  if(rg==='tokyo')skylineRing(g,Object.assign({},sk,{kinds:['tokA','tokB','tokC'],n:sav?70:240,hMin:50,hMax:150,w:30,spire:0,dMin:210}));
+  if(world){}
+  else if(rg==='tokyo')skylineRing(g,Object.assign({},sk,{kinds:['tokA','tokB','tokC'],n:sav?70:240,hMin:50,hMax:150,w:30,spire:0,dMin:210}));
   else if(rg==='metro')skylineRing(g,Object.assign({},sk,{kinds:['glassA','glassB','office','glassA'],n:sav?50:160,hMin:45,hMax:140,w:34,spire:0,dMin:200}));
   else if(rg==='dubai')skylineRing(g,Object.assign({},sk,{kinds:['dubG','dubB','dubW'],n:sav?40:130,hMin:60,hMax:170,w:30,spire:.35,dMin:200,spireMat:M('#d9a93a',{metalness:.8,roughness:.3})}));
   else if(rg==='europe')townRing(g,{R,W:W_,H:H_,dOut,n:sav?120:360,dMin:140,dMax:900});
-  if(rg==='harbor'&&wet&&!sav)portFar(g,{R,W:W_,H:H_,cx,cz,pad:300});
+  if(!world&&rg==='harbor'&&wet&&!sav)portFar(g,{R,W:W_,H:H_,cx,cz,pad:300});
 }
 /* ================= regions: building styles, landmarks and trees =================
    Each campaign map has a region (G.L.region): maple, harbor, metro, europe, tokyo, dubai or alpine. regionKit() returns the builders for that region;
@@ -4638,6 +4646,583 @@ function buildPines(g,trees,K){
   });
   tr.castShadow=true;cone.castShadow=true;cone.receiveShadow=true;g.add(tr);g.add(cone);
 }
+/* WORLD:BEGIN */
+/* ================= campaign world =================
+   In the campaign all 14 towns sit on one big map (WLAY). The town you play keeps its own local frame (NW corner at 0,0); every other campaign town is drawn around it as
+   non-interactive scenery: a painted ground, instanced houses / towers / trees, and a highway network that joins the playable town's north and south highways to the others.
+   Everything here is built lazily over the frames after the playable town is shown (worldSchedule / worldPump), kept in a few merged or instanced meshes (about 12 draw calls)
+   and lives in T.world, outside T.city, so it is never part of picking, pathing, the expansion clip planes or the town's own dispose.
+   Towns east or south of the playable town are pushed away as it grows (worldRect), so they never overlap the expanded map. */
+let WLAY=null;
+const WC=new Map();                      // cached low-detail town data per level index (and graphics mode)
+const WJ={tok:0,q:[],ready:false,rects:null,plan:null};
+function worldOn(){
+  if(window.__noWorld)return false;
+  const L=G.L;return !!(L&&CAMPAIGN.indexOf(G.levelIdx)>=0&&!G.free&&!L.daily&&!L.weekly&&!L.sandbox);
+}
+function worldLayout(){
+  if(WLAY)return WLAY;
+  const t={},sz=i=>{const m=LEVELS[i].map;return{w:MARGIN*2+m[0].length*S,h:MARGIN*2+m.length*S,cols:m[0].length,rows:m.length}};
+  const row=(ids,y,xs)=>{let x=0;ids.forEach((i,k)=>{const s=sz(i),ax=xs&&xs[k]!=null?xs[k]:x;t[i]={ax,ay:y,w:s.w,h:s.h,cols:s.cols,rows:s.rows};x=ax+s.w+WGX})};
+  const hN=MARGIN*2+8*S;                 // tallest base map (8 rows)
+  row([9,8,10,12,14],0);                                  // north: Hilltop, Canal District, Lakeside, Ring City, Alpine Village
+  row([7,13,15],hN+WGY,[0,4660,8000]);                    // middle: Old Town, Grand Central, Tokyo Crossing, with the heartland lake between
+  row([0,1,2,3,11,16],2*hN+2*WGY);                        // south coast: Maple Hollow, Riverside, Metro Heights, Harborview, Harbor Bay, Dubai Skyline
+  WLAY={t,H:[[9,8],[8,10],[10,12],[12,14],[7,13],[13,15],[0,1],[1,2],[2,3],[3,11],[11,16]],V:[[9,7],[7,0],[10,13],[12,13],[14,15],[13,3],[15,11],[15,16]],
+    ends:{W:[9,7,0],E:[14,15,16]}};
+  return WLAY;
+}
+/* position of town j in the local frame of the playable town (its NW corner is 0,0). Towns east or south of the playable town move away as it grows. */
+function worldRect(j){
+  const t=worldLayout().t,A=t[G.levelIdx],B=t[j];
+  if(j===G.levelIdx)return{x:0,y:0,w:G.city.w,h:G.city.h,cols:G.city.cols,rows:G.city.rows};
+  let x=B.ax-A.ax,y=B.ay-A.ay;const gx=Math.max(0,G.city.w-A.w),gy=Math.max(0,G.city.h-A.h);
+  if(B.ax>=A.ax+A.w-1)x+=gx;if(B.ay>=A.ay+A.h-1)y+=gy;
+  return{x,y,w:B.w,h:B.h,cols:B.cols,rows:B.rows};
+}
+function hwSpan(cols){const cs=cols>=8?[1,Math.round(cols/2),cols-1]:cols>=5?[1,cols-1]:[Math.round(cols/2)];return{cs,x0:MARGIN+cs[0]*S-HW_RUN-WORLD_E,x1:MARGIN+cs[cs.length-1]*S+HW_RUN+WORLD_E}}
+const wsm=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};
+const wnz=(x,z)=>{const v=Math.sin(x*.0021+1.3)*Math.cos(z*.0017+.4)+.55*Math.sin((x+z)*.0042+2)+.28*Math.sin(x*.0113)*Math.cos(z*.0097)+.14*Math.sin(x*.027+z*.023);return(v/1.97+1)/2};
+function wmodes(){const g=PROF.gfx;return{sav:g==='saver',lite:g==='light'||(T.fps&&T.fps.lvl>=2)}}
+
+/* ---------- materials, textures and the shared mesh set (created once per session) ---------- */
+function wMats(){
+  if(T.wM)return T.wM;
+  const mkTex=(w,h,fn)=>{const t=new THREE.CanvasTexture(mkCanvas(w,h,fn));t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=2;return t};
+  const em=(w,h,fn)=>{const t=new THREE.CanvasTexture(mkCanvas(w,h,fn));t.encoding=THREE.sRGBEncoding;return t};
+  const R=rng(31);
+  const hWin=(g,w,h,lit)=>{g.fillStyle=lit?'#000':'#fff';g.fillRect(0,0,w,h);for(let k=0;k<3;k++){const x=6+k*20,y=9;if(lit){if(R()<.55){g.fillStyle=['#ffd98f','#ffe9b8','#ffcf7a'][k];g.fillRect(x,y,12,12)}}else{g.fillStyle='#4f6a86';g.fillRect(x,y,12,12);g.fillStyle='#8aa6c2';g.fillRect(x,y,12,3)}}};
+  const tWin=(g,w,h,lit)=>{g.fillStyle=lit?'#000':'#fff';g.fillRect(0,0,w,h);for(let c=0;c<6;c++)for(let r=0;r<14;r++){const x=2+c*10.4,y=3+r*9;if(lit){if(R()<.5){g.fillStyle=['#fff0c8','#ffe0a0','#e8f4ff','#ffd8f0'][(c+r)%4];g.fillRect(x,y,6,5)}}else{g.fillStyle='#31485f';g.fillRect(x,y,6,5)}}};
+  const houseMap=mkTex(64,32,(g,w,h)=>hWin(g,w,h,false)),houseEm=em(64,32,(g,w,h)=>hWin(g,w,h,true));
+  const towMap=mkTex(64,128,(g,w,h)=>tWin(g,w,h,false)),towEm=em(64,128,(g,w,h)=>tWin(g,w,h,true));
+  const warm=new THREE.Color().copy(lin('#ffcf8a'));
+  const std=(o)=>new THREE.MeshStandardMaterial(Object.assign({roughness:.9,metalness:0,envMap:T.env,envMapIntensity:.3},o));
+  const house=std({map:houseMap,emissiveMap:houseEm,emissive:warm,emissiveIntensity:0});
+  const tower=std({map:towMap,emissiveMap:towEm,emissive:warm,emissiveIntensity:0,roughness:.5,metalness:.2,envMapIntensity:.6});
+  T.emis.push({m:house,base:1.5},{m:tower,base:1.7});
+  // road atlas: top half = highway profile (edge lines, double yellow, lane dashes), bottom half = plain two-lane asphalt with edge lines. u runs along the road, one tile = 52 units
+  const roadTex=mkTex(128,128,(g,w,h)=>{
+    g.fillStyle='#2b2f34';g.fillRect(0,0,w,h);
+    g.fillStyle='#f4f1ea';g.fillRect(0,4,w,3);g.fillRect(0,57,w,3);g.fillStyle='#f2c94c';g.fillRect(0,30,w,1.6);g.fillRect(0,33,w,1.6);
+    g.fillStyle='#f4f1ea';g.fillRect(0,15,64,2);g.fillRect(0,46,64,2);
+    g.fillStyle='#f4f1ea';g.fillRect(0,68,w,2);g.fillRect(0,122,w,2);g.fillStyle='rgba(244,241,234,.8)';g.fillRect(0,94,64,2);
+  });
+  roadTex.anisotropy=Math.min(8,T.r.capabilities.getMaxAnisotropy());
+  const grain=mkTex(512,512,(g,w,h)=>{const r2=rng(5);g.fillStyle='#f4f4f0';g.fillRect(0,0,w,h);
+    // patchwork of fields: soft rectangles slightly lighter, darker or yellower, then pixel grain
+    for(let i=0;i<70;i++){const x=r2()*w,y=r2()*h,fw=30+r2()*90,fh=24+r2()*70,t=r2(),c=t<.35?'rgba(255,244,200,.10)':t<.6?'rgba(120,150,90,.07)':t<.8?'rgba(255,255,255,.07)':'rgba(70,90,50,.06)';g.fillStyle=c;for(const ox of[-w,0,w])for(const oy of[-h,0,h])g.fillRect(x+ox,y+oy,fw,fh)}
+    for(let i=0;i<30;i++){const x=r2()*w,y=r2()*h,l=60+r2()*160,vert=r2()<.5;g.fillStyle='rgba(60,80,40,.05)';g.fillRect(x,y,vert?3:l,vert?l:3)}
+    const id=g.getImageData(0,0,w,h);for(let i=0;i<w*h;i++){const v=.93+r2()*.07;id.data[i*4]*=v;id.data[i*4+1]*=v;id.data[i*4+2]*=v}g.putImageData(id,0,0)});
+  const M2={
+    house,tower,roadTex,
+    mass:std({roughness:.95}),roof:std({roughness:.85}),
+    terr:new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,map:grain}),
+    ground:new THREE.MeshStandardMaterial({vertexColors:true,roughness:.95,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}),
+    road:new THREE.MeshBasicMaterial({map:roadTex,side:THREE.DoubleSide}),
+    tree:std({roughness:.95}),car:new THREE.MeshStandardMaterial({color:0xffffff,roughness:.4,metalness:.5,envMap:T.env,envMapIntensity:.8}),
+    water:(()=>{const wm=new THREE.MeshStandardMaterial({color:lin('#1b5b73').clone(),roughness:.05,metalness:.15,envMap:T.env,envMapIntensity:1.2,bumpMap:T.waterTex,bumpScale:.7});waterFx(wm);return wm})()};
+    T.envMats.push(M2.water);
+  return T.wM=M2;
+}
+function wInst(geo,mat,cap){const m=new THREE.InstancedMesh(geo,mat,cap);m.setColorAt(0,new THREE.Color(1,1,1));m.instanceColor.array.fill(1);m.count=0;m.frustumCulled=false;m.castShadow=false;m.receiveShadow=false;return m}
+function wGroup(){
+  if(T.world)return T.world;
+  const g=new THREE.Group(),M2=wMats();T.world=g;T.scene.add(g);
+  const coneG=new THREE.ConeGeometry(1,1,4,1,true),octG=new THREE.OctahedronGeometry(1,0);
+  T.wI={house:wInst(T.gBox,M2.house,3200),roof:wInst(T.gPyr,M2.roof,3200),mass:wInst(T.gBox,M2.mass,2600),tower:wInst(T.gBox,M2.tower,1600),
+    cone:wInst(coneG,M2.tree,1300),oct:wInst(octG,M2.tree,500),car:wInst(T.gBox,M2.car,64),cab:wInst(T.gBox,M2.mass,64)};
+  for(const k in T.wI)g.add(T.wI[k]);
+  T.wI.cab.material=new THREE.MeshStandardMaterial({color:lin('#1f2a36').clone(),roughness:.15,metalness:.6});
+  return g;
+}
+function wDisposeMesh(k){const m=T[k];if(m){T.world.remove(m);m.traverse(o=>{if(o.geometry)o.geometry.dispose()});T[k]=null}}
+function worldClear(){
+  WJ.q=[];WJ.ready=false;
+  if(T.world){T.world.visible=false}
+  if(T.far){T.far.scale.setScalar(1);T.far.position.y=-.8}
+}
+
+/* ---------- low-detail data of one campaign town (cached): ground quads, houses, block masses, towers, landmarks, trees ---------- */
+const WSTYLE={
+  maple:{w:WALLS,r:ROOFS,gable:1,hm:1,ha:0,t:['#cfc9bd','#a4c8e8','#b8d4ea','#a65f47','#8fb6dc'],tm:1,ta:0,tw:25},
+  harbor:{w:WALLS,r:ROOFS,gable:1,hm:1,ha:0,t:['#cfc9bd','#a4c8e8','#8fb6dc','#a9cfe4'],tm:1,ta:0,tw:25},
+  metro:{w:['#d8d4c8','#cfc9bd','#c9c2b4','#b8bcc2'],r:['#7b7f84','#6c7075'],gable:0,hm:1.5,ha:6,t:['#4f7fa6','#4f9a9a','#cfc9bd','#6f8fb0','#3d5f80'],tm:1.55,ta:12,tw:27},
+  europe:{w:['#eadfc6','#efd596','#e6b9a9','#c9d8c5','#e9e2d2'],r:['#b4573a','#a64d34','#c0643f','#4c535c'],gable:1,steep:1,hm:1.45,ha:4,t:['#e9e2d2','#e6b9a9','#cdd6c0'],tm:1.25,ta:8,tw:24},
+  tokyo:{w:['#8d939b','#e6e6e2','#b5bac0','#a9a49c'],r:['#555a62'],gable:0,hm:1.8,ha:8,t:['#8d939b','#e6e6e2','#4a6a8a','#3b6a96','#b5bac0'],tm:1.7,ta:16,tw:24},
+  dubai:{w:['#e5d1a2','#e8e3d6','#dcc590'],r:['#d9c08c'],gable:0,hm:1.1,ha:2,t:['#4fb0d4','#d4a94a','#e8e3d6','#2f7a9a'],tm:1.7,ta:16,tw:26},
+  alpine:{w:['#8f5f3b','#7d5233','#a06c43','#9a6a45'],r:['#5a3d2b','#4b3426'],gable:1,steep:1,hm:1,ha:2,t:['#cfc9bd','#a4c8e8'],tm:1,ta:0,tw:24}};
+function farTown(idx){
+  const key=idx;let c=WC.get(key);if(c)return c;
+  const L=LEVELS[idx],map=L.map,rows=map.length,cols=map[0].length,P=groundPal(L),rg=L.region,snowy=L.climate==='snow',rainy=L.climate==='rain',St=WSTYLE[rg]||WSTYLE.maple;
+  const w=MARGIN*2+cols*S,h=MARGIN*2+rows*S,bt=(cc,r)=>(r>=0&&r<rows&&cc>=0&&cc<cols)?map[r][cc]:'.',cls=ch=>ch==='W'?'W':(ch==='P'||ch==='C')?'P':'';
+  c={idx,w,h,cols,rows,gq:[],houses:[],masses:[],towers:[],lm:[],trees:[],snowy,P};
+  const gq=(x0,z0,x1,z1,y,col)=>c.gq.push(x0,z0,x1,z1,y,col);
+  gq(0,0,w,h,-.42,P.base);
+  const rf=snowy?['#f1f5f9','#e4ebf1']:St.r;
+  for(let r=0;r<rows;r++)for(let cc=0;cc<cols;cc++){
+    const t=map[r][cc],bx=MARGIN+cc*S,by=MARGIN+r*S,R=rng(L.seed*977+r*131+cc*7+1);
+    if(t==='H'){
+      gq(bx+10,by+10,bx+S-10,by+S-10,-.38,P.lot);
+      const hs=[];
+      for(const[i,j]of[[0,0],[1,0],[0,1],[1,1]]){if(R()<.85||(i+j)<2)hs.push([bx+16+17+34*i+(R()-.5)*3,by+16+17+34*j+(R()-.5)*3,R(),R(),R(),R()])}
+      let hsum=0;
+      hs.forEach((s,k)=>{
+        const apt=k===2&&s[2]<.3,ww=apt?27:21+s[3]*5,dd=apt?26:17+s[4]*4,hh=((apt?22+s[3]*8:9+s[2]*4)*St.hm+St.ha),wc=apt?APTS[Math.floor(s[5]*4)]:St.w[Math.floor(s[5]*St.w.length)%St.w.length];
+        c.houses.push([s[0],s[1],ww,dd,hh,wc,rf[Math.floor(s[3]*rf.length)%rf.length],R()]);hsum+=hh});
+      c.masses.push([bx+50,by+50,66,66,Math.max(8,hsum/hs.length),St.w[(cc*3+r)%St.w.length],R()]);
+      if(R()<.6)c.trees.push([bx+50,by+50,.7+R()*.3,R()<.5?0:1,0]);
+    }else if(t==='B'){
+      gq(bx+6,by+6,bx+S-6,by+S-6,-.38,P.plaza);
+      const all=[[0,0],[1,0],[0,1],[1,1]];let use=all.filter(()=>R()<.8);if(use.length<3)use=all.slice(0,3);
+      for(const s of use){const hh=(20+R()*26)*St.tm+St.ta,tc=St.t[Math.floor(R()*St.t.length)];c.towers.push([bx+16+17+34*s[0],by+16+17+34*s[1],St.tw*(.85+R()*.25),St.tw*(.85+R()*.25),hh,tc,R()])}
+    }else if(LMK[t]){
+      gq(bx+6,by+6,bx+S-6,by+S-6,-.38,P.plaza);const D=LMK[t];c.lm.push([bx+50,by+D.y,D.w,D.d,D.h,t==='A'?'#c9cdd2':t==='M'?'#e4d6b8':t==='O'?'#e8ecee':'#d9d2c0']);
+    }else if(t==='P'||t==='C'){
+      gq(bx,by,bx+S,by+S,-.38,P.park);
+      if(t==='C')c.lm.push([bx+50,by+52,62,46,12,'#c0392b']);
+      const nt=t==='P'?7:4;for(let k=0;k<nt;k++)c.trees.push([bx+14+R()*72,by+14+R()*72,.7+R()*.5,R()<.5?0:1,1]);
+    }else if(t==='W'){
+      gq(bx,by,bx+S,by+S,-.38,rainy?'#1a4a5e':'#1d5b73');
+    }else{
+      gq(bx,by,bx+S,by+S,-.38,P.empty);
+      for(let k=0;k<2;k++)c.trees.push([bx+18+R()*64,by+18+R()*64,.7+R()*.4,R()<.5?0:1,0]);
+    }
+  }
+  // streets: merged runs, pavement strip under the asphalt
+  const run=(horiz)=>{
+    const nL=horiz?rows+1:cols+1,nS=horiz?cols:rows;
+    for(let l=0;l<nL;l++){let s0=-1;
+      for(let k=0;k<=nS;k++){
+        let ex=false;
+        if(k<nS){const A=horiz?cls(bt(k,l-1)):cls(bt(l-1,k)),B=horiz?cls(bt(k,l)):cls(bt(l,k));ex=!(A&&A===B)}
+        if(ex&&s0<0)s0=k;
+        if(!ex&&s0>=0){
+          const a=MARGIN+s0*S,b=MARGIN+k*S,m=MARGIN+l*S;
+          if(horiz){gq(a-17,m-17,b+17,m+17,-.34,P.pave);gq(a-11,m-11,b+11,m+11,-.3,P.asph)}else{gq(m-17,a-17,m+17,b+17,-.34,P.pave);gq(m-11,a-11,m+11,b+11,-.3,P.asph)}
+          s0=-1}
+      }}
+  };
+  run(true);run(false);
+  WC.set(key,c);return c;
+}
+
+/* ---------- the road plan: trunk lines past every town, joins between neighbours, interchanges, vertical links ---------- */
+function worldPlan(R){
+  const lay=worldLayout(),strips=[],segs=[],rings=[],discs=[],carSegs=[];
+  const hy=(j,sg)=>sg<0?R[j].y+MARGIN-HW_OFF:R[j].y+R[j].h-MARGIN+HW_OFF;
+  const sp=j=>hwSpan(R[j].cols);
+  const addS=(pts,w,kind)=>{strips.push({pts,w,kind});for(let k=0;k+1<pts.length;k++)segs.push([pts[k][0],pts[k][1],pts[k+1][0],pts[k+1][1]])};
+  const curve=(xa,ya,xb,yb)=>{
+    if(Math.abs(ya-yb)<.5){addS([[xa,ya],[xb,yb]],56,'hw');if(xb-xa>300)carSegs.push([xa,ya,xb,yb]);return}
+    const pts=[],n=16;for(let k=0;k<=n;k++){const u=k/n,e=u*u*(3-2*u);pts.push([xa+(xb-xa)*u,ya+(yb-ya)*e])}addS(pts,56,'hw')
+  };
+  const idsAll=Object.keys(lay.t).map(Number);
+  for(const j of idsAll)for(const sg of[-1,1]){const s=sp(j),y=hy(j,sg);curve(R[j].x+s.x0,y,R[j].x+s.x1,y)}
+  for(const[a,b]of lay.H)for(const sg of[-1,1]){const xa=R[a].x+sp(a).x1,xb=R[b].x+sp(b).x0;if(xb-xa>8)curve(xa,hy(a,sg),xb,hy(b,sg))}
+  for(const side of['W','E'])for(const j of lay.ends[side])for(const sg of[-1,1]){const s=sp(j),y=hy(j,sg);
+    if(side==='W')curve(R[j].x+s.x0-2600,y,R[j].x+s.x0,y);else curve(R[j].x+s.x1,y,R[j].x+s.x1+2600,y)}
+  // vertical links with a junction ring at each end
+  for(const[a,b]of lay.V){
+    const lo=Math.max(R[a].x,R[b].x)+40,hi=Math.min(R[a].x+R[a].w,R[b].x+R[b].w)-40;if(hi-lo<30)continue;
+    const x=(lo+hi)/2,ya=hy(a,1),yb=hy(b,-1);if(yb-ya<60)continue;
+    addS([[x,ya],[x,yb]],40,'hw');carSegs.push([x,ya,x,yb]);rings.push([x,ya,34],[x,yb,34]);
+  }
+  // interchanges at the neighbouring towns (same geometry as the playable highway: roundabout and curved ramps at each chosen column)
+  for(const j of idsAll){
+    if(j===G.levelIdx)continue;
+    const r=R[j],cs=sp(j).cs;
+    for(const sg of[-1,1]){
+      const rowY=sg<0?r.y+MARGIN:r.y+r.h-MARGIN;
+      for(const c of cs){
+        const xn=r.x+MARGIN+c*S,cy=rowY+sg*HW_RC;
+        rings.push([xn,cy,HW_R]);
+        strips.push({pts:[[xn,rowY+sg*(HW_RC-HW_R)],[xn,rowY]],w:ROAD_W,kind:'pl'});
+        for(const dir of[-1,1]){
+          const Pp=[[HW_RUN,HW_OFF],[HW_RUN-50,HW_OFF],[HW_R+45,HW_RC+10],[HW_R,HW_RC]].map(q=>[xn+dir*q[0],rowY+sg*q[1]]),pts=[];
+          for(let k=0;k<=6;k++){const u=k/6,v=1-u;pts.push([v*v*v*Pp[0][0]+3*v*v*u*Pp[1][0]+3*v*u*u*Pp[2][0]+u*u*u*Pp[3][0],v*v*v*Pp[0][1]+3*v*v*u*Pp[1][1]+3*v*u*u*Pp[2][1]+u*u*u*Pp[3][1]])}
+          strips.push({pts,w:28,kind:'pl'});
+        }
+      }
+    }
+  }
+  // continuous centre lines of every trunk (ends, towns, joins) for the traffic
+  const paths=[],bands={};
+  for(const j of idsAll)(bands[lay.t[j].ay]=bands[lay.t[j].ay]||[]).push(j);
+  for(const ay in bands){const ids=bands[ay].sort((a,b)=>R[a].x-R[b].x);
+    for(const sg of[-1,1]){
+      const pts=[],f=ids[0],l=ids[ids.length-1];
+      pts.push([R[f].x+sp(f).x0-2600,hy(f,sg)]);
+      ids.forEach((j,k)=>{const y=hy(j,sg),xa=R[j].x+sp(j).x0,xb=R[j].x+sp(j).x1;pts.push([xa,y],[xb,y]);
+        if(k<ids.length-1){const n=ids[k+1],xn=R[n].x+sp(n).x0,yn=hy(n,sg);for(let q=1;q<14;q++){const u=q/14,e=u*u*(3-2*u);pts.push([xb+(xn-xb)*u,y+(yn-y)*e])}}});
+      pts.push([R[l].x+sp(l).x1+2600,hy(l,sg)]);paths.push(pts)}}
+  for(const c of carSegs)if(Math.abs(c[0]-c[2])<1)paths.push([[c[0],c[1]],[c[2],c[3]]]);
+  return{strips,segs,rings,carSegs,paths};
+}
+
+/* ---------- terrain: one heightfield over the whole region, flat around towns and roads, with the biomes of the map ---------- */
+function wSeg(px,pz,s){const dx=s[2]-s[0],dz=s[3]-s[1],l2=dx*dx+dz*dz||1;let t=((px-s[0])*dx+(pz-s[1])*dz)/l2;t=t<0?0:t>1?1:t;const ex=s[0]+dx*t-px,ez=s[1]+dz*t-pz;return ex*ex+ez*ez}
+/* run fn(until) repeatedly over the next frames (about 5 ms each) until it returns true; abandoned when the world is rescheduled */
+function wRun(ctx,fn){const go=()=>{if(ctx.tok!==WJ.tok)return;if(!fn(performance.now()+5))WJ.q.unshift(go)};go()}
+function wStageTerrain(ctx){
+  const R=ctx.R,plan=ctx.plan,A=worldLayout().t[G.levelIdx],{sav,lite}=wmodes();
+  let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9;
+  for(const k in R){x0=Math.min(x0,R[k].x);z0=Math.min(z0,R[k].y);x1=Math.max(x1,R[k].x+R[k].w);z1=Math.max(z1,R[k].y+R[k].h)}
+  const mg=3600,cell=sav?420:lite?320:270;x0-=mg;z0-=mg;x1+=mg;z1+=mg+2200;
+  const nx=Math.ceil((x1-x0)/cell)+1,nz=Math.ceil((z1-z0)/cell)+1,N=nx*nz;
+  const H=new Float32Array(N),SD=new Float32Array(N),MT=new Float32Array(N),HL=new Float32Array(N),DD=new Float32Array(N),AJ=new Int16Array(N),AW=new Float32Array(N),NO=new Float32Array(N),WATER=new Float32Array(N);
+  const ids=Object.keys(R).map(Number),segs=plan.segs,ox=A.ax,oz=A.ay;
+  const rad=j=>{const L=LEVELS[j];return L.climate==='snow'?800:L.region==='dubai'?420:L.region==='tokyo'?300:240};
+  ctx.TR={x0,z0,nx,nz,cell,H,SD,MT,HL,DD,AJ,AW,NO,WATER,ox,oz};ctx.row=0;
+  wRun(ctx,until=>{
+  while(ctx.row<nz){const j=ctx.row++;for(let i=0;i<nx;i++){
+    const x=x0+i*cell,z=z0+j*cell,wx=x+ox,wz=z+oz,k=j*nx+i;
+    let d=1e9,aj=-1,aw=0;
+    for(const id of ids){const r=R[id],dx=Math.max(r.x-x,0,x-(r.x+r.w)),dz=Math.max(r.y-z,0,z-(r.y+r.h)),dd=Math.hypot(dx,dz);if(dd<d)d=dd;const wgt=1-wsm(30,rad(id),dd);if(wgt>aw){aw=wgt;aj=id}}
+    for(const s of segs){const bx0=Math.min(s[0],s[2])-700,bx1=Math.max(s[0],s[2])+700,bz0=Math.min(s[1],s[3])-700,bz1=Math.max(s[1],s[3])+700;if(x<bx0||x>bx1||z<bz0||z>bz1)continue;const dd=Math.max(0,Math.sqrt(wSeg(x,z,s))-34);if(dd<d)d=dd}
+    const fl=wsm(120,800,d);
+    const am=Math.max(0,1-Math.hypot((wx-8500)/3400,(wz-250)/2600)),ridge=Math.pow(1-Math.abs(2*wnz(wx*1.4,wz*1.4)-1),1.25)*(.4+.6*wnz(wx*.6+300,wz*.6)),mt=wsm(.05,.75,am)*ridge;
+    const hl=wsm(0,.8,Math.max(0,1-Math.hypot((wx-650)/2800,(wz-500)/2300)))*(.3+.7*wnz(wx*.8,wz*.8));
+    const dn=wsm(8000,9600,wx)*wsm(2300,3500,wz),dune=dn*(.3+.7*(.5+.5*Math.sin((wx*.9+wz*.5)*.0062+wnz(wx*2,wz*2)*4.5)));
+    const gen=wnz(wx,wz)*30;
+    const sea=wsm(0,1,(wz-5500)/800),lt=1-Math.hypot((wx-2900)/1250,(wz-2340)/380),lake=wsm(0,.3,lt);
+    const dep=(sea*55+lake*26)*wsm(150,520,d);
+    // fade the whole relief out at the edge of the region
+    const eg=wsm(0,1400,Math.min(x-x0,x1-x,z-z0,(z1-z)+0));
+    H[k]=(fl*(mt*420+hl*170+dune*55+gen)-dep)*(dep>0?1:eg);
+    SD[k]=Math.max(dn*(.72+.28*wnz(wx*3+7,wz*3+1)),wsm(-1.2,-.2,-H[k])*(dep>0?1:0));MT[k]=mt*fl;HL[k]=hl*fl;DD[k]=d;AJ[k]=aj;AW[k]=aw*(1-wsm(0,500,Math.max(0,dep)*20));NO[k]=wnz(wx*2.3+11,wz*2.3+5);WATER[k]=dep;
+  }
+  if(performance.now()>until)return false}
+  return true});
+}
+function wColorFor(TR,k,sg,apc,gen,rock,snow,sand,hill,tmp,tmp2){
+  const i=k;tmp.copy(gen);
+  const nv=.95+.1*TR.NO[i];tmp.multiplyScalar(nv);
+  if(TR.HL[i]>.02)tmp.lerp(hill,Math.min(1,TR.HL[i]*1.2)*.55);
+  if(TR.MT[i]>.04){const t=TR.MT[i];tmp.lerp(rock,Math.min(1,wsm(.05,.35,t)));tmp.lerp(snow,wsm(.35,.6,t))}
+  if(TR.SD[i]>.01)tmp.lerp(sand,Math.min(1,TR.SD[i]));
+  const aj=TR.AJ[i];if(aj>=0&&TR.AW[i]>.001){tmp.lerp(apc[aj],TR.AW[i])}
+  return tmp;
+}
+function worldApron(sgS){
+  const o={},sg=SEASON_GROUND[sgS]||SEASON_GROUND.summer;
+  for(const k in worldLayout().t){const P=groundPal(LEVELS[+k]);const c=lin(P.base).clone();c.multiply(lin(sg[0]));o[k]=c}
+  return o;
+}
+function wStageColors(ctx){
+  const TR=ctx.TR,{nx,nz}=TR,N=nx*nz,sg=SEASON_GROUND[G.season]||SEASON_GROUND.summer;
+  const gen=lin(sg[1]).clone(),rock=lin('#8d9186').clone(),snow=lin('#f4f7fa').clone(),sand=lin('#dcc590').clone(),hill=lin(G.season==='winter'?'#e9eff3':'#a8c47a').clone(),tmp=new THREE.Color(),apc=worldApron(G.season);
+  const col=new Float32Array(N*3);
+  for(let k=0;k<N;k++){
+    wColorFor(TR,k,sg,apc,gen,rock,snow,sand,hill,tmp);
+    // shallow water edge and beach
+    if(TR.WATER[k]>0)tmp.lerp(lin('#d9c998'),wsm(.4,0,TR.WATER[k])*0+(TR.WATER[k]<14?.9:.2));
+    col[k*3]=tmp.r;col[k*3+1]=tmp.g;col[k*3+2]=tmp.b;
+  }
+  ctx.TR.col=col;T.wSeason=G.season;
+  // geometry (indexed grid)
+  const pos=new Float32Array(N*3),idx=new Uint32Array((nx-1)*(nz-1)*6);
+  for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){const k=j*nx+i;pos[k*3]=TR.x0+i*TR.cell;pos[k*3+1]=-.55+TR.H[k];pos[k*3+2]=TR.z0+j*TR.cell}
+  let q=0;for(let j=0;j<nz-1;j++)for(let i=0;i<nx-1;i++){const a=j*nx+i,b=a+1,c=a+nx,d=c+1;idx[q++]=a;idx[q++]=c;idx[q++]=b;idx[q++]=b;idx[q++]=c;idx[q++]=d}
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  const uv=new Float32Array(N*2);for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){const k=j*nx+i;uv[k*2]=(TR.x0+i*TR.cell)/1300;uv[k*2+1]=(TR.z0+j*TR.cell)/1300}
+  geo.setAttribute('uv',new THREE.BufferAttribute(uv,2));geo.setIndex(new THREE.BufferAttribute(idx,1));geo.computeVertexNormals();
+  wDisposeMesh('wTerr');
+  const m=new THREE.Mesh(geo,wMats().terr);m.frustumCulled=false;m.renderOrder=-2;T.wTerr=m;wGroup().add(m);
+  ctx.TR.geo=geo;wGroundTint();
+  const far=T.far;if(far){far.scale.setScalar(3);far.position.y=-2.7;far.material.color.copy(gen)}
+  T.world.visible=true;
+}
+function worldColors(){ // season changed: recolour the terrain in place
+  const geo=T.wTerr&&T.wTerr.geometry,TR=WJ.ctx&&WJ.ctx.TR;if(!geo||!TR||!TR.col)return;
+  const sg=SEASON_GROUND[G.season]||SEASON_GROUND.summer,N=TR.nx*TR.nz;
+  const gen=lin(sg[1]).clone(),rock=lin('#8d9186').clone(),snow=lin('#f4f7fa').clone(),sand=lin('#dcc590').clone(),hill=lin(G.season==='winter'?'#e9eff3':'#a8c47a').clone(),tmp=new THREE.Color(),apc=worldApron(G.season),col=TR.col;
+  for(let k=0;k<N;k++){wColorFor(TR,k,sg,apc,gen,rock,snow,sand,hill,tmp);if(TR.WATER[k]>0)tmp.lerp(lin('#d9c998'),(TR.WATER[k]<14?.9:.2));col[k*3]=tmp.r;col[k*3+1]=tmp.g;col[k*3+2]=tmp.b}
+  geo.attributes.color.needsUpdate=true;T.wSeason=G.season;wGroundTint();
+  if(T.far)T.far.material.color.copy(gen);
+  if(WJ.ctx.trees)wTreeColors(WJ.ctx);
+}
+function wHeightAt(TR,x,z){
+  const fx=(x-TR.x0)/TR.cell,fz=(z-TR.z0)/TR.cell,i=Math.max(0,Math.min(TR.nx-2,Math.floor(fx))),j=Math.max(0,Math.min(TR.nz-2,Math.floor(fz))),u=fx-i,v=fz-j,k=j*TR.nx+i;
+  return -.55+(TR.H[k]*(1-u)*(1-v)+TR.H[k+1]*u*(1-v)+TR.H[k+TR.nx]*(1-u)*v+TR.H[k+TR.nx+1]*u*v);
+}
+function wStageWater(ctx){
+  wDisposeMesh('wWater');
+  const TR=ctx.TR,M2=wMats(),g=wGroup();
+  // the sea: everything south of the coast line (to the horizon); the lake: a plane under the heartland lake. Both sit at y -2, under the flat land (-0.55), so they only show in the depressions.
+  const sea0=5100-TR.oz,lx=2900-TR.ox,lz=2340-TR.oz;
+  const sea=new THREE.Mesh(new THREE.PlaneGeometry(TR.nx*TR.cell+60000,22000),M2.water);sea.geometry.rotateX(-Math.PI/2);sea.position.set(TR.x0+TR.nx*TR.cell/2,-2,sea0+11000);
+  const lake=new THREE.Mesh(new THREE.PlaneGeometry(3200,1300),M2.water);lake.geometry.rotateX(-Math.PI/2);lake.position.set(lx,-2,lz);
+  const grp=new THREE.Group();grp.add(sea);grp.add(lake);for(const m of[sea,lake]){m.frustumCulled=false}
+  T.wWater=grp;g.add(grp);
+}
+function wGroundTint(){const g=wMats().ground,sg=SEASON_GROUND[G.season]||SEASON_GROUND.summer;g.color.copy(lin(sg[0]));g.emissive.copy(lin('#ffffff'));g.emissiveIntensity=G.season==='winter'?.1:0}
+/* ---------- town ground (one merged vertex-coloured mesh for all neighbours) ---------- */
+function wStageGround(ctx){
+  wTiers(ctx);
+  const R=ctx.R,pos=[],col=[],tmpC=new THREE.Color(),ao=new THREE.Color();
+  const quad=(x0,z0,x1,z1,y,c)=>{const C=typeof c==='string'?lin(c):c;for(const[x,z]of[[x0,z0],[x0,z1],[x1,z0],[x1,z0],[x0,z1],[x1,z1]]){pos.push(x,y,z);col.push(C.r,C.g,C.b)}};
+  for(const k in R){
+    const j=+k;if(j===G.levelIdx)continue;
+    const c=farTown(j),r=R[j],gq=c.gq,n=gq.length;
+    for(let i=0;i<n;i+=6)quad(r.x+gq[i],r.y+gq[i+1],r.x+gq[i+2],r.y+gq[i+3],gq[i+4],gq[i+5]);
+    // soft dark footprints under the buildings (cheap ambient occlusion: the neighbours cast no shadows)
+    ao.copy(lin(c.P.lot)).multiplyScalar(.6);const AOY=-.26,tier=ctx.tier[j];
+    const rc=ctx.reached[j];
+    if(tier===0)for(const b of c.houses){if(wKeep(rc,b[7],.8))quad(r.x+b[0]-b[2]/2-2.5,r.y+b[1]-b[3]/2-2,r.x+b[0]+b[2]/2+3,r.y+b[1]+b[3]/2+3.5,AOY,ao)}
+    else if(tier===1)for(const b of c.masses){if(wKeep(rc,b[6],.65))quad(r.x+b[0]-b[2]/2,r.y+b[1]-b[3]/2,r.x+b[0]+b[2]/2+3,r.y+b[1]+b[3]/2+3,AOY,ao)}
+    ao.copy(lin(c.P.plaza)).multiplyScalar(.62);
+    for(const b of c.towers)if(wKeep(rc,b[6],.75))quad(r.x+b[0]-b[2]/2-3,r.y+b[1]-b[3]/2-2,r.x+b[0]+b[2]/2+5,r.y+b[1]+b[3]/2+5,AOY,ao);
+  }
+  // roundabout islands of the interchanges
+  for(const[x,z,rr]of ctx.plan.rings){const C=lin('#4f9a45'),n=12,y=.1;for(let k=0;k<n;k++){const a0=k/n*6.2832,a1=(k+1)/n*6.2832,q=rr-9;
+    pos.push(x,y,z,x+Math.cos(a0)*q,y,z+Math.sin(a0)*q,x+Math.cos(a1)*q,y,z+Math.sin(a1)*q);for(let m=0;m<3;m++)col.push(C.r,C.g,C.b)}}
+  wDisposeMesh('wGround');
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+  const nrm=new Float32Array(pos.length);for(let i=1;i<nrm.length;i+=3)nrm[i]=1;geo.setAttribute('normal',new THREE.BufferAttribute(nrm,3));
+  const m=new THREE.Mesh(geo,wMats().ground);m.frustumCulled=false;m.renderOrder=-1;T.wGround=m;wGroup().add(m);
+}
+/* ---------- roads (one mesh, textured with the road atlas) ---------- */
+function wStageRoads(ctx){
+  const plan=ctx.plan,pos=[],uv=[];
+  const strip=(pts,w,kind,y)=>{
+    const v0=kind==='hw'?.5:0,v1=kind==='hw'?1:.5;let s=0;
+    for(let k=0;k+1<pts.length;k++){
+      const a=pts[k],b=pts[k+1],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz);if(l<.01)continue;
+      const nx=-dz/l*w/2,nz=dx/l*w/2,u0=s/52,u1=(s+l)/52;s+=l;
+      // extend each piece a little so joints of curved ramps overlap
+      const ex=dx/l*1.5,ez=dz/l*1.5;
+      const A=[a[0]-ex+nx,a[1]-ez+nz],B=[a[0]-ex-nx,a[1]-ez-nz],C=[b[0]+ex-nx,b[1]+ez-nz],D=[b[0]+ex+nx,b[1]+ez+nz];
+      pos.push(A[0],y,A[1],B[0],y,B[1],C[0],y,C[1],A[0],y,A[1],C[0],y,C[1],D[0],y,D[1]);
+      uv.push(u0,v1,u0,v0,u1,v0,u0,v1,u1,v0,u1,v1);
+    }
+  };
+  for(const st of plan.strips)strip(st.pts,st.w,st.kind,st.kind==='hw'?.3:.28);
+  for(const[x,z,r]of plan.rings){const pts=[];for(let k=0;k<=10;k++){const a=k/10*6.2832;pts.push([x+Math.cos(a)*r,z+Math.sin(a)*r])}strip(pts,16,'pl',.28)}
+  wDisposeMesh('wRoad');
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  const m=new THREE.Mesh(geo,wMats().road);m.frustumCulled=false;m.renderOrder=0;T.wRoad=m;wGroup().add(m);
+}
+/* ---------- buildings and trees (instanced) ---------- */
+function wSet(mesh,n,x,y,z,sx,sy,sz,col){
+  const a=mesh.instanceMatrix.array,o=n*16;a[o]=sx;a[o+1]=0;a[o+2]=0;a[o+3]=0;a[o+4]=0;a[o+5]=sy;a[o+6]=0;a[o+7]=0;a[o+8]=0;a[o+9]=0;a[o+10]=sz;a[o+11]=0;a[o+12]=x;a[o+13]=y;a[o+14]=z;a[o+15]=1;
+  const c=mesh.instanceColor.array,q=n*3;c[q]=col.r;c[q+1]=col.g;c[q+2]=col.b;
+}
+/* detail tier per neighbour: 0 = houses with roofs, windows and all trees; 1 = block masses, towers, park trees; 2 = silhouettes (masses and towers only) */
+function wTiers(ctx){
+  if(ctx.tier)return ctx;
+  const R=ctx.R,{sav,lite}=wmodes(),cx=R[G.levelIdx].w/2,cz=R[G.levelIdx].h/2,done=getStars(),prog=campIdx();ctx.tier={};ctx.reached={};
+  for(const k in R){const j=+k;if(j===G.levelIdx)continue;const r=R[j],dist=Math.hypot(r.x+r.w/2-cx,r.y+r.h/2-cz);
+    ctx.tier[j]=sav?2:lite?(dist<2400?1:2):(dist<2700?0:dist<6500?1:2);ctx.reached[j]=(done[j]||0)>=1||CAMPAIGN.indexOf(j)<=prog}
+  return ctx;
+}
+function wStageInst(ctx){
+  wTiers(ctx);
+  const R=ctx.R,I=T.wI,{sav,lite}=wmodes(),tc=new THREE.Color();
+  let nh=0,nr=0,nm=0,nt=0;
+  const caps={h:3200,m:2600,t:1600},order=Object.keys(R).map(Number).filter(j=>j!==G.levelIdx);
+  for(const j of order){
+    const c=farTown(j),r=R[j],reached=ctx.reached[j],tier=ctx.tier[j],kd=reached?1:.85,dim=reached?1:.8,St=WSTYLE[LEVELS[j].region]||WSTYLE.maple;
+    const col=hex=>tc.copy(lin(hex)).multiplyScalar(dim);   // towns not reached yet are a little lower, sparser and dimmer (still under construction)
+    // landmarks and downtown towers: every tier
+    for(const b of c.lm){if(nm>=caps.m)break;wSet(I.mass,nm++,r.x+b[0],-.3+b[4]*kd/2,r.y+b[1],b[2],b[4]*kd,b[3],col(b[5]))}
+    for(const b of c.towers){
+      if(!wKeep(reached,b[6],.75))continue;
+      const h=b[4]*kd;
+      if(tier===2||sav){if(nm<caps.m)wSet(I.mass,nm++,r.x+b[0],-.3+h/2,r.y+b[1],b[2],h,b[3],col(b[5]))}
+      else if(nt<caps.t)wSet(I.tower,nt++,r.x+b[0],-.3+h/2,r.y+b[1],b[2],h,b[3],col(b[5]));
+    }
+    if(tier===0){
+      for(const b of c.houses){
+        if(nh>=caps.h)break;if(!wKeep(reached,b[7],.8))continue;
+        const hh=b[4]*kd;wSet(I.house,nh,r.x+b[0],-.3+hh/2,r.y+b[1],b[2],hh,b[3],col(b[5]));
+        if(St.gable){const rh=(St.steep?9:6)+b[7]*3;wSet(I.roof,nr,r.x+b[0],-.3+hh+rh/2,r.y+b[1],b[2]*.74,rh,b[3]*.74,col(b[6]));nr++}
+        nh++;
+      }
+    }else{
+      for(const b of c.masses){if(nm>=caps.m)break;if(!wKeep(reached,b[6],.65))continue;const hh=b[4]*kd*(tier===2?.8:1);wSet(I.mass,nm++,r.x+b[0],-.3+hh/2,r.y+b[1],b[2]*(tier===2?.9:.94),hh,b[3]*(tier===2?.9:.94),col(b[5]))}
+    }
+  }
+  I.house.count=nh;I.roof.count=nr;I.mass.count=nm;I.tower.count=nt;I.house.visible=I.roof.visible=I.mass.visible=I.tower.visible=true;
+  for(const k of['house','roof','mass','tower']){I[k].instanceMatrix.needsUpdate=true;I[k].instanceColor.needsUpdate=true}
+  ctx.counts={nh,nr,nm,nt};
+}
+const wKeep=(reached,rv,d)=>reached||rv<d;
+const WTREE_COLS={conifer:['#1f4d22','#275a27','#1b4420','#2d6529']};
+function wTreeColors(ctx){
+  const I=T.wI,T0=ctx.trees;if(!T0)return;
+  const sg=G.season,pal=(SEASON_TREES[sg]||SEASON_TREES.summer),cl=new THREE.Color(),ca=I.cone.instanceColor.array,oa=I.oct.instanceColor.array,snowy=sg==='winter',WS=['#d9e5e8','#c6d8dc','#e8f0f2'];
+  for(let n=0;n<T0.nc;n++){cl.copy(lin(snowy?WS[n%3]:WTREE_COLS.conifer[n%4]));ca[n*3]=cl.r;ca[n*3+1]=cl.g;ca[n*3+2]=cl.b}
+  for(let n=0;n<T0.no;n++){cl.copy(lin(pal[n%4][(n>>2)&1]));oa[n*3]=cl.r;oa[n*3+1]=cl.g;oa[n*3+2]=cl.b}
+  I.cone.instanceColor.needsUpdate=true;I.oct.instanceColor.needsUpdate=true;
+}
+/* trees: greenbelts along the roads and around the towns, woods at the lake, on the hills and at the foot of the mountains (in 3 short steps), then the trees inside the neighbouring towns */
+function wStageTrees(ctx){
+  const I=T.wI,TR=ctx.TR,R=ctx.R,{sav,lite}=wmodes(),dummy=new THREE.Color(1,1,1);
+  const st=ctx.tr={nc:0,no:0};ctx.trees={nc:0,no:0};
+  if(sav){wTreesDone(ctx);return}
+  const Rn=rng(4242),maxC=lite?380:850,maxO=lite?130:260,segs=ctx.plan.segs,rl=Object.keys(R).map(Number);
+  const tryTree=(x,z,forest)=>{
+    const i=Math.max(0,Math.min(TR.nx-1,Math.round((x-TR.x0)/TR.cell))),j=Math.max(0,Math.min(TR.nz-1,Math.round((z-TR.z0)/TR.cell))),k=j*TR.nx+i;
+    if(TR.WATER[k]>0||TR.SD[k]>.45||TR.MT[k]>.5||x<TR.x0+300||z<TR.z0+300||x>TR.x0+TR.nx*TR.cell-300||z>TR.z0+(TR.nz-1)*TR.cell-300)return;
+    for(const id of rl){const r=R[id];if(x>r.x-70&&x<r.x+r.w+70&&z>r.y-70&&z<r.y+r.h+70)return}   // keep clear of the towns
+    for(const s2 of segs){if(Math.abs(x-(s2[0]+s2[2])/2)<Math.abs(s2[2]-s2[0])/2+80&&Math.abs(z-(s2[1]+s2[3])/2)<Math.abs(s2[3]-s2[1])/2+80&&wSeg(x,z,s2)<60*60)return}   // and the roads
+    const y=wHeightAt(TR,x,z),h=12+Rn()*(14+forest*10),w=h*.4;
+    if((Rn()<.6||TR.MT[k]>.1)&&st.nc<maxC){wSet(I.cone,st.nc,x,y+h*.4,z,w,h,w,dummy);st.nc++}
+    else if(st.no<maxO){const s3=h*.34;wSet(I.oct,st.no,x,y+s3*1.6,z,s3,s3*1.1,s3,dummy);st.no++}
+  };
+  const allSegs=ctx.plan.segs;let t1=0,t2=0;
+  wRun(ctx,until=>{
+    while(t1<2600&&st.nc<maxC*.55){t1++;
+      const sg=allSegs[Math.floor(Rn()*allSegs.length)],u=Rn(),px=sg[0]+(sg[2]-sg[0])*u,pz=sg[1]+(sg[3]-sg[1])*u,side=Rn()<.5?-1:1,off=(90+Rn()*Rn()*520)*side,horiz=Math.abs(sg[2]-sg[0])>=Math.abs(sg[3]-sg[1]);
+      if(Rn()<.5)tryTree(horiz?px:px+off,horiz?pz+off:pz,0);else{const cx0=horiz?px:px+off,cz0=horiz?pz+off:pz;for(let c=0;c<5;c++)tryTree(cx0+(Rn()-.5)*150,cz0+(Rn()-.5)*150,0)}
+      if((t1&15)===0&&performance.now()>until)return false}
+    while(t2<16000&&(st.nc<maxC||st.no<maxO)){t2++;
+      const x=TR.x0+Rn()*TR.nx*TR.cell,z=TR.z0+Rn()*TR.nz*TR.cell,i=Math.max(0,Math.min(TR.nx-1,Math.round((x-TR.x0)/TR.cell))),j=Math.max(0,Math.min(TR.nz-1,Math.round((z-TR.z0)/TR.cell))),k=j*TR.nx+i;
+      const wx=x+TR.ox,wz=z+TR.oz,lt=1-Math.hypot((wx-2900)/1250,(wz-2340)/380),forest=Math.max(wsm(-.6,0,lt)*(lt<0?1:0)*.9,TR.HL[k]*.8,TR.MT[k]*.9);
+      if(Rn()<=forest*.55)tryTree(x,z,forest);
+      if((t2&63)===0&&performance.now()>until)return false}
+    wTreesDone(ctx);return true});
+}
+function wTreesDone(ctx){
+  const I=T.wI,R=ctx.R,{sav,lite}=wmodes(),st=ctx.tr;let nc=st.nc,no=st.no;
+  // trees inside the neighbouring towns: all of them near the playable town, only the parks further out
+  if(!sav){
+    const cx=R[G.levelIdx].w/2,cz=R[G.levelIdx].h/2;
+    for(const k in R){const j=+k;if(j===G.levelIdx)continue;const c=farTown(j),r=R[j],dist=Math.hypot(r.x+r.w/2-cx,r.y+r.h/2-cz),full=dist<2700&&!lite;
+      if(!full&&dist>6500)continue;
+      for(const t of c.trees){if(!full&&!t[4])continue;const s=t[2];
+        if(t[3]===0&&nc<1300){wSet(I.cone,nc,r.x+t[0],-.3+8*s,r.y+t[1],4.6*s,16*s,4.6*s,new THREE.Color(1,1,1));nc++}
+        else if(no<500){wSet(I.oct,no,r.x+t[0],-.3+8*s,r.y+t[1],6*s,5.5*s,6*s,new THREE.Color(1,1,1));no++}}}
+  }
+  ctx.trees={nc,no};I.cone.count=nc;I.oct.count=no;I.cone.visible=I.oct.visible=true;I.cone.instanceMatrix.needsUpdate=I.oct.instanceMatrix.needsUpdate=true;
+  wTreeColors(ctx);
+}
+/* ---------- cars on the world roads (instanced, capped; none in Battery saver, frozen under Reduce motion) ---------- */
+function wStageCars(ctx){
+  const I=T.wI,{sav,lite}=wmodes(),Rn=rng(99),pc=[ctx.R[G.levelIdx].w/2,ctx.R[G.levelIdx].h/2];
+  const pal=['#f3f4f5','#c7ccd1','#22262b','#a8232b','#2c5da8','#2f6b4b','#d8b44a','#7b8088'];
+  T.wCarsD=[];
+  // every trunk becomes a path with cumulative lengths; cars live in a window of about 3000 units around the point nearest the playable town and wrap inside it
+  const P=ctx.plan.paths.map(pts=>{const cum=[0];for(let k=1;k<pts.length;k++)cum.push(cum[k-1]+Math.hypot(pts[k][0]-pts[k-1][0],pts[k][1]-pts[k-1][1]));
+    let bu=0,bd=1e18;for(let k=0;k<pts.length;k++){const d=Math.hypot(pts[k][0]-pc[0],pts[k][1]-pc[1]);if(d<bd){bd=d;bu=cum[k]}}
+    return{pts,cum,len:cum[cum.length-1],bu,bd}}).sort((a,b)=>a.bd-b.bd).slice(0,9);
+  T.wPaths=P;
+  const n=sav||lite||!P.length?0:44;
+  for(let i=0;i<n;i++){
+    const pi=i%P.length,p=P[pi],dir=Rn()<.5?1:-1,half=Math.min(3000,p.len/2),lo=Math.max(0,p.bu-half),hi=Math.min(p.len,p.bu+half);
+    T.wCarsD.push({p:pi,lo,hi,u:lo+Rn()*(hi-lo),v:(40+Rn()*30)*dir,lane:dir>0?9:-9,k:0});
+    I.car.setColorAt(i,lin(pal[Math.floor(Rn()*pal.length)]));
+  }
+  I.car.count=I.cab.count=n;I.car.visible=I.cab.visible=n>0;I.car.instanceColor.needsUpdate=true;
+  wCarsPlace(0);
+}
+let WTMP=null;
+function wCarsPlace(dt){
+  const I=T.wI,D=T.wCarsD,P=T.wPaths;if(!D||!D.length||!P)return;
+  const tm=WTMP||(WTMP={m:new THREE.Matrix4(),q:new THREE.Quaternion(),e:new THREE.Euler(),sc:new THREE.Vector3(),ps:new THREE.Vector3()}),m=tm.m,q=tm.q,e=tm.e,sc=tm.sc,ps=tm.ps;
+  for(let i=0;i<D.length;i++){
+    const c=D[i],p=P[c.p],cum=p.cum;c.u+=c.v*dt;if(c.u>c.hi)c.u=c.lo+(c.u-c.hi);if(c.u<c.lo)c.u=c.hi-(c.lo-c.u);
+    let k=c.k;if(k>=cum.length-1||cum[k]>c.u)k=0;while(k<cum.length-2&&cum[k+1]<c.u)k++;c.k=k;
+    const a=p.pts[k],b=p.pts[k+1],l=cum[k+1]-cum[k]||1,ux=(b[0]-a[0])/l,uz=(b[1]-a[1])/l,t=c.u-cum[k],x=a[0]+ux*t-uz*c.lane,z=a[1]+uz*t+ux*c.lane,ang=Math.atan2(uz,ux)+(c.v<0?Math.PI:0);
+    e.set(0,-ang,0);q.setFromEuler(e);
+    sc.set(11,3,5);ps.set(x,2.2,z);m.compose(ps,q,sc);I.car.setMatrixAt(i,m);
+    sc.set(5.6,2.5,4.4);ps.set(x-Math.cos(ang)*1.2,4.6,z-Math.sin(ang)*1.2);m.compose(ps,q,sc);I.cab.setMatrixAt(i,m);
+  }
+  I.car.instanceMatrix.needsUpdate=I.cab.instanceMatrix.needsUpdate=true;
+}
+function worldTick(now,dt){
+  if(WJ.q.length)worldPump(5);
+  if(!T.world)return;
+  if(!worldOn()){T.world.visible=false;return}
+  if(!WJ.ready)return;
+  if(T.wSeason!==G.season)worldColors();
+  if(T.wCarsD&&T.wCarsD.length){const on=!(T.fps&&T.fps.lvl>=1);T.wI.car.visible=T.wI.cab.visible=on;if(on&&!ui.rm&&dt>0)wCarsPlace(Math.min(.1,dt))}
+}
+/* ---------- scheduling ---------- */
+function worldSchedule(){
+  WJ.tok++;WJ.ready=false;WJ.q=[];
+  if(!T.ok)return;
+  if(!worldOn()){worldClear();return}
+  // a different town: drop the old world at once (its positions belong to the old frame); the same town (expansion, graphics change): keep it until the new one replaces it
+  const same=T.world&&T.wLvl===G.levelIdx&&T.world.visible;T.wLvl=G.levelIdx;
+  if(!same&&T.world){for(const k of['wTerr','wWater','wGround','wRoad'])wDisposeMesh(k);for(const k in T.wI)T.wI[k].visible=false;T.wCarsD=null}
+  const tok=WJ.tok,ctx={tok};WJ.ctx=ctx;
+  const add=f=>WJ.q.push(()=>{if(tok===WJ.tok)f(ctx)});
+  add(c=>{wGroup();wMats();T.world.visible=true;const R={};for(const k in worldLayout().t)R[k]=worldRect(+k);c.R=R;c.plan=worldPlan(R);WJ.rects=R;WJ.plan=c.plan});
+  add(wStageTerrain);add(wStageColors);add(wStageWater);
+  const lay=worldLayout().t;
+  for(const k of Object.keys(lay).map(Number).filter(j=>j!==G.levelIdx))add(()=>farTown(k));
+  add(wStageGround);add(wStageRoads);add(wStageInst);add(wStageTrees);add(wStageCars);
+  add(()=>{WJ.ready=true});
+}
+function worldPump(ms){const t0=performance.now();while(WJ.q.length&&performance.now()-t0<ms)WJ.q.shift()()}
+function worldFlush(){while(WJ.q.length)WJ.q.shift()();return WJ.ready}
+/* ---------- next-map flight: after a map is cleared, the camera follows the highway to the next town, then that town loads (the world is the same, so it lands where the camera is) ---------- */
+function worldPath(from,to){
+  const lay=worldLayout(),adj={};
+  for(const[x,y]of lay.H.concat(lay.V)){(adj[x]=adj[x]||[]).push(y);(adj[y]=adj[y]||[]).push(x)}
+  const prev={},q=[from];prev[from]=null;
+  while(q.length){const c=q.shift();if(c===to)break;for(const n of adj[c]||[])if(!(n in prev)){prev[n]=c;q.push(n)}}
+  const out=[];for(let c=to;c!=null&&c!==undefined;c=prev[c])out.unshift(c);
+  return out[0]===from?out:[from,to];
+}
+function worldLinkMid(a,b,R){
+  const lay=worldLayout(),ra=R[a],rb=R[b],isH=lay.H.some(p=>(p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a));
+  if(isH){const w=ra.x<rb.x?ra:rb,e=ra.x<rb.x?rb:ra;return[(w.x+w.w+e.x)/2,(ra.y+ra.h+rb.y+rb.h)/2+40]}
+  const up=ra.y<rb.y?ra:rb,dn=ra.y<rb.y?rb:ra,lo=Math.max(ra.x,rb.x)+40,hi=Math.min(ra.x+ra.w,rb.x+rb.w)-40;
+  return[(lo+hi)/2,(up.y+up.h+40+dn.y-40)/2];
+}
+function worldFly(i){
+  if(!(T.ok&&G.city&&worldOn()&&WJ.ready&&WJ.rects&&!ui.rm&&worldLayout().t[i]&&i!==G.levelIdx)){startLevel(i);return}
+  hideOv();
+  const R=WJ.rects,ids=worldPath(G.levelIdx,i);let pts=[[cam.x,cam.y]];
+  for(let k=1;k<ids.length;k++){pts.push(worldLinkMid(ids[k-1],ids[k],R));const r=R[ids[k]];pts.push([r.x+r.w/2,r.y+r.h/2])}
+  for(let it=0;it<2;it++){const o=[pts[0]];for(let k=0;k+1<pts.length;k++){const a=pts[k],b=pts[k+1];o.push([a[0]*.75+b[0]*.25,a[1]*.75+b[1]*.25],[a[0]*.25+b[0]*.75,a[1]*.25+b[1]*.75])}o.push(pts[pts.length-1]);pts=o}
+  const cum=[0];for(let k=1;k<pts.length;k++)cum.push(cum[k-1]+Math.hypot(pts[k][0]-pts[k-1][0],pts[k][1]-pts[k-1][1]));
+  const len=cum[cum.length-1];
+  ui.fly={t0:performance.now(),i,pts,cum,len,dur:Math.max(3000,Math.min(7000,2200+len*.3)),z0:cam.zoom,zMid:Math.max(cam.minZ,T.fitZ*.34),zEnd:T.fitZ*.55};
+  G.paused=true;ui.camAnim=null;ui.follow=null;feel.coast=false;feel.vx=feel.vy=0;
+}
+function flyTick(now){
+  const f=ui.fly;if(!f)return;
+  const k=Math.min(1,Math.max(0,(now-f.t0)/f.dur)),sm=x=>{x=Math.min(1,Math.max(0,x));return x*x*(3-2*x)};
+  const u=sm(k)*f.len;let s=1;while(s<f.cum.length-1&&f.cum[s]<u)s++;
+  const a=f.pts[s-1],b=f.pts[s],t=f.cum[s]>f.cum[s-1]?(u-f.cum[s-1])/(f.cum[s]-f.cum[s-1]):0;
+  cam.x=a[0]+(b[0]-a[0])*t;cam.y=a[1]+(b[1]-a[1])*t;
+  const out=sm(k/.3),inn=sm((k-.68)/.32),lz=Math.log(f.z0)*(1-out)+Math.log(f.zMid)*out;
+  cam.zoom=Math.exp(lz*(1-inn)+Math.log(f.zEnd)*inn);cam.yaw=cam.yaw*.9;
+  updateCamera();
+  if(k>=1)flyFinish();
+}
+function flyFinish(){
+  const f=ui.fly;if(!f)return;ui.fly=null;
+  startLevel(f.i);worldFlush();
+  if(!G.city)return;
+  const to={x:cam.x,y:cam.y,zoom:cam.zoom,yaw:cam.yaw,pitch:cam.pitch};
+  Object.assign(cam,{x:G.city.w/2,y:G.city.h/2,zoom:Math.max(cam.minZ,Math.min(to.zoom,f.zEnd)),yaw:0,pitch:to.pitch});
+  updateCamera();ui.camAnim={from:{x:cam.x,y:cam.y,zoom:cam.zoom,yaw:0,pitch:cam.pitch},to,t0:performance.now(),dur:1500};
+}
+/* ---------- small world map for the campaign screen: the 14 towns, the highways, the coast, the lake and the mountains; the current town is highlighted ---------- */
+function worldMiniMap(cur){
+  const lay=worldLayout(),t=lay.t,st=getStars();
+  let h='<rect x="-500" y="-500" width="12100" height="6300" rx="300" fill="#9dc277"/>'+
+    '<rect x="-500" y="5100" width="12100" height="700" rx="0" fill="#4b8fb0"/><path d="M7400 -500 L8500 -300 L9600 -520 L11600 -500 L11600 1000 L10500 500 L9400 1000 L8200 350 Z" fill="#dfe5ea"/>'+
+    '<ellipse cx="10350" cy="3700" rx="1500" ry="1000" fill="#ead9a6"/><ellipse cx="2900" cy="2340" rx="1250" ry="380" fill="#4b8fb0"/>';
+  const bands={};for(const k in t){(bands[t[k].ay]=bands[t[k].ay]||[]).push(+k)}
+  let roads='';
+  for(const ay in bands){const ids=bands[ay],x0=Math.min(...ids.map(k=>t[k].ax))-300,x1=Math.max(...ids.map(k=>t[k].ax+t[k].w))+300,hm=Math.max(...ids.map(k=>t[k].h));
+    roads+='<line x1="'+x0+'" y1="'+(+ay-40)+'" x2="'+x1+'" y2="'+(+ay-40)+'" /><line x1="'+x0+'" y1="'+(+ay+hm+40)+'" x2="'+x1+'" y2="'+(+ay+hm+40)+'" />'}
+  for(const[a,b]of lay.V){const A=t[a],B=t[b],lo=Math.max(A.ax,B.ax)+40,hi=Math.min(A.ax+A.w,B.ax+B.w)-40,x=(lo+hi)/2;roads+='<line x1="'+x+'" y1="'+(A.ay+A.h+40)+'" x2="'+x+'" y2="'+(B.ay-40)+'"/>'}
+  h+='<g stroke="#4a4f55" stroke-width="85" stroke-linecap="round">'+roads+'</g>';
+  CAMPAIGN.forEach((li,k)=>{
+    const r=t[li],done=(st[li]||0)>=1,isCur=li===cur,fill=done?'#3fb868':isCur?'#f2a23c':'#aab3bb';
+    h+='<g><title>'+esc(LEVELS[li].name)+'</title><rect x="'+r.ax+'" y="'+r.ay+'" width="'+r.w+'" height="'+r.h+'" rx="90" fill="'+fill+'" stroke="'+(isCur?'#ffffff':'#2b3238')+'" stroke-width="'+(isCur?150:50)+'"/>'+
+      '<text x="'+(r.ax+r.w/2)+'" y="'+(r.ay+r.h/2+170)+'" text-anchor="middle" font-size="520" font-weight="800" fill="#fff" font-family="Outfit,Arial,sans-serif">'+(k+1)+'</text></g>';
+  });
+  return'<svg viewBox="-500 -500 12100 6300" role="img" aria-label="Map of the campaign towns" style="display:block;width:100%;max-width:360px;margin:12px auto 0;border-radius:12px;background:#9dc277">'+h+'</svg>'+
+    '<p class="sub" style="text-align:center;margin:4px 0 0;font-size:12px">The towns are one connected region. Zoom out in a map to see the neighbours.</p>';
+}
+/* WORLD:END */
 function build3D(city){WX.ao=true;try{return build3D0(city)}finally{WX.ao=false}}
 function build3D0(city){
   T.chim=[];
@@ -4897,6 +5482,7 @@ function build3D0(city){
     T.carBody.setColorAt(i,lin(pal[Math.floor(Math.random()*pal.length)]));
   }
   T.carBody.count=T.carCab.count=nc;T.dyn.add(T.carBody);T.dyn.add(T.carCab);
+  worldSchedule();
 }
 function updCars(dt){
   const C=G.city;if(!C||!T.cars.length)return;
@@ -4979,7 +5565,7 @@ function mergeStatic(g,ao){
 }
 function clearGroup(g){
   const shared=new Set([T.gBox,T.gCyl,T.gSphere,T.gRing,T.gDisc,T.gHex,T.gPyr]);
-  while(g.children.length){const c=g.children[g.children.length-1];g.remove(c);if(c.geometry&&!shared.has(c.geometry))c.geometry.dispose();if(c.material&&c.material.type!=='SpriteMaterial'&&!T.mats.has(c.material.__k))c.material.dispose&&c.material.dispose()}
+  while(g.children.length){const c=g.children[g.children.length-1];g.remove(c);if(c.geometry&&!shared.has(c.geometry))c.geometry.dispose();if(c.material&&c.material.type!=='SpriteMaterial'&&!T.mats.has(c.material.__k)){if(c.material.userData&&c.material.userData.ownMap&&c.material.map)c.material.map.dispose();c.material.dispose&&c.material.dispose()}}
 }
 function resetDyn(){
   for(const g of VG)g.on=false;
@@ -5525,7 +6111,7 @@ function syncSeason(now){
   const sg=SEASON_GROUND[G.season]||SEASON_GROUND.summer;
   if(T.groundMat){T.groundMat.color.copy(lin(sg[0]));T.groundMat.emissive.copy(lin('#ffffff'));T.groundMat.emissiveIntensity=G.season==='winter'?.1:0}
   if(T.terrMats)for(const m of T.terrMats){m.color.copy(lin(sg[0]));if(m.userData.tint)m.color.multiply(m.userData.tint);m.emissive.copy(lin('#ffffff'));m.emissiveIntensity=G.season==='winter'?.1:0}
-  if(T.far){const L_=G.L||{};T.far.material.color.copy(lin(L_.climate==='snow'?'#dfe8f0':L_.region==='dubai'?'#d6bd8a':L_.region==='tokyo'?'#70737a':sg[1]))}
+  if(T.far&&!(T.world&&T.world.visible&&worldOn())){const L_=G.L||{};T.far.material.color.copy(lin(L_.climate==='snow'?'#dfe8f0':L_.region==='dubai'?'#d6bd8a':L_.region==='tokyo'?'#70737a':sg[1]))}
   if(!T.snow){
     const N=900,g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(N*3),3));T.snowBase=[];for(let i=0;i<N;i++)T.snowBase.push([Math.random()*2-1,Math.random(),Math.random()*2-1,Math.random()*6.28]);
     T.snow=new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:2.6,sizeAttenuation:true,transparent:true,opacity:.85,depthWrite:false,fog:false}));T.snow.frustumCulled=false;T.scene.add(T.snow);
@@ -5688,6 +6274,7 @@ function render3D(now,simDt,realDt){
   T.routeG.visible=!ui.ride;
   if(ui.ride){rideWalkers(simDt,T.rdt,now);rideLabels()}else if(RW.leg&&RW.leg.visible)rideWalkHide();
   if(simDt>0)updCars(simDt);
+  worldTick(now,realDt||.016);
   lighting(now);lifeUpdate(now,T.night||0);syncVehicleLights();
   T.shadowTick=(T.shadowTick||0)+1;if(T.shadowTick%2===0||T.shadowTick<4)T.r.shadowMap.needsUpdate=true;
   T.r.info.reset();
@@ -5951,7 +6538,7 @@ document.addEventListener('click',e=>{
     case'freelevel':startLevel(+el.dataset.i,{free:PROF.freeMoney==='limited'?'limited':'unlimited'});break;
     case'freemoney':PROF.freeMoney=el.dataset.v;saveProfile();showFree();break;
     case'campreset':if(confirmTap('campreset','This clears your campaign progress (not your profile or shop items).')){try{localStorage.removeItem('rhr.stars')}catch(e){}showCampaign()}break;
-    case'level':startLevel(+el.dataset.i);break;
+    case'level':if(el.dataset.fly&&!G.free)worldFly(+el.dataset.i);else startLevel(+el.dataset.i);break;
     case'nextday':nextDay();break;
     case'tool':setTool(el.dataset.tool);break;
     case'sheet':ui.sheet=!ui.sheet;if(ui.sheet)ui.town=false;ui.dirty=true;break;
@@ -6216,11 +6803,11 @@ function campLabel(){const k=campIdx();return k>=CAMPAIGN.length?'Campaign compl
 function showCampaign(){
   const st=getStars(),cur=campIdx(),n=CAMPAIGN.length,done=cur>=n,L=done?null:LEVELS[CAMPAIGN[cur]];
   const trail=CAMPAIGN.map((li,k)=>{const D=LEVELS[li],c=(st[li]||0)>=1,isCur=k===cur;
-    return'<div class="tn '+(c?'done':isCur?'cur':'lock')+'"><i>'+(c?'✓':isCur?(k+1):'🔒')+'</i><span>'+(c||isCur?esc(D.name):'Map '+(k+1)+' · locked')+'</span>'+(c?'<small>'+starStr(st[li]||0)+'</small>':'')+'</div>'}).join('');
+    return'<div class="ctn '+(c?'done':isCur?'cur':'lock')+'"><i>'+(c?'✓':isCur?(k+1):'🔒')+'</i><span>'+(c||isCur?esc(D.name):'Map '+(k+1)+' · locked')+'</span>'+(c?'<small>'+starStr(st[li]||0)+'</small>':'')+'</div>'}).join('');
   const chips=L?'<div class="chips" style="margin:8px 0"><span class="chip">'+(isFinite(L.days)?L.days+' days':'Endless')+'</span><span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>'+regionChips(L)+'</div>':'';
   showOv('<div class="card small"><h1>Campaign</h1><p class="sub">'+(done?'You finished every map. Replay any of them from Free Play.':'Clear a map to open the next. Every map is harder and looks different.')+'</p>'+
     (L?'<div class="lv" style="min-height:0;border-color:var(--accent)"><div class="lbl">Map '+(cur+1)+' of '+n+'</div><b style="font-size:20px">'+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small>'+chips+'</div><button class="btn ok full" data-act="level" data-i="'+CAMPAIGN[cur]+'" style="margin:12px 0 0">'+(cur>0?'Play Map '+(cur+1):'Start')+'</button>':'<button class="btn ok full" data-act="free" style="margin:12px 0 0">Free Play</button>')+
-    '<div class="trail">'+trail+'</div><div class="btnrow"><button class="btn alt" data-act="campreset">Restart campaign</button><button class="btn alt" data-act="howto">Back</button></div></div>');
+    worldMiniMap(done?-1:CAMPAIGN[cur])+'<div class="trail">'+trail+'</div><div class="btnrow"><button class="btn alt" data-act="campreset">Restart campaign</button><button class="btn alt" data-act="howto">Back</button></div></div>');
 }
 const FREE_MAPS=[0,7,4];
 function showFree(){
@@ -6254,6 +6841,7 @@ function frame(now){
       while(dt>0&&!G.modal&&!G.over){const s=Math.min(.05,dt);stepAll(s);dt-=s}
     }
     if(ui.ride)rideTick(rdt);
+    if(ui.fly)flyTick(now);
     if(ui.camAnim){const a=ui.camAnim,k=Math.max(0,Math.min(1,(now-a.t0)/a.dur)),e=k*k*(3-2*k);for(const f of['x','y','zoom','yaw','pitch'])cam[f]=a.from[f]+(a.to[f]-a.from[f])*e;updateCamera();if(k>=1)ui.camAnim=null}
     uiT+=rdt;
     if(ui.dirty)refreshUI();
@@ -6270,7 +6858,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={meta:{townTick,townFix,townDoFix,townLook,townText,townHtml,townHappy,townToggle,renderTown,showThought,tapBubble,townNodeFor,TH,townThanks,moodBucket,showCampaign,showFree,campIdx,winButtons,showHowToPlay,snd,toggleMute,rmOn,patHtml,routeCols,ac:()=>({ac:AC,out:AOUT}),showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,shopTap,buyShop,useItem,equipLook,showItems,applyBank,shopItem,savePct,realSeason,bo,sp,boostIcons,invCount,applyLooks,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,removeStop,addStop,feel,haptic,moneyTick,coinFly,routeGrowTick,doubleTapZoom,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},wx:WX,vg:VG,info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={meta:{worldFlush,worldOn,worldRect,worldLayout,worldSchedule,worldFly,flyFinish,flyTick,worldMiniMap,WJ,WC,townTick,townFix,townDoFix,townLook,townText,townHtml,townHappy,townToggle,renderTown,showThought,tapBubble,townNodeFor,TH,townThanks,moodBucket,showCampaign,showFree,campIdx,winButtons,showHowToPlay,snd,toggleMute,rmOn,patHtml,routeCols,ac:()=>({ac:AC,out:AOUT}),showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,shopTap,buyShop,useItem,equipLook,showItems,applyBank,shopItem,savePct,realSeason,bo,sp,boostIcons,invCount,applyLooks,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,removeStop,addStop,feel,haptic,moneyTick,coinFly,routeGrowTick,doubleTapZoom,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},wx:WX,vg:VG,info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 window.__rhr.ride={enter:rideEnter,exit:rideExit,tick:rideTick,camSet:rideCamSet,RD,RW,can:rideCan,look:rideLook,bar:busBarUpdate};
 /* boot (deferred one frame so the splash screen can paint first) */
 function bootGame(){
