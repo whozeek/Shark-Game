@@ -22,9 +22,12 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 15 | 2026-10-30 | 4:00 PM | long | The Last Season | `moraloop_ads/long/the_last_season.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_last_season.mp4) |
 | 16 | 2026-10-31 | 12:00 PM | short | Stop the Wedding | `moraloop_ads/trends/t008_stop_the_wedding.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t008_stop_the_wedding.mp4) |
 | 17 | 2026-11-01 | 12:00 PM | short | The Dress Code | `moraloop_ads/trends/t009_the_dress_code.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t009_the_dress_code.mp4) |
-| 18 | 2026-11-02 | 12:00 PM | short | The Baby Looks | `moraloop_ads/trends/t010_the_baby_looks.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t010_the_baby_looks.mp4) |
-| 19 | 2026-11-03 | 12:00 PM | short | The AI Interview | `moraloop_ads/trends/t011_the_ai_interview.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t011_the_ai_interview.mp4) |
-| 20 | 2026-11-04 | 12:00 PM | short | The Wedding Dress | `moraloop_ads/trends/t012_the_wedding_dress.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t012_the_wedding_dress.mp4) |
+| 18 | 2026-11-01 | 4:00 PM | long | Rent Night | `moraloop_ads/long/rent_night.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/rent_night.mp4) |
+| 19 | 2026-11-02 | 12:00 PM | short | The Baby Looks | `moraloop_ads/trends/t010_the_baby_looks.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t010_the_baby_looks.mp4) |
+| 20 | 2026-11-03 | 12:00 PM | short | The AI Interview | `moraloop_ads/trends/t011_the_ai_interview.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t011_the_ai_interview.mp4) |
+| 21 | 2026-11-03 | 4:00 PM | long | The Offer Letter | `moraloop_ads/long/the_offer_letter.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_offer_letter.mp4) |
+| 22 | 2026-11-04 | 12:00 PM | short | The Wedding Dress | `moraloop_ads/trends/t012_the_wedding_dress.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t012_the_wedding_dress.mp4) |
+| 23 | 2026-11-05 | 4:00 PM | long | Overheard | `moraloop_ads/long/overheard.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/overheard.mp4) |
 
 ## Captions
 
@@ -181,7 +184,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #work #worklife #genz
 ```
 
-### 18. 2026-11-02 12:00 PM: The Baby Looks (short)
+### 18. 2026-11-01 4:00 PM: Rent Night (long)
+Video: `moraloop_ads/long/rent_night.mp4`
+
+```
+Rent is due at midnight, you’re $400 short, and you just found a wallet with $500 in it. Do you return it or keep it? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #money #honesty #storytime
+```
+
+### 19. 2026-11-02 12:00 PM: The Baby Looks (short)
 Video: `moraloop_ads/trends/t010_the_baby_looks.mp4`
 
 ```
@@ -190,7 +202,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #newparents #inlaws
 ```
 
-### 19. 2026-11-03 12:00 PM: The AI Interview (short)
+### 20. 2026-11-03 12:00 PM: The AI Interview (short)
 Video: `moraloop_ads/trends/t011_the_ai_interview.mp4`
 
 ```
@@ -199,12 +211,30 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #jobinterview #ai #career
 ```
 
-### 20. 2026-11-04 12:00 PM: The Wedding Dress (short)
+### 21. 2026-11-03 4:00 PM: The Offer Letter (long)
+Video: `moraloop_ads/long/the_offer_letter.mp4`
+
+```
+Your dream studio wants you across the country, but your family counts on you at home. Do you chase your dream, or stay for them? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #dreams #storytime
+```
+
+### 22. 2026-11-04 12:00 PM: The Wedding Dress (short)
 Video: `moraloop_ads/trends/t012_the_wedding_dress.mp4`
 
 ```
 Your ex is remarrying and wants their grandma’s wedding dress back. You paid to restore it. Do you give it back, or keep it? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #wedding #divorce #aita
+```
+
+### 23. 2026-11-05 4:00 PM: Overheard (long)
+Video: `moraloop_ads/long/overheard.mp4`
+
+```
+You and your work friend want the same promotion, and you overheard they might move abroad. Stay quiet? It’s fair. Tell your boss? You likely win. What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #worklife #friendship #storytime
 ```
 

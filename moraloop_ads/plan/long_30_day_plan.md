@@ -23,9 +23,9 @@ Long-form videos are 2–3 minute claymation storylines built on dilemmas we alr
 | 2 | Mon Oct 26, 2026 | The Apology | 24_another_chance — Another Chance (short Nov 6) | Forgiveness / friendship | done |
 | 3 | Wed Oct 28, 2026 | The Job Offer | 08_the_resume — The Résumé (short Nov 9) | Work / money | done |
 | 4 | Fri Oct 30, 2026 | The Last Season | 18_the_team_secret — The Team Secret (short Nov 15) | Sports / loyalty | done |
-| 5 | Sun Nov 1, 2026 | Rent Night | 07_the_wallet — The Wallet (short Oct 24) | Money / honesty | todo |
-| 6 | Tue Nov 3, 2026 | The Offer Letter | 45_your_dream_or_your_family — Your Dream or Your Family (short Nov 16) | Family / life choices | todo |
-| 7 | Thu Nov 5, 2026 | Overheard | 23_the_promotion — The Promotion (short Oct 27) | Work | todo |
+| 5 | Sun Nov 1, 2026 | Rent Night | 07_the_wallet — The Wallet (short Oct 24) | Money / honesty | done |
+| 6 | Tue Nov 3, 2026 | The Offer Letter | 45_your_dream_or_your_family — Your Dream or Your Family (short Nov 16) | Family / life choices | done |
+| 7 | Thu Nov 5, 2026 | Overheard | 23_the_promotion — The Promotion (short Oct 27) | Work | done |
 | 8 | Sat Nov 7, 2026 | Back Me Up | 22_the_lie — The Lie (short Oct 26) | Friendship / loyalty | todo |
 | 9 | Mon Nov 9, 2026 | The Voice | 51_the_urgent_call — The Urgent Call (short Nov 1) | Family / tech | todo |
 | 10 | Wed Nov 11, 2026 | Five Stars? | 26_the_honest_review — The Honest Review (short Oct 31) | Friendship / honesty | todo |
@@ -213,7 +213,7 @@ Status: done (2026-10-26) → long/the_last_season.mp4
 
 **Balance check:** the cost of keeping your word is your rent, and the cost of keeping your home is someone else's money, so it's easy to say what you'd do and hard to be sure.
 
-Status: todo
+Status: done (2026-10-27) → long/rent_night.mp4
 
 ---
 
@@ -247,7 +247,7 @@ Status: todo
 
 **Balance check:** both are acts of love, one for the life you want and one for the people you love, and each gives up something real.
 
-Status: todo
+Status: done (2026-10-27) → long/the_offer_letter.mp4
 
 ---
 
@@ -282,7 +282,7 @@ Status: todo
 
 **Balance check:** a job you could win versus a fairness you'd keep, and the information is both true and not yours to share.
 
-Status: todo
+Status: done (2026-10-27) → long/overheard.mp4
 
 ---
 
