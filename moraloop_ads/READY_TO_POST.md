@@ -17,7 +17,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 10 | 2026-10-28 | 12:00 PM | short | The Scratched Car | `moraloop_ads/trends/t005_the_scratched_car_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t005_the_scratched_car_tiktoksafe.mp4) |
 | 11 | 2026-10-28 | 12:30 PM | loop short | The Window Note | `moraloop_ads/loops/l005_the_window_note_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l005_the_window_note_tiktoksafe.mp4) |
 | 12 | 2026-10-28 | 4:00 PM | long | The Job Offer | `moraloop_ads/long/the_job_offer_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_job_offer_tiktoksafe.mp4) |
-| 13 | 2026-10-28 | 8:00 PM | loop long | The Brother Rule | `moraloop_ads/loops/long/the_brother_rule.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/the_brother_rule.mp4) |
+| 13 | 2026-10-28 | 8:00 PM | loop long | The Brother Rule | `moraloop_ads/loops/long/the_brother_rule_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/the_brother_rule_tiktoksafe.mp4) |
 | 14 | 2026-10-29 | 9:00 AM | loop short | The Fifth Costume | `moraloop_ads/loops/l003_the_fifth_costume.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l003_the_fifth_costume.mp4) |
 | 15 | 2026-10-29 | 12:00 PM | short | The Notice Period | `moraloop_ads/trends/t006_the_notice_period.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t006_the_notice_period.mp4) |
 | 16 | 2026-10-29 | 12:30 PM | loop short | The Second Spot | `moraloop_ads/loops/l006_the_second_spot.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l006_the_second_spot.mp4) |
@@ -149,7 +149,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 13. 2026-10-28 8:00 PM: The Brother Rule (loop long)
-Video: `moraloop_ads/loops/long/the_brother_rule.mp4`
+Video: `moraloop_ads/loops/long/the_brother_rule_tiktoksafe.mp4`
 
 ```
 Your brother cheated, and you always said you’d tell. Do you tell? Did you catch what Theo texted? 👀 What would you do? 👇
