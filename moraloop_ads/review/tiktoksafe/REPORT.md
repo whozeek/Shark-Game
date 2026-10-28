@@ -1,8 +1,8 @@
 # TikTok-safe re-export report
 
-Generated 2026-10-28 11:27 US Eastern. Originals are untouched; each corrected copy sits next to its original as `<name>_tiktoksafe.mp4`. Upcoming queue rows and 30-day-plan entries point at the corrected copy; posts whose time had already passed (live posts) were left as they are.
+Generated 2026-10-28 12:54 US Eastern. Originals are untouched; each corrected copy sits next to its original as `<name>_tiktoksafe.mp4`. Upcoming queue rows and 30-day-plan entries point at the corrected copy; posts whose time had already passed (live posts) were left as they are.
 
-**37 of 103 videos re-exported.** 66 still missing (listed at the end).
+**38 of 90 videos re-exported.** 52 still missing (listed at the end).
 
 Safe area (1080×1920): top 250 px (status bar, Dynamic Island, tabs), right x≥880 from y=760 down (avatar, like, comment, save, share, sound), bottom from y=1320 (username, caption, sound row, nav bar), left 120 px, plus 24 px padding. Story, wording, voice, visuals, animation and timing are unchanged apart from the listed moves.
 
@@ -47,6 +47,7 @@ Screenshots: each image shows the ORIGINAL (top) and TIKTOK-SAFE copy (bottom) u
 | 35 | `moraloop_ads/trends/t011_the_ai_interview_tiktoksafe.mp4` | unscheduled | unscheduled | subtitles moved from the bottom caption area (y≈1440–1600) to just under TikTok's top bar, in balanced 2-line chunks; end card: tagline moved below the top bar; COMING SOON moved from y≈1420 (caption area) to just under the logo | [view](t011_the_ai_interview_tiktoksafe.jpg) |
 | 36 | `moraloop_ads/trends/t012_the_wedding_dress_tiktoksafe.mp4` | unscheduled | unscheduled | subtitles moved from the bottom caption area (y≈1440–1600) to just under TikTok's top bar, in balanced 2-line chunks; end card: tagline moved below the top bar; COMING SOON moved from y≈1420 (caption area) to just under the logo | [view](t012_the_wedding_dress_tiktoksafe.jpg) |
 | 37 | `moraloop_ads/trends/t013_dinner_or_date_tiktoksafe.mp4` | unscheduled | unscheduled | subtitles moved from the bottom caption area (y≈1440–1600) to just under TikTok's top bar, in balanced 2-line chunks; end card: tagline moved below the top bar; COMING SOON moved from y≈1420 (caption area) to just under the logo | [view](t013_dinner_or_date_tiktoksafe.jpg) |
+| 38 | `moraloop_storyline_two_best_friends_tiktoksafe.mp4` | unscheduled | unscheduled | subtitles moved from the bottom caption area (y≈1440–1600) to just under TikTok's top bar, in balanced 2-line chunks; end card: tagline moved below the top bar; COMING SOON moved from y≈1420 (caption area) to just under the logo; CHOICE A/B chapter cards moved above the button rail; long subtitles wrap instead of running off screen; narration subtitles on these cards use the low safe band | [view](moraloop_storyline_two_best_friends_tiktoksafe.jpg) |
 
 ## Not verified / flagged
 
@@ -57,25 +58,11 @@ Screenshots: each image shows the ORIGINAL (top) and TIKTOK-SAFE copy (bottom) u
 
 ## Still missing
 
-- `moraloop_storyline_two_best_friends.mp4`
-- `moraloop_ads/loops/long/the_alibi.mp4`
-- `moraloop_ads/trends/t014_the_concert_seats.mp4`
-- `moraloop_ads/loops/l014_the_likes.mp4`
 - `moraloop_ads/24_another_chance.mp4`
-- `moraloop_ads/trends/t015_the_trash_bin.mp4`
-- `moraloop_ads/loops/l015_the_plate_price.mp4`
-- `moraloop_ads/long/back_me_up.mp4`
 - `moraloop_ads/04_the_ex_plus_one.mp4`
-- `moraloop_ads/loops/long/credit_due.mp4`
-- `moraloop_ads/trends/t016_the_baby_name.mp4`
 - `moraloop_ads/35_honesty_or_kindness.mp4`
-- `moraloop_ads/trends/t017_the_bad_reviews.mp4`
-- `moraloop_ads/long/the_voice.mp4`
 - `moraloop_ads/08_the_resume.mp4`
-- `moraloop_ads/loops/long/left_behind.mp4`
-- `moraloop_ads/trends/t018_the_roommate_series.mp4`
 - `moraloop_ads/21_the_birthday_plan.mp4`
-- `moraloop_ads/long/five_stars.mp4`
 - `moraloop_ads/25_the_public_comment.mp4`
 - `moraloop_ads/05_the_group_chat_relationship.mp4`
 - `moraloop_ads/15_the_lost_wallet.mp4`
