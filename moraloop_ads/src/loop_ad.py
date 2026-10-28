@@ -89,7 +89,7 @@ def note(scroll=0.0, focus_last=False, seed=0):
     d = ImageDraw.Draw(img)
     for k in range(0, H, 90):  # wood grain
         d.line((0, k + 20 * math.sin(k), W, k + 30), fill=(70, 48, 32), width=3)
-    px0, py0, px1, py1 = 110, 330, W - 110, H - 140
+    px0, py0, px1, py1 = 110, 330, W - 110, SZ.BOTTOM - SZ.PAD  # paper ends above TikTok's caption area
     sh = Image.new("L", (W, H), 0)
     ImageDraw.Draw(sh).rectangle((px0 + 24, py0 + 36, px1 + 24, py1 + 36), fill=160)
     img.paste((0, 0, 0), (0, 0), sh.filter(ImageFilter.GaussianBlur(36)))

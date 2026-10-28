@@ -175,4 +175,118 @@ ADS = [
                ["sibling", "you"], "say", ["💸", "🍳", "⏰"], "worried", others="happy", set="home"),
              M("Did you catch the whole thread?"),
          ], close="Do you host again, or say no this year?"),
+
+    # Trend: Reddit post about being "volun-told" to drive a friend's teen to work before dawn (Oct 2026)
+    dict(id="l010_the_early_ride", title="The Early Ride", made_on="2026-10-28",
+         hook="what did your friend ask?",
+         thread=dict(contact="Riley", stamp="Sun 8:47 PM", msgs=[
+             "she starts Monday at 6 🙏",
+             "it’s right on your way",
+             "I’d do it but my shifts…",
+             "happy to pay for gas",
+             "only if you can",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your friend’s teen just got a job. It starts at six in the morning.", ["friend", "cousin", "you"],
+               "say", ["🚗", "⏰", "🌙"], "worried", others="happy", set="home"),
+             S("They ask if you can drive her there. Every day. You’d be up before five.", ["you"], "think",
+               ["🚗", "😴", "🌅"], "worried", set="home_night"),
+             M("Did you catch the whole text?"),
+         ], close="Do you say yes to the rides, or say no?"),
+
+    # Trend: Reddit post about splitting a bigger vacation rental evenly with friends who bring kids (Oct 2026)
+    dict(id="l011_the_even_split", title="The Even Split", made_on="2026-10-28",
+         hook="what did the trip chat say?",
+         thread=dict(contact="Beach Trip", stamp="Tue 9:30 PM", msgs=[
+             "bigger house booked 🏠",
+             "even split keeps it simple",
+             "we’ll cook every night 🍝",
+             "you get the ocean room 🌊",
+             "sound good?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your friend group rents a beach house. Two couples are bringing their kids.",
+               ["friend", "friend2", "you"], "say", ["🏖️", "🏠", "👨‍👩‍👧"], "happy", others="happy", set="home"),
+             S("So the house got bigger, and pricier. They want to split it evenly.", ["you"], "think",
+               ["🏠", "💸", "➗"], "worried", set="home"),
+             M("Did you catch the whole chat?"),
+         ], close="Do you split it evenly, or ask to pay less?"),
+
+    # Trend: TikTok boss video about a worker calling out over a bad sunburn (Daily Dot, Oct 21 2026)
+    dict(id="l012_the_sunburn", title="The Sunburn", made_on="2026-10-28",
+         hook="what did your coworker text?",
+         thread=dict(contact="Sam (work)", stamp="Mon 6:52 AM", msgs=[
+             "you coming in today?",
+             "we’re short two people",
+             "boss is in a mood lol",
+             "it’s fine if you can’t",
+             "let me know",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You wake up with a terrible sunburn. Everything hurts.", ["you"], "react", ["☀️", "🔥", "😣"],
+               "shock", set="home"),
+             S("Your shift starts in an hour. You could still make it.", ["you"], "think", ["⏰", "💼", "🤒"],
+               "worried", set="home"),
+             M("Did you read the whole thread?"),
+         ], close="Do you call in sick, or go in?"),
+
+    # Trend: TikTok couple disagreeing over tipping after slow service (Daily Dot, Oct 26 2026)
+    dict(id="l013_the_tip", title="The Tip", made_on="2026-10-28",
+         hook="what does the receipt say?",
+         note=dict(title="Receipt", lines=[
+             "2 pasta, 1 salad: $64",
+             "Wrong order, remade",
+             "Wait: 55 min",
+             "Thanks! Jamie ☺",
+             "Tip: ____",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Dinner out. The food takes almost an hour, and one order comes out wrong.", ["partner", "you"], "react",
+               ["🍝", "⏳", "❌"], "worried", others="worried", set="cafe"),
+             S("The bill comes. Your partner says, “We’re not tipping for that.”", ["partner", "you"], "say",
+               ["🧾", "💵", "🤔"], "worried", others="angry", set="cafe"),
+             M("Did you catch the whole receipt?"),
+         ], close="Do you leave the full tip, or leave less?"),
+
+    # Trend: TikTok about a partner liking strangers' photos online (Daily Dot, Oct 26 2026)
+    dict(id="l014_the_likes", title="The Likes", made_on="2026-10-28",
+         hook="what did your friend find?",
+         thread=dict(contact="Bestie", stamp="Thu 10:15 PM", msgs=[
+             "ok I checked their likes 👀",
+             "mostly gym and food pics",
+             "and… a lot of selfies",
+             "could mean nothing tbh",
+             "idk 🤷",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your partner is great. Kind, funny, always there for you.", ["partner", "you"], "laugh",
+               ["❤️", "😂", "🏠"], "happy", others="happy", set="home"),
+             S("But online, they like a lot of strangers’ selfies.", ["you"], "see", ["📱", "❤️", "🤳"],
+               "worried", set="home_night"),
+             M("Did you read the whole thread?"),
+         ], close="Do you bring it up, or let it go?"),
+
+    # Trend: viral debate over wedding gifts worth less than the cost of a guest's meal (Oct 2026)
+    dict(id="l015_the_plate_price", title="The Plate Price", made_on="2026-10-28",
+         hook="how much is everyone giving?",
+         thread=dict(contact="Jordan", stamp="Fri 4:20 PM", msgs=[
+             "how much are you giving?",
+             "I heard plates are $110 😬",
+             "I was gonna do $100",
+             "they did fly in for ours tho",
+             "idk… you?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your friend’s wedding is this weekend. You planned to give $100.", ["you"], "think",
+               ["💍", "✉️", "💵"], "happy", set="home"),
+             S("Then you hear each dinner plate costs more than that.", ["friend", "you"], "tell",
+               ["🍽️", "💸", "😬"], "worried", others="worried", set="home"),
+             M("Did you catch the whole thread?"),
+         ], close="Do you give more, or give what you planned?"),
 ]
