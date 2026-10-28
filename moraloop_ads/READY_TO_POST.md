@@ -38,7 +38,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 31 | 2026-11-03 | 4:00 PM | long | The Offer Letter | `moraloop_ads/long/the_offer_letter_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_offer_letter_tiktoksafe.mp4) |
 | 32 | 2026-11-03 | 8:00 PM | loop long | Unread | `moraloop_ads/loops/long/unread_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/unread_tiktoksafe.mp4) |
 | 33 | 2026-11-04 | 12:00 PM | short | The Wedding Dress | `moraloop_ads/trends/t012_the_wedding_dress_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t012_the_wedding_dress_tiktoksafe.mp4) |
-| 34 | 2026-11-04 | 12:30 PM | loop short | The Sunburn | `moraloop_ads/loops/l012_the_sunburn.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l012_the_sunburn.mp4) |
+| 34 | 2026-11-04 | 12:30 PM | loop short | The Sunburn | `moraloop_ads/loops/l012_the_sunburn_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l012_the_sunburn_tiktoksafe.mp4) |
 | 35 | 2026-11-05 | 12:00 PM | short | Dinner or Date | `moraloop_ads/trends/t013_dinner_or_date.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t013_dinner_or_date.mp4) |
 | 36 | 2026-11-05 | 12:30 PM | loop short | The Tip | `moraloop_ads/loops/l013_the_tip.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l013_the_tip.mp4) |
 | 37 | 2026-11-05 | 4:00 PM | long | Overheard | `moraloop_ads/long/overheard.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/overheard.mp4) |
@@ -356,7 +356,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 34. 2026-11-04 12:30 PM: The Sunburn (loop short)
-Video: `moraloop_ads/loops/l012_the_sunburn.mp4`
+Video: `moraloop_ads/loops/l012_the_sunburn_tiktoksafe.mp4`
 
 ```
 You wake up with a terrible sunburn an hour before your shift. Do you call in sick, or go in? Did you read the whole thread? 👀 Comment A or B 👇
