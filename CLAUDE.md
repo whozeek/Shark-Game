@@ -14,6 +14,7 @@ Moraloop asks viewers what *they* would do, so an ad must never steer them towar
 ## Other standing decisions
 
 - End card: logo + "COMING SOON". The official App Store badge is saved in `moraloop_ads/src/badge/` but stays off (`SHOW_APP_STORE_BADGE`) until the app is live on the App Store.
+- TikTok-safe layout: all essential text stays inside the safe area in `moraloop_ads/src/safe_zone.py` (clear of TikTok's top bar, right-side buttons and bottom caption/nav area) with readable timing. The shared template does this; check every render with `python3 safe_zone.py check`. See "TikTok-safe placement" in `moraloop_ads/AGENT_GUIDE.md`.
 - Question wording comes from the client's PDF and should match it exactly.
 
 ## Content agents

@@ -14,6 +14,7 @@ import os, sys, math, subprocess
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 import ad, clay
+import safe_zone as SZ
 from clay import W, H, FPS, font, FONT_CAP
 
 FONT_SEMI = ad.FONT_SEMI
@@ -45,7 +46,11 @@ def load(ad_id):
         scenes = [s for s in A.segs if s["kind"] == "scene"]
         cut = scenes[SPEC.get("cut_beat", 0)]["vs"] + 0.35
     CUT_T = cut + SPEC.get("cut_delay", 0.0) - SKIP
-    SPEC.setdefault("hook_until", A.lines[0]["t"] + 0.1 - SKIP)
+    # keep the hook question up until the first line is spoken AND long enough to read (0.3 s a word + 0.6 s);
+    # subtitles wait until it is gone, so the two never share the top of the frame
+    read = FLASH + 0.6 + 0.3 * len(SPEC["hook"].split())
+    SPEC.setdefault("hook_until", max(A.lines[0]["t"] + 0.1 - SKIP, read))
+    ad.CAPTION_FROM = SPEC["hook_until"] + SKIP
     # end on the end card, then cut straight to the flash frame (= frame 0)
     DUR = A.DUR - 0.7 - SKIP + FLASH
     return A
@@ -97,7 +102,7 @@ def note(scroll=0.0, focus_last=False, seed=0):
     y = 336 - 46 - scroll * 0.4  # first row sits on the first ruled line below the title, even when scrolled
     rows = []
     for m in nt["lines"]:
-        for l in clay.wrap(pd, m, f, pap.width - 210):
+        for l in clay.wrap(pd, m, f, SZ.RAIL_X - SZ.PAD - px0 - 150):  # clear of TikTok's button rail
             rows.append(l)
     for i, l in enumerate(rows):
         _text(pd, (150, y + i * 76), l, f, (25, 25, 50))
@@ -108,8 +113,9 @@ def note(scroll=0.0, focus_last=False, seed=0):
         pd = ImageDraw.Draw(pap)
         fb = font(FONT_SEMI, 84)
         last = nt["lines"][-1]
-        lines = clay.wrap(pd, last, fb, pap.width - 140)
-        yy = pap.height * 0.5
+        # TikTok-safe: wrap inside the safe width and end above the caption area
+        lines = clay.wrap(pd, last, fb, SZ.max_centered_width(H * 0.55, H * 0.68) - 60)
+        yy = min(pap.height * 0.5, SZ.BOTTOM - SZ.PAD - py0 - len(lines) * 120)
         for l in lines:
             lw = pd.textlength(l, font=fb)
             pd.rectangle(((pap.width - lw) / 2 - 30, yy - 10, (pap.width + lw) / 2 + 30, yy + 105), fill=(255, 240, 140))
@@ -128,7 +134,9 @@ def phone(scroll=0.0, focus_last=False, seed=0):
     bg = (np.array([40, 34, 70]) * (1 - g) + np.array([8, 10, 20]) * g).repeat(W, axis=1)
     img = Image.fromarray(bg.astype(np.uint8))
     d = ImageDraw.Draw(img)
-    px0, py0, px1, py1 = 90, 330, W - 90, H - 60
+    # TikTok-safe: phone sits higher (was top 330) with a compact header and tighter bubble spacing (same text
+    # size) so the whole thread, last line included, ends above TikTok's caption area when paused
+    px0, py0, px1, py1 = 90, 200, W - 90, H - 60
     sh = Image.new("L", (W, H), 0)
     ImageDraw.Draw(sh).rounded_rectangle((px0 + 20, py0 + 40, px1 + 20, py1 + 40), 110, fill=170)
     img.paste((0, 0, 0), (0, 0), sh.filter(ImageFilter.GaussianBlur(40)))
@@ -140,38 +148,45 @@ def phone(scroll=0.0, focus_last=False, seed=0):
     sw = scr.width
     # bubbles
     f = font(FONT_REG, 50)
-    y = 330 - scroll
+    y = 250 - scroll
     sd.text((sw / 2, y), th["stamp"], font=font(FONT_SEMI, 32), fill=(140, 140, 150), anchor="mm")
     y += 60
     boxes = []
     for i, m in enumerate(th["msgs"]):
         lines = clay.wrap(sd, m, f, sw * 0.62)
         bw = max(sd.textlength(l, font=f) for l in lines) + 70
-        bh = len(lines) * 62 + 44
+        bh = len(lines) * 58 + 36
         boxes.append((i, lines, 36, y, bw, bh))
-        y += bh + 22
+        y += bh + 16
     last = len(boxes) - 1
+    m_last = th["msgs"][-1]
     for i, lines, x, y, bw, bh in boxes:
         big = focus_last and i == last
         if big:
+            # TikTok-safe: the readable last line stays inside the safe width (wraps, same size) and ends
+            # above the caption area
             fb = font(FONT_SEMI, 92)
-            bw = sd.textlength(lines[0], font=fb) + 110
-            bh = 160
-            x, y = (sw - bw) / 2, scr.height * 0.52
+            maxw = SZ.max_centered_width(H * 0.6, H * 0.68) - 110
+            bl = clay.wrap(sd, m_last, fb, maxw)
+            bw = max(sd.textlength(l, font=fb) for l in bl) + 110
+            bh = 160 + (len(bl) - 1) * 112
+            x = (sw - bw) / 2
+            y = min(scr.height * 0.52, SZ.BOTTOM - SZ.PAD - sy0 - bh)
             layer = scr.filter(ImageFilter.GaussianBlur(14))
             scr.paste(layer)
             sd = ImageDraw.Draw(scr)
             sd.rounded_rectangle((x, y, x + bw, y + bh), 70, fill=(229, 229, 234))
-            _text(sd, (x + 55, y + 28), lines[0], fb, (10, 10, 12))
+            for kk, l in enumerate(bl):
+                _text(sd, (x + 55, y + 28 + kk * 112), l, fb, (10, 10, 12))
             continue
         sd.rounded_rectangle((x, y, x + bw, y + bh), 40, fill=(229, 229, 234))
         for k, l in enumerate(lines):
-            _text(sd, (x + 35, y + 20 + k * 62), l, f, (10, 10, 12))
+            _text(sd, (x + 35, y + 16 + k * 58), l, f, (10, 10, 12))
     # header
-    sd.rectangle((0, 0, sw, 260), fill=(242, 242, 246))
-    sd.ellipse((sw / 2 - 55, 70, sw / 2 + 55, 180), fill=(150, 120, 200))
-    sd.text((sw / 2, 125), th["contact"][0], font=font(FONT_CAP, 64), fill=(255, 255, 255), anchor="mm")
-    sd.text((sw / 2, 222), th["contact"], font=font(FONT_SEMI, 40), fill=(20, 20, 24), anchor="mm")
+    sd.rectangle((0, 0, sw, 196), fill=(242, 242, 246))
+    sd.ellipse((sw / 2 - 40, 70, sw / 2 + 40, 150), fill=(150, 120, 200))
+    sd.text((sw / 2, 110), th["contact"][0], font=font(FONT_CAP, 48), fill=(255, 255, 255), anchor="mm")
+    sd.text((sw / 2, 176), th["contact"], font=font(FONT_SEMI, 40), fill=(20, 20, 24), anchor="mm")
     sd.rounded_rectangle((sw / 2 - 90, 26, sw / 2 + 90, 60), 17, fill=(10, 10, 12))
     # input bar
     sd.rectangle((0, scr.height - 150, sw, scr.height), fill=(246, 246, 248))
@@ -204,8 +219,14 @@ def hook_caption(im):
     d = ImageDraw.Draw(im)
     fs = int(W * 0.068)
     fnt = font(FONT_CAP, fs)
-    for k, line in enumerate(clay.wrap(d, SPEC["hook"], fnt, W * 0.84)):
-        d.text((W / 2, H * 0.085 + k * fs * 1.2), line, font=fnt, fill=(255, 214, 60), stroke_width=fs // 8,
+    y0 = SZ.TOP + SZ.PAD + fs * 0.6  # TikTok-safe: under the top bar (was H * 0.085, behind the tabs)
+    mw = SZ.max_centered_width(0, 0)
+    lines = clay.wrap(d, SPEC["hook"], fnt, mw)
+    while len(lines) > 1 and len(clay.wrap(d, SPEC["hook"], fnt, mw - 20)) == len(lines):
+        mw -= 20  # balance the lines (no lone last word)
+        lines = clay.wrap(d, SPEC["hook"], fnt, mw)
+    for k, line in enumerate(lines):
+        d.text((W / 2, y0 + k * fs * 1.2), line, font=fnt, fill=(255, 214, 60), stroke_width=fs // 8,
                stroke_fill=(0, 0, 0), anchor="mm")
 
 

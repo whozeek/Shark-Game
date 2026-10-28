@@ -752,7 +752,9 @@ def card_overlay(im, t):
     if ta > 0:
         txt = "More questions like this on"
         col = tuple(int(bg + (255 - bg) * ta) for bg in (18, 38, 30))
-        d.text((W / 2, H * 0.16), txt, font=fnt, fill=col, anchor="mm")
+        d.text((W / 2, H * 0.19), txt, font=fnt, fill=col, anchor="mm")  # TikTok-safe: below the top bar
+    # NOTE: the badge branch below has not been moved into the TikTok safe area yet; re-check with
+    # safe_zone.py before turning SHOW_APP_STORE_BADGE on.
     # Official Apple "Download on the App Store" badge (Apple artwork, unmodified).
     # Per Apple's guidelines: no animation of the badge itself (simple fade only),
     # clear space of 1/4 badge height, subordinate to the logo, trademark credit line.
@@ -760,7 +762,8 @@ def card_overlay(im, t):
     if b > 0.01 and not SHOW_APP_STORE_BADGE:
         cs = ramp(t, CARD + 1.1, CARD + 1.6)
         col = tuple(int(15 + (v - 15) * cs) for v in (150, 215, 195))
-        d.text((W / 2, H * 0.74), "COMING SOON", font=font(FONT_CAP, int(W * 0.075)), fill=col, anchor="mm")
+        # TikTok-safe: directly under the logo, above the caption area (was H * 0.74)
+        d.text((W / 2, H * 0.643), "COMING SOON", font=font(FONT_CAP, int(W * 0.075)), fill=col, anchor="mm")
     elif b > 0.01:
         bh = int(W * 0.13)
         badge = official_badge(bh)

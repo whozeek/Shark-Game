@@ -20,6 +20,17 @@ Moraloop asks people what *they* would do. Every video, short or long, has to ma
 - Short videos: props, reactions and narration set up the dilemma and stop. No hint at an answer.
 - Before rendering, ask: "If someone heard only this video, would they lean one way?" If yes, rewrite.
 
+## TikTok-safe placement and reading time (every video, all agents; owner's rule since Oct 28, 2026)
+
+Videos post to TikTok (and Facebook/Instagram), where the app's interface sits on top of the video. Essential text must never be under it.
+
+- **The shared template handles placement. Don't override it.** `src/safe_zone.py` defines the safe area for the 1080×1920 export, and `ad.py`, `story.py`, `loop_ad.py` and the end card in `clay.py` already use it: subtitles sit just under TikTok's top bar, A/B answer cards and chapter cards stay clear of the right-side buttons, the loop hook and the hidden detail's readable line sit inside the safe area, and "COMING SOON" sits under the logo, above the caption area. Never hard-code a new text position, font size or width. If something new needs text, place it with `safe_zone.safe_rect()` / `max_centered_width()`.
+- **Danger zones (keep essential text out):** top 250 px (status bar, Dynamic Island, LIVE / Following / For You tabs); right side from y=760 down, x ≥ 880 (avatar, like, comment, save, share, sound disc); bottom from y=1320 (username, 2-line caption, sound row, search/CTA rows, nav bar); left 120 px. Leave at least 24 px of padding inside the safe area.
+- **Readable timing:** subtitles follow the voice in balanced chunks of at most 2 lines (no lone word flashing by). The loop hook question stays up for at least 0.6 s + 0.3 s per word, and subtitles wait until it's gone. The A/B cards stay up at least 2.6 s after card B appears. Never squeeze a multi-line message into about a second, and never shrink text to make it fit. Shorten the wording or give it more time instead.
+- **Hidden details (loop agents):** the whole thread or note has to fit inside the safe area when paused, last line included. In practice that means at most 5 short messages or note lines, with the last line about 15 characters. `safe_zone.py check` flags it if it doesn't fit; rewrite the detail shorter rather than shrinking it.
+- **Check every render against the TikTok overlay at export size** (a clean player preview is not enough): `python3 safe_zone.py check <video>.mp4 /tmp/<id>_tiktok.png` gives the first frame, 10 evenly spaced frames and the last frame under a TikTok interface overlay, and reports any frame where text looks like it's in a danger zone. View the sheet yourself. Also check the frames where the hook, the cards, the chapter cards and the end card are on screen (`python3 safe_zone.py check <video> <out> <t1> <t2> ...`). Fix and re-render anything flagged before queueing, and mention the check in your end-of-run summary.
+- **Existing videos:** videos made before Oct 28, 2026 were re-exported with the safe layout as `<name>_tiktoksafe.mp4` next to the originals, and the queue points not-yet-posted rows at the safe version. Never delete or overwrite an original video, and never touch posts that are already live.
+
 ## Setup (every run starts in a fresh cloud session)
 
 ```bash
@@ -47,7 +58,7 @@ ffmpeg and the Inter / Noto Color Emoji fonts are already in the image. Always r
 3. **Add both to `ads_trends.py`** with ids `t###_slug` (next free number), the `made_on` date, and `set=` on every scene. The building blocks (sets, characters, acts, reactions, emoji) are the same as `ads_spec.py`; see `ad.py` (`CHARS`, `EXPR`) and `sets.py` for what exists.
 4. **Check stills first:** `python3 ad.py still <id> <t1> <t2> ...` and look at the PNGs. Settings must fit the story, the right people must be on screen, props must read clearly, and nothing should be clipped.
 5. **Render:** `python3 ad.py render ../trends <id>` (each takes about 2–3 minutes).
-6. **Review the finished video:** `python3 frames.py ../trends/<id>.mp4 /tmp/<id>.png 10`, then view it. If you can start a subagent, have it independently check fit, clarity and neutrality against this guide. Fix and re-render anything that fails.
+6. **Review the finished video:** `python3 frames.py ../trends/<id>.mp4 /tmp/<id>.png 10` and `python3 safe_zone.py check ../trends/<id>.mp4 /tmp/<id>_tiktok.png`, then view both. If you can start a subagent, have it independently check fit, clarity and neutrality against this guide. Fix and re-render anything that fails.
 7. **Queue and publish** (see "Finishing a run").
 
 ## Long-form agent (1 storyline of 2–3 minutes per run)

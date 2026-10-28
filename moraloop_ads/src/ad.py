@@ -9,6 +9,8 @@ from clay import (Frame, W, H, FPS, smooth, ramp, lerp, back_out, SKIN, SUIT, SU
 S_DIR = clay.S_DIR
 SR = 24000
 EMOJI_FONT = "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf"
+import safe_zone as SZ  # TikTok-safe placement (see safe_zone.py)
+CAPTION_FROM = 0.0  # loop_ad.py holds subtitles back while its hook question is on screen
 FONT_SEMI = "/usr/share/fonts/opentype/inter/Inter-SemiBold.otf"
 BRAND_TTS = lambda s: s.replace("Moraloop", "Moral Loop")
 
@@ -85,7 +87,7 @@ def build(spec):
             q = max(low.rfind(". ", 0, ob), low.rfind("? ", 0, ob), low.rfind("” ", 0, ob)) if ob > 0 else -1
             ta = vs + d * (max(q, 0) / len(text)) if ob > 0 else vs + 0.2
             tb = vs + d * (ob / len(text)) if ob > 0 else vs + d * 0.5
-            cards.append(dict(a=kw["cards"][0], b=kw["cards"][1], ta=ta, tb=tb, te=vs + d + 1.1))
+            cards.append(dict(a=kw["cards"][0], b=kw["cards"][1], ta=ta, tb=tb, te=max(vs + d + 1.1, tb + 2.6)))
         if kind == "scene":
             segs[-1]["vs"], segs[-1]["vd"] = vs, d
             t = vs + d + 0.55
@@ -783,14 +785,27 @@ def scene_card(t, seg):
     p2 = back_out(ramp(k, 0.5, 0.95))
     p3 = back_out(ramp(k, 0.8, 1.3))
     d = seg["data"]
+    # TikTok-safe: title and subtitle sit above the right-side button rail, inside the safe width.
+    # Long subtitles wrap onto more lines (same size) instead of running off screen.
+    tmp = ImageDraw.Draw(Image.new("L", (4, 4)))
+    tw = tmp.textlength(d["title"], font=font(FONT_CAP, int(W * 0.16)))
+    tsize = W * 0.16 * min(1.0, SZ.max_centered_width(0, 0) / 1.06 / max(tw, 1))  # 6% headroom for the pop-in
+    ssize = W * 0.085
+    subs = clay.wrap(tmp, d["sub"], font(FONT_CAP, int(ssize)), SZ.max_centered_width(0, 0) / 1.06)
+    # whole block ends above the button rail (RAIL_Y) so the full safe width is available for every line
+    fs_cap = int(W * 0.062)
+    ty = min(H * 0.29, SZ.RAIL_Y - SZ.PAD - ssize * 0.4 - (len(subs) - 1) * ssize * 1.15 - tsize * 0.95)
+    sy = ty + tsize * 0.95
     if p1 > 0.02:
-        F.text(d["title"], (W / 2, H * 0.34), W * 0.16 * p1, d.get("color", (0.98, 0.70, 0.18)), font=FONT_CAP, seed="ct1",
+        F.text(d["title"], (W / 2, ty), tsize * p1, d.get("color", (0.98, 0.70, 0.18)), font=FONT_CAP, seed="ct1",
                stroke_div=60, shadow=0.6, spec=0.3)
     if p2 > 0.02:
-        F.text(d["sub"], (W / 2, H * 0.45), W * 0.085 * p2, (0.96, 0.96, 0.92), font=FONT_CAP, seed="ct2",
-               stroke_div=60, shadow=0.5, spec=0.2)
+        for k, ln in enumerate(subs):
+            F.text(ln, (W / 2, sy + k * ssize * 1.15), ssize * p2, (0.96, 0.96, 0.92), font=FONT_CAP, seed=f"ct2{k}",
+                   stroke_div=60, shadow=0.5, spec=0.2)
     if p3 > 0.02 and d.get("icon"):
-        emoji(F, d["icon"], (W / 2, H * 0.60 + math.sin(t * 3) * 10), W * 0.22 * p3, "cticon")
+        iy = (SZ.RAIL_Y + SZ.BOTTOM - SZ.PAD - 2 * fs_cap * 1.22) / 2 + W * 0.02  # between the block and the subtitles
+        emoji(F, d["icon"], (W / 2, iy + math.sin(t * 3) * 10), W * 0.22 * p3, "cticon")
     return F.cv
 
 
@@ -826,8 +841,43 @@ def render(t):
     return im
 
 
+def caption_chunks(d, words, fnt, maxw, lines=2):
+    """Split a spoken line into on-screen chunks of at most `lines` wrapped lines, balanced so no chunk is a
+    lone word flashing by (each chunk stays up while its words are spoken)."""
+    chunks, buf = [], []
+    for j, w in enumerate(words):
+        trial = " ".join(words[k] for k in buf + [j])
+        if buf and len(clay.wrap(d, trial, fnt, maxw)) > lines:
+            chunks.append(buf)
+            buf = [j]
+        else:
+            buf.append(j)
+    chunks.append(buf)
+    n = len(chunks)
+    if n > 1:  # rebalance: same number of chunks, roughly equal character counts
+        tot = sum(len(w) + 1 for w in words)
+        bal, cur, acc = [], [], 0
+        for j, w in enumerate(words):
+            cur.append(j)
+            acc += len(w) + 1
+            if len(bal) < n - 1 and acc >= tot * (len(bal) + 1) / n:
+                bal.append(cur)
+                cur = []
+        if cur:
+            bal.append(cur)
+        if len(bal) == n and all(len(clay.wrap(d, " ".join(words[k] for k in c), fnt, maxw)) <= lines for c in bal):
+            chunks = bal
+    return chunks
+
+
+def caption_box(fs, name=False):
+    """Top y and max width of the subtitle block: just under TikTok's top bar, clear of the button rail."""
+    y = SZ.TOP + SZ.PAD + 10 + (fs * 0.75 if name else 0)
+    return y, SZ.max_centered_width(y, y + fs * 1.22 * 2)
+
+
 def captions(im, t):
-    if t >= AD.CARD - 0.2:
+    if t >= AD.CARD - 0.2 or t < CAPTION_FROM:
         return
     d = ImageDraw.Draw(im)
     fs = int(W * 0.062)
@@ -844,25 +894,22 @@ def captions(im, t):
             if acc / nchar <= prog + 0.02:
                 cur = j
             acc += len(w) + 1
-        # chunk into groups of at most 2 wrapped lines
-        chunks, buf = [], []
-        for j, w in enumerate(words):
-            trial = " ".join(words[k] for k in buf + [j])
-            if buf and len(clay.wrap(d, trial, fnt, W * 0.84)) > 2:
-                chunks.append(buf)
-                buf = [j]
-            else:
-                buf.append(j)
-        chunks.append(buf)
+        y, maxw = caption_box(fs, bool(ln.get("name")))
+        low = AD.segs[seg_at(t)]["kind"] == "card"  # chapter cards own the top: subtitles go to the low safe band
+        if low:
+            maxw = SZ.max_centered_width(SZ.RAIL_Y, SZ.BOTTOM)
+        chunks = caption_chunks(d, words, fnt, maxw)
         ch = next(c for c in chunks if cur <= c[-1])
+        if low:
+            nl = len(clay.wrap(d, " ".join(words[k] for k in ch), fnt, maxw))
+            y = SZ.BOTTOM - SZ.PAD - nl * fs * 1.22
         text = " ".join(words[k] for k in ch)
-        y = H * 0.75
         if ln.get("name"):
             nf = font(FONT_CAP, int(fs * 0.62))
             d.text((W / 2, y - fs * 0.75), ln["name"].upper(), font=nf, fill=ln.get("color", (255, 214, 60)),
                    stroke_width=max(2, fs // 12), stroke_fill=(0, 0, 0), anchor="mm")
         k = ch[0]
-        for line in clay.wrap(d, text, fnt, W * 0.84):
+        for line in clay.wrap(d, text, fnt, maxw):
             lw = d.textlength(line, font=fnt)
             x = (W - lw) / 2
             for w in line.split():
@@ -874,35 +921,46 @@ def captions(im, t):
             y += fs * 1.22
 
 
+def card_layout(d, txt):
+    """A/B answer card size + wrapped lines. Cards fill the TikTok safe width (clear of the button rail);
+    long answers get a taller card with more lines at the same text size, never smaller text."""
+    x0, _, x1, y1 = SZ.safe_rect()
+    cw, chh = int(x1 - x0), int(W * 0.17)
+    fs = int(chh * 0.27)
+    f2 = font(FONT_SEMI, fs)
+    tx = int(chh * 0.98)
+    lines = clay.wrap(d, txt, f2, cw - tx - chh * 0.25)
+    h = max(chh, int(len(lines) * fs * 1.2 + chh * 0.45))
+    return int(x0), cw, chh, h, fs, f2, tx, lines
+
+
 def draw_cards(im, t):
+    md = ImageDraw.Draw(Image.new("L", (4, 4)))
     for c in AD.cards:
         if not (c["ta"] - 0.1 <= t < c["te"]) or t >= AD.CARD - 0.2:
             continue
         out = 1 - ramp(t, c["te"] - 0.3, c["te"])
+        lays = [card_layout(md, c["a"]), card_layout(md, c["b"])]
+        gap = int(W * 0.022)
+        # stack the two cards so the lower one ends at the bottom of the safe area
+        yb = SZ.BOTTOM - SZ.PAD - lays[1][3]
+        ys = [yb - gap - lays[0][3], yb]
         for j, (lab, txt, t0) in enumerate((("A", c["a"], c["ta"]), ("B", c["b"], c["tb"]))):
             p = back_out(ramp(t, t0, t0 + 0.35)) * out
             if p <= 0.01:
                 continue
-            cw, chh = int(W * 0.86), int(W * 0.17)
-            y = int(H * (0.47 + j * 0.115))
-            x = int((W - cw) / 2 + (1 - p) * W * 0.12 * (1 if j else -1))
-            card = Image.new("RGBA", (cw, chh), (0, 0, 0, 0))
+            x0, cw, chh, hh, fs, f2, tx, lines = lays[j]
+            y = ys[j]
+            x = int(x0 + (1 - p) * W * 0.12 * (1 if j else -1))
+            card = Image.new("RGBA", (cw, hh), (0, 0, 0, 0))
             cd = ImageDraw.Draw(card)
-            cd.rounded_rectangle((0, 0, cw - 1, chh - 1), radius=chh // 3, fill=(15, 31, 24, 235),
+            cd.rounded_rectangle((0, 0, cw - 1, hh - 1), radius=chh // 3, fill=(15, 31, 24, 235),
                                  outline=(42, 168, 150, 255), width=max(3, W // 300))
             r = int(chh * 0.36)
-            cxy = (int(chh * 0.5), chh // 2)
+            cxy = (int(chh * 0.5), hh // 2)
             cd.ellipse((cxy[0] - r, cxy[1] - r, cxy[0] + r, cxy[1] + r), fill=(42, 168, 150, 255))
             cd.text(cxy, lab, font=font(FONT_CAP, int(chh * 0.42)), fill=(255, 255, 255, 255), anchor="mm")
-            tx = int(chh * 0.98)
-            fs = int(chh * 0.27)
-            f2 = font(FONT_SEMI, fs)
-            lines = clay.wrap(cd, txt, f2, cw - tx - chh * 0.25)
-            while len(lines) > 2 and fs > 12:
-                fs -= 2
-                f2 = font(FONT_SEMI, fs)
-                lines = clay.wrap(cd, txt, f2, cw - tx - chh * 0.25)
-            yy = chh / 2 - (len(lines) - 1) * fs * 0.6
+            yy = hh / 2 - (len(lines) - 1) * fs * 0.6
             for ln in lines:
                 cd.text((tx, yy), ln, font=f2, fill=(245, 245, 240, 255), anchor="lm")
                 yy += fs * 1.2
