@@ -40,7 +40,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 33 | 2026-11-04 | 12:00 PM | short | The Wedding Dress | `moraloop_ads/trends/t012_the_wedding_dress_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t012_the_wedding_dress_tiktoksafe.mp4) |
 | 34 | 2026-11-04 | 12:30 PM | loop short | The Sunburn | `moraloop_ads/loops/l012_the_sunburn_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l012_the_sunburn_tiktoksafe.mp4) |
 | 35 | 2026-11-05 | 12:00 PM | short | Dinner or Date | `moraloop_ads/trends/t013_dinner_or_date_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t013_dinner_or_date_tiktoksafe.mp4) |
-| 36 | 2026-11-05 | 12:30 PM | loop short | The Tip | `moraloop_ads/loops/l013_the_tip.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l013_the_tip.mp4) |
+| 36 | 2026-11-05 | 12:30 PM | loop short | The Tip | `moraloop_ads/loops/l013_the_tip_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l013_the_tip_tiktoksafe.mp4) |
 | 37 | 2026-11-05 | 4:00 PM | long | Overheard | `moraloop_ads/long/overheard.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/overheard.mp4) |
 | 38 | 2026-11-05 | 8:00 PM | loop long | The Alibi | `moraloop_ads/loops/long/the_alibi.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/the_alibi.mp4) |
 | 39 | 2026-11-06 | 12:00 PM | short | The Concert Seats | `moraloop_ads/trends/t014_the_concert_seats.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t014_the_concert_seats.mp4) |
@@ -374,7 +374,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 36. 2026-11-05 12:30 PM: The Tip (loop short)
-Video: `moraloop_ads/loops/l013_the_tip.mp4`
+Video: `moraloop_ads/loops/l013_the_tip_tiktoksafe.mp4`
 
 ```
 Slow service and a wrong order. Your partner says no tip. Do you leave the full tip, or leave less? Did you catch the whole receipt? 👀 What would you do? 👇
