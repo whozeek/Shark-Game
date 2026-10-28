@@ -20,8 +20,10 @@ def safe_name(path):
 
 
 def jobs():
-    when = {}
+    when, new = {}, set()
     for r in csv.DictReader(open(os.path.join(ROOT, "moraloop_ads/plan/queue.csv"))):
+        if r.get("made_on", "") >= "2026-10-28":  # made with the TikTok-safe template already: nothing to fix
+            new.add(r["video_file"])
         dt = datetime.datetime.strptime(r["post_date"] + " " + r["post_time"], "%Y-%m-%d %I:%M %p")
         when.setdefault(r["video_file"], dt)
     plan = open(os.path.join(ROOT, "moraloop_ads/plan/30_day_plan.md")).read()
@@ -35,7 +37,7 @@ def jobs():
         [os.path.join(ROOT, "moraloop_storyline_two_best_friends.mp4")]
     for v in vids:
         rel = os.path.relpath(v, ROOT)
-        if rel.endswith("_tiktoksafe.mp4") or rel.endswith(".part.mp4") or "/src/" in rel:
+        if rel.endswith("_tiktoksafe.mp4") or rel.endswith(".part.mp4") or "/src/" in rel or rel in new:
             continue
         base = os.path.splitext(os.path.basename(v))[0]
         d = os.path.dirname(rel)
