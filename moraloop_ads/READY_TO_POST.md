@@ -30,7 +30,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 23 | 2026-11-01 | 12:00 PM | short | The Dress Code | `moraloop_ads/trends/t009_the_dress_code_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t009_the_dress_code_tiktoksafe.mp4) |
 | 24 | 2026-11-01 | 12:30 PM | loop short | The Host Again | `moraloop_ads/loops/l009_the_host_again_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l009_the_host_again_tiktoksafe.mp4) |
 | 25 | 2026-11-01 | 4:00 PM | long | Rent Night | `moraloop_ads/long/rent_night_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/rent_night_tiktoksafe.mp4) |
-| 26 | 2026-11-01 | 8:00 PM | loop long | Screenshots | `moraloop_ads/loops/long/screenshots.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/screenshots.mp4) |
+| 26 | 2026-11-01 | 8:00 PM | loop long | Screenshots | `moraloop_ads/loops/long/screenshots_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/screenshots_tiktoksafe.mp4) |
 | 27 | 2026-11-02 | 12:00 PM | short | The Baby Looks | `moraloop_ads/trends/t010_the_baby_looks.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t010_the_baby_looks.mp4) |
 | 28 | 2026-11-02 | 12:30 PM | loop short | The Early Ride | `moraloop_ads/loops/l010_the_early_ride.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l010_the_early_ride.mp4) |
 | 29 | 2026-11-03 | 12:00 PM | short | The AI Interview | `moraloop_ads/trends/t011_the_ai_interview.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t011_the_ai_interview.mp4) |
@@ -281,7 +281,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 26. 2026-11-01 8:00 PM: Screenshots (loop long)
-Video: `moraloop_ads/loops/long/screenshots.mp4`
+Video: `moraloop_ads/loops/long/screenshots_tiktoksafe.mp4`
 
 ```
 Your partner sent screenshots of your argument to the group chat. Even your apology. Do you ask for the screenshots to be removed, or ask them to correct the story? Did you catch what the group chat said? 👀 What would you do? 👇
