@@ -237,7 +237,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 16 (Sat Nov 7, 2026, 7:00 PM): The Ex Plus One
-File: `moraloop_ads/04_the_ex_plus_one.mp4` (0:39)
+File: `moraloop_ads/04_the_ex_plus_one_tiktoksafe.mp4` (0:39)
 
 ```
 Your partner's ex needs a wedding date for one night. Then comes the catch.
