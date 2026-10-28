@@ -289,7 +289,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 20 (Wed Nov 11, 2026, 7:00 PM): The Public Comment
-File: `moraloop_ads/25_the_public_comment.mp4` (0:21)
+File: `moraloop_ads/25_the_public_comment_tiktoksafe.mp4` (0:21)
 
 ```
 A friend says something ignorant in public. They didn't mean harm, but people are upset.
