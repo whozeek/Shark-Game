@@ -34,7 +34,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 27 | 2026-11-02 | 12:00 PM | short | The Baby Looks | `moraloop_ads/trends/t010_the_baby_looks_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t010_the_baby_looks_tiktoksafe.mp4) |
 | 28 | 2026-11-02 | 12:30 PM | loop short | The Early Ride | `moraloop_ads/loops/l010_the_early_ride_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l010_the_early_ride_tiktoksafe.mp4) |
 | 29 | 2026-11-03 | 12:00 PM | short | The AI Interview | `moraloop_ads/trends/t011_the_ai_interview_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t011_the_ai_interview_tiktoksafe.mp4) |
-| 30 | 2026-11-03 | 12:30 PM | loop short | The Even Split | `moraloop_ads/loops/l011_the_even_split.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l011_the_even_split.mp4) |
+| 30 | 2026-11-03 | 12:30 PM | loop short | The Even Split | `moraloop_ads/loops/l011_the_even_split_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l011_the_even_split_tiktoksafe.mp4) |
 | 31 | 2026-11-03 | 4:00 PM | long | The Offer Letter | `moraloop_ads/long/the_offer_letter.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_offer_letter.mp4) |
 | 32 | 2026-11-03 | 8:00 PM | loop long | Unread | `moraloop_ads/loops/long/unread.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/unread.mp4) |
 | 33 | 2026-11-04 | 12:00 PM | short | The Wedding Dress | `moraloop_ads/trends/t012_the_wedding_dress.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t012_the_wedding_dress.mp4) |
@@ -320,7 +320,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 30. 2026-11-03 12:30 PM: The Even Split (loop short)
-Video: `moraloop_ads/loops/l011_the_even_split.mp4`
+Video: `moraloop_ads/loops/l011_the_even_split_tiktoksafe.mp4`
 
 ```
 Your friends bring their kids, so the beach house gets bigger and pricier. Do you split it evenly, or ask to pay less? Did you catch the whole chat? 👀 What would you do? 👇
