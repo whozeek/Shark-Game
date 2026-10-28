@@ -21,7 +21,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 14 | 2026-10-29 | 9:00 AM | loop short | The Fifth Costume | `moraloop_ads/loops/l003_the_fifth_costume_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l003_the_fifth_costume_tiktoksafe.mp4) |
 | 15 | 2026-10-29 | 12:00 PM | short | The Notice Period | `moraloop_ads/trends/t006_the_notice_period_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t006_the_notice_period_tiktoksafe.mp4) |
 | 16 | 2026-10-29 | 12:30 PM | loop short | The Second Spot | `moraloop_ads/loops/l006_the_second_spot_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l006_the_second_spot_tiktoksafe.mp4) |
-| 17 | 2026-10-30 | 12:00 PM | short | Teen Trick-or-Treaters | `moraloop_ads/trends/t007_teen_trick_or_treaters.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t007_teen_trick_or_treaters.mp4) |
+| 17 | 2026-10-30 | 12:00 PM | short | Teen Trick-or-Treaters | `moraloop_ads/trends/t007_teen_trick_or_treaters_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t007_teen_trick_or_treaters_tiktoksafe.mp4) |
 | 18 | 2026-10-30 | 12:30 PM | loop short | The Candy Swap | `moraloop_ads/loops/l007_the_candy_swap.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l007_the_candy_swap.mp4) |
 | 19 | 2026-10-30 | 4:00 PM | long | The Last Season | `moraloop_ads/long/the_last_season.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_last_season.mp4) |
 | 20 | 2026-10-30 | 8:00 PM | loop long | Swap Night | `moraloop_ads/loops/long/swap_night.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/swap_night.mp4) |
@@ -185,7 +185,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 17. 2026-10-30 12:00 PM: Teen Trick-or-Treaters (short)
-Video: `moraloop_ads/trends/t007_teen_trick_or_treaters.mp4`
+Video: `moraloop_ads/trends/t007_teen_trick_or_treaters_tiktoksafe.mp4`
 
 ```
 Two teens with no costumes knock on Halloween. Your bowl is almost empty. Do you give them candy, or save it for little kids? Comment A or B 👇
