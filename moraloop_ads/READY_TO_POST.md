@@ -28,7 +28,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 21 | 2026-10-31 | 12:00 PM | short | Stop the Wedding | `moraloop_ads/trends/t008_stop_the_wedding_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t008_stop_the_wedding_tiktoksafe.mp4) |
 | 22 | 2026-10-31 | 12:30 PM | loop short | The Lap | `moraloop_ads/loops/l008_the_lap_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l008_the_lap_tiktoksafe.mp4) |
 | 23 | 2026-11-01 | 12:00 PM | short | The Dress Code | `moraloop_ads/trends/t009_the_dress_code_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t009_the_dress_code_tiktoksafe.mp4) |
-| 24 | 2026-11-01 | 12:30 PM | loop short | The Host Again | `moraloop_ads/loops/l009_the_host_again.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l009_the_host_again.mp4) |
+| 24 | 2026-11-01 | 12:30 PM | loop short | The Host Again | `moraloop_ads/loops/l009_the_host_again_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l009_the_host_again_tiktoksafe.mp4) |
 | 25 | 2026-11-01 | 4:00 PM | long | Rent Night | `moraloop_ads/long/rent_night.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/rent_night.mp4) |
 | 26 | 2026-11-01 | 8:00 PM | loop long | Screenshots | `moraloop_ads/loops/long/screenshots.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/screenshots.mp4) |
 | 27 | 2026-11-02 | 12:00 PM | short | The Baby Looks | `moraloop_ads/trends/t010_the_baby_looks.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t010_the_baby_looks.mp4) |
@@ -248,7 +248,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 24. 2026-11-01 12:30 PM: The Host Again (loop short)
-Video: `moraloop_ads/loops/l009_the_host_again.mp4`
+Video: `moraloop_ads/loops/l009_the_host_again_tiktoksafe.mp4`
 
 ```
 You’ve hosted the big family dinner three years in a row, and everyone assumes you will again. Do you host again, or say no this year? Did you catch the whole thread? 👀 What would you do? 👇
