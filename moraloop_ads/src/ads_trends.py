@@ -103,4 +103,52 @@ ADS = [
         S("But you paid to restore it, and it’s been yours for years.", ["you"], "think", ["👗", "💸", "🧵"], "worried",
           set="home"),
     ], close="Do you give it back, or keep it?"),
+
+    # Trend: TikTok about regretting skipping family dinner for a date (Daily Dot, Oct 27 2026)
+    dict(id="t013_dinner_or_date", title="Dinner or Date", made_on="2026-10-28", beats=[
+        S("Sunday family dinner. Everyone comes, every week.", ["elder", "kid", "you"], "react",
+          ["🍝", "👨‍👩‍👧", "🕖"], "happy", others="happy", set="home"),
+        S("Then your crush asks you out. Same night. The only night they’re free.", ["you"], "see",
+          ["📱", "💘", "🕖"], "worried", set="home"),
+    ], close="Do you go on the date, or go to family dinner?"),
+
+    # Trend: Reddit post about a couple coming back to claim their concert seats (Oct 2026)
+    dict(id="t014_the_concert_seats", title="The Concert Seats", made_on="2026-10-28", beats=[
+        S("You leave your concert seats for an hour to grab food.", ["you"], "think", ["🎤", "🍔", "⏰"],
+          "worried", set="hall"),
+        S("When you get back, another couple is in them, having a great time.", ["friend", "friend2", "you"],
+          "react", ["🎟️", "🎶", "😄"], "worried", others="happy", set="hall"),
+    ], close="Do you ask for your seats back, or find new ones?"),
+
+    # Trend: Reddit post about a neighbor dumping trash in someone else's bin (Oct 2026)
+    dict(id="t015_the_trash_bin", title="The Trash Bin", made_on="2026-10-28", beats=[
+        S("Your new neighbor keeps putting their trash in your bin.", ["you"], "react", ["🗑️", "🛍️", "🏠"],
+          "shock", set="street"),
+        S("Now your bin is full before pickup. But they’re friendly, and new in town.", ["stranger", "you"],
+          "say", ["👋", "🏠"], "worried", set="street"),
+    ], close="Do you say something, or let it slide?"),
+
+    # Trend: Reddit post about a mother-in-law and a baby-naming dispute (Oct 2026)
+    dict(id="t016_the_baby_name", title="The Baby Name", made_on="2026-10-28", beats=[
+        S("Your mother-in-law asks you to name the baby after her. It would mean the world to her.",
+          ["elder", "partner", "you"], "say", ["👶", "👵", "💬"], "worried", others="worried", set="home"),
+        S("But you and your partner already picked a name you love.", ["you"], "think", ["👶", "❤️", "📝"],
+          "worried", set="home"),
+    ], close="Do you use her name, or the one you picked?"),
+
+    # Trend: Reddit story about café regulars who secretly left 100+ bad reviews (Oct 2026)
+    dict(id="t017_the_bad_reviews", title="The Bad Reviews", made_on="2026-10-28", beats=[
+        S("You work at a café. A sweet older couple comes in every day.", ["elder", "stranger", "you"], "react",
+          ["☕", "🥐", "😊"], "happy", others="happy", set="cafe"),
+        S("Then you find out they’ve left dozens of bad reviews. But they’re your best regulars.", ["you"], "see", ["📱", "⭐", "👎"], "shock",
+          set="cafe"),
+    ], close="Do you confront them, or act like you don’t know?"),
+
+    # Trend: roommate fight over a dish rack that became a 30-part TikTok series (The Cut, Oct 2026)
+    dict(id="t018_the_roommate_series", title="The Roommate Series", made_on="2026-10-28", beats=[
+        S("You and your roommate argue about the dishes.", ["friend", "you"], "say", ["🍽️", "💢"], "worried",
+          set="home"),
+        S("Then they post a video series about it. It goes viral.", ["you"], "see", ["📱", "📈", "😳"], "shock",
+          set="home"),
+    ], close="Do you post your side online, or talk in private?"),
 ]
