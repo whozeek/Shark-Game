@@ -107,7 +107,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 6 (Wed Oct 28, 2026, 7:00 PM): The Trolley Lever
-File: `moraloop_ads/49_the_trolley_lever.mp4` (0:26)
+File: `moraloop_ads/49_the_trolley_lever_tiktoksafe.mp4` (0:26)
 
 ```
 The classic, with a twist. You have the lever. Do you pull it?
