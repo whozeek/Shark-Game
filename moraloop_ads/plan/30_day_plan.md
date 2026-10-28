@@ -146,7 +146,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 9 (Sat Oct 31, 2026, 7:00 PM): The Honest Review
-File: `moraloop_ads/26_the_honest_review.mp4` (0:27)
+File: `moraloop_ads/26_the_honest_review_tiktoksafe.mp4` (0:27)
 
 ```
 Your friend's new business asks for your review. You weren't impressed. Honest... or supportive?
