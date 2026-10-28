@@ -159,7 +159,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 10 (Sun Nov 1, 2026, 7:00 PM): The Urgent Call
-File: `moraloop_ads/51_the_urgent_call.mp4` (0:35)
+File: `moraloop_ads/51_the_urgent_call_tiktoksafe.mp4` (0:35)
 
 ```
 It sounds exactly like your loved one, and they need $3,000 now. But it could be AI. Help now... or verify first?
