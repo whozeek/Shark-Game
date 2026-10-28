@@ -211,7 +211,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 14 (Thu Nov 5, 2026, 7:00 PM): Storyline: Two Best Friends (2 min)
-File: `moraloop_storyline_two_best_friends.mp4` (2:10)
+File: `moraloop_storyline_two_best_friends_tiktoksafe.mp4` (2:10)
 
 ```
 One secret. Two choices. Two very different endings. Watch both... then tell us which one you'd pick.
