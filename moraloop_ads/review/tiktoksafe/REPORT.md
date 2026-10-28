@@ -1,8 +1,8 @@
 # TikTok-safe re-export report
 
-Generated 2026-10-28 03:28 US Eastern. Originals are untouched; each corrected copy sits next to its original as `<name>_tiktoksafe.mp4`. Upcoming queue rows and 30-day-plan entries point at the corrected copy; posts whose time had already passed (live posts) were left as they are.
+Generated 2026-10-28 04:03 US Eastern. Originals are untouched; each corrected copy sits next to its original as `<name>_tiktoksafe.mp4`. Upcoming queue rows and 30-day-plan entries point at the corrected copy; posts whose time had already passed (live posts) were left as they are.
 
-**10 of 85 videos re-exported.** 75 still missing (listed at the end).
+**11 of 85 videos re-exported.** 74 still missing (listed at the end).
 
 Safe area (1080×1920): top 250 px (status bar, Dynamic Island, tabs), right x≥880 from y=760 down (avatar, like, comment, save, share, sound), bottom from y=1320 (username, caption, sound row, nav bar), left 120 px, plus 24 px padding. Story, wording, voice, visuals, animation and timing are unchanged apart from the listed moves.
 
@@ -20,6 +20,7 @@ Screenshots: each image shows the ORIGINAL (top) and TIKTOK-SAFE copy (bottom) u
 | 8 | `moraloop_ads/loops/long/the_brother_rule_tiktoksafe.mp4` | unscheduled | unscheduled | subtitles moved from the bottom caption area (y≈1440–1600) to just under TikTok's top bar, in balanced 2-line chunks; end card: tagline moved below the top bar; COMING SOON moved from y≈1420 (caption area) to just under the logo; CHOICE A/B chapter cards moved above the button rail; long subtitles wrap instead of running off screen; narration subtitles on these cards use the low safe band; hook question moved from y≈160 (behind the For You tabs) into the safe area, balanced lines, on screen at least 0.6 s + 0.3 s per word; hidden detail: phone thread sits higher with tighter bubble spacing (same text size) / note lines wrap clear of the buttons, so the whole detail and its readable last line fit when paused | [view](the_brother_rule_tiktoksafe.jpg) |
 | 9 | `moraloop_ads/trends/t005_the_scratched_car_tiktoksafe.mp4` | unscheduled | unscheduled | subtitles moved from the bottom caption area (y≈1440–1600) to just under TikTok's top bar, in balanced 2-line chunks; end card: tagline moved below the top bar; COMING SOON moved from y≈1420 (caption area) to just under the logo | [view](t005_the_scratched_car_tiktoksafe.jpg) |
 | 10 | `moraloop_ads/trends/t006_the_notice_period_tiktoksafe.mp4` | unscheduled | unscheduled | subtitles moved from the bottom caption area (y≈1440–1600) to just under TikTok's top bar, in balanced 2-line chunks; end card: tagline moved below the top bar; COMING SOON moved from y≈1420 (caption area) to just under the logo | [view](t006_the_notice_period_tiktoksafe.jpg) |
+| 11 | `moraloop_ads/trends/t007_teen_trick_or_treaters_tiktoksafe.mp4` | unscheduled | unscheduled | subtitles moved from the bottom caption area (y≈1440–1600) to just under TikTok's top bar, in balanced 2-line chunks; end card: tagline moved below the top bar; COMING SOON moved from y≈1420 (caption area) to just under the logo | [view](t007_teen_trick_or_treaters_tiktoksafe.jpg) |
 
 ## Not verified / flagged
 
@@ -30,7 +31,6 @@ Screenshots: each image shows the ORIGINAL (top) and TIKTOK-SAFE copy (bottom) u
 
 ## Still missing
 
-- `moraloop_ads/trends/t007_teen_trick_or_treaters.mp4`
 - `moraloop_ads/loops/l007_the_candy_swap.mp4`
 - `moraloop_ads/long/the_last_season.mp4`
 - `moraloop_ads/06_the_missing_deposit.mp4`
