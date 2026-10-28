@@ -224,7 +224,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 15 (Fri Nov 6, 2026, 7:00 PM): Another Chance
-File: `moraloop_ads/24_another_chance.mp4` (0:25)
+File: `moraloop_ads/24_another_chance_tiktoksafe.mp4` (0:25)
 
 ```
 Someone who hurt you apologizes and says they've changed. Forgive them... or protect your peace?
