@@ -27,7 +27,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 20 | 2026-10-30 | 8:00 PM | loop long | Swap Night | `moraloop_ads/loops/long/swap_night_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/swap_night_tiktoksafe.mp4) |
 | 21 | 2026-10-31 | 12:00 PM | short | Stop the Wedding | `moraloop_ads/trends/t008_stop_the_wedding_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t008_stop_the_wedding_tiktoksafe.mp4) |
 | 22 | 2026-10-31 | 12:30 PM | loop short | The Lap | `moraloop_ads/loops/l008_the_lap_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l008_the_lap_tiktoksafe.mp4) |
-| 23 | 2026-11-01 | 12:00 PM | short | The Dress Code | `moraloop_ads/trends/t009_the_dress_code.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t009_the_dress_code.mp4) |
+| 23 | 2026-11-01 | 12:00 PM | short | The Dress Code | `moraloop_ads/trends/t009_the_dress_code_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t009_the_dress_code_tiktoksafe.mp4) |
 | 24 | 2026-11-01 | 12:30 PM | loop short | The Host Again | `moraloop_ads/loops/l009_the_host_again.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l009_the_host_again.mp4) |
 | 25 | 2026-11-01 | 4:00 PM | long | Rent Night | `moraloop_ads/long/rent_night.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/rent_night.mp4) |
 | 26 | 2026-11-01 | 8:00 PM | loop long | Screenshots | `moraloop_ads/loops/long/screenshots.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/screenshots.mp4) |
@@ -239,7 +239,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 23. 2026-11-01 12:00 PM: The Dress Code (short)
-Video: `moraloop_ads/trends/t009_the_dress_code.mp4`
+Video: `moraloop_ads/trends/t009_the_dress_code_tiktoksafe.mp4`
 
 ```
 Great reviews, but your boss asks you to tone down your style. Do you tone it down, or keep your style? Comment A or B 👇
