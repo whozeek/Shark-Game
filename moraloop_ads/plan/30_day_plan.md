@@ -133,7 +133,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 8 (Fri Oct 30, 2026, 7:00 PM): The Missing Deposit
-File: `moraloop_ads/06_the_missing_deposit.mp4` (0:38)
+File: `moraloop_ads/06_the_missing_deposit_tiktoksafe.mp4` (0:38)
 
 ```
 Moving day. Your partner's half of the deposit is gone. What do you do?
