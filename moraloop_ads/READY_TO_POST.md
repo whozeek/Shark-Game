@@ -13,7 +13,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 6 | 2026-10-27 | 9:00 AM | loop short | Don’t Tell Her | `moraloop_ads/loops/l001_dont_tell_her.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l001_dont_tell_her.mp4) |
 | 7 | 2026-10-27 | 12:00 PM | short | The Babysitting Ask | `moraloop_ads/trends/t004_the_babysitting_ask.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t004_the_babysitting_ask.mp4) |
 | 8 | 2026-10-27 | 12:30 PM | loop short | The Two Weeks | `moraloop_ads/loops/l004_the_two_weeks.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l004_the_two_weeks.mp4) |
-| 9 | 2026-10-28 | 9:00 AM | loop short | The Uninvite | `moraloop_ads/loops/l002_the_uninvite.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l002_the_uninvite.mp4) |
+| 9 | 2026-10-28 | 9:00 AM | loop short | The Uninvite | `moraloop_ads/loops/l002_the_uninvite_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l002_the_uninvite_tiktoksafe.mp4) |
 | 10 | 2026-10-28 | 12:00 PM | short | The Scratched Car | `moraloop_ads/trends/t005_the_scratched_car.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t005_the_scratched_car.mp4) |
 | 11 | 2026-10-28 | 12:30 PM | loop short | The Window Note | `moraloop_ads/loops/l005_the_window_note.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l005_the_window_note.mp4) |
 | 12 | 2026-10-28 | 4:00 PM | long | The Job Offer | `moraloop_ads/long/the_job_offer.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_job_offer.mp4) |
@@ -113,7 +113,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 9. 2026-10-28 9:00 AM: The Uninvite (loop short)
-Video: `moraloop_ads/loops/l002_the_uninvite.mp4`
+Video: `moraloop_ads/loops/l002_the_uninvite_tiktoksafe.mp4`
 
 ```
 Your childhood friend uninvites you from their wedding a week before. Do you still send the gift, or keep it? Did you read the whole text? 👀 Comment A or B 👇
