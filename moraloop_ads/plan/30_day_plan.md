@@ -263,7 +263,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 18 (Mon Nov 9, 2026, 7:00 PM): The Résumé
-File: `moraloop_ads/08_the_resume.mp4` (0:23)
+File: `moraloop_ads/08_the_resume_tiktoksafe.mp4` (0:23)
 
 ```
 Lying on a résumé is wrong. But your home depends on that job. Would you expose the lie?
