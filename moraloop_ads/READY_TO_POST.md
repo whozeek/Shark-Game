@@ -31,7 +31,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 24 | 2026-11-01 | 12:30 PM | loop short | The Host Again | `moraloop_ads/loops/l009_the_host_again_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l009_the_host_again_tiktoksafe.mp4) |
 | 25 | 2026-11-01 | 4:00 PM | long | Rent Night | `moraloop_ads/long/rent_night_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/rent_night_tiktoksafe.mp4) |
 | 26 | 2026-11-01 | 8:00 PM | loop long | Screenshots | `moraloop_ads/loops/long/screenshots_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/screenshots_tiktoksafe.mp4) |
-| 27 | 2026-11-02 | 12:00 PM | short | The Baby Looks | `moraloop_ads/trends/t010_the_baby_looks.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t010_the_baby_looks.mp4) |
+| 27 | 2026-11-02 | 12:00 PM | short | The Baby Looks | `moraloop_ads/trends/t010_the_baby_looks_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t010_the_baby_looks_tiktoksafe.mp4) |
 | 28 | 2026-11-02 | 12:30 PM | loop short | The Early Ride | `moraloop_ads/loops/l010_the_early_ride.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l010_the_early_ride.mp4) |
 | 29 | 2026-11-03 | 12:00 PM | short | The AI Interview | `moraloop_ads/trends/t011_the_ai_interview.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t011_the_ai_interview.mp4) |
 | 30 | 2026-11-03 | 12:30 PM | loop short | The Even Split | `moraloop_ads/loops/l011_the_even_split.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l011_the_even_split.mp4) |
@@ -290,7 +290,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 27. 2026-11-02 12:00 PM: The Baby Looks (short)
-Video: `moraloop_ads/trends/t010_the_baby_looks.mp4`
+Video: `moraloop_ads/trends/t010_the_baby_looks_tiktoksafe.mp4`
 
 ```
 Your mom keeps saying the baby looks just like your side. Your partner seems hurt. Do you say something, or let it go? What would you do? 👇
