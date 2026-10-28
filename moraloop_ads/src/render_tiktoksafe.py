@@ -11,6 +11,7 @@ import csv, os, re, subprocess, sys, datetime, time
 SRC = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(SRC, "..", ".."))
 REV = os.path.join(SRC, "out", "tiktoksafe_review")
+LOG = os.path.join(ROOT, "moraloop_ads/review/tiktoksafe/log.txt")  # committed, so later runs can read it
 
 
 def safe_name(path):
@@ -34,7 +35,7 @@ def jobs():
         [os.path.join(ROOT, "moraloop_storyline_two_best_friends.mp4")]
     for v in vids:
         rel = os.path.relpath(v, ROOT)
-        if rel.endswith("_tiktoksafe.mp4") or "/src/" in rel:
+        if rel.endswith("_tiktoksafe.mp4") or rel.endswith(".part.mp4") or "/src/" in rel:
             continue
         base = os.path.splitext(os.path.basename(v))[0]
         d = os.path.dirname(rel)
@@ -126,12 +127,18 @@ if __name__ == "__main__":
         repoint()
     elif sys.argv[1] == "run":
         n = int(sys.argv[2]) if len(sys.argv) > 2 else 10 ** 6
-        log = open(os.path.join(SRC, "out", "tiktoksafe_log.txt"), "a")
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        log = open(LOG, "a")
+        budget = float(os.environ.get("MINUTES", "0")) * 60
+        start = time.time()
         for j in J:
             if n <= 0:
                 break
             if os.path.exists(os.path.join(ROOT, safe_name(j["rel"]))):
                 continue
+            if budget and time.time() - start > budget:
+                print("time budget used, stopping", flush=True)
+                break
             t0 = time.time()
             try:
                 dst, flags = render(j)
