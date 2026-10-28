@@ -419,7 +419,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 30 (Sat Nov 21, 2026, 7:00 PM): The Gift
-File: `moraloop_ads/28_the_gift.mp4` (0:21)
+File: `moraloop_ads/28_the_gift_tiktoksafe.mp4` (0:21)
 
 ```
 Someone gives you a gift you don't like. Pretend you love it... or be honest?
