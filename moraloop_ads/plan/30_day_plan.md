@@ -341,7 +341,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 24 (Sun Nov 15, 2026, 7:00 PM): The Team Secret
-File: `moraloop_ads/18_the_team_secret.mp4` (0:37)
+File: `moraloop_ads/18_the_team_secret_tiktoksafe.mp4` (0:37)
 
 ```
 Your teammate might quit and asks you to keep it secret. The team is counting on them.
