@@ -18,7 +18,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 11 | 2026-10-28 | 12:30 PM | loop short | The Window Note | `moraloop_ads/loops/l005_the_window_note_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l005_the_window_note_tiktoksafe.mp4) |
 | 12 | 2026-10-28 | 4:00 PM | long | The Job Offer | `moraloop_ads/long/the_job_offer_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_job_offer_tiktoksafe.mp4) |
 | 13 | 2026-10-28 | 8:00 PM | loop long | The Brother Rule | `moraloop_ads/loops/long/the_brother_rule_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/the_brother_rule_tiktoksafe.mp4) |
-| 14 | 2026-10-29 | 9:00 AM | loop short | The Fifth Costume | `moraloop_ads/loops/l003_the_fifth_costume.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l003_the_fifth_costume.mp4) |
+| 14 | 2026-10-29 | 9:00 AM | loop short | The Fifth Costume | `moraloop_ads/loops/l003_the_fifth_costume_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l003_the_fifth_costume_tiktoksafe.mp4) |
 | 15 | 2026-10-29 | 12:00 PM | short | The Notice Period | `moraloop_ads/trends/t006_the_notice_period.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t006_the_notice_period.mp4) |
 | 16 | 2026-10-29 | 12:30 PM | loop short | The Second Spot | `moraloop_ads/loops/l006_the_second_spot.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l006_the_second_spot.mp4) |
 | 17 | 2026-10-30 | 12:00 PM | short | Teen Trick-or-Treaters | `moraloop_ads/trends/t007_teen_trick_or_treaters.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t007_teen_trick_or_treaters.mp4) |
@@ -158,7 +158,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 14. 2026-10-29 9:00 AM: The Fifth Costume (loop short)
-Video: `moraloop_ads/loops/l003_the_fifth_costume.mp4`
+Video: `moraloop_ads/loops/l003_the_fifth_costume_tiktoksafe.mp4`
 
 ```
 Your friends pick a group costume for four. There are five of you. Do you sit this one out, or ask them to change? Did you catch the whole group chat? 👀 What would you do? 👇
