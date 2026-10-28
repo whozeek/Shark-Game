@@ -15,7 +15,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 8 | 2026-10-27 | 12:30 PM | loop short | The Two Weeks | `moraloop_ads/loops/l004_the_two_weeks.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l004_the_two_weeks.mp4) |
 | 9 | 2026-10-28 | 9:00 AM | loop short | The Uninvite | `moraloop_ads/loops/l002_the_uninvite_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l002_the_uninvite_tiktoksafe.mp4) |
 | 10 | 2026-10-28 | 12:00 PM | short | The Scratched Car | `moraloop_ads/trends/t005_the_scratched_car_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t005_the_scratched_car_tiktoksafe.mp4) |
-| 11 | 2026-10-28 | 12:30 PM | loop short | The Window Note | `moraloop_ads/loops/l005_the_window_note.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l005_the_window_note.mp4) |
+| 11 | 2026-10-28 | 12:30 PM | loop short | The Window Note | `moraloop_ads/loops/l005_the_window_note_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l005_the_window_note_tiktoksafe.mp4) |
 | 12 | 2026-10-28 | 4:00 PM | long | The Job Offer | `moraloop_ads/long/the_job_offer.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_job_offer.mp4) |
 | 13 | 2026-10-28 | 8:00 PM | loop long | The Brother Rule | `moraloop_ads/loops/long/the_brother_rule.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/the_brother_rule.mp4) |
 | 14 | 2026-10-29 | 9:00 AM | loop short | The Fifth Costume | `moraloop_ads/loops/l003_the_fifth_costume.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l003_the_fifth_costume.mp4) |
@@ -131,7 +131,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 11. 2026-10-28 12:30 PM: The Window Note (loop short)
-Video: `moraloop_ads/loops/l005_the_window_note.mp4`
+Video: `moraloop_ads/loops/l005_the_window_note_tiktoksafe.mp4`
 
 ```
 Your neighbor across the way saw you see them dancing. Now there’s a note in their window. Do you write back, or act like you never saw it? Did you catch the whole note? 👀 What would you do? 👇
