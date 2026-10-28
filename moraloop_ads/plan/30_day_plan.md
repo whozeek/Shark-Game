@@ -393,7 +393,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 28 (Thu Nov 19, 2026, 7:00 PM): Returned Damaged
-File: `moraloop_ads/46_returned_damaged.mp4` (0:25)
+File: `moraloop_ads/46_returned_damaged_tiktoksafe.mp4` (0:25)
 
 ```
 They borrowed your favorite thing and gave it back broken, like it's no big deal.
