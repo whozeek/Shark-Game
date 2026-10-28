@@ -58,9 +58,6 @@ OK moraloop_ads/07_the_wallet.mp4 354s flags=[]
 OK moraloop_ads/trends/t002_two_fishes.mp4 395s flags=[]
 OK moraloop_ads/03_the_phone_swap.mp4 742s flags=[]
 OK moraloop_ads/trends/t003_the_big_candy_bars.mp4 491s flags=[]
-<<<<<<< HEAD
 OK moraloop_ads/long/the_apology.mp4 2222s flags=[]
-=======
 OK moraloop_ads/long/the_apology.mp4 1591s flags=[]
->>>>>>> bfff1c4 (TikTok-safe re-export: the_apology.mp4)
 OK moraloop_ads/22_the_lie.mp4 355s flags=[]
