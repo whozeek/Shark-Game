@@ -367,7 +367,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 26 (Tue Nov 17, 2026, 7:00 PM): The Cover Story
-File: `moraloop_ads/10_the_cover_story.mp4` (0:23)
+File: `moraloop_ads/10_the_cover_story_tiktoksafe.mp4` (0:23)
 
 ```
 "I'd always tell someone they're being cheated on." But your best friend asks you to cover for them.
