@@ -32,7 +32,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 25 | 2026-11-01 | 4:00 PM | long | Rent Night | `moraloop_ads/long/rent_night_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/rent_night_tiktoksafe.mp4) |
 | 26 | 2026-11-01 | 8:00 PM | loop long | Screenshots | `moraloop_ads/loops/long/screenshots_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/screenshots_tiktoksafe.mp4) |
 | 27 | 2026-11-02 | 12:00 PM | short | The Baby Looks | `moraloop_ads/trends/t010_the_baby_looks_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t010_the_baby_looks_tiktoksafe.mp4) |
-| 28 | 2026-11-02 | 12:30 PM | loop short | The Early Ride | `moraloop_ads/loops/l010_the_early_ride.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l010_the_early_ride.mp4) |
+| 28 | 2026-11-02 | 12:30 PM | loop short | The Early Ride | `moraloop_ads/loops/l010_the_early_ride_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l010_the_early_ride_tiktoksafe.mp4) |
 | 29 | 2026-11-03 | 12:00 PM | short | The AI Interview | `moraloop_ads/trends/t011_the_ai_interview.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t011_the_ai_interview.mp4) |
 | 30 | 2026-11-03 | 12:30 PM | loop short | The Even Split | `moraloop_ads/loops/l011_the_even_split.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l011_the_even_split.mp4) |
 | 31 | 2026-11-03 | 4:00 PM | long | The Offer Letter | `moraloop_ads/long/the_offer_letter.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_offer_letter.mp4) |
@@ -299,7 +299,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 28. 2026-11-02 12:30 PM: The Early Ride (loop short)
-Video: `moraloop_ads/loops/l010_the_early_ride.mp4`
+Video: `moraloop_ads/loops/l010_the_early_ride_tiktoksafe.mp4`
 
 ```
 Your friend’s teen needs a ride to a 6 AM job, every day. Do you say yes to the rides, or say no? Did you catch the whole text? 👀 Comment A or B 👇
