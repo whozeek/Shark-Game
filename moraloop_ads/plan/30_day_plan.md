@@ -185,7 +185,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 12 (Tue Nov 3, 2026, 7:00 PM): The Message
-File: `moraloop_ads/09_the_message.mp4` (0:23)
+File: `moraloop_ads/09_the_message_tiktoksafe.mp4` (0:23)
 
 ```
 "I'd never read my partner's messages." Then you see one that proves they lied. Do you keep reading?
