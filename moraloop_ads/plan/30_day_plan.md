@@ -406,7 +406,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 29 (Fri Nov 20, 2026, 7:00 PM): The Faithful Clone
-File: `moraloop_ads/43_the_faithful_clone.mp4` (0:29)
+File: `moraloop_ads/43_the_faithful_clone_tiktoksafe.mp4` (0:29)
 
 ```
 Your partner cheated, but their exact clone never did. Mad at the clone, or a fresh start?
