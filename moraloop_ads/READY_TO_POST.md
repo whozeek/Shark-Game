@@ -42,16 +42,19 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 35 | 2026-11-05 | 12:00 PM | short | Dinner or Date | `moraloop_ads/trends/t013_dinner_or_date.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t013_dinner_or_date.mp4) |
 | 36 | 2026-11-05 | 12:30 PM | loop short | The Tip | `moraloop_ads/loops/l013_the_tip.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l013_the_tip.mp4) |
 | 37 | 2026-11-05 | 4:00 PM | long | Overheard | `moraloop_ads/long/overheard.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/overheard.mp4) |
-| 38 | 2026-11-06 | 12:00 PM | short | The Concert Seats | `moraloop_ads/trends/t014_the_concert_seats.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t014_the_concert_seats.mp4) |
-| 39 | 2026-11-06 | 12:30 PM | loop short | The Likes | `moraloop_ads/loops/l014_the_likes.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l014_the_likes.mp4) |
-| 40 | 2026-11-07 | 12:00 PM | short | The Trash Bin | `moraloop_ads/trends/t015_the_trash_bin.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t015_the_trash_bin.mp4) |
-| 41 | 2026-11-07 | 12:30 PM | loop short | The Plate Price | `moraloop_ads/loops/l015_the_plate_price.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l015_the_plate_price.mp4) |
-| 42 | 2026-11-07 | 4:00 PM | long | Back Me Up | `moraloop_ads/long/back_me_up.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/back_me_up.mp4) |
-| 43 | 2026-11-08 | 12:00 PM | short | The Baby Name | `moraloop_ads/trends/t016_the_baby_name.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t016_the_baby_name.mp4) |
-| 44 | 2026-11-09 | 12:00 PM | short | The Bad Reviews | `moraloop_ads/trends/t017_the_bad_reviews.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t017_the_bad_reviews.mp4) |
-| 45 | 2026-11-09 | 4:00 PM | long | The Voice | `moraloop_ads/long/the_voice.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_voice.mp4) |
-| 46 | 2026-11-10 | 12:00 PM | short | The Roommate Series | `moraloop_ads/trends/t018_the_roommate_series.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t018_the_roommate_series.mp4) |
-| 47 | 2026-11-11 | 4:00 PM | long | Five Stars? | `moraloop_ads/long/five_stars.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/five_stars.mp4) |
+| 38 | 2026-11-05 | 8:00 PM | loop long | The Alibi | `moraloop_ads/loops/long/the_alibi.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/the_alibi.mp4) |
+| 39 | 2026-11-06 | 12:00 PM | short | The Concert Seats | `moraloop_ads/trends/t014_the_concert_seats.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t014_the_concert_seats.mp4) |
+| 40 | 2026-11-06 | 12:30 PM | loop short | The Likes | `moraloop_ads/loops/l014_the_likes.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l014_the_likes.mp4) |
+| 41 | 2026-11-07 | 12:00 PM | short | The Trash Bin | `moraloop_ads/trends/t015_the_trash_bin.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t015_the_trash_bin.mp4) |
+| 42 | 2026-11-07 | 12:30 PM | loop short | The Plate Price | `moraloop_ads/loops/l015_the_plate_price.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l015_the_plate_price.mp4) |
+| 43 | 2026-11-07 | 4:00 PM | long | Back Me Up | `moraloop_ads/long/back_me_up.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/back_me_up.mp4) |
+| 44 | 2026-11-07 | 8:00 PM | loop long | Credit Due | `moraloop_ads/loops/long/credit_due.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/credit_due.mp4) |
+| 45 | 2026-11-08 | 12:00 PM | short | The Baby Name | `moraloop_ads/trends/t016_the_baby_name.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t016_the_baby_name.mp4) |
+| 46 | 2026-11-09 | 12:00 PM | short | The Bad Reviews | `moraloop_ads/trends/t017_the_bad_reviews.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t017_the_bad_reviews.mp4) |
+| 47 | 2026-11-09 | 4:00 PM | long | The Voice | `moraloop_ads/long/the_voice.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_voice.mp4) |
+| 48 | 2026-11-09 | 8:00 PM | loop long | Left Behind | `moraloop_ads/loops/long/left_behind.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/left_behind.mp4) |
+| 49 | 2026-11-10 | 12:00 PM | short | The Roommate Series | `moraloop_ads/trends/t018_the_roommate_series.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t018_the_roommate_series.mp4) |
+| 50 | 2026-11-11 | 4:00 PM | long | Five Stars? | `moraloop_ads/long/five_stars.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/five_stars.mp4) |
 
 ## Captions
 
@@ -388,7 +391,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #worklife #friendship #storytime
 ```
 
-### 38. 2026-11-06 12:00 PM: The Concert Seats (short)
+### 38. 2026-11-05 8:00 PM: The Alibi (loop long)
+Video: `moraloop_ads/loops/long/the_alibi.mp4`
+
+```
+Your best friend is cheating and asks you to be their alibi. Their partner is about to sign a lease. Do you tell their partner? Did you catch what Kai asked? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #relationships #storytime
+```
+
+### 39. 2026-11-06 12:00 PM: The Concert Seats (short)
 Video: `moraloop_ads/trends/t014_the_concert_seats.mp4`
 
 ```
@@ -397,7 +409,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #concert #etiquette #aita
 ```
 
-### 39. 2026-11-06 12:30 PM: The Likes (loop short)
+### 40. 2026-11-06 12:30 PM: The Likes (loop short)
 Video: `moraloop_ads/loops/l014_the_likes.mp4`
 
 ```
@@ -406,7 +418,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #couples #socialmedia
 ```
 
-### 40. 2026-11-07 12:00 PM: The Trash Bin (short)
+### 41. 2026-11-07 12:00 PM: The Trash Bin (short)
 Video: `moraloop_ads/trends/t015_the_trash_bin.mp4`
 
 ```
@@ -415,7 +427,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #neighbors #etiquette #aita
 ```
 
-### 41. 2026-11-07 12:30 PM: The Plate Price (loop short)
+### 42. 2026-11-07 12:30 PM: The Plate Price (loop short)
 Video: `moraloop_ads/loops/l015_the_plate_price.mp4`
 
 ```
@@ -424,7 +436,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #wedding #weddingguest #money
 ```
 
-### 42. 2026-11-07 4:00 PM: Back Me Up (long)
+### 43. 2026-11-07 4:00 PM: Back Me Up (long)
 Video: `moraloop_ads/long/back_me_up.mp4`
 
 ```
@@ -433,7 +445,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #honesty #storytime
 ```
 
-### 43. 2026-11-08 12:00 PM: The Baby Name (short)
+### 44. 2026-11-07 8:00 PM: Credit Due (loop long)
+Video: `moraloop_ads/loops/long/credit_due.mp4`
+
+```
+A teammate barely helped but wants their name on the project. They promise to do more next time. Do you give them credit this time, or credit only those who helped? Did you catch who didn’t show up? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #teamwork #school #storytime
+```
+
+### 45. 2026-11-08 12:00 PM: The Baby Name (short)
 Video: `moraloop_ads/trends/t016_the_baby_name.mp4`
 
 ```
@@ -442,7 +463,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #babynames #inlaws
 ```
 
-### 44. 2026-11-09 12:00 PM: The Bad Reviews (short)
+### 46. 2026-11-09 12:00 PM: The Bad Reviews (short)
 Video: `moraloop_ads/trends/t017_the_bad_reviews.mp4`
 
 ```
@@ -451,7 +472,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #cafe #worklife #reviews
 ```
 
-### 45. 2026-11-09 4:00 PM: The Voice (long)
+### 47. 2026-11-09 4:00 PM: The Voice (long)
 Video: `moraloop_ads/long/the_voice.mp4`
 
 ```
@@ -460,7 +481,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #aivoice #storytime
 ```
 
-### 46. 2026-11-10 12:00 PM: The Roommate Series (short)
+### 48. 2026-11-09 8:00 PM: Left Behind (loop long)
+Video: `moraloop_ads/loops/long/left_behind.mp4`
+
+```
+Your friend forgets their phone with you. Another friend asks why no one is replying. Do you explain that the phone was left behind, or tell them to ask the owner directly? Did you catch what Bea sent? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #privacy #storytime
+```
+
+### 49. 2026-11-10 12:00 PM: The Roommate Series (short)
 Video: `moraloop_ads/trends/t018_the_roommate_series.mp4`
 
 ```
@@ -469,7 +499,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #roommates #tiktokdrama #aita
 ```
 
-### 47. 2026-11-11 4:00 PM: Five Stars? (long)
+### 50. 2026-11-11 4:00 PM: Five Stars? (long)
 Video: `moraloop_ads/long/five_stars.mp4`
 
 ```
