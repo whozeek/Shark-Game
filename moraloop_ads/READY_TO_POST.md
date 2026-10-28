@@ -37,7 +37,7 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 30 | 2026-11-03 | 12:30 PM | loop short | The Even Split | `moraloop_ads/loops/l011_the_even_split_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l011_the_even_split_tiktoksafe.mp4) |
 | 31 | 2026-11-03 | 4:00 PM | long | The Offer Letter | `moraloop_ads/long/the_offer_letter_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_offer_letter_tiktoksafe.mp4) |
 | 32 | 2026-11-03 | 8:00 PM | loop long | Unread | `moraloop_ads/loops/long/unread_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/unread_tiktoksafe.mp4) |
-| 33 | 2026-11-04 | 12:00 PM | short | The Wedding Dress | `moraloop_ads/trends/t012_the_wedding_dress.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t012_the_wedding_dress.mp4) |
+| 33 | 2026-11-04 | 12:00 PM | short | The Wedding Dress | `moraloop_ads/trends/t012_the_wedding_dress_tiktoksafe.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t012_the_wedding_dress_tiktoksafe.mp4) |
 | 34 | 2026-11-04 | 12:30 PM | loop short | The Sunburn | `moraloop_ads/loops/l012_the_sunburn.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l012_the_sunburn.mp4) |
 | 35 | 2026-11-05 | 12:00 PM | short | Dinner or Date | `moraloop_ads/trends/t013_dinner_or_date.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t013_dinner_or_date.mp4) |
 | 36 | 2026-11-05 | 12:30 PM | loop short | The Tip | `moraloop_ads/loops/l013_the_tip.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l013_the_tip.mp4) |
@@ -347,7 +347,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### 33. 2026-11-04 12:00 PM: The Wedding Dress (short)
-Video: `moraloop_ads/trends/t012_the_wedding_dress.mp4`
+Video: `moraloop_ads/trends/t012_the_wedding_dress_tiktoksafe.mp4`
 
 ```
 Your ex is remarrying and wants their grandma’s wedding dress back. You paid to restore it. Do you give it back, or keep it? What would you do? 👇
