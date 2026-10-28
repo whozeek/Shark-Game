@@ -380,7 +380,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 27 (Wed Nov 18, 2026, 7:00 PM): The Broken Gift
-File: `moraloop_ads/12_the_broken_gift.mp4` (0:37)
+File: `moraloop_ads/12_the_broken_gift_tiktoksafe.mp4` (0:37)
 
 ```
 Your cousin broke your sibling's favorite gift and begged you not to tell. Now someone else may be blamed.
