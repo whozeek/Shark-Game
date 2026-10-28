@@ -302,7 +302,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 21 (Thu Nov 12, 2026, 7:00 PM): The Group Chat
-File: `moraloop_ads/05_the_group_chat_relationship.mp4` (0:41)
+File: `moraloop_ads/05_the_group_chat_relationship_tiktoksafe.mp4` (0:41)
 
 ```
 Their friends are quoting an argument you thought was private. What's your first move?
