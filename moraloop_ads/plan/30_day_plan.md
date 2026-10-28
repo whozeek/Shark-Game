@@ -120,7 +120,7 @@ More questions like this on Moraloop. Coming soon.
 ```
 
 ### Day 7 (Thu Oct 29, 2026, 7:00 PM): Your Brother
-File: `moraloop_ads/01_your_brother.mp4` (0:24)
+File: `moraloop_ads/01_your_brother_tiktoksafe.mp4` (0:24)
 
 ```
 "Cheating is cheating, I'd tell my friend." But what if the cheater is your brother? Still so sure?
