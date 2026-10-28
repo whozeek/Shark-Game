@@ -26,9 +26,9 @@ Long-form videos are 2–3 minute claymation storylines built on dilemmas we alr
 | 5 | Sun Nov 1, 2026 | Rent Night | 07_the_wallet — The Wallet (short Oct 24) | Money / honesty | done |
 | 6 | Tue Nov 3, 2026 | The Offer Letter | 45_your_dream_or_your_family — Your Dream or Your Family (short Nov 16) | Family / life choices | done |
 | 7 | Thu Nov 5, 2026 | Overheard | 23_the_promotion — The Promotion (short Oct 27) | Work | done |
-| 8 | Sat Nov 7, 2026 | Back Me Up | 22_the_lie — The Lie (short Oct 26) | Friendship / loyalty | todo |
-| 9 | Mon Nov 9, 2026 | The Voice | 51_the_urgent_call — The Urgent Call (short Nov 1) | Family / tech | todo |
-| 10 | Wed Nov 11, 2026 | Five Stars? | 26_the_honest_review — The Honest Review (short Oct 31) | Friendship / honesty | todo |
+| 8 | Sat Nov 7, 2026 | Back Me Up | 22_the_lie — The Lie (short Oct 26) | Friendship / loyalty | done |
+| 9 | Mon Nov 9, 2026 | The Voice | 51_the_urgent_call — The Urgent Call (short Nov 1) | Family / tech | done |
+| 10 | Wed Nov 11, 2026 | Five Stars? | 26_the_honest_review — The Honest Review (short Oct 31) | Friendship / honesty | done |
 | 11 | Fri Nov 13, 2026 | The Empty Yard | 02_the_school_garden — The School Garden (short Nov 2) | Community | todo |
 | 12 | Sun Nov 15, 2026 | Moving Day | 06_the_missing_deposit — The Missing Deposit (short Oct 30) | Relationships / money | todo |
 | 13 | Tue Nov 17, 2026 | One Saturday | 34_who_do_you_help — Who Do You Help? (no short in plan) | Community / loyalty | todo |
@@ -317,7 +317,7 @@ Status: done (2026-10-27) → long/overheard.mp4
 
 **Balance check:** the cost of one answer falls on a friend and the cost of the other falls on a neighbor, and you carry part of it either way.
 
-Status: todo
+Status: done (2026-10-28) → long/back_me_up.mp4
 
 ---
 
@@ -352,7 +352,7 @@ Status: todo
 
 **Balance check:** speed protects the person you love and caution protects you from being fooled, and in both branches the call was real, so neither choice is shown as foolish.
 
-Status: todo
+Status: done (2026-10-28) → long/the_voice.mp4
 
 ---
 
@@ -387,7 +387,7 @@ Status: todo
 
 **Balance check:** honesty helps the business and strains the friendship now, while support helps the friendship now and leaves the business to find out later.
 
-Status: todo
+Status: done (2026-10-28) → long/five_stars.mp4
 
 ---
 
