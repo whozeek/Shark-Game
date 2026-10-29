@@ -29,9 +29,9 @@ Long-form videos are 2–3 minute claymation storylines built on dilemmas we alr
 | 8 | Sat Nov 7, 2026 | Back Me Up | 22_the_lie — The Lie (short Oct 26) | Friendship / loyalty | done |
 | 9 | Mon Nov 9, 2026 | The Voice | 51_the_urgent_call — The Urgent Call (short Nov 1) | Family / tech | done |
 | 10 | Wed Nov 11, 2026 | Five Stars? | 26_the_honest_review — The Honest Review (short Oct 31) | Friendship / honesty | done |
-| 11 | Fri Nov 13, 2026 | The Empty Yard | 02_the_school_garden — The School Garden (short Nov 2) | Community | todo |
-| 12 | Sun Nov 15, 2026 | Moving Day | 06_the_missing_deposit — The Missing Deposit (short Oct 30) | Relationships / money | todo |
-| 13 | Tue Nov 17, 2026 | One Saturday | 34_who_do_you_help — Who Do You Help? (no short in plan) | Community / loyalty | todo |
+| 11 | Fri Nov 13, 2026 | The Empty Yard | 02_the_school_garden — The School Garden (short Nov 2) | Community | done |
+| 12 | Sun Nov 15, 2026 | Moving Day | 06_the_missing_deposit — The Missing Deposit (short Oct 30) | Relationships / money | done |
+| 13 | Tue Nov 17, 2026 | One Saturday | 34_who_do_you_help — Who Do You Help? (no short in plan) | Community / loyalty | done |
 | 14 | Thu Nov 19, 2026 | The Surprise | 21_the_birthday_plan — The Birthday Plan (short Nov 10) | Friendship | todo |
 | 15 | Sat Nov 21, 2026 | No Filter | 41_every_unfiltered_thought — Every Unfiltered Thought (no short in plan) | Big hypothetical / relationships | todo |
 
@@ -421,7 +421,7 @@ Status: done (2026-10-28) → long/five_stars.mp4
 
 **Balance check:** food and play are both real needs for the same kids, and each choice leaves one group waiting.
 
-Status: todo
+Status: done (2026-10-29) → long/the_empty_yard.mp4
 
 ---
 
@@ -456,7 +456,7 @@ Status: todo
 
 **Balance check:** waiting protects fairness and loses the home you wanted, while covering it wins the home and opens a money question, so it's love and caution on both sides.
 
-Status: todo
+Status: done (2026-10-29) → long/moving_day.mp4
 
 ---
 
@@ -491,7 +491,7 @@ Status: todo
 
 **Balance check:** loyalty you owe versus need you can see, and the job outcome stays unknown in both branches so neither choice is shown to "pay off".
 
-Status: todo
+Status: done (2026-10-29) → long/one_saturday.mp4
 
 ---
 

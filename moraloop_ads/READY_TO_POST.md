@@ -58,9 +58,12 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 51 | 2026-11-11 | 4:00 PM | long | Five Stars? | `moraloop_ads/long/five_stars.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/five_stars.mp4) |
 | 52 | 2026-11-12 | 12:00 PM | short | The Doctor’s Note | `moraloop_ads/trends/t020_the_doctors_note.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t020_the_doctors_note.mp4) |
 | 53 | 2026-11-13 | 12:00 PM | short | Not an Employee | `moraloop_ads/trends/t021_not_an_employee.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t021_not_an_employee.mp4) |
-| 54 | 2026-11-14 | 12:00 PM | short | The Plan Change | `moraloop_ads/trends/t022_the_plan_change.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t022_the_plan_change.mp4) |
-| 55 | 2026-11-15 | 12:00 PM | short | The Bass Next Door | `moraloop_ads/trends/t023_the_bass_next_door.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t023_the_bass_next_door.mp4) |
-| 56 | 2026-11-16 | 12:00 PM | short | The First Move | `moraloop_ads/trends/t024_the_first_move.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t024_the_first_move.mp4) |
+| 54 | 2026-11-13 | 4:00 PM | long | The Empty Yard | `moraloop_ads/long/the_empty_yard.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_empty_yard.mp4) |
+| 55 | 2026-11-14 | 12:00 PM | short | The Plan Change | `moraloop_ads/trends/t022_the_plan_change.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t022_the_plan_change.mp4) |
+| 56 | 2026-11-15 | 12:00 PM | short | The Bass Next Door | `moraloop_ads/trends/t023_the_bass_next_door.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t023_the_bass_next_door.mp4) |
+| 57 | 2026-11-15 | 4:00 PM | long | Moving Day | `moraloop_ads/long/moving_day.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/moving_day.mp4) |
+| 58 | 2026-11-16 | 12:00 PM | short | The First Move | `moraloop_ads/trends/t024_the_first_move.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t024_the_first_move.mp4) |
+| 59 | 2026-11-17 | 4:00 PM | long | One Saturday | `moraloop_ads/long/one_saturday.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/one_saturday.mp4) |
 
 ## Captions
 
@@ -541,7 +544,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #shopping #kindness #etiquette
 ```
 
-### 54. 2026-11-14 12:00 PM: The Plan Change (short)
+### 54. 2026-11-13 4:00 PM: The Empty Yard (long)
+Video: `moraloop_ads/long/the_empty_yard.mp4`
+
+```
+One empty school yard, money for one thing, and the vote is yours. Do you make a garden for growing food, or make a play space for everyone? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #community #school #storytime
+```
+
+### 55. 2026-11-14 12:00 PM: The Plan Change (short)
 Video: `moraloop_ads/trends/t022_the_plan_change.mp4`
 
 ```
@@ -550,7 +562,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #inlaws #familydrama
 ```
 
-### 55. 2026-11-15 12:00 PM: The Bass Next Door (short)
+### 56. 2026-11-15 12:00 PM: The Bass Next Door (short)
 Video: `moraloop_ads/trends/t023_the_bass_next_door.mp4`
 
 ```
@@ -559,12 +571,30 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #neighbors #apartmentlife #noise
 ```
 
-### 56. 2026-11-16 12:00 PM: The First Move (short)
+### 57. 2026-11-15 4:00 PM: Moving Day (long)
+Video: `moraloop_ads/long/moving_day.mp4`
+
+```
+The day before you sign the lease, your partner says their half of the deposit went to their sibling. Do you delay the move, or cover the gap once? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #money #storytime
+```
+
+### 58. 2026-11-16 12:00 PM: The First Move (short)
 Video: `moraloop_ads/trends/t024_the_first_move.mp4`
 
 ```
 Weeks of great texting, but they never ask to meet. Do you ask them out, or wait for them to ask? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #dating #texting #firstmove
+```
+
+### 59. 2026-11-17 4:00 PM: One Saturday (long)
+Video: `moraloop_ads/long/one_saturday.mp4`
+
+```
+One car, one Saturday: your oldest friend’s move, or a newcomer’s job interview. Who do you help? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #kindness #storytime
 ```
 
