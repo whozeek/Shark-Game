@@ -1,6 +1,6 @@
 # TikTok-safe re-export report
 
-Generated 2026-10-29 00:40 US Eastern. Originals are untouched; each corrected copy sits next to its original as `<name>_tiktoksafe.mp4`. Upcoming queue rows and 30-day-plan entries point at the corrected copy; posts whose time had already passed (live posts) were left as they are.
+Generated 2026-10-29 00:55 US Eastern. Originals are untouched; each corrected copy sits next to its original as `<name>_tiktoksafe.mp4`. Upcoming queue rows and 30-day-plan entries point at the corrected copy; posts whose time had already passed (live posts) were left as they are.
 
 **90 of 90 videos re-exported.**
 
