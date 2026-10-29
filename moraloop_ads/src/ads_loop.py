@@ -289,4 +289,118 @@ ADS = [
                ["🍽️", "💸", "😬"], "worried", others="worried", set="home"),
              M("Did you catch the whole thread?"),
          ], close="Do you give more, or give what you planned?"),
+
+    # Trend: TikTok about a steakhouse serving a cheaper cut than the one ordered (Fox News, Oct 26 2026)
+    dict(id="l016_the_wrong_steak", title="The Wrong Steak", made_on="2026-10-29",
+         hook="what did your friend say?",
+         thread=dict(contact="Dana", stamp="Sat 8:14 PM", msgs=[
+             "wait, it’s the cheaper cut?",
+             "that’s half the price tho",
+             "but you ate half lol",
+             "they’re slammed tonight",
+             "up to you",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You order the priciest steak on the menu. Twice the price of the next cut.", ["you"], "react",
+               ["🥩", "💵", "😋"], "happy", set="cafe"),
+             S("Halfway through, you realize they brought the cheaper cut.", ["you"], "think", ["🥩", "🤔", "🧾"],
+               "worried", set="cafe"),
+             M("Did you catch the whole text?"),
+         ], close="Do you ask them to fix the bill, or just pay?"),
+
+    # Trend: Reddit post about backing out of babysitting a coworker's kid when the boss required overtime (Oct 28 2026)
+    dict(id="l017_the_overtime", title="The Overtime", made_on="2026-10-29",
+         hook="what did your coworker text?",
+         thread=dict(contact="Jess (work)", stamp="Thu 3:05 PM", msgs=[
+             "still good for tonight? 🙏",
+             "sitter fell through again",
+             "pickup’s at 6",
+             "if work gets crazy I get it",
+             "thank you!!",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You promised to watch your coworker’s kid tonight.", ["coworker", "you"], "tell",
+               ["🧸", "🕕", "🙏"], "happy", others="happy", set="office"),
+             S("Then your boss says the whole team has to stay late.", ["boss", "you"], "say", ["⏰", "💼", "❗"],
+               "worried", others="neutral", set="office"),
+             M("Did you read the whole thread?"),
+         ], close="Do you stay for overtime, or leave to babysit?"),
+
+    # Trend: Reddit post about a teen who didn't want to share food she bought with her mom (Oct 28 2026)
+    dict(id="l018_the_first_paycheck", title="The First Paycheck", made_on="2026-10-29",
+         hook="what did your mom text?",
+         thread=dict(contact="Mom", stamp="Fri 6:40 PM", msgs=[
+             "smells amazing in here 😋",
+             "I cooked all week btw",
+             "but it’s your money",
+             "half?? 👀",
+             "or not, lol",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You buy dinner with your very first paycheck. Your favorite.", ["you"], "laugh", ["💵", "🍔", "🎉"],
+               "happy", set="home"),
+             S("Your mom asks if she can have half.", ["friend2", "you"], "say", ["🍔", "✋", "🤔"], "worried",
+               others="happy", set="home"),
+             M("Did you catch the whole thread?"),
+         ], close="Do you share it, or keep it?"),
+
+    # Trend: viral Reddit debate about a friend announcing a pregnancy at someone else's celebration (Motherly, Oct 2026)
+    dict(id="l019_the_big_news", title="The Big News", made_on="2026-10-29",
+         hook="what did your friend text?",
+         thread=dict(contact="Kai", stamp="Sun 12:31 AM", msgs=[
+             "did NOT see that coming 😳",
+             "at your birthday tho?",
+             "they were so nervous",
+             "maybe it felt like the time",
+             "you okay?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("It’s your birthday dinner. Everyone you love is here.", ["friend", "friend2", "you"], "laugh",
+               ["🎂", "🎉", "🥂"], "happy", others="happy", set="party"),
+             S("Then your friend stands up and announces they’re having a baby.", ["friend2", "you"], "say",
+               ["👶", "🎈", "😮"], "shock", others="happy", set="party"),
+             M("Did you read the whole thread?"),
+         ], close="Do you tell them how it felt, or let it be their moment?"),
+
+    # Trend: TikTok warning about getting too close to coworkers sparks debate (Daily Dot, Oct 2026)
+    dict(id="l020_the_work_friend", title="The Work Friend", made_on="2026-10-29",
+         hook="what did the invite say?",
+         thread=dict(contact="Theo (work)", stamp="Wed 1:12 PM", msgs=[
+             "small thing Saturday 🎂",
+             "mostly my college friends",
+             "no pressure at all",
+             "would be fun though",
+             "lmk 🙂",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You’re friendly at work, but you keep your weekends separate.", ["coworker", "you"], "laugh",
+               ["💼", "🚪", "🏠"], "happy", others="happy", set="office"),
+             S("Then a coworker invites you to their birthday this weekend.", ["coworker", "you"], "say",
+               ["🎂", "🎉", "🤔"], "worried", others="happy", set="office"),
+             M("Did you catch the whole invite?"),
+         ], close="Do you go, or keep work and weekends apart?"),
+
+    # Trend: Reddit story about best friends who live and work together until one burns out (TwistedSifter, Oct 2026)
+    dict(id="l021_the_roommate_bestie", title="The Roommate Bestie", made_on="2026-10-29",
+         hook="what did your bestie text?",
+         thread=dict(contact="Bestie", stamp="Tue 9:58 PM", msgs=[
+             "carpool tmrw? 🚗",
+             "rent’s due friday btw",
+             "I’d be lost without you lol",
+             "kinda need a quiet night tho",
+             "you good?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your best friend is also your roommate. And your coworker.", ["friend", "you"], "laugh",
+               ["🏠", "💼", "👯"], "happy", others="happy", set="home"),
+             S("You love them, but you never get time alone. Moving out would cost a lot.", ["you"], "think",
+               ["🏠", "💸", "🔑"], "worried", set="home_night"),
+             M("Did you read the whole thread?"),
+         ], close="Do you move out, or stay?"),
 ]
