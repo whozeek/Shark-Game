@@ -151,4 +151,50 @@ ADS = [
         S("Then they post a video series about it. It goes viral.", ["you"], "see", ["📱", "📈", "😳"], "shock",
           set="home"),
     ], close="Do you post your side online, or talk in private?"),
+
+    # Trend: Reddit post about paying off a girlfriend's student loans as a surprise gift (Daily Dot, Oct 28 2026)
+    dict(id="t019_the_surprise_payoff", title="The Surprise Payoff", made_on="2026-10-29", beats=[
+        S("You get a big bonus. Enough to pay off your partner’s student loans.", ["you"], "think",
+          ["💰", "🎓", "💳"], "worried", set="home"),
+        S("It could be the best surprise ever. Or they might feel it wasn’t your call.", ["partner", "you"],
+          "react", ["🎁", "❓"], "worried", others="neutral", set="home"),
+    ], close="Do you surprise them, or ask first?"),
+
+    # Trend: Reddit post about a boss demanding a doctor's note for a headache (TwistedSifter, Oct 28 2026)
+    dict(id="t020_the_doctors_note", title="The Doctor’s Note", made_on="2026-10-29", beats=[
+        S("You miss one day of work with a bad headache.", ["you"], "react", ["🤕", "🛌"], "sad", set="home"),
+        S("Your manager wants a doctor’s note. It’s policy, but the visit costs money.", ["boss", "you"], "say",
+          ["📝", "🩺", "💸"], "worried", set="office"),
+    ], close="Do you get the note, or push back on the rule?"),
+
+    # Trend: Reddit story about a helpful shopper mistaken for a store employee (TwistedSifter, Oct 28 2026)
+    dict(id="t021_not_an_employee", title="Not an Employee", made_on="2026-10-29", beats=[
+        S("You help an older shopper carry a heavy bag of cat litter.", ["elder", "you"], "react",
+          ["🛒", "🐈", "💪"], "happy", others="happy", set="store"),
+        S("Another shopper thinks you work here. They need help finding something.", ["stranger", "you"], "say",
+          ["❓", "🛒", "🏷️"], "shock", set="store"),
+    ], close="Do you help them, or point them to staff?"),
+
+    # Trend: Reddit post about a sister-in-law's last-minute plan changes and a group text (TwistedSifter, Oct 28 2026)
+    dict(id="t022_the_plan_change", title="The Plan Change", made_on="2026-10-29", beats=[
+        S("Family dinner was planned weeks ago. Your sister-in-law changes it last minute.", ["you"], "see",
+          ["📱", "🔁", "❓"], "worried", set="home"),
+        S("Pushing back could start a family fight. Going along keeps the peace.", ["you"], "think",
+          ["💬", "👨‍👩‍👧", "⚖️"], "worried", set="home"),
+    ], close="Do you push back, or go along with the change?"),
+
+    # Trend: Reddit story about asking neighbors to turn down their bass (TwistedSifter, Oct 28 2026)
+    dict(id="t023_the_bass_next_door", title="The Bass Next Door", made_on="2026-10-29", beats=[
+        S("Your neighbor’s music shakes your walls every night.", ["you"], "react", ["🔊", "🎵", "😫"], "worried",
+          set="home_night"),
+        S("Last time you asked them to turn it down, things got tense for months.", ["you"], "think",
+          ["🔇", "😬", "🏠"], "worried", set="home_night"),
+    ], close="Do you ask again, or buy earplugs?"),
+
+    # Trend: Reddit thread where men share what changed their dating life, like making the first move (Oct 28 2026)
+    dict(id="t024_the_first_move", title="The First Move", made_on="2026-10-29", beats=[
+        S("You’ve been texting someone for weeks. It’s going great.", ["you"], "see", ["📱", "💬", "😊"], "happy",
+          set="home"),
+        S("But they never ask to meet up.", ["you"], "think", ["☕", "❓", "⏳"], "worried", set="home"),
+    ], close="Do you ask them out, or wait for them to ask?"),
 ]

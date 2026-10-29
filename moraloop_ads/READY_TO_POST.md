@@ -54,7 +54,13 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 47 | 2026-11-09 | 4:00 PM | long | The Voice | `moraloop_ads/long/the_voice.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_voice.mp4) |
 | 48 | 2026-11-09 | 8:00 PM | loop long | Left Behind | `moraloop_ads/loops/long/left_behind.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/left_behind.mp4) |
 | 49 | 2026-11-10 | 12:00 PM | short | The Roommate Series | `moraloop_ads/trends/t018_the_roommate_series.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t018_the_roommate_series.mp4) |
-| 50 | 2026-11-11 | 4:00 PM | long | Five Stars? | `moraloop_ads/long/five_stars.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/five_stars.mp4) |
+| 50 | 2026-11-11 | 12:00 PM | short | The Surprise Payoff | `moraloop_ads/trends/t019_the_surprise_payoff.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t019_the_surprise_payoff.mp4) |
+| 51 | 2026-11-11 | 4:00 PM | long | Five Stars? | `moraloop_ads/long/five_stars.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/five_stars.mp4) |
+| 52 | 2026-11-12 | 12:00 PM | short | The Doctor’s Note | `moraloop_ads/trends/t020_the_doctors_note.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t020_the_doctors_note.mp4) |
+| 53 | 2026-11-13 | 12:00 PM | short | Not an Employee | `moraloop_ads/trends/t021_not_an_employee.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t021_not_an_employee.mp4) |
+| 54 | 2026-11-14 | 12:00 PM | short | The Plan Change | `moraloop_ads/trends/t022_the_plan_change.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t022_the_plan_change.mp4) |
+| 55 | 2026-11-15 | 12:00 PM | short | The Bass Next Door | `moraloop_ads/trends/t023_the_bass_next_door.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t023_the_bass_next_door.mp4) |
+| 56 | 2026-11-16 | 12:00 PM | short | The First Move | `moraloop_ads/trends/t024_the_first_move.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t024_the_first_move.mp4) |
 
 ## Captions
 
@@ -499,12 +505,66 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #roommates #tiktokdrama #aita
 ```
 
-### 50. 2026-11-11 4:00 PM: Five Stars? (long)
+### 50. 2026-11-11 12:00 PM: The Surprise Payoff (short)
+Video: `moraloop_ads/trends/t019_the_surprise_payoff.mp4`
+
+```
+Your bonus could pay off your partner’s student loans. Do you surprise them, or ask first? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #money #relationships #couples
+```
+
+### 51. 2026-11-11 4:00 PM: Five Stars? (long)
 Video: `moraloop_ads/long/five_stars.mp4`
 
 ```
 Your friend’s new bakery needs reviews. The coffee is great; the cookies are dry. Do you post an honest review… or protect their business and stay positive? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #smallbusiness #storytime
+```
+
+### 52. 2026-11-12 12:00 PM: The Doctor’s Note (short)
+Video: `moraloop_ads/trends/t020_the_doctors_note.mp4`
+
+```
+One sick day, and your manager wants a doctor’s note. The visit costs money. Do you get the note, or push back on the rule? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #work #worklife #sickday
+```
+
+### 53. 2026-11-13 12:00 PM: Not an Employee (short)
+Video: `moraloop_ads/trends/t021_not_an_employee.mp4`
+
+```
+A shopper thinks you work at the store and needs help. Do you help them, or point them to staff? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #shopping #kindness #etiquette
+```
+
+### 54. 2026-11-14 12:00 PM: The Plan Change (short)
+Video: `moraloop_ads/trends/t022_the_plan_change.mp4`
+
+```
+Your sister-in-law changes family dinner last minute. Pushing back could start a fight. Do you push back, or go along? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #inlaws #familydrama
+```
+
+### 55. 2026-11-15 12:00 PM: The Bass Next Door (short)
+Video: `moraloop_ads/trends/t023_the_bass_next_door.mp4`
+
+```
+Your neighbor’s music shakes your walls. Last time you asked, things got tense. Do you ask again, or buy earplugs? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #neighbors #apartmentlife #noise
+```
+
+### 56. 2026-11-16 12:00 PM: The First Move (short)
+Video: `moraloop_ads/trends/t024_the_first_move.mp4`
+
+```
+Weeks of great texting, but they never ask to meet. Do you ask them out, or wait for them to ask? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #dating #texting #firstmove
 ```
 
