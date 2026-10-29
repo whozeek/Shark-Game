@@ -3079,8 +3079,15 @@ function dayReport(){
   return missionReport()+'<div class="worst" style="background:#e4f6ea"><b>City grant: +'+money(G.dayGrant||0)+'</b>Public funding paid at the end of every day, plus a bonus for each rider you delivered.</div><div class="statgrid"><div><b>'+money(G.dayRev)+'</b><span>Fares</span></div><div><b>'+money(G.dayCost)+'</b><span>Running costs</span></div><div><b class="'+(prof<0?'neg':'')+'">'+money(prof)+'</b><span>Profit</span></div></div>'+
     (rows?'<div class="tbl"><table><thead><tr><th>Route</th><th>Riders</th><th>Load</th><th>Wait</th><th>Profit</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'')+worst+storiesHtml();
 }
+/* close every working panel (route sheet, Town Voice, stop card, drawing, ride) so the next decision screen is the only thing on screen */
+function closePanels(){
+  try{if(ui.ride)rideExit('panel')}catch(e){}
+  ui.sheet=false;ui.town=false;ui.sel=null;ui.drawing=null;ui.newRt=false;ui.shape=null;ui.moving=null;ui.follow=null;
+  for(const id of['#rbubble','#sheet','#town','#stopcard','#busbar']){const e=$(id);if(e)e.hidden=true}
+  ui.dirty=true;
+}
 function endOfDay(){
-  G.paused=true;G.modal=true;syncPlay();
+  closePanels();G.paused=true;G.modal=true;syncPlay();
   const grant=400+G.dayDel;G.money+=grant;G.dayGrant=grant;PROF.tix=(PROF.tix|0)+3;
   finishMissions();addXp(50);G.xpDay+=50;
   if(G.dayGave===0&&G.dayDel>=40){ach('clean_day');PROF.stat.cleanStreak++;if(PROF.stat.cleanStreak>=7)ach('week_clean')}else PROF.stat.cleanStreak=0;
@@ -3112,6 +3119,7 @@ function winButtons(st){
 }
 function starStr(n){let s='';for(let i=0;i<3;i++)s+=i<n?'★':'<span class="off">★</span>';return s}
 function nextDay(){
+  closePanels();
   if(G.event)endEvent();
   const prevSeason=G.season;
   for(const c of G.citizens)c.p=c.pm;
@@ -3336,7 +3344,7 @@ function growLabelTex(letter,o,col){
     c.font='800 40px Outfit,Arial,sans-serif';c.fillText(o.title,190,h/2+36,420)}));
 }
 function showGrowth(opts){
-  ui.growOpts=opts;hideOv();G.modal=false;
+  closePanels();ui.growOpts=opts;hideOv();G.modal=false;
   fitCam(true);growBar();syncPlay();ui.dirty=true;
 }
 function applyGrowth(i){
@@ -6541,7 +6549,7 @@ document.addEventListener('click',e=>{
     case'level':if(el.dataset.fly&&!G.free)worldFly(+el.dataset.i);else startLevel(+el.dataset.i);break;
     case'nextday':nextDay();break;
     case'tool':setTool(el.dataset.tool);break;
-    case'sheet':ui.sheet=!ui.sheet;if(ui.sheet)ui.town=false;ui.dirty=true;break;
+    case'sheet':if(ui.growOpts){toast('Pick where the city grows first, or tap Not today. Then you can edit routes.',2800);return}ui.sheet=!ui.sheet;if(ui.sheet)ui.town=false;ui.dirty=true;break;
     case'town':townToggle();break;
     case'townmood':ui.view='mood';townTick();if(W<760)ui.town=false;ui.dirty=true;toast('Mood view: green blocks are happy, red are angry. Icons show the biggest need there (see the key).',3200);break;
     case'townrow':{const r=townFindRec(el.dataset.key);if(r){ui.townSel=(ui.townSel===r.key&&!r.thx)?null:r.key;townLook(r);ui.dirty=true}break}
