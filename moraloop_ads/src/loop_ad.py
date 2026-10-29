@@ -27,7 +27,7 @@ SPEC = None
 
 
 def load(ad_id):
-    global SPEC, DUR, CUT_T
+    global SPEC, DUR, CUT_T, HOLD
     if os.environ.get("STORY"):  # long-form storyline
         import story
         A = story.load()
@@ -45,14 +45,14 @@ def load(ad_id):
         # fast cut starts 0.35s into the chosen scene's narration
         scenes = [s for s in A.segs if s["kind"] == "scene"]
         cut = scenes[SPEC.get("cut_beat", 0)]["vs"] + 0.35
-    CUT_T = cut + SPEC.get("cut_delay", 0.0) - SKIP
-    # keep the hook question up until the first line is spoken AND long enough to read (0.3 s a word + 0.6 s);
-    # subtitles wait until it is gone, so the two never share the top of the frame
-    read = FLASH + 0.6 + 0.3 * len(SPEC["hook"].split())
-    SPEC.setdefault("hook_until", max(A.lines[0]["t"] + 0.1 - SKIP, read))
-    ad.CAPTION_FROM = SPEC["hook_until"] + SKIP
+    # opening hook: the hidden-detail frame with the hook question sits on screen for HOLD seconds
+    # (at least 2 s, plus 0.3 s a word) before the ad itself starts; the narration is held back by the
+    # same amount so picture and sound stay in step. Subtitles start with the ad, after the hook.
+    HOLD = max(2.0, 0.6 + 0.3 * len(SPEC["hook"].split()))
+    ad.CAPTION_FROM = 0.0
+    CUT_T = cut + SPEC.get("cut_delay", 0.0) - SKIP + HOLD
     # end on the end card, then cut straight to the flash frame (= frame 0)
-    DUR = A.DUR - 0.7 - SKIP + FLASH
+    DUR = A.DUR - 0.7 - SKIP + HOLD + FLASH
     return A
 
 
@@ -242,9 +242,9 @@ def hook_frame(t):
 
 
 def frame(u):
-    if u < FLASH or u >= DUR - FLASH:
-        return hook_frame(u if u < FLASH else u - (DUR - FLASH))
-    t = u + SKIP
+    if u < HOLD or u >= DUR - FLASH:
+        return hook_frame(u if u < HOLD else u - (DUR - FLASH))
+    t = u - HOLD + SKIP
     if CUT_T <= u < CUT_T + CUT:
         i = int((u - CUT_T) / (CUT / 4))
         key = f"cut{i}"
@@ -252,10 +252,7 @@ def frame(u):
             _cache[key] = detail(scroll=[0, 60, 130, 30][i], seed=i)
         im = _cache[key]
         return glitch(im, u, 1.0 if i % 2 else 0.4)
-    im = ad.render(t)
-    if u < SPEC["hook_until"]:  # keep the question on screen until the first line is spoken
-        hook_caption(im)
-    return im
+    return ad.render(t)
 
 
 # ------------------------------------------------------------ audio
@@ -265,6 +262,7 @@ def mix_audio(path):
     ad.mix_audio(src)
     a, sr = sf.read(src, dtype="float32")
     a = a[int(SKIP * sr):]
+    a = np.concatenate([np.zeros(int(HOLD * sr), dtype=a.dtype), a])  # narration starts after the hook
     N = int(DUR * sr)
     a = a[:N]
     a = np.pad(a, (0, max(0, N - len(a))))
