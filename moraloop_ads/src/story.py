@@ -94,6 +94,9 @@ if STORY:
     import importlib
     _m = importlib.import_module(f"stories.{STORY}")
     BEATS = _m.beats(S, CARD, M)
+    # N (narrator) and H (host) are reserved: a cast letter there would rename/revoice the host
+    assert not {"N", "H"} & (set(getattr(_m, "NAMES", {})) | set(getattr(_m, "VOICES", {}))), \
+        f"stories/{STORY}.py: cast letters N and H are reserved for the narrator and host"
     NAMES.update(getattr(_m, "NAMES", {}))
     VOICES.update(getattr(_m, "VOICES", {}))
     TITLE = getattr(_m, "TITLE", STORY)
