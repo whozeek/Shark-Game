@@ -197,4 +197,52 @@ ADS = [
           set="home"),
         S("But they never ask to meet up.", ["you"], "think", ["☕", "❓", "⏳"], "worried", set="home"),
     ], close="Do you ask them out, or wait for them to ask?"),
+
+    # Trend: Reddit post about refusing rides with a friend who screams along in the car (Daily Dot, Oct 29 2026)
+    dict(id="t025_the_loud_ride", title="The Loud Ride", made_on="2026-10-30", beats=[
+        S("Your friend drives you to work. They sing at full volume the whole way.", ["friend", "you"], "laugh",
+          ["🚗", "🎤", "🎶"], "worried", set="street"),
+        S("Your ears ring after. But it’s a free ride, and they love it.", ["you"], "think", ["👂", "🔔", "🚗"],
+          "worried", set="street"),
+    ], close="Do you ask them to stop, or find another ride?"),
+
+    # Trend: Reddit story about a company that cut 30% of staff, then asked a worker to give up days off (Oct 29 2026)
+    dict(id="t026_the_days_off", title="The Days Off", made_on="2026-10-30", beats=[
+        S("Your company cut a third of the team. Everyone’s stretched thin.", ["coworker", "you"], "react",
+          ["📉", "😓", "💼"], "worried", others="worried", set="office"),
+        S("Now your boss asks you to work your days off. There’s extra pay.", ["boss", "you"], "say",
+          ["⏰", "💵", "🙏"], "worried", set="office"),
+    ], close="Do you take the extra shifts, or keep your days off?"),
+
+    # Trend: Reddit story about a customer demanding to use an expired coupon (TwistedSifter, Oct 29 2026)
+    dict(id="t027_the_expired_coupon", title="The Expired Coupon", made_on="2026-10-30", beats=[
+        S("You work the register. A customer hands you a coupon that expired yesterday.", ["stranger", "you"],
+          "give", ["🎟️", "❌"], "worried", set="store"),
+        S("They’re a regular, and it’s just one day. But rules are rules.", ["you"], "think", ["🎟️", "🤔", "📏"],
+          "worried", set="store"),
+    ], close="Do you accept it, or say no?"),
+
+    # Trend: Reddit story about turning down being godfather to a spouse's cousin's baby (TwistedSifter, Oct 29 2026)
+    dict(id="t028_the_godparent", title="The Godparent", made_on="2026-10-30", beats=[
+        S("Your partner’s cousin asks you to be godparent to her baby.", ["friend2", "partner", "you"], "say",
+          ["👶", "🙏", "💛"], "shock", set="home"),
+        S("You’ve only met her twice. It’s a big honor, and a big commitment.", ["you"], "think",
+          ["👶", "🤝", "⏳"], "worried", set="home"),
+    ], close="Do you say yes, or politely decline?"),
+
+    # Trend: TikTok about a friend skipping a wedding for his girlfriend's graduation (Daily Dot, Oct 22 2026)
+    dict(id="t029_wedding_or_graduation", title="Wedding or Graduation", made_on="2026-10-30", beats=[
+        S("Your best friend is getting married. You promised you’d be there.", ["friend", "you"], "say",
+          ["💍", "💒", "🎉"], "happy", set="cafe"),
+        S("Then your partner’s graduation gets moved to the same day.", ["partner", "you"], "tell",
+          ["🎓", "⏰", "❗"], "shock", set="home"),
+    ], close="Do you go to the wedding, or the graduation?"),
+
+    # Trend: Reddit post from someone who still loves their partner but thinks they'd be happier single (Oct 2026)
+    dict(id="t030_happier_alone", title="Happier Alone", made_on="2026-10-30", beats=[
+        S("You and your partner have been together four years. You still love them.", ["partner", "you"],
+          "react", ["❤️", "🏠", "🐶"], "happy", others="happy", set="home"),
+        S("But lately you think you’d be happier on your own.", ["you"], "think", ["💭", "🚪", "🌱"], "worried",
+          set="home_night"),
+    ], close="Do you stay and work on it, or leave?"),
 ]
