@@ -403,4 +403,117 @@ ADS = [
                ["🏠", "💸", "🔑"], "worried", set="home_night"),
              M("Did you read the whole thread?"),
          ], close="Do you move out, or stay?"),
+
+    # Trend: Reddit story about a neighbor who keeps leaving the building's dog park gate open (TwistedSifter, Oct 30 2026)
+    dict(id="l022_the_open_gate", title="The Open Gate", made_on="2026-10-30",
+         hook="what did the building chat say?",
+         thread=dict(contact="Building Chat", stamp="Thu 7:22 PM", msgs=[
+             "gate was open again 🐕",
+             "my pup almost got out",
+             "pretty sure it’s 4B",
+             "maybe a sign would help?",
+             "anyone?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your building has a fenced dog park. Someone keeps leaving the gate open.", ["you"], "see",
+               ["🐕", "🚪", "😬"], "worried", set="park"),
+             S("Today you see who it is: your friendly neighbor. The chat wants a name.", ["stranger", "you"], "react",
+               ["🐕", "🚪", "👋"], "shock", others="happy", set="park"),
+             M("Did you catch the whole chat?"),
+         ], close="Do you name them in the chat, or talk to them privately?"),
+
+    # Trend: Reddit story about not telling a sister that their parents were moving nearby (TwistedSifter, Oct 30 2026)
+    dict(id="l023_the_big_move", title="The Big Move", made_on="2026-10-30",
+         hook="what did your dad text?",
+         thread=dict(contact="Dad", stamp="Sun 4:48 PM", msgs=[
+             "we found a place near you! 🏡",
+             "don’t tell your sister yet",
+             "we’ll tell her when it’s final",
+             "she’ll understand… right?",
+             "promise? 🤞",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your parents are moving. Right near you, and far from your sister.", ["elder", "you"], "tell",
+               ["🏡", "📦", "🗺️"], "happy", others="happy", set="home"),
+             S("They ask you to keep it quiet until they tell her themselves.", ["you"], "think", ["🤫", "📱", "⏳"],
+               "worried", set="home"),
+             M("Did you read the whole thread?"),
+         ], close="Do you tell your sister, or wait for your parents to?"),
+
+    # Trend: Reddit post about a parent asking to be paid back for a dress stained at a paint party (Percolately, Oct 2026)
+    dict(id="l024_the_paint_party", title="The Paint Party", made_on="2026-10-30",
+         hook="what did your partner text?",
+         thread=dict(contact="Sam", stamp="Sat 6:15 PM", msgs=[
+             "wait, she wants $60?",
+             "the invite did say old clothes",
+             "but it was our party",
+             "she’s in your book club too",
+             "your move",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your kid’s birthday is a paint party. The kids love it.", ["kid", "you"], "laugh", ["🎨", "🎂", "🎉"],
+               "happy", others="happy", set="party"),
+             S("Afterward, a parent says her kid’s dress is ruined. She asks you to pay for it.", ["stranger", "you"],
+               "say", ["👗", "🎨", "💵"], "worried", others="worried", set="party"),
+             M("Did you catch the whole thread?"),
+         ], close="Do you pay for the dress, or say no?"),
+
+    # Trend: Reddit post about a neighbor who calls for help often, including when the power went out overnight (Oct 2026)
+    dict(id="l025_the_late_call", title="The Late Call", made_on="2026-10-30",
+         hook="what did your neighbor text?",
+         thread=dict(contact="Neighbor", stamp="Tue 2:04 AM", msgs=[
+             "power’s out again 😩",
+             "sorry, I know it’s late",
+             "it’s not an emergency",
+             "could you come look?",
+             "you up?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your older neighbor often asks you for help. Lightbulbs, packages.", ["elder", "you"],
+               "say", ["💡", "📦", "🙏"], "worried", others="happy", set="street"),
+             S("Tonight it’s 2 AM. Their power is out, and you start work at seven.", ["you"], "see",
+               ["📱", "🌙", "⏰"], "worried", set="home_night"),
+             M("Did you read the whole thread?"),
+         ], close="Do you go over now, or help in the morning?"),
+
+    # Trend: Reddit post about a sister-in-law who served someone a food they're allergic to (Percolately, Oct 29 2026)
+    dict(id="l026_the_allergy", title="The Allergy", made_on="2026-10-30",
+         hook="what did your sister-in-law text?",
+         thread=dict(contact="Sister-in-law", stamp="Mon 10:02 AM", msgs=[
+             "I feel awful about Sunday",
+             "I thought it was a mild one",
+             "or maybe I forgot? 😣",
+             "I’ll ask every time now",
+             "forgive me? 🙏",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("At family dinner, your sister-in-law served a dish with the food you’re allergic to.", ["friend2", "you"],
+               "give", ["🍲", "🥜", "⚠️"], "shock", others="happy", set="dinner"),
+             S("You got sick, but you’re okay now. Your partner says she didn’t mean it.", ["partner", "you"], "say",
+               ["🤒", "💬", "🤔"], "worried", others="worried", set="home"),
+             M("Did you read the whole thread?"),
+         ], close="Do you let it go, or keep your distance for now?"),
+
+    # Trend: TikTok warning to notice when someone's texting suddenly changes early in dating (Daily Dot, Oct 29 2026)
+    dict(id="l027_the_short_replies", title="The Short Replies", made_on="2026-10-30",
+         hook="what did they reply?",
+         thread=dict(contact="Alex", stamp="Wed 9:41 PM", msgs=[
+             "haha",
+             "yeah",
+             "busy week",
+             "sounds good",
+             "👍",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Three dates in, and they used to text you all day.", ["partner", "you"], "laugh", ["💬", "❤️", "📱"],
+               "happy", others="happy", set="cafe"),
+             S("Now every reply is one word.", ["you"], "see", ["📱", "💬", "🤔"], "worried", set="home_night"),
+             M("Did you read the whole thread?"),
+         ], close="Do you ask what changed, or match their energy?"),
 ]
