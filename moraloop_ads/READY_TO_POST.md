@@ -76,9 +76,11 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 69 | 2026-11-17 | 4:00 PM | long | One Saturday | `moraloop_ads/long/one_saturday.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/one_saturday.mp4) |
 | 70 | 2026-11-18 | 12:00 PM | short | The Days Off | `moraloop_ads/trends/t026_the_days_off.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t026_the_days_off.mp4) |
 | 71 | 2026-11-19 | 12:00 PM | short | The Expired Coupon | `moraloop_ads/trends/t027_the_expired_coupon.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t027_the_expired_coupon.mp4) |
-| 72 | 2026-11-20 | 12:00 PM | short | The Godparent | `moraloop_ads/trends/t028_the_godparent.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t028_the_godparent.mp4) |
-| 73 | 2026-11-21 | 12:00 PM | short | Wedding or Graduation | `moraloop_ads/trends/t029_wedding_or_graduation.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t029_wedding_or_graduation.mp4) |
-| 74 | 2026-11-22 | 12:00 PM | short | Happier Alone | `moraloop_ads/trends/t030_happier_alone.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t030_happier_alone.mp4) |
+| 72 | 2026-11-19 | 4:00 PM | long | The Surprise | `moraloop_ads/long/the_surprise.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_surprise.mp4) |
+| 73 | 2026-11-20 | 12:00 PM | short | The Godparent | `moraloop_ads/trends/t028_the_godparent.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t028_the_godparent.mp4) |
+| 74 | 2026-11-21 | 12:00 PM | short | Wedding or Graduation | `moraloop_ads/trends/t029_wedding_or_graduation.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t029_wedding_or_graduation.mp4) |
+| 75 | 2026-11-21 | 4:00 PM | long | No Filter | `moraloop_ads/long/no_filter.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/no_filter.mp4) |
+| 76 | 2026-11-22 | 12:00 PM | short | Happier Alone | `moraloop_ads/trends/t030_happier_alone.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t030_happier_alone.mp4) |
 
 ## Captions
 
@@ -721,7 +723,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #retail #customerservice #worklife
 ```
 
-### 72. 2026-11-20 12:00 PM: The Godparent (short)
+### 72. 2026-11-19 4:00 PM: The Surprise (long)
+Video: `moraloop_ads/long/the_surprise.mp4`
+
+```
+Your friend spent weeks planning a surprise party. The birthday friend just said they hate surprises. Do you tell the group to change the plan, or keep the surprise they worked hard on? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #birthday #storytime
+```
+
+### 73. 2026-11-20 12:00 PM: The Godparent (short)
 Video: `moraloop_ads/trends/t028_the_godparent.mp4`
 
 ```
@@ -730,7 +741,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #inlaws #godparent
 ```
 
-### 73. 2026-11-21 12:00 PM: Wedding or Graduation (short)
+### 74. 2026-11-21 12:00 PM: Wedding or Graduation (short)
 Video: `moraloop_ads/trends/t029_wedding_or_graduation.mp4`
 
 ```
@@ -739,7 +750,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #wedding #graduation #friendship
 ```
 
-### 74. 2026-11-22 12:00 PM: Happier Alone (short)
+### 75. 2026-11-21 4:00 PM: No Filter (long)
+Video: `moraloop_ads/long/no_filter.mp4`
+
+```
+A bracelet makes your partner say every thought they have about you, for one week. Would that honesty save the relationship or destroy it? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #honesty #storytime
+```
+
+### 76. 2026-11-22 12:00 PM: Happier Alone (short)
 Video: `moraloop_ads/trends/t030_happier_alone.mp4`
 
 ```

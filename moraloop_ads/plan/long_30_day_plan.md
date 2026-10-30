@@ -32,8 +32,8 @@ Long-form videos are 2–3 minute claymation storylines built on dilemmas we alr
 | 11 | Fri Nov 13, 2026 | The Empty Yard | 02_the_school_garden — The School Garden (short Nov 2) | Community | done |
 | 12 | Sun Nov 15, 2026 | Moving Day | 06_the_missing_deposit — The Missing Deposit (short Oct 30) | Relationships / money | done |
 | 13 | Tue Nov 17, 2026 | One Saturday | 34_who_do_you_help — Who Do You Help? (no short in plan) | Community / loyalty | done |
-| 14 | Thu Nov 19, 2026 | The Surprise | 21_the_birthday_plan — The Birthday Plan (short Nov 10) | Friendship | todo |
-| 15 | Sat Nov 21, 2026 | No Filter | 41_every_unfiltered_thought — Every Unfiltered Thought (no short in plan) | Big hypothetical / relationships | todo |
+| 14 | Thu Nov 19, 2026 | The Surprise | 21_the_birthday_plan — The Birthday Plan (short Nov 10) | Friendship | done |
+| 15 | Sat Nov 21, 2026 | No Filter | 41_every_unfiltered_thought — Every Unfiltered Thought (no short in plan) | Big hypothetical / relationships | done |
 
 Approval: all 15 episodes are approved. #1, 2, 3, 5, 7, 8, 10, 11 and 12 were approved in the PDF, and the owner approved #4, 6, 9, 13, 14 and 15 on Oct 20, 2026. All posting times are US Eastern.
 
@@ -525,7 +525,7 @@ Status: done (2026-10-29) → long/one_saturday.mp4
 
 **Balance check:** respecting what someone says they want versus honoring the love behind a plan, and both endings have someone smiling a little thinly.
 
-Status: todo
+Status: done (2026-10-30) → long/the_surprise.mp4
 
 ---
 
@@ -560,4 +560,4 @@ Status: todo
 
 **Balance check:** total honesty brings closeness and hurt together, and keeping filters brings peace and doubt together, so neither looks clearly better.
 
-Status: todo
+Status: done (2026-10-30) → long/no_filter.mp4
