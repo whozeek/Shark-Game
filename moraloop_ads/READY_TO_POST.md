@@ -95,13 +95,15 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 88 | 2026-11-22 | 12:30 PM | loop short | The Couch Guest | `moraloop_ads/loops/l030_the_couch_guest.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l030_the_couch_guest.mp4) |
 | 89 | 2026-11-23 | 12:00 PM | short | The Lake Trip | `moraloop_ads/trends/t031_the_lake_trip.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t031_the_lake_trip.mp4) |
 | 90 | 2026-11-23 | 12:30 PM | loop short | The Easy Fix | `moraloop_ads/loops/l031_the_easy_fix.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l031_the_easy_fix.mp4) |
-| 91 | 2026-11-24 | 12:00 PM | short | The Spigot | `moraloop_ads/trends/t032_the_spigot.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t032_the_spigot.mp4) |
-| 92 | 2026-11-24 | 12:30 PM | loop short | The Doorstep | `moraloop_ads/loops/l032_the_doorstep.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l032_the_doorstep.mp4) |
-| 93 | 2026-11-25 | 12:00 PM | short | The Gifted Car | `moraloop_ads/trends/t033_the_gifted_car.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t033_the_gifted_car.mp4) |
-| 94 | 2026-11-25 | 12:30 PM | loop short | The Deleted App | `moraloop_ads/loops/l033_the_deleted_app.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l033_the_deleted_app.mp4) |
-| 95 | 2026-11-26 | 12:00 PM | short | The Free Meal | `moraloop_ads/trends/t034_the_free_meal.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t034_the_free_meal.mp4) |
-| 96 | 2026-11-27 | 12:00 PM | short | The Baby Fund | `moraloop_ads/trends/t035_the_baby_fund.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t035_the_baby_fund.mp4) |
-| 97 | 2026-11-28 | 12:00 PM | short | The Front Row | `moraloop_ads/trends/t036_the_front_row.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t036_the_front_row.mp4) |
+| 91 | 2026-11-23 | 8:00 PM | loop long | Ten Years Ago | `moraloop_ads/loops/long/ten_years_ago.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/ten_years_ago.mp4) |
+| 92 | 2026-11-24 | 12:00 PM | short | The Spigot | `moraloop_ads/trends/t032_the_spigot.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t032_the_spigot.mp4) |
+| 93 | 2026-11-24 | 12:30 PM | loop short | The Doorstep | `moraloop_ads/loops/l032_the_doorstep.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l032_the_doorstep.mp4) |
+| 94 | 2026-11-25 | 12:00 PM | short | The Gifted Car | `moraloop_ads/trends/t033_the_gifted_car.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t033_the_gifted_car.mp4) |
+| 95 | 2026-11-25 | 12:30 PM | loop short | The Deleted App | `moraloop_ads/loops/l033_the_deleted_app.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l033_the_deleted_app.mp4) |
+| 96 | 2026-11-25 | 8:00 PM | loop long | Returned | `moraloop_ads/loops/long/returned.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/returned.mp4) |
+| 97 | 2026-11-26 | 12:00 PM | short | The Free Meal | `moraloop_ads/trends/t034_the_free_meal.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t034_the_free_meal.mp4) |
+| 98 | 2026-11-27 | 12:00 PM | short | The Baby Fund | `moraloop_ads/trends/t035_the_baby_fund.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t035_the_baby_fund.mp4) |
+| 99 | 2026-11-28 | 12:00 PM | short | The Front Row | `moraloop_ads/trends/t036_the_front_row.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t036_the_front_row.mp4) |
 
 ## Captions
 
@@ -915,7 +917,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #honesty #gifts
 ```
 
-### 91. 2026-11-24 12:00 PM: The Spigot (short)
+### 91. 2026-11-23 8:00 PM: Ten Years Ago (loop long)
+Video: `moraloop_ads/loops/long/ten_years_ago.mp4`
+
+```
+The host of your town fair is caught in a cruel post from ten years ago. They say they’ve changed. Do you forgive them or hold them accountable forever? Did you catch how old the post was? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #secondchances #community #storytime
+```
+
+### 92. 2026-11-24 12:00 PM: The Spigot (short)
 Video: `moraloop_ads/trends/t032_the_spigot.mp4`
 
 ```
@@ -924,7 +935,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #neighbors #apartmentlife #aita
 ```
 
-### 92. 2026-11-24 12:30 PM: The Doorstep (loop short)
+### 93. 2026-11-24 12:30 PM: The Doorstep (loop short)
 Video: `moraloop_ads/loops/l032_the_doorstep.mp4`
 
 ```
@@ -933,7 +944,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #delivery #work #rules
 ```
 
-### 93. 2026-11-25 12:00 PM: The Gifted Car (short)
+### 94. 2026-11-25 12:00 PM: The Gifted Car (short)
 Video: `moraloop_ads/trends/t033_the_gifted_car.mp4`
 
 ```
@@ -942,7 +953,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #cars #gifts
 ```
 
-### 94. 2026-11-25 12:30 PM: The Deleted App (loop short)
+### 95. 2026-11-25 12:30 PM: The Deleted App (loop short)
 Video: `moraloop_ads/loops/l033_the_deleted_app.mp4`
 
 ```
@@ -951,7 +962,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #dating #boundaries
 ```
 
-### 95. 2026-11-26 12:00 PM: The Free Meal (short)
+### 96. 2026-11-25 8:00 PM: Returned (loop long)
+Video: `moraloop_ads/loops/long/returned.mp4`
+
+```
+Your friend returns your favorite headphones cracked, and doesn’t mention it. Do you confront them, or let it go to keep the peace? Did you catch what Wren texted? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #borrowing #storytime
+```
+
+### 97. 2026-11-26 12:00 PM: The Free Meal (short)
 Video: `moraloop_ads/trends/t034_the_free_meal.mp4`
 
 ```
@@ -960,7 +980,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #restaurant #kindness #friends
 ```
 
-### 96. 2026-11-27 12:00 PM: The Baby Fund (short)
+### 98. 2026-11-27 12:00 PM: The Baby Fund (short)
 Video: `moraloop_ads/trends/t035_the_baby_fund.mp4`
 
 ```
@@ -969,7 +989,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #work #officelife #money
 ```
 
-### 97. 2026-11-28 12:00 PM: The Front Row (short)
+### 99. 2026-11-28 12:00 PM: The Front Row (short)
 Video: `moraloop_ads/trends/t036_the_front_row.mp4`
 
 ```
