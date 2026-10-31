@@ -516,4 +516,118 @@ ADS = [
              S("Now every reply is one word.", ["you"], "see", ["📱", "💬", "🤔"], "worried", set="home_night"),
              M("Did you read the whole thread?"),
          ], close="Do you ask what changed, or match their energy?"),
+
+    # Trend: Reddit story about a partner's parents dropping by unannounced on leftovers night (TwistedSifter, Oct 31 2026)
+    dict(id="l028_the_drop_in", title="The Drop-In", made_on="2026-10-31",
+         hook="what did your partner text?",
+         thread=dict(contact="Partner", stamp="Sun 5:52 PM", msgs=[
+             "they’re 5 min away 😅",
+             "they drove an hour 😬",
+             "mom’s bringing pie",
+             "fridge is pretty empty tho",
+             "your call",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("It’s leftovers night. Just enough for the two of you.", ["partner", "you"], "laugh", ["🍲", "🛋️", "📺"],
+               "happy", others="happy", set="home"),
+             S("Then your partner’s parents show up. Unannounced, and right at dinnertime.", ["elder", "partner", "you"],
+               "say", ["🚪", "👋", "🍽️"], "shock", others="happy", set="home"),
+             M("Did you catch the whole thread?"),
+         ], close="Do you stretch dinner for four, or say there’s not enough?"),
+
+    # Trend: Reddit story about a neighbor who keeps driving over a driveway corner and cracked a tile (TwistedSifter, Oct 31 2026)
+    dict(id="l029_the_driveway_corner", title="The Driveway Corner", made_on="2026-10-31",
+         hook="what did your housemate text?",
+         thread=dict(contact="Housemate", stamp="Wed 8:10 AM", msgs=[
+             "another tile cracked 😑",
+             "it’s the blue SUV again",
+             "they did wave sorry once",
+             "planters are like $80",
+             "ideas?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your neighbor keeps cutting across the corner of your driveway.", ["you"], "see", ["🚙", "🏠", "😬"],
+               "worried", set="street"),
+             S("This morning, another tile is cracked.", ["you"], "react", ["🧱", "💥", "🤔"], "shock",
+               set="street"),
+             M("Did you read the whole thread?"),
+         ], close="Do you knock on their door, or block the corner quietly?"),
+
+    # Trend: Reddit post about a struggling friend crashing on someone's couch (Percolately, Oct 30 2026)
+    dict(id="l030_the_couch_guest", title="The Couch Guest", made_on="2026-10-31",
+         hook="what did your friend text?",
+         thread=dict(contact="Jamie", stamp="Thu 4:30 PM", msgs=[
+             "interview went ok! 🤞",
+             "still waiting to hear",
+             "sorry about the mess again",
+             "another month max?",
+             "thank you 🙏",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your friend lost their apartment. They’ve been on your couch for two months.", ["friend", "you"], "say",
+               ["🛋️", "📦", "⏳"], "worried", others="happy", set="home"),
+             S("They’re trying to find work. But you really miss having your space.", ["you"], "think",
+               ["🏠", "🔑", "😮‍💨"], "worried", set="home_night"),
+             M("Did you catch the whole thread?"),
+         ], close="Do you set a move-out date, or give them more time?"),
+
+    # Trend: Reddit story about an owner who gave away a "broken" air purifier that only needed the instructions (TwistedSifter, Oct 31 2026)
+    dict(id="l031_the_easy_fix", title="The Easy Fix", made_on="2026-10-31",
+         hook="what did your friend say?",
+         thread=dict(contact="Robin", stamp="Sat 2:14 PM", msgs=[
+             "glad it found a good home",
+             "it cost me so much 😭",
+             "never could get it working",
+             "might buy a new one 🤔",
+             "enjoy it!",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your friend gives you their pricey air purifier. They say it’s broken.", ["friend2", "you"], "give",
+               ["🎁", "🌀", "💸"], "happy", others="happy", set="home"),
+             S("You read the instructions. Two minutes later, it works perfectly.", ["you"], "laugh",
+               ["📖", "🌀", "✅"], "happy", set="home"),
+             M("Did you catch the whole thread?"),
+         ], close="Do you tell them it works, or keep quiet?"),
+
+    # Trend: Reddit story from a delivery driver whose hand-to-customer package couldn't be delivered (TwistedSifter, Oct 31 2026)
+    dict(id="l032_the_doorstep", title="The Doorstep", made_on="2026-10-31",
+         hook="what did the customer text?",
+         thread=dict(contact="Customer", stamp="Fri 6:48 PM", msgs=[
+             "can you just leave it?",
+             "I’m 20 min away",
+             "last one got stolen tho",
+             "I’ll take the blame",
+             "please? 🙏",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You drive deliveries. This package must be handed to a person.", ["you"], "think", ["📦", "✋", "🚚"],
+               "neutral", set="street"),
+             S("Nobody’s home. The customer begs you to leave it at the door.", ["you"], "see", ["🚪", "📱", "📦"],
+               "worried", set="street"),
+             M("Did you read the whole thread?"),
+         ], close="Do you leave it at the door, or take it back?"),
+
+    # Trend: Reddit post about a friend who took someone's phone and deleted an account "for her own good" (Percolately, Oct 2026)
+    dict(id="l033_the_deleted_app", title="The Deleted App", made_on="2026-10-31",
+         hook="what did your friend admit?",
+         thread=dict(contact="Taylor", stamp="Sat 11:05 PM", msgs=[
+             "ok don’t be mad",
+             "I deleted the app",
+             "you were on it all dinner",
+             "you said you wanted a break",
+             "still friends? 😬",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You lend your best friend your phone at dinner.", ["friend", "you"], "give", ["📱", "🍝", "🙂"], "happy",
+               others="happy", set="dinner"),
+             S("Later you notice your dating app is gone. They deleted it.", ["you"], "see", ["📱", "💔", "❓"],
+               "shock", set="home_night"),
+             M("Did you read the whole thread?"),
+         ], close="Do you call them out, or let it go?"),
 ]

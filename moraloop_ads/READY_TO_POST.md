@@ -86,16 +86,22 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 79 | 2026-11-19 | 4:00 PM | long | The Surprise | `moraloop_ads/long/the_surprise.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/the_surprise.mp4) |
 | 80 | 2026-11-19 | 8:00 PM | loop long | Not My Business | `moraloop_ads/loops/long/not_my_business.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/not_my_business.mp4) |
 | 81 | 2026-11-20 | 12:00 PM | short | The Godparent | `moraloop_ads/trends/t028_the_godparent.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t028_the_godparent.mp4) |
-| 82 | 2026-11-21 | 12:00 PM | short | Wedding or Graduation | `moraloop_ads/trends/t029_wedding_or_graduation.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t029_wedding_or_graduation.mp4) |
-| 83 | 2026-11-21 | 4:00 PM | long | No Filter | `moraloop_ads/long/no_filter.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/no_filter.mp4) |
-| 84 | 2026-11-21 | 8:00 PM | loop long | Word Gets Around | `moraloop_ads/loops/long/word_gets_around.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/word_gets_around.mp4) |
-| 85 | 2026-11-22 | 12:00 PM | short | Happier Alone | `moraloop_ads/trends/t030_happier_alone.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t030_happier_alone.mp4) |
-| 86 | 2026-11-23 | 12:00 PM | short | The Lake Trip | `moraloop_ads/trends/t031_the_lake_trip.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t031_the_lake_trip.mp4) |
-| 87 | 2026-11-24 | 12:00 PM | short | The Spigot | `moraloop_ads/trends/t032_the_spigot.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t032_the_spigot.mp4) |
-| 88 | 2026-11-25 | 12:00 PM | short | The Gifted Car | `moraloop_ads/trends/t033_the_gifted_car.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t033_the_gifted_car.mp4) |
-| 89 | 2026-11-26 | 12:00 PM | short | The Free Meal | `moraloop_ads/trends/t034_the_free_meal.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t034_the_free_meal.mp4) |
-| 90 | 2026-11-27 | 12:00 PM | short | The Baby Fund | `moraloop_ads/trends/t035_the_baby_fund.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t035_the_baby_fund.mp4) |
-| 91 | 2026-11-28 | 12:00 PM | short | The Front Row | `moraloop_ads/trends/t036_the_front_row.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t036_the_front_row.mp4) |
+| 82 | 2026-11-20 | 12:30 PM | loop short | The Drop-In | `moraloop_ads/loops/l028_the_drop_in.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l028_the_drop_in.mp4) |
+| 83 | 2026-11-21 | 12:00 PM | short | Wedding or Graduation | `moraloop_ads/trends/t029_wedding_or_graduation.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t029_wedding_or_graduation.mp4) |
+| 84 | 2026-11-21 | 12:30 PM | loop short | The Driveway Corner | `moraloop_ads/loops/l029_the_driveway_corner.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l029_the_driveway_corner.mp4) |
+| 85 | 2026-11-21 | 4:00 PM | long | No Filter | `moraloop_ads/long/no_filter.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/long/no_filter.mp4) |
+| 86 | 2026-11-21 | 8:00 PM | loop long | Word Gets Around | `moraloop_ads/loops/long/word_gets_around.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/word_gets_around.mp4) |
+| 87 | 2026-11-22 | 12:00 PM | short | Happier Alone | `moraloop_ads/trends/t030_happier_alone.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t030_happier_alone.mp4) |
+| 88 | 2026-11-22 | 12:30 PM | loop short | The Couch Guest | `moraloop_ads/loops/l030_the_couch_guest.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l030_the_couch_guest.mp4) |
+| 89 | 2026-11-23 | 12:00 PM | short | The Lake Trip | `moraloop_ads/trends/t031_the_lake_trip.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t031_the_lake_trip.mp4) |
+| 90 | 2026-11-23 | 12:30 PM | loop short | The Easy Fix | `moraloop_ads/loops/l031_the_easy_fix.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l031_the_easy_fix.mp4) |
+| 91 | 2026-11-24 | 12:00 PM | short | The Spigot | `moraloop_ads/trends/t032_the_spigot.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t032_the_spigot.mp4) |
+| 92 | 2026-11-24 | 12:30 PM | loop short | The Doorstep | `moraloop_ads/loops/l032_the_doorstep.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l032_the_doorstep.mp4) |
+| 93 | 2026-11-25 | 12:00 PM | short | The Gifted Car | `moraloop_ads/trends/t033_the_gifted_car.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t033_the_gifted_car.mp4) |
+| 94 | 2026-11-25 | 12:30 PM | loop short | The Deleted App | `moraloop_ads/loops/l033_the_deleted_app.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l033_the_deleted_app.mp4) |
+| 95 | 2026-11-26 | 12:00 PM | short | The Free Meal | `moraloop_ads/trends/t034_the_free_meal.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t034_the_free_meal.mp4) |
+| 96 | 2026-11-27 | 12:00 PM | short | The Baby Fund | `moraloop_ads/trends/t035_the_baby_fund.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t035_the_baby_fund.mp4) |
+| 97 | 2026-11-28 | 12:00 PM | short | The Front Row | `moraloop_ads/trends/t036_the_front_row.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t036_the_front_row.mp4) |
 
 ## Captions
 
@@ -828,7 +834,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #inlaws #godparent
 ```
 
-### 82. 2026-11-21 12:00 PM: Wedding or Graduation (short)
+### 82. 2026-11-20 12:30 PM: The Drop-In (loop short)
+Video: `moraloop_ads/loops/l028_the_drop_in.mp4`
+
+```
+It’s leftovers night, and your partner’s parents show up unannounced at dinnertime. Do you stretch dinner for four, or say there’s not enough? Did you catch the whole thread? 👀 Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #inlaws #family #dinner
+```
+
+### 83. 2026-11-21 12:00 PM: Wedding or Graduation (short)
 Video: `moraloop_ads/trends/t029_wedding_or_graduation.mp4`
 
 ```
@@ -837,7 +852,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #wedding #graduation #friendship
 ```
 
-### 83. 2026-11-21 4:00 PM: No Filter (long)
+### 84. 2026-11-21 12:30 PM: The Driveway Corner (loop short)
+Video: `moraloop_ads/loops/l029_the_driveway_corner.mp4`
+
+```
+Your neighbor keeps cutting across your driveway, and now a tile is cracked. Do you knock on their door, or block the corner quietly? Did you read the whole thread? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #neighbors #homeowner #aita
+```
+
+### 85. 2026-11-21 4:00 PM: No Filter (long)
 Video: `moraloop_ads/long/no_filter.mp4`
 
 ```
@@ -846,7 +870,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #honesty #storytime
 ```
 
-### 84. 2026-11-21 8:00 PM: Word Gets Around (loop long)
+### 86. 2026-11-21 8:00 PM: Word Gets Around (loop long)
 Video: `moraloop_ads/loops/long/word_gets_around.mp4`
 
 ```
@@ -855,7 +879,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #school #rumors #storytime
 ```
 
-### 85. 2026-11-22 12:00 PM: Happier Alone (short)
+### 87. 2026-11-22 12:00 PM: Happier Alone (short)
 Video: `moraloop_ads/trends/t030_happier_alone.mp4`
 
 ```
@@ -864,7 +888,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #love #selfgrowth
 ```
 
-### 86. 2026-11-23 12:00 PM: The Lake Trip (short)
+### 88. 2026-11-22 12:30 PM: The Couch Guest (loop short)
+Video: `moraloop_ads/loops/l030_the_couch_guest.mp4`
+
+```
+Your friend has been on your couch for two months, and you miss your space. Do you set a move-out date, or give them more time? Did you catch the whole thread? 👀 Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #roommates #boundaries
+```
+
+### 89. 2026-11-23 12:00 PM: The Lake Trip (short)
 Video: `moraloop_ads/trends/t031_the_lake_trip.mp4`
 
 ```
@@ -873,7 +906,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #boundaries #parents
 ```
 
-### 87. 2026-11-24 12:00 PM: The Spigot (short)
+### 90. 2026-11-23 12:30 PM: The Easy Fix (loop short)
+Video: `moraloop_ads/loops/l031_the_easy_fix.mp4`
+
+```
+Your friend gave you their “broken” air purifier. Two minutes with the instructions and it works. Do you tell them it works, or keep quiet? Did you catch the whole thread? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #honesty #gifts
+```
+
+### 91. 2026-11-24 12:00 PM: The Spigot (short)
 Video: `moraloop_ads/trends/t032_the_spigot.mp4`
 
 ```
@@ -882,7 +924,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #neighbors #apartmentlife #aita
 ```
 
-### 88. 2026-11-25 12:00 PM: The Gifted Car (short)
+### 92. 2026-11-24 12:30 PM: The Doorstep (loop short)
+Video: `moraloop_ads/loops/l032_the_doorstep.mp4`
+
+```
+The package must be handed to a person. Nobody’s home, and the customer begs you to leave it. Do you leave it at the door, or take it back? Did you read the whole thread? 👀 Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #delivery #work #rules
+```
+
+### 93. 2026-11-25 12:00 PM: The Gifted Car (short)
 Video: `moraloop_ads/trends/t033_the_gifted_car.mp4`
 
 ```
@@ -891,7 +942,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #cars #gifts
 ```
 
-### 89. 2026-11-26 12:00 PM: The Free Meal (short)
+### 94. 2026-11-25 12:30 PM: The Deleted App (loop short)
+Video: `moraloop_ads/loops/l033_the_deleted_app.mp4`
+
+```
+Your best friend deleted your dating app from your phone at dinner. Do you call them out, or let it go? Did you read the whole thread? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #dating #boundaries
+```
+
+### 95. 2026-11-26 12:00 PM: The Free Meal (short)
 Video: `moraloop_ads/trends/t034_the_free_meal.mp4`
 
 ```
@@ -900,7 +960,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #restaurant #kindness #friends
 ```
 
-### 90. 2026-11-27 12:00 PM: The Baby Fund (short)
+### 96. 2026-11-27 12:00 PM: The Baby Fund (short)
 Video: `moraloop_ads/trends/t035_the_baby_fund.mp4`
 
 ```
@@ -909,7 +969,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #work #officelife #money
 ```
 
-### 91. 2026-11-28 12:00 PM: The Front Row (short)
+### 97. 2026-11-28 12:00 PM: The Front Row (short)
 Video: `moraloop_ads/trends/t036_the_front_row.mp4`
 
 ```
