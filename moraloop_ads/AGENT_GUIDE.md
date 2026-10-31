@@ -96,15 +96,15 @@ A second pair of scheduled agents makes the same kinds of videos as the agents a
 
 Its text is small and fast but must be readable in a paused frame: at most 5 short lines, no real names of private people, and nothing that breaks the brand-safety rules above.
 
-### Loop short-form agent (6 loop shorts per run, daily)
+### Loop short-form agent (3 loop shorts per run, daily)
 
 Same as "Short-form agent" above, except:
 - Add each short to `src/ads_loop.py` (not `ads_trends.py`) with id `l###_slug` (next free number), `made_on`, `hook`, `thread` (contact, stamp, msgs) or `note` (title, lines), and `cut_beat` (the 0-based scene beat the fast cut lands in, usually the 2nd scene). Put a host line `M("Did you catch ...?")` (or similar) before `close=`. `l001_dont_tell_her` is the worked example.
 - Never repeat a dilemma already in `ads_spec.py`, `ads_trends.py`, `ads_loop.py` or `plan/queue.csv`.
 - Stills: `python3 loop_ad.py still <id> 0.1 <cut time + 0.1> <cut time + 0.4> ...` (it prints the cut time and length; PNGs land in `src/out/`). Check the flash frame, every fast-cut shot and the last frame.
 - Render: `python3 loop_ad.py render ../loops <id>` → `moraloop_ads/loops/<id>.mp4`.
-- **Runs every day** (owner's rule since Oct 26, 2026; no every-other-day check) and makes **six** loop shorts per run, all distinct from each other.
-- Queue all six at the **next six free 12:30 PM dates** in `plan/queue.csv` (never earlier than Oct 27, 2026, never a date already taken at 12:30 PM), `kind` = `loop short`. Time-sensitive topics (e.g. a holiday) must land before the event. (Loop shorts made before this change were queued at 9:00 AM; leave those as they are.)
+- **Runs every day** (owner's rule since Oct 26, 2026; no every-other-day check) and makes **three** loop shorts per run (six per run Oct 26–31, three from Nov 1, 2026), all distinct from each other.
+- Queue all three at the **next three free 12:30 PM dates** in `plan/queue.csv` (never earlier than Oct 27, 2026, never a date already taken at 12:30 PM), `kind` = `loop short`. Time-sensitive topics (e.g. a holiday) must land before the event. (Loop shorts made before this change were queued at 9:00 AM; leave those as they are.)
 
 ### Loop long-form agent (1 loop storyline per run)
 
