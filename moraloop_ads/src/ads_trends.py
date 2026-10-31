@@ -245,4 +245,52 @@ ADS = [
         S("But lately you think you’d be happier on your own.", ["you"], "think", ["💭", "🚪", "🌱"], "worried",
           set="home_night"),
     ], close="Do you stay and work on it, or leave?"),
+
+    # Trend: Reddit post about parents planning a lake trip during someone's days off without asking (Daily Dot, Oct 30 2026)
+    dict(id="t031_the_lake_trip", title="The Lake Trip", made_on="2026-10-31", beats=[
+        S("You finally have nine days off. Your mom books a lake trip for all of you.", ["elder", "you"], "say",
+          ["🏞️", "🛶", "🧳"], "shock", set="home"),
+        S("She didn’t ask first. But it would mean a lot to her.", ["you"], "think", ["🛌", "🤔", "❤️"],
+          "worried", set="home"),
+    ], close="Do you go with them, or keep your days off?"),
+
+    # Trend: Reddit post about strangers filling water tanks from a community spigot as bills rise (TwistedSifter, Oct 30 2026)
+    dict(id="t032_the_spigot", title="The Spigot", made_on="2026-10-31", beats=[
+        S("Strangers keep filling big water tanks from your building’s spigot.", ["stranger", "you"], "react",
+          ["🚰", "🛢️", "👀"], "shock", set="street"),
+        S("Residents pay the water bill. But they might really need the water.", ["you"], "think",
+          ["💸", "💧", "🤔"], "worried", set="street"),
+    ], close="Do you report it, or let it go?"),
+
+    # Trend: Reddit post about a teen trading in a gifted car that kept breaking down (TwistedSifter, Oct 30 2026)
+    dict(id="t033_the_gifted_car", title="The Gifted Car", made_on="2026-10-31", beats=[
+        S("Your grandparents gave you their old car. You’ve loved it for years.", ["elder", "you"], "give",
+          ["🔑", "🚗", "❤️"], "happy", set="street"),
+        S("Now it breaks down every month. A dealer offers you a good trade.", ["you"], "think", ["🔧", "🚗", "💵"],
+          "worried", set="street"),
+    ], close="Do you trade it in, or keep fixing it?"),
+
+    # Trend: Reddit story about a diner who helped a waiter, then declined a free meal for the table (TwistedSifter, Oct 30 2026)
+    dict(id="t034_the_free_meal", title="The Free Meal", made_on="2026-10-31", beats=[
+        S("At dinner, your waiter feels faint. You help them sit down and get water.", ["coworker", "you"], "react",
+          ["🍽️", "💧", "🤝"], "worried", set="cafe"),
+        S("The manager offers your table a free meal. Your friends are thrilled. It feels odd to you.",
+          ["friend", "friend2", "you"], "react", ["🍽️", "🎁", "😄"], "worried", others="happy", set="cafe"),
+    ], close="Do you accept the free meal, or decline it?"),
+
+    # Trend: Reddit post about not contributing to a manager's new-baby cash fund (Percolately, Oct 30 2026)
+    dict(id="t035_the_baby_fund", title="The Baby Fund", made_on="2026-10-31", beats=[
+        S("Your office is collecting money for your manager’s new baby.", ["coworker", "you"], "say",
+          ["👶", "💵", "🎁"], "worried", set="office"),
+        S("Everyone’s chipping in twenty dollars. Money is tight for you this month.", ["you"], "think",
+          ["💵", "😬", "📉"], "worried", set="office"),
+    ], close="Do you chip in, or skip it?"),
+
+    # Trend: Reddit debate about an absent dad wanting a front-row seat at graduation (Daily Dot, Oct 30 2026)
+    dict(id="t036_the_front_row", title="The Front Row", made_on="2026-10-31", beats=[
+        S("Your dad missed most of your childhood. Now he wants a front-row seat at your graduation.",
+          ["stranger", "you"], "say", ["🎓", "🪑", "🙏"], "worried", set="home"),
+        S("He’s really trying. But your mom and stepdad were there for everything.", ["you"], "think",
+          ["🪑", "👨‍👩‍👦", "🤔"], "worried", set="home"),
+    ], close="Do you give him a front-row seat, or a seat further back?"),
 ]
