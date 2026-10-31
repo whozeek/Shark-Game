@@ -289,6 +289,7 @@ body.rm .mini.loopon,body.rm .mini.loopon i{animation:none}
 .hm .btn{display:block;width:100%;margin:9px 0;height:58px;font-size:19px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);color:#fff;animation:hmup .6s both;transition:transform .12s,background .12s}
 .hm .btn:hover{background:rgba(255,255,255,.24);transform:translateY(-2px)}
 .hm .btn.main{background:linear-gradient(#52d27f,#2fa45a);border-color:#9bf0b8;box-shadow:0 8px 26px rgba(63,184,104,.45)}
+.hm .row2{display:flex;gap:10px}.hm .row2 .btn{flex:1;min-width:0;padding:0 6px;font-size:18px}.hm .row2 .btn small{display:block;font-weight:600;font-size:11.5px;opacity:.9;line-height:1.2;margin-top:2px}
 .hm .btn.sm{display:inline-block;width:auto;height:42px;font-size:14px;padding:0 16px;margin:6px 4px}
 .hm:not(.ready) .btn{pointer-events:none}
 .hm.quick *{animation:none!important}
@@ -301,6 +302,25 @@ body.rm .mini.loopon,body.rm .mini.loopon i{animation:none}
 #advisor{position:absolute;left:50%;transform:translateX(-50%);bottom:92px;width:min(560px,calc(100% - 20px));display:flex;gap:8px;align-items:center;padding:8px 10px 8px 12px;box-sizing:border-box;font-weight:700;font-size:13px;line-height:1.35;z-index:6}
 #advisor span{flex:1}#advisor button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:6px 10px;font-weight:800;white-space:nowrap}#advisor button.go{background:var(--ok);border-color:var(--ok);color:#fff}
 .seth{text-align:left;margin:14px 0 2px;font-family:var(--font-display);font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+/* Metropolis mode */
+#mbanner{position:absolute;left:50%;top:132px;transform:translateX(-50%);z-index:9;text-align:center;padding:12px 26px 14px;border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 10px 36px rgba(20,32,42,.35);border:3px solid var(--bc,#2a7de1);pointer-events:auto;animation:mbin .6s cubic-bezier(.2,.9,.3,1.2) both;max-width:calc(100% - 32px);box-sizing:border-box}
+#mbanner small{display:block;font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+#mbanner b{display:block;font-family:var(--font-display);font-size:clamp(24px,6vw,38px);line-height:1.1;color:var(--bc,#2a7de1)}
+#mbanner em{display:block;font-style:normal;font-weight:700;font-size:13px;color:var(--ink,#14202a);margin-top:3px}
+body.rm #mbanner{animation:none}
+@keyframes mbin{from{opacity:0;transform:translate(-50%,-24px) scale(.85)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+#mtip{position:absolute;left:50%;transform:translateX(-50%);bottom:96px;width:min(600px,calc(100% - 20px));padding:12px 14px;box-sizing:border-box;z-index:9;font-size:14px;line-height:1.4;font-weight:600;border-left:6px solid #2a7de1}
+#mtip b{display:block;font-family:var(--font-display);font-size:17px;margin-bottom:3px}
+#mtip .btnrow{margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}#mtip .btnrow button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-weight:800;min-height:44px}#mtip .btnrow button.go{background:var(--ok);border-color:var(--ok);color:#fff}
+.ride #mbanner,.ride #mtip{display:none!important}
+.net .statgrid{grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}.net .statgrid div{padding:7px 6px}.net .statgrid b{font-size:19px}.net .statgrid span{font-size:11px}
+.net h4{margin:8px 2px 2px;font-family:var(--font-display);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.nrow{border:2px solid var(--line);border-left-width:6px;border-left-color:var(--nc,#2a7de1);border-radius:12px;background:#fff;padding:7px 10px;display:flex;gap:8px;align-items:center;flex:none}
+.nrow .nt{flex:1;min-width:0;font-weight:800;font-size:13.5px;line-height:1.25}.nrow .nt small{display:block;font-weight:600;color:var(--muted);font-size:12px}
+.nrow button,.nbtn{border:2px solid var(--line);background:#fff;border-radius:10px;padding:6px 10px;font-weight:800;font-size:12.5px;min-height:40px}
+.nbtn.go,.nrow button.go{background:var(--ok);border-color:var(--ok);color:#fff}.nbtn:disabled,.nrow button:disabled{opacity:.5}
+.net .nbar{height:8px;border-radius:5px;background:#e3eaef;overflow:hidden;margin:2px 0 6px}.net .nbar i{display:block;height:100%;background:var(--ok)}
+.nstate{display:inline-block;font-weight:800;font-size:11.5px;border-radius:8px;padding:1px 7px;margin-left:4px;background:#e4f6ea;color:#1c7a41}.nstate.no{background:#fde8e5;color:#b3261e}
 /* Town Voice */
 #town{width:min(600px,100%);max-height:min(46vh,calc(100vh - 230px));overflow:auto;padding:8px 8px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
 #town:not([hidden]){animation:sheetin .2s ease-out}
@@ -562,8 +582,11 @@ const LEVELS=[
  {name:'Tokyo Crossing',region:'tokyo',climate:'mild',blurb:'A dense neon district: slim towers, glowing signs and tiny streets packed with riders.',days:5,patience:34,perDay:590,seed:101,express:true,transfer:true,cash:16800,riders:['commuter','student','tourist','rush','wheel'],
   map:['HHBBHHBBHHBBH','HBBBHHBBBHHBH','HHHP.HHBBPHHH','BBHHHBBHHHHBB','BBH.PBBACHHBB','HHHHHBBHHHBBH','HBBHHHPHHBBHH','HHBBHHHHHBBHH'],concert:50,closureDur:48,amProb:1,midProb:.7,goals:{sat:.73,gave:300,profit:12200}},
  {name:'Dubai Skyline',region:'dubai',climate:'hot',blurb:'A desert metropolis of glass and gold. Scorching heat makes riders lose patience faster.',days:5,patience:33,perDay:630,seed:103,express:true,transfer:true,cash:17600,riders:['commuter','student','tourist','rush','wheel'],
-  map:['WW..HH.BB.HHHH','WWH.HHBBBB.HHH','WWHH..BBBB.PHH','HH.H.PBBBB..HH','HHH.CPBB.HHHHH','.HHH.MHH.HHHH.','..HH.O.H.HH...'],concert:52,closureDur:48,amProb:1,midProb:.8,goals:{sat:.73,gave:315,profit:13200}}
+  map:['WW..HH.BB.HHHH','WWH.HHBBBB.HHH','WWHH..BBBB.PHH','HH.H.PBBBB..HH','HHH.CPBB.HHHHH','.HHH.MHH.HHHH.','..HH.O.H.HH...'],concert:52,closureDur:48,amProb:1,midProb:.8,goals:{sat:.73,gave:315,profit:13200}},
+ {name:'Metropolis',region:'maple',climate:'mild',blurb:'One small town that grows into a metropolis. New streets and districts appear as you play, and big bus stations tie it all together. No end.',days:Infinity,metro:true,dayGrow:.04,patience:60,perDay:85,seed:77,express:false,transfer:false,cash:9000,riders:['commuter','student'],
+  map:['HH.BBH','HHPBBH','.H.BB.','PH..HH','HHP.HH'],concert:14,closureDur:30,amProb:.2,midProb:0}
 ];
+const METRO_IDX=LEVELS.length-1;
 function weekKey(){const d=new Date(),t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())),dn=(t.getUTCDay()+6)%7;t.setUTCDate(t.getUTCDate()-dn+3);const fy=t.getUTCFullYear(),j4=new Date(Date.UTC(fy,0,4));return fy*100+1+Math.round(((t-j4)/864e5-3+((j4.getUTCDay()+6)%7))/7)}
 function dayKey(){const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()}
 function challengeKey(weekly){return weekly?weekKey():dayKey()}
@@ -587,7 +610,7 @@ function dailyLevel(tries,weekly){
 
 /* ================= profile ================= */
 const SEASONS=['spring','summer','autumn','winter'];
-const THEME_OF={0:'meadow',1:'riverbank',2:'urban',3:'harbor',4:'meadow',7:'cobble',8:'canal',9:'hills',10:'forest',11:'sea',12:'urban',13:'urban',14:'alpine',15:'urban',16:'desert'};
+const THEME_OF={0:'meadow',1:'riverbank',2:'urban',3:'harbor',4:'meadow',7:'cobble',8:'canal',9:'hills',10:'forest',11:'sea',12:'urban',13:'urban',14:'alpine',15:'urban',16:'desert',17:'meadow'};
 /* Campaign order, easiest to hardest: Maple Hollow, Riverside, Metro Heights, Harborview, Old Town (Europe), Canal District (Europe), Hilltop, Alpine Village (snow), Lakeside (alpine chalets),
    Harbor Bay (rain), Tokyo Crossing, Dubai Skyline (heat), Ring City (Europe), Grand Central (metro). Stars are stored by LEVELS index, so new maps are appended to LEVELS. */
 const CAMPAIGN=[0,1,2,3,7,8,9,14,10,11,15,16,12,13];
@@ -630,7 +653,12 @@ const ACH=[
  {id:'night_owl',name:'Night Owl',desc:'Run a route on night service.'},
  {id:'bike_life',name:'Pedal Power',desc:'Build a bike dock.'},
  {id:'tram_line',name:'All Aboard the Tram',desc:'Run a tram.'},
- {id:'combo50',name:'Hot Streak',desc:'Deliver 50 riders in a row without anyone giving up.'}];
+ {id:'combo50',name:'Hot Streak',desc:'Deliver 50 riders in a row without anyone giving up.'},
+ {id:'metro_hub',name:'Central Station',desc:'Build your first bus station in Metropolis mode.'},
+ {id:'metro_town',name:'Small Town to Town',desc:'Grow your Metropolis to a Town.'},
+ {id:'metro_city',name:'A Real City',desc:'Grow your Metropolis to a City.'},
+ {id:'metro_metro',name:'Metropolis!',desc:'Grow your Metropolis to a full Metropolis.'},
+ {id:'metro_link',name:'All Connected',desc:'Link two of your stations with an express shuttle.'}];
 const UNLOCKS=[
  {id:'signs',name:'Arrival signs',desc:'Live arrival boards. Riders are 12% more patient.',cost:2000,lvl:2},
  {id:'depot',name:'Depot network',desc:'Lets you build depots. Depots halve breakdown time and trim running costs nearby.',cost:2500,lvl:2},
@@ -866,7 +894,7 @@ function renderStatic(city){
   // ground
   g.fillStyle=P.base;g.fillRect(0,0,city.w,city.h);
   blotches(0,0,city.w,city.h,P.bl,Math.round(city.w*city.h/9000),50,140,.35);
-  blades(0,0,city.w,city.h,Math.round(city.w*city.h/(P.sandy?24:9)),P.bd);
+  blades(0,0,city.w,city.h,Math.min(Math.round(city.w*city.h/(P.sandy?24:9)),400000),P.bd);
   if(P.sandy){ // wind ripples in the sand
     g.save();g.lineWidth=.7;for(let i=0;i<Math.round(city.w*city.h/700);i++){const x=R()*city.w,y=R()*city.h,l=14+R()*30;g.strokeStyle=R()<.5?'rgba(150,115,65,.25)':'rgba(255,240,200,.3)';g.beginPath();g.moveTo(x,y);g.quadraticCurveTo(x+l/2,y-2-R()*2,x+l,y);g.stroke()}g.restore();
   }
@@ -881,7 +909,7 @@ function renderStatic(city){
       g.strokeStyle=P.hedge;g.lineWidth=2;g.strokeRect(x+14.5,y+14.5,S-29,S-29); // hedge, wall or fence
       g.strokeStyle=P.hedgeIn;g.lineWidth=1;g.strokeRect(x+16,y+16,S-32,S-32);
       if(P.cobble){g.save();g.beginPath();g.rect(x+17,y+17,S-34,S-34);g.clip();g.strokeStyle='rgba(70,64,52,.22)';g.lineWidth=.6;for(let k=17;k<S-17;k+=5){g.beginPath();g.moveTo(x+k,y+17);g.lineTo(x+k,y+S-17);g.moveTo(x+17,y+k);g.lineTo(x+S-17,y+k);g.stroke()}g.restore()}
-    }else if(b.t==='B'||LMK[b.t]){
+    }else if(b.t==='B'||b.t==='S'||LMK[b.t]){
       g.fillStyle=P.plaza;g.fillRect(x+6,y+6,S-12,S-12);
       g.strokeStyle=P.plazaLn;g.lineWidth=.5;
       for(let k=6;k<=S-6;k+=8){g.beginPath();g.moveTo(x+k,y+6);g.lineTo(x+k,y+S-6);g.moveTo(x+6,y+k);g.lineTo(x+S-6,y+k);g.stroke()}
@@ -978,7 +1006,7 @@ function renderStatic(city){
       g.lineWidth=1.8;g.beginPath();g.moveTo(cx+ux*7.2+nx*-ROAD_W/2,cy+uy*7.2+ny*-ROAD_W/2);g.lineTo(cx+ux*7.2+nx*ROAD_W/2,cy+uy*7.2+ny*ROAD_W/2);g.stroke();
     }
   }
-  {const TINTS=['#ffe9a8','#a8d8ff','#ffd0c8','#c8f0b8','#e8d0ff'];for(const b of city.blocks){if(b.t==='W'||b.t==='B'||LMK[b.t])continue;const R2=rng(city.seed*53+b.c*17+b.r*5+3);if(R2()<.7){g.globalAlpha=(.05+R2()*.08)*(P.sandy||P.snow?.4:1);g.fillStyle=TINTS[Math.floor(R2()*5)];g.fillRect(b.x+10,b.y+10,S-20,S-20);g.globalAlpha=1}}}
+  {const TINTS=['#ffe9a8','#a8d8ff','#ffd0c8','#c8f0b8','#e8d0ff'];for(const b of city.blocks){if(b.t==='W'||b.t==='B'||b.t==='S'||LMK[b.t])continue;const R2=rng(city.seed*53+b.c*17+b.r*5+3);if(R2()<.7){g.globalAlpha=(.05+R2()*.08)*(P.sandy||P.snow?.4:1);g.fillStyle=TINTS[Math.floor(R2()*5)];g.fillRect(b.x+10,b.y+10,S-20,S-20);g.globalAlpha=1}}}
   if(P.rain){g.fillStyle='rgba(40,60,80,.10)';g.fillRect(0,0,city.w,city.h)}
   // baked contact shadows (ambient occlusion blobs) under every building and tree
   g.save();g.fillStyle='#10140c';
@@ -1226,9 +1254,9 @@ const MOOD_NAME=['happy','okay','annoyed','angry'],MOOD_IC=['\u{1F60A}','\u{1F61
 const TH={
  far:{ic:'\u{1F4CD}',short:'Needs a stop'},noroute:{ic:'\u{1F500}',short:'No bus there'},wait:{ic:'⏳',short:'Waiting too long'},full:{ic:'\u{1F68C}',short:'Bus too full'},
  ramp:{ic:'♿',short:'Needs a ramp'},night:{ic:'\u{1F319}',short:'Needs night buses'},bike:{ic:'\u{1F6B2}',short:'Wants a bike dock'},express:{ic:'⚡',short:'Wants an express'},
- park:{ic:'\u{1F333}',short:'Wants a park'},jam:{ic:'\u{1F6A6}',short:'Road jammed'},closed:{ic:'\u{1F6A7}',short:'Road closed'},praise:{ic:'\u{1F49A}',short:'Happy riders'},thanks:{ic:'\u{1F389}',short:'Thank you'}};
+ park:{ic:'\u{1F333}',short:'Wants a park'},nost:{ic:'\u{1F689}',short:'Needs a station'},jam:{ic:'\u{1F6A6}',short:'Road jammed'},closed:{ic:'\u{1F6A7}',short:'Road closed'},praise:{ic:'\u{1F49A}',short:'Happy riders'},thanks:{ic:'\u{1F389}',short:'Thank you'}};
 const DK_ICON={uni:'\u{1F393}',school:'\u{1F392}',air:'✈️',venue:'\u{1F3DF}️',hosp:'\u{1F3E5}',mall:'\u{1F6CD}️',work:'\u{1F4BC}'};
-const THANKS_MSG={far:'Thank you, a stop right here!',ramp:'Thank you, the new ramp works!',wait:'Thanks, the bus comes more often now!',full:'Thanks, now there is room on the bus!',noroute:'Thank you, now I can get there!',express:'Thanks, the express is so quick!',night:'Thanks for the night bus!',bike:'Love the bike dock!',jam:'The bus flies now. Thanks!',park:'A park at last. Thank you!'};
+const THANKS_MSG={far:'Thank you, a stop right here!',ramp:'Thank you, the new ramp works!',wait:'Thanks, the bus comes more often now!',full:'Thanks, now there is room on the bus!',noroute:'Thank you, now I can get there!',express:'Thanks, the express is so quick!',night:'Thanks for the night bus!',bike:'Love the bike dock!',jam:'The bus flies now. Thanks!',park:'A park at last. Thank you!',nost:'Thank you, our district has a station now!'};
 const moodOf=sev=>sev>=.72?3:sev>=.5?2:1;
 const moodBucket=m=>m>=.72?0:m>=.52?1:m>=.34?2:3;
 function townNew(){return{rec:new Map(),blk:new Map(),far:new Map(),served:new Set(),nightSt:new Set(),thanks:[],good:[],hist:[],list:[],happy:null,h0:null,tk:0,city:null}}
@@ -1312,12 +1340,14 @@ function townTick(){
     }
     if(best){const r=townRec(tw,'park','park|'+best.key,best.cx,best.cy);r.base=best.homes+Math.round((G.gaveBlock&&G.gaveBlock[best.key])||0);r.blk=best.key;r.minFr=Math.max(.2,best.m)}
   }
+  if(G.metro)metroTownThoughts(tw,townRec);
   // finalize: expire, detect fixes, count, severity
   const gone=[];
   for(const r of tw.rec.values()){
-    const stat=r.type==='far'||r.type==='park'||r.type==='praise'||r.type==='jam'||r.type==='closed';
+    const stat=r.type==='far'||r.type==='park'||r.type==='praise'||r.type==='jam'||r.type==='closed'||r.type==='nost';
     let dead=stat?r.ref!==tw.tk:(now-r.seenT>12),solved=false;
     if(stat&&dead&&(r.type==='far'||r.type==='park')&&r.count>=1)solved=r.type==='far'?G.stops.size>0:townHasPark(+r.blk.split(',')[0],+r.blk.split(',')[1]);
+    if(stat&&dead&&r.type==='nost'&&r.count>=1)solved=!!(G.metro&&G.metro.stations.some(s=>s.di===r.did));
     if(stat&&dead&&r.type==='jam'&&r.rt&&r.snap===1&&r.rt.lane)solved=true;
     if(!dead){
       const st=r.sid!=null?G.stops.get(r.sid):null;
@@ -1348,7 +1378,7 @@ function townTick(){
     const d=b.d;let cv=!isFinite(d)||d>=1e8?0:d<=COV_D?1-.25*clamp((d-60)/(COV_D-60),0,1):.45-clamp((d-COV_D)/200,0,1)*.45;
     if(d<=COV_D&&!(b.ds<=COV_D))cv*=.6;
     const gave=(G.gaveBlock&&G.gaveBlock[b.key])||0,ok=(G.okBlock&&G.okBlock[b.key])||0,pat=b.n?b.pat/b.n:.8;
-    const tgt=clamp(.55*cv+.45*pat-.1*Math.min(3,gave)-.3*(b.n?b.nr/b.n:0)+.04*Math.min(3,ok),0,1);
+    const tgt=clamp(.55*cv+.45*pat-.1*Math.min(3,gave)-.3*(b.n?b.nr/b.n:0)+.04*Math.min(3,ok)+(G.metro?metroMoodAdj(b):0),0,1);
     b.m=b.m==null?tgt:b.m+(tgt-b.m)*.4;b.mood=moodBucket(b.m);
     if(b.t==='H'){hs+=b.m*b.homes;hw+=b.homes}
   }
@@ -1427,6 +1457,7 @@ function townText(r){
    case'night':return{title:rs+' at '+st+' want night buses',quote:has('night')?'My shift ends late and the last bus is gone. I need night service.':'My shift ends late and the last bus is gone. Night service is not available yet.'};
    case'bike':return{title:rs+' near '+st+' would use a bike dock',quote:'The stop is a long walk. A bike dock would get me there fast.'};
    case'express':return{title:rs+' on '+rn+' face a long trip',quote:'This trip takes forever. An express bus would be quicker.'};
+   case'nost':return{title:rs+' in '+st+' have no station',quote:'This district has no station: the people here cannot reach the rest of the city.'};
    case'park':return{title:'The homes near '+st+' want a park',quote:'There is no park nearby, and people here are running out of patience.'};
    case'jam':return{title:rs+' stuck in traffic on '+st,quote:'The road is jammed and my bus is crawling.'};
    case'closed':return{title:'Road closed near '+st+': '+rs+' affected',quote:G.event&&G.event.type==='flood'?'The road is flooded. My bus cannot get through.':'The road is closed and my bus cannot get through.'};
@@ -1452,7 +1483,7 @@ function townFix(r){
   const mk=(act,label,cost,fn,keep)=>{const ok=G.money>=cost;return{act,label:label+(cost?' · '+money(cost):''),cost,ok,why:ok?'':'Needs '+money(cost)+', you have '+money(G.money)+'.',run:()=>{if(!keep)pushUndo();fn()}}};
   const bestRoute=st=>{const rs=routesAt(st.id);let b=null,bs=-1;for(const q of rs){let w=0;for(const sid of q.stops){const s=G.stops.get(sid);if(s)w+=s.waiters.length}const sc=w/(q.buses.length||.5);if(sc>bs){bs=sc;b=q}}return b};
   const addBusFix=q=>{
-    if(G.buses.length>=30)return none('Fleet limit reached (30 buses). Upgrade vehicle sizes instead.');
+    if(G.buses.length>=fleetMax())return none('Fleet limit reached ('+fleetMax()+' buses). Upgrade vehicle sizes instead.');
     return mk('addbus','Add a bus to '+q.name,BUS_MODELS[q.model||0].price,()=>{if(addBus(q))toast('Bus added to '+q.name+'.',1800)});
   };
   const addStopFix=(x,y,label)=>{const nd=townNodeFor(x,y,110);if(!nd)return none('There is no free junction close by.');return mk('addstop',label+' ('+nodeName(nd)+')',PRICE.stop,()=>{const s=addStop(nd.id);if(s){s.popT=performance.now();fx.ring(nd.x,nd.y,'#2a7de1',34);netChanged();snd('pop')}})};
@@ -1471,7 +1502,7 @@ function townFix(r){
      let ds=null,dd=1e9;for(const s of G.stops.values()){const k=Math.hypot(s.x-r.dest.x,s.y-r.dest.y);if(k<dd){dd=k;ds=s}}
      if(!ds||dd>160)return addStopFix(r.dest.x,r.dest.y,'Add a stop near '+(DK_NAME[r.dk]||'the destination'));
      if(ds.id===st.id)return none('The stop is already there. Connect it to a route that reaches the rest of town.');
-     if(G.buses.length>=30)return none('Fleet limit reached (30 buses).');
+     if(G.buses.length>=fleetMax())return none('Fleet limit reached ('+fleetMax()+' buses).');
      const price=BUS_MODELS[0].price;
      return mk('connect','Link '+nodeName(G.city.nodes[st.id])+' to '+nodeName(G.city.nodes[ds.id]),price,()=>{const q=newRoute([st.id,ds.id]);addBus(q);netChanged();toast(q.name+' now links the two areas.',2400)});
    }
@@ -1484,6 +1515,7 @@ function townFix(r){
    case'bike':if(!st)return none('That stop is gone.');if(!has('bikes'))return none('Bike share unlocks in City Hall.');return mk('bike','Add a bike dock (tap twice)',450,()=>{pushUndo();buyBike(st.id)},true);
    case'jam':{const q=r.rt;if(!q||!G.routes.includes(q))return none('That route is gone.');if(!q.lane)return mk('lane','Priority lanes on '+q.name,PRICE.lane,()=>buyLane(q));return shapeFix(q)}
    case'closed':return shapeFix(r.rt&&G.routes.includes(r.rt)?r.rt:null);
+   case'nost':return metroStationFix(r,mk,none);
    case'park':return none('A park makes every rider 3% more patient. Choose the green park circle the next time the city grows.');
   }
   return none('');
@@ -1560,8 +1592,9 @@ function townSpark(cv2){
 function townHtml(){
   const tw=G.town,cb=PROF.a11y.cb;
   if(!tw)return'';
+  if(G.metro&&ui.townTab==='net')return metroNetHtml();
   const hp=tw.happy,d=hp!=null&&tw.h0!=null?hp-tw.h0:0,trend=hp==null?'':(d>0?' · up '+d+' since this morning':d<0?' · down '+(-d)+' since this morning':' · steady');
-  let h='<div class="thead"><b class="tt">Town Voice</b><button class="mini" data-act="townmood" aria-label="Show the Mood map view">Mood map</button><button class="x" data-act="town" aria-label="Close Town Voice">✕</button></div><div class="thsub"><span>Resident happiness <u>'+(hp==null?'–':hp+'%')+'</u>'+esc(trend)+'</span><canvas id="thspark" width="120" height="32" role="img" aria-label="Resident happiness trend"></canvas></div>';
+  let h='<div class="thead"><b class="tt">Town Voice</b><button class="mini" data-act="townmood" aria-label="Show the Mood map view">Mood map</button>'+(G.metro?'<button class="mini" data-act="townnet" aria-label="Open the station network">Network</button>':'')+'<button class="x" data-act="town" aria-label="Close Town Voice">✕</button></div><div class="thsub"><span>Resident happiness <u>'+(hp==null?'–':hp+'%')+'</u>'+esc(trend)+'</span><canvas id="thspark" width="120" height="32" role="img" aria-label="Resident happiness trend"></canvas></div>';
   const rows=tw.list.slice(0,8);
   if(!rows.length&&!tw.thanks.length)h+='<div class="empty">'+(G.stops.size?'Nobody is complaining right now. Residents are fine with the service.':'No stops yet. Place a stop near the homes and residents will start telling you what they need.')+'</div>';
   for(const t of tw.thanks)h+='<div class="trow m0"><button class="tmain" data-act="townrow" data-key="'+esc(t.key)+'"><span class="tmood" aria-hidden="true">'+MOOD_IC[0]+(cb?'<i>'+GL[0]+'</i>':'')+'</span><span class="tic" aria-hidden="true">'+TH.thanks.ic+'</span><span class="ttx"><b>'+esc(t.msg)+'</b><small>happy · '+esc(t.street)+'</small></span></button></div>';
@@ -1633,7 +1666,7 @@ function showDrivers(){
 }
 
 
-const GUIDE_TABS=[['start','Start here'],['town','Town Voice and Mood'],['tools','Tools & top bar'],['routes','Route buttons'],['stops','Stop buttons'],['riders','Riders'],['money','Money'],['events','Events'],['unlocks','Unlocks'],['strategy','Strategy'],['access','Accessibility']];
+const GUIDE_TABS=[['start','Start here'],['town','Town Voice and Mood'],['tools','Tools & top bar'],['routes','Route buttons'],['stops','Stop buttons'],['riders','Riders'],['money','Money'],['events','Events'],['unlocks','Unlocks'],['metro','Metropolis mode'],['strategy','Strategy'],['access','Accessibility']];
 const GUIDE={
 start:`<p><button class="btn alt" data-act="tour">Take the interactive tour</button></p><h3>The goal</h3><p>You run the city's buses. Riders appear at homes in the morning and at offices in the evening, walk to the nearest stop, wait, ride, and walk to where they are going. Get them there before they lose patience.</p>
 <ul><li><b>You lose</b> if satisfaction drops below 50% (a bit more forgiving on day 1), or if you go more than $800 into debt.</li><li><b>Satisfaction</b> (the big number) is the share of the last 50 riders who reached their destination instead of giving up. It is the one that decides game over. <b>Today</b> beside it is the share of today's riders, and the level goals use all riders on the level. Each screen says which one it shows.</li><li><b>You win a level</b> by finishing all its days. Stars come from the level's goals (satisfaction, riders who gave up, profit).</li></ul>
@@ -1687,6 +1720,11 @@ money:`<ul><li><b>Income</b>: every rider who arrives pays a fare ($3 to $10; ni
 events:`<dl><dt>Road closure / Parade</dt><dd>Roads are blocked. Buses detour automatically. Check your routes still connect.</dd><dt>Accident</dt><dd>A road is blocked for a short while. A hospital helps clear it faster.</dd><dt>Storm</dt><dd>Riders lose patience faster.</dd><dt>Flooding</dt><dd>Like a storm, and low roads near water close.</dd><dt>Snow</dt><dd>In winter. A road is blocked and all buses are slower.</dd><dt>Fog</dt><dd>Buses and traffic slow down.</dd><dt>Concert</dt><dd>When it ends a big crowd heads home from the arena. Put a stop near it and add buses.</dd><dt>Breakdown</dt><dd>One bus stops for a while. Extra buses cover the gap, and depots speed up the recovery.</dd><dt>Regions and climates</dt><dd>Every campaign map has its own look: small-town houses, European old towns with pitched roofs and a church spire, Alpine chalets, neon Tokyo towers or the glass and gold of Dubai. Later maps get harder: less patience, more riders and more events. Some maps have permanent weather instead of seasons. <b>Snow</b>: it never stops falling and buses are slower. <b>Rain</b>: wet roads and umbrellas, and buses are slightly slower. <b>Heat</b>: more riders and they lose patience faster. The label next to the day shows it (Snowy, Rainy or Hot).</dd></dl>
 <div class="tip">On normal maps the seasons change the look of the city and the odds of events. Events are your reason to keep a cash buffer.</div>`,
 unlocks:`<dl><dt>Company level and XP</dt><dd>You earn XP for deliveries, missions, trophies and finishing days. Levels carry over between games.</dd><dt>City Hall</dt><dd>Spend cash on permanent upgrades once your company level is high enough: arrival signs (more patient riders), depot network, electric buses (cheaper running), priority dispatch, smart traffic lights, night service, bike share and trams.</dd><dt>Garage</dt><dd>Cosmetics: bus paint, stop signs and tower styles, unlocked by level.</dd><dt>Shop and Items</dt><dd>Open the Shop from the home menu or the pause menu. Transit Tickets (🎟) are the shop money: you start with 30 and earn more from finished days (+3), company levels and cleared levels (+10) and trophies (+5). Filter chips (All, Small, Boosts, Looks, Drivers, Packs, Bundles, Big) sort the cards. Buying is two taps: tap the price, then tap again to confirm. <b>Small</b> items are one-shot helpers you carry as Items: Coffee Vouchers, Priority Pings, umbrellas, snack carts, tune-up kits, Road Crew and Clear Skies calls, plus small permanent perks like Cup Holders and Spare Tyres. <b>Boosts</b> last one game day. <b>Looks</b> are bus paints, stop sign colours, skylines, decals, horns, music, map filters and a confetti trail (tap Equip; tap again to unequip). <b>Drivers</b> has Training Days, Pro and Veteran hires and roof hats. Bundles save money and show their saving. Packs, premium bundles, the Head Start Pass and the Ultimate Edition show a dollar price as a preview only: payments are not switched on, so nothing is ever charged. Use your Items from the pause menu, the Buses panel or a selected stop's Items button.</dd><dt>Drivers</dt><dd>Every bus has a named driver. Drivers earn experience for every rider they deliver and level up: Rookie, Steady, Pro, Veteran, Legend. Higher levels drive faster and stop quicker, and they keep their levels across games.</dd><dt>Mayor requests</dt><dd>From day 2 the mayor sometimes adds a special mission (marked with a flag): serve a landmark, link two places by bus, keep everyone happy until 09:30, or grow your fleet. They pay extra cash and XP.</dd><dt>Map expansion</dt><dd>In long games the map itself grows. From day 10 (and from day 3 on the last two campaign levels) one new row or column of blocks opens each day, alternating east and south, up to a maximum size. Your routes and stops are kept, and rider numbers go up a little with each expansion.</dd><dt>Highways</dt><dd>A City Hall unlock (company level 7). A highway runs along the north and south edge of the map, far past both ends. At a few points ramps leave it and curve into a roundabout just outside town, which joins the top or bottom street. Buses drive on the highway for real: 80% faster than town streets and never stuck in traffic. You cannot put stops on the highway; place stops on the town streets and the bus takes the highway by itself when that is quicker, for example between two stops far apart on the top street. Other cars drive in from beyond the map along it.</dd><dt>Advisor</dt><dd>A small tip with a one-tap fix appears at the bottom when something needs attention: a stop about to give up (add a bus), stranded riders (show me where), or a route losing money (remove a bus or run rush hours only). You can dismiss a tip, and switch the advisor off in Settings.</dd><dt>Rider stories</dt><dd>A few riders each day have names and jobs. Their stories, good and bad, appear in the day report.</dd><dt>New game plus</dt><dd>After you finish the whole campaign, a Plus difficulty appears in Settings with tougher patience, income and running costs.</dd><dt>Backup and restore</dt><dd>In Settings you can copy a backup code of your profile, drivers and saves, and paste it later on any device.</dd><dt>Trophies</dt><dd>Achievements for things like your first route, a spotless day, a loop route or a tram.</dd><dt>Levels</dt><dd>Eleven campaign maps get harder, plus Sandbox (endless, no game over), a Daily Challenge and a Weekly Challenge. Difficulty and settings are in the menu.</dd></dl>`,
+metro:`<h3>One town, no end</h3><p>Metropolis mode starts with a small town of about 6 by 5 blocks. It has no end and no fixed goals. The more days you play, the bigger the same city gets, and you keep adding bus routes to the new parts. Choose <b>Metropolis</b> on the home screen. It saves into your normal save slots at the end of every day, and <b>Continue</b> brings you back to the same city.</p>
+<h3>How the city grows</h3><ul><li><b>New districts.</b> Every day or two the city grows on one side (north, south, east or west): new streets, new blocks and a new district with its own character (downtown, residential suburb, industrial quarter, university, airport). A banner says <i>Welcome to Northgate</i>. Sometimes a river or a park separates a district from the old city, with a link road across it.</li><li><b>Fill-in growth.</b> As in every game, three flashing spots appear inside the city. Pick homes, offices or a park.</li><li><b>Harder as it grows.</b> More riders arrive each day, patience slowly falls and events become more frequent. Game over works as usual: satisfaction under 50% or more than $800 in debt. Use <b>Retry from today</b> to go back to the last saved day.</li></ul>
+<h3>Bus stations</h3><p>When the city reaches 10 by 8 blocks, <b>bus stations</b> unlock. A station is a big hub building on a street junction (tap <i>Station</i> on a stop, or <i>Town</i> then <i>Network</i> then <i>Build a station</i>). The first costs $2,500, and each next one costs more. You can have at most 6, one per district.</p>
+<ul><li>Every stop within about three blocks of a station can be shared by several routes, even before transfers unlock for the whole city. Let your routes start or end at the station.</li><li>Buses stop shorter and turn around faster at a station, and riders waiting near one are a little more patient.</li><li>An <b>express shuttle</b> joins two stations: it is fast, cheap to run and drawn as a thick line. Riders use stations to go anywhere in the city.</li><li>Districts without a station show a thought in <b>Town Voice</b> with a one-tap <i>Build a station</i> fix, and look unhappier in <b>Mood</b> view. <b>Map view, Districts</b> shows each district as a coloured area with its name.</li></ul>
+<h3>Score and milestones</h3><p>Open <b>Town, then Network</b> for your stations, the districts and the numbers that matter: <b>population</b> and <b>connectivity</b>, the share of home and office pairs that have a bus link. Score is the population you really serve (population times connectivity). Reach <b>Town</b>, <b>City</b> and <b>Metropolis</b> for trophies and rewards: more rider types, transfers everywhere and bigger cash grants.</p>`,
 strategy:`<h3>Build well</h3><ul><li>Put your first two stops between the biggest group of houses and the biggest group of offices. Glowing blocks are where riders appear.</li><li>Use <b>Coverage</b> map view to find blocks that have no stop. Red blocks are riders you are missing.</li><li>Long straight routes with few turns beat tangled ones. Use <b>Shape road</b> to dodge jams instead of adding more stops.</li><li>Use <b>Loop</b> for rings and downtown circuits, <b>Express</b> for long trips, and transfers for big cities (a few busy trunk routes feeding smaller local ones).</li></ul>
 <h3>Run well</h3><ul><li>Check the stops first thing in the rush. Add a bus to the route with the red stops, not to every route.</li><li>If a route is full and cannot take another bus (roads get jammed), upgrade the vehicle size.</li><li>Quiet routes: switch to <b>Rush hours only</b> or cut a bus. Busy routes: add buses before upgrading.</li><li>Turn on <b>Even spacing</b> when buses on a long route clump together.</li><li>Use <b>Priority call</b> on a single stop that is about to explode, not as a habit.</li><li>Put ramps on stops that join residential blocks to the network once wheelchair users appear.</li></ul>
 <h3>Stay safe</h3><ul><li>Keep a cash buffer of at least one or two buses. Events cost you.</li><li>Do not add night service or bike docks until your day routes are stable.</li><li>Read the day report: 'Worst moment' shows where you lost the most riders. Tap <b>Show me</b> and fix that stop.</li><li>If a day goes badly, use Retry from today and try a different plan.</li></ul>
@@ -2322,6 +2360,7 @@ function joinStop(c){
   const st=c.stop;
   if(!st||G.stops.get(st.id)!==st){assignStop(c);return}
   c.x=st.x;c.y=st.y;c.state='wait';c.wstart=G.t;st.waiters.push(c);replanWaiter(c);
+  if(G.metro&&!c._stp&&metroNearStation(st.x,st.y)){c._stp=1;c.pm*=1.08;c.p=Math.min(c.p*1.08,c.pm)}
   if(st.waiters.length>(st.peak||0)){st.peak=st.waiters.length;st.peakT=G.t}
 }
 function replanWaiter(c){
@@ -2504,7 +2543,7 @@ function dumpBus(b,remove){
 function addBus(r,free){
   const m=BUS_MODELS[r.model||0];
   if(!free){
-    if(G.buses.length>=30){toast('Fleet limit reached (30 buses).');return false}
+    if(G.buses.length>=fleetMax()){toast('Fleet limit reached ('+fleetMax()+' buses).');return false}
     if(G.money<m.price){toast('Not enough cash for a '+m.name.toLowerCase()+' bus ($'+m.price+').');return false}
     G.money-=m.price;
   }
@@ -2652,6 +2691,7 @@ function serveStop(b,i){
   if(r.spacing&&r.buses.length>1){const nxt=r.loop?(i+1)%n:(eff>0?Math.min(n-1,i+1):Math.max(0,i-1));
     for(const ob of r.buses)if(ob!==b&&ob.state!=='parked'&&ob.tIdx===nxt&&Math.hypot(ob.x-b.x,ob.y-b.y)<115){hold=3.5;break}}
   if(out+boarded===0&&!terminal&&!hold)return 0;
+  if(G.metro){const hub=metroIsStation(stop.id);metroServed(stop,out+boarded);if(hub)return Math.min(3,.5+.2*(out+boarded))*.7+(terminal?.25:0)+hold}
   return Math.min(3,.5+.2*(out+boarded))+(terminal?.8:0)+hold;
 }
 function atNode(b){
@@ -2848,7 +2888,7 @@ function updCong(){
 function step(dt){
   if(G.over)return;
   G.t+=dt;
-  const ph=phaseAt(G.t),L=G.L,total=L.perDay*(1+.12*(G.day-1))*(G.season==='summer'?1.12:1);
+  const ph=phaseAt(G.t),L=G.L,total=L.perDay*(1+(L.dayGrow!=null?L.dayGrow:.12)*(G.day-1))*(G.season==='summer'?1.12:1);
   if(ph.p.id!==G.lastPhase){G.lastPhase=ph.p.id;G.netVer++;G.congT=0}
   G.congT-=dt;if(G.congT<=0){G.congT=.5;updCong()}
   G.histT=(G.histT||0)-dt;if(G.histT<=0){G.histT=4;G.hist=G.hist||{};for(const st of G.stops.values()){const hh=(G.hist[st.id]=G.hist[st.id]||{w:[],b:[]});hh.w.push(st.waiters.length)}}
@@ -2871,7 +2911,7 @@ function step(dt){
   const eco=(has('electric')?.7:1)*(bo('fuel')?.85:1);
   for(const b of G.buses){
     updBus(b,dt);
-    if(b.state!=='parked'){const c=BUS_MODELS[b.route.model||0].cost*dt*eco*(b.route.depot?.85:1)*(ph.p.night?1.25:1)*(G.costMult||1);G.money-=c;G.cost+=c;G.dayCost+=c;b.route.stat.cost+=c}
+    if(b.state!=='parked'){const c=BUS_MODELS[b.route.model||0].cost*dt*eco*(b.route.depot?.85:1)*(b.route.shuttle?.5:1)*(ph.p.night?1.25:1)*(G.costMult||1);G.money-=c;G.cost+=c;G.dayCost+=c;b.route.stat.cost+=c}
   }
   for(const r of G.routes){if(r.buses.length){let f=0;for(const b of r.buses)f+=b.pax.length/b.cap;r.stat.loadSum+=f/r.buses.length*dt;r.stat.loadN+=dt}}
   if(G.prioCD>0)G.prioCD-=dt;if(G.umbrellaT>0)G.umbrellaT-=dt;
@@ -2880,14 +2920,14 @@ function step(dt){
   for(const k in G.okBlock){G.okBlock[k]*=1-dt*.012;if(G.okBlock[k]<.05)delete G.okBlock[k]}
   for(let i=G.parts.length-1;i>=0;i--){const p=G.parts[i];p.a+=dt/p.life;if(p.a>=1)G.parts.splice(i,1)}
   if(G.flashSat>0)G.flashSat-=dt*2;
-  G.lmT-=dt;if(G.lmT<=0){G.lmT=2;landmarkTick();tickMissions()}
+  G.lmT-=dt;if(G.lmT<=0){G.lmT=2;landmarkTick();tickMissions();if(G.metro)metroTick()}
   if(!L.sandbox&&!G.noOver&&G.money<-800&&!G.over){gameOver('bankrupt');return}
   if(G.t>=DAY_LEN&&!G.over&&!G.dayEnding){G.dayEnding=true;endOfDay()}
 }
 function seasonFor(day){const cl=G.L&&G.L.climate;if(cl==='snow')return'winter';if(cl==='hot')return'summer';if(cl==='rain')return'spring';return SEASONS[(day-1+((G.L.daily||G.L.weekly)?((G.L.seed||0)%4):0))%4]}
 /* ---- missions ---- */
 function makeMissions(){
-  const exp=Math.round(G.L.perDay*(1+.12*(G.day-1))*(G.season==='summer'?1.12:1)),lm=G.city.landmarks||{};
+  const exp=Math.round(G.L.perDay*(1+(G.L.dayGrow!=null?G.L.dayGrow:.12)*(G.day-1))*(G.season==='summer'?1.12:1)),lm=G.city.landmarks||{};
   const pool=[
    {id:'noon',text:'Deliver '+Math.round(exp*.2)+' riders before noon',goal:Math.round(exp*.2),prog:()=>G.mDel,byT:54,reward:300,xp:30},
    {id:'clear',text:'Clear 3 red stops',goal:3,prog:()=>G.mClears,reward:350,xp:35},
@@ -3076,7 +3116,7 @@ function dayReport(){
   let worst='';
   if(ws){const n=G.city.nodes[ws.id],h=clockHour(ws.peakT),hh=Math.floor(h),mm=Math.floor((h-hh)*60);
     worst='<div class="worst"><b>Worst moment</b>'+esc(nodeName(n))+' hit '+ws.peak+' waiting around '+String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+(ws.gaveDay?', and '+ws.gaveDay+' gave up there':'')+'.<button class="mini" data-act="showworst" data-id="'+ws.id+'">Show me</button></div>'}
-  return missionReport()+'<div class="worst" style="background:#e4f6ea"><b>City grant: +'+money(G.dayGrant||0)+'</b>Public funding paid at the end of every day, plus a bonus for each rider you delivered.</div><div class="statgrid"><div><b>'+money(G.dayRev)+'</b><span>Fares</span></div><div><b>'+money(G.dayCost)+'</b><span>Running costs</span></div><div><b class="'+(prof<0?'neg':'')+'">'+money(prof)+'</b><span>Profit</span></div></div>'+
+  return missionReport()+(G.metro?metroReport():'')+'<div class="worst" style="background:#e4f6ea"><b>City grant: +'+money(G.dayGrant||0)+'</b>Public funding paid at the end of every day, plus a bonus for each rider you delivered.</div><div class="statgrid"><div><b>'+money(G.dayRev)+'</b><span>Fares</span></div><div><b>'+money(G.dayCost)+'</b><span>Running costs</span></div><div><b class="'+(prof<0?'neg':'')+'">'+money(prof)+'</b><span>Profit</span></div></div>'+
     (rows?'<div class="tbl"><table><thead><tr><th>Route</th><th>Riders</th><th>Load</th><th>Wait</th><th>Profit</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'')+worst+storiesHtml();
 }
 function endOfDay(){
@@ -3100,7 +3140,7 @@ function endOfDay(){
   }else{
     const tip=pct<70?'Tip: add buses to the busiest routes, or add stops closer to red crowds.':pct<90?'Tip: watch the amber stops. Extra buses there keep them green.':'Smooth day. Tomorrow brings more people.';
     showOv('<div class="card"><h2>Day '+G.day+' done</h2><p class="sub">'+esc(tip)+' '+G.dayDel+' delivered today and '+G.dayGave+' gave up ('+pct+'% of today\'s riders). The number that decides game over, your last 50 riders, stands at '+Math.round(sat()*100)+'%. Cash: '+money(G.money)+'.</p>'+dayReport()+
-      '<p class="sub">You can edit routes now. The city grows overnight.</p>'+
+      '<p class="sub">You can edit routes now. '+(G.metro?esc(metroNextLine()):'The city grows overnight.')+'</p>'+
       '<div class="btnrow"><button class="btn ok" data-act="nextday">Start day '+(G.day+1)+'</button><button class="btn alt" data-act="share">Share card</button></div></div>');
   }
 }
@@ -3120,11 +3160,12 @@ function nextDay(){
   for(const r of G.routes)r.stat=newStat();
   for(const st of G.stops.values()){st.gaveDay=0;st.peak=0;st.peakT=0;st.prio=0}
   G.season=seasonFor(G.day);
-  let expd=null;const camBefore={x:cam.x,y:cam.y,zoom:cam.zoom,yaw:cam.yaw,pitch:cam.pitch};if(canExpand())expd=expandMap();
+  let expd=null;const camBefore={x:cam.x,y:cam.y,zoom:cam.zoom,yaw:cam.yaw,pitch:cam.pitch};if(G.metro)expd=metroNextDay(camBefore);else if(canExpand())expd=expandMap();
   const grown=null,gch=G.L.growth===false?[]:growChoices();
   if(G.season!==prevSeason&&T.ok&&!grown){build3D(G.city);resetDyn()}
   planEvents();makeMissions();hideOv();G.modal=false;G.paused=true;syncPlay();ui.dirty=true;
-  if(expd){if(!ui.rm)startExpandAnim(expd,camBefore);else toast('The city has expanded to the '+expd.side+'! New blocks and new streets are open.',4800)}
+  if(expd){if(!ui.rm)startExpandAnim(expd,expd.camBefore||camBefore);else toast('The city has expanded to the '+expd.side+'! New blocks and new streets are open.',4800)}
+  if(G.metro&&expd&&expd.district)metroBanner(expd.district);
   if(gch.length){if(expd&&!ui.rm&&ui.expAnim)ui.pendingGrowth=gch;else showGrowth(gch)}
   toast((grown?'Day '+G.day+' · '+seasonLabel().toLowerCase()+'. New blocks opened: '+grown+'.':'Day '+G.day+' · '+seasonLabel().toLowerCase()+'. Press play when ready.'),3800);
   saveGame();
@@ -3166,7 +3207,7 @@ function coachTick(){
 function netSnap(){
   return{money:G.money,rev:G.rev,cost:G.cost,engine:G.engine,
     stops:[...G.stops.values()].map(s=>({id:s.id,acc:!!s.access,bike:!!s.bike})),
-    routes:G.routes.map(r=>({via:JSON.parse(JSON.stringify(r.via||{})),name:r.name,color:r.color,stops:r.stops.slice(),express:r.express,ep:r.expressPaid,loop:r.loop,lane:r.lane,sched:r.sched,night:!!r.night,model:r.model,spacing:!!r.spacing,buses:r.buses.length})),
+    routes:G.routes.map(r=>({via:JSON.parse(JSON.stringify(r.via||{})),name:r.name,color:r.color,stops:r.stops.slice(),express:r.express,ep:r.expressPaid,loop:r.loop,lane:r.lane,sched:r.sched,night:!!r.night,model:r.model,spacing:!!r.spacing,shuttle:!!r.shuttle,buses:r.buses.length})),
     depots:[...G.depots.keys()]};
 }
 function pushUndo(){
@@ -3181,7 +3222,7 @@ function restoreNet(d){
   for(const id of [...G.stops.keys()])if(!want.has(id))removeStop(id);
   for(const s of d.stops){const st=addStop(s.id,true);if(st){st.access=s.acc;st.bike=!!s.bike}}
   for(const rd of d.routes){
-    const r=newRoute(rd.stops);r.name=rd.name;r.color=rd.color;r.express=rd.express;r.expressPaid=rd.ep;r.loop=rd.loop;r.lane=rd.lane;r.sched=rd.sched;r.night=!!rd.night;r.model=rd.model;r.spacing=!!rd.spacing;r.via=JSON.parse(JSON.stringify(rd.via||{}));recalcRoute(r);
+    const r=newRoute(rd.stops);r.name=rd.name;r.color=rd.color;r.express=rd.express;r.expressPaid=rd.ep;r.loop=rd.loop;r.lane=rd.lane;r.sched=rd.sched;r.night=!!rd.night;r.model=rd.model;r.spacing=!!rd.spacing;r.shuttle=!!rd.shuttle;r.via=JSON.parse(JSON.stringify(rd.via||{}));recalcRoute(r);
     for(let k=0;k<rd.buses;k++)addBus(r,true);
   }
   G.depots=new Map();for(const id of d.depots){const n=G.city.nodes[id],[sx,sy]=stopCorner(G.city,n);G.depots.set(id,{id,x:n.x+sx*34,y:n.y+sy*30,sx,sy})}
@@ -3199,11 +3240,579 @@ function undo(){
   else toast(Object.keys(cur).length>G.routes.length?'Undone: a route was removed.':'Undone: your last change was reverted.');
   snd('pop');ui.dirty=true;
 }
+/* ================= Metropolis: the growing city ================= */
+/* A mode where one small town grows for as long as you play. Growth adds a slab of new blocks on any of the four sides (a "district"), the map is re-numbered
+   like east growth (remapIds with a column/row offset) and everything positional is shifted. Districts are Voronoi areas around their station, or around their seed
+   until they have one. Bus stations are big hub buildings on a street junction (their block becomes an 'S' plaza block). */
+const METRO_MAXC=34,METRO_MAXR=26,ST_MIN_C=10,ST_MIN_R=8,ST_MAX=6,ST_R=330,ST_GAP=450,LINK_COST=400;
+const ST_COST=[2500,4200,7200,12000,20000,32000];
+const STAGES=[['Small Town',0],['Town',800],['City',2500],['Metropolis',6000]];
+const STAGE_COL=['#7a8a99','#3fb868','#2a7de1','#8a5cf6'];
+const DIST_COL=['#e0509a','#2f7de1','#3fb868','#f2b632','#8a5cf6','#13b3c4','#d96a2b','#b04fd0','#e2483d','#4f46c8','#5ca02c','#7a8a99'];
+const DIST_KIND={old:'Historic centre',down:'Downtown business core',res:'Residential suburb',ind:'Industrial and port quarter',uni:'University district',air:'Airport district'};
+const DIST_NAMES={old:['Old Town'],down:['Central Quarter','Kingsway','Exchange Square','Crown Heights','Market Cross','Gold Mile'],
+  res:['Elmwood','Maplewood','Hillcrest','Lakeview','Rosedale','Fairview','Oakridge','Brookside','Greenfield','Willow Park'],
+  ind:['Dockside','Harbourside','Millbrook Works','Ironbridge','Foundry Row'],uni:['Collegeham','University Park','Scholars Hill'],air:['Skyport','Airfield','Jetway']};
+const DIR_NAMES={N:['Northgate','Northfield'],S:['Southgate','Southbank'],E:['Eastwick','Eastfield'],W:['Westend','Westbrook']};
+const KIND_SEQ=['res','down','res','ind','uni','res','air','down','ind','res'];
+const SIDE_NAME={E:'east',S:'south',W:'west',N:'north'};
+function xferOk(nid){
+  if(G.L.transfer)return true;
+  if(G.metro){const n=G.city.nodes[nid];return !!(n&&metroNearStation(n.x,n.y))}
+  return false;
+}
+function xferMsg(r){
+  if(G.metro)return'That stop is on '+r.name+'. Stops near a bus station (about three blocks) can be shared by several routes. Transfers open everywhere once your city is a City.';
+  return'That stop is on '+r.name+'. Transfers unlock at Metro Heights (level 3 of the campaign).';
+}
+const maxRoutes=()=>G.metro?12:8;
+const fleetMax=()=>G.metro?45:30;
+function metroNew(){return{gi:0,nextGrow:2,nextId:2,stage:0,unlocked:false,bag:[],districts:[],stations:[],conn:0,connV:-1,connC:null,connT:-99,pat0:60,pd0:100,am0:0,mid0:0,cn0:14,pend:null}}
+function metroInit(){
+  const L=G.L,m=G.metro=metroNew();
+  m.pat0=L.patience;m.pd0=L.perDay;m.am0=L.amProb||0;m.mid0=L.midProb||0;m.cn0=L.concert||14;
+  m.districts.push({id:1,name:'Old Town',kind:'old',c:L.map[0].length/2,r:L.map.length/2,col:DIST_COL[0],born:1,side:''});
+  L.riders=['commuter','student'];L.transfer=false;
+  metroScale();
+}
+function metroSave(){
+  const m=G.metro;
+  return{gi:m.gi,nextGrow:m.nextGrow,nextId:m.nextId,stage:m.stage,unlocked:!!m.unlocked,bag:m.bag.slice(),
+    districts:m.districts.map(d=>({id:d.id,name:d.name,kind:d.kind,c:d.c,r:d.r,col:d.col,born:d.born,side:d.side})),
+    stations:m.stations.map(s=>({id:s.id,c:s.c,r:s.r,di:s.di,name:s.name,code:s.code,served:s.served||0,dayServed:s.dayServed||0})),
+    pend:(ui.growOpts||ui.pendingGrowth||null),region:G.L.region,riders:G.L.riders.slice(),transfer:!!G.L.transfer};
+}
+function metroLoad(d){
+  const m=G.metro;
+  m.gi=d.gi|0;m.nextGrow=d.nextGrow;m.nextId=d.nextId;m.stage=d.stage|0;m.unlocked=!!d.unlocked;m.bag=(d.bag||[]).slice();
+  m.districts=d.districts.map(x=>Object.assign({},x));m.stations=d.stations.map(x=>Object.assign({served:0,dayServed:0},x));m.pend=d.pend||null;
+  if(d.region)G.L.region=d.region;
+  if(d.riders)G.L.riders=d.riders.slice();
+  G.L.transfer=!!d.transfer;
+  metroScale();
+}
+function metroAfterLoad(){
+  const m=G.metro;m.connV=-1;m._tk=null;
+  const p=m.pend;m.pend=null;
+  if(p&&p.length&&!G.over)showGrowth(p);
+}
+/* the difficulty curve: more riders, less patience, more events as the city grows */
+function metroScale(){
+  const m=G.metro,L=G.L;if(!m)return;const g=m.gi;
+  L.perDay=Math.round(m.pd0*(1+.09*g)*(1+.06*m.stage));
+  L.patience=m.pat0*Math.max(.68,1-.022*g);
+  L.amProb=Math.min(.95,m.am0+.07*g);L.midProb=Math.min(.85,m.mid0+.07*g);
+  L.concert=Math.round(m.cn0*(1+.08*g));
+}
+function metroPop(){return G.city?Math.round(G.city.homes.length*4.2):0}
+function metroInfo(){
+  const m=G.metro;if(!m||!G.L)return{unlocked:false,n:0,max:ST_MAX,cost:ST_COST[0],full:false,cols:0,rows:0};
+  const cols=G.L.map[0].length,rows=G.L.map.length,n=m.stations.length;
+  return{unlocked:cols>=ST_MIN_C&&rows>=ST_MIN_R,cols,rows,n,max:ST_MAX,cost:ST_COST[Math.min(n,ST_COST.length-1)],full:n>=ST_MAX};
+}
+/* ---- connectivity: the share of home and office pairs with a bus link between a stop near each ---- */
+function metroComps(){
+  const par=new Map(),find=x=>{while(par.get(x)!==x){par.set(x,par.get(par.get(x)));x=par.get(x)}return x},inRoute=new Set();
+  for(const sid of G.stops.keys())par.set(sid,sid);
+  for(const r of G.routes){
+    if(!r.buses.length)continue;
+    const ids=(r.express?[r.stops[0],r.stops[r.stops.length-1]]:r.stops).filter(x=>par.has(x));
+    for(const sid of ids){inRoute.add(sid);par.set(find(sid),find(ids[0]))}
+  }
+  return{find,inRoute};
+}
+function metroConn(force){
+  const m=G.metro,C=G.city;if(!m||!C)return 0;
+  if(!force&&m.connV===G.netVer&&m.connC===C&&G.t-m.connT<15&&G.t>=m.connT)return m.conn;
+  const{find,inRoute}=metroComps();
+  const near=o=>{const s=new Set();for(const sid of inRoute){const st=G.stops.get(sid);if(Math.hypot(st.x-o.x,st.y-o.y)<=COV_D)s.add(find(sid))}return s};
+  const pick=(arr,n)=>{if(arr.length<=n)return arr;const o=[],stp=arr.length/n;for(let i=0;i<n;i++)o.push(arr[Math.floor(i*stp)]);return o};
+  const H=pick(C.homes,60).map(near),W=pick(C.works,36).map(near);
+  let ok=0,tot=0;
+  for(const h of H)for(const w of W){tot++;for(const x of h)if(w.has(x)){ok++;break}}
+  m.conn=tot?ok/tot:0;m.connV=G.netVer;m.connC=C;m.connT=G.t;
+  return m.conn;
+}
+const metroScore=()=>Math.round(metroPop()*metroConn());
+/* ---- districts and territory (Voronoi in block units around the station, or the seed until there is one) ---- */
+function metroSites(){
+  const m=G.metro;
+  return m.districts.map(d=>{const s=m.stations.find(x=>x.di===d.id);return s?{d,x:s.c+.5,y:s.r+.5,st:s}:{d,x:d.c,y:d.r,st:null}});
+}
+function metroTerr(){
+  const m=G.metro,L=G.L,rows=L.map.length,cols=L.map[0].length;
+  const key=cols+'x'+rows+'|'+m.districts.map(d=>d.id+':'+d.c+','+d.r).join(';')+'|'+m.stations.map(s=>s.id+'@'+s.c+','+s.r+'#'+s.di).join(';');
+  if(m._tk===key&&m._terr)return m._terr;
+  const sites=metroSites(),own=new Int16Array(rows*cols),stat=new Map();
+  for(const s of sites)stat.set(s.d.id,{cells:0,h:0,b:0,sx:0,sy:0,sn:0,lx:s.x,ly:s.y});
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    let bi=0,bd=1e9;
+    for(let i=0;i<sites.length;i++){const dx=c+.5-sites[i].x,dy=r+.5-sites[i].y,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;bi=i}}
+    const id=sites[bi].d.id;own[r*cols+c]=id;const st=stat.get(id),ch=L.map[r][c];
+    st.cells++;if(ch==='H')st.h++;else if(ch==='B')st.b++;
+    if(ch==='H'||ch==='B'){st.sx+=c+.5;st.sy+=r+.5;st.sn++}
+  }
+  for(const st of stat.values())if(st.sn){st.lx=st.sx/st.sn;st.ly=st.sy/st.sn}
+  m._tk=key;return m._terr={own,sites,stat,cols,rows};
+}
+function metroDistrictAtPoint(px,py){
+  const sites=metroSites();let bi=0,bd=1e9;
+  for(let i=0;i<sites.length;i++){const dx=px-sites[i].x,dy=py-sites[i].y,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;bi=i}}
+  return sites[bi].d;
+}
+/* the seed-nearest district (stations belong to the district whose seed is nearest, then that district's territory centres on the station) */
+function metroDistrictOfNode(n){
+  const m=G.metro;let best=null,bd=1e9;
+  for(const d of m.districts){const dx=n.c-d.c,dy=n.r-d.r,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;best=d}}
+  return best;
+}
+/* ---- stations ---- */
+const metroIsStation=sid=>!!(G.metro&&G.metro.stations.some(s=>s.id===sid));
+const metroStationAt=sid=>G.metro?G.metro.stations.find(s=>s.id===sid):null;
+function metroNearStation(x,y){
+  const m=G.metro;if(!m||!m.stations.length)return null;
+  let best=null,bd=ST_R;
+  for(const s of m.stations){const n=G.city.nodes[s.id];if(!n)continue;const d=Math.hypot(n.x-x,n.y-y);if(d<=bd){bd=d;best=s}}
+  return best;
+}
+function metroServed(stop,n){
+  if(!n)return;const s=metroNearStation(stop.x,stop.y);if(s){s.served=(s.served||0)+n;s.dayServed=(s.dayServed||0)+n}
+}
+function metroMoodAdj(b){
+  const m=G.metro;if(!m)return 0;
+  let a=0;
+  if(metroInfo().unlocked){
+    const t=metroTerr(),id=t.own[b.r*t.cols+b.c];
+    if(id&&!m.stations.some(s=>s.di===id))a-=.1;
+  }
+  if(metroNearStation(b.cx,b.cy))a+=.05;
+  return a;
+}
+/* which of the four blocks around a junction would hold the station: empty land first, then homes, then offices; never parks, water or landmarks */
+function metroBlockFor(n){
+  const L=G.L,rows=L.map.length,cols=L.map[0].length;let best=null,bs=1e9;
+  const[sx,sy]=stopCorner(G.city,n);
+  for(const[dc,dr]of[[-1,-1],[0,-1],[-1,0],[0,0]]){
+    const c=n.c+dc,r=n.r+dr;if(c<0||r<0||c>=cols||r>=rows)continue;
+    const ch=L.map[r][c],v=ch==='.'?0:ch==='H'?1:ch==='B'?2:99;if(v>=99)continue;
+    const sc=v*10+((dc===-1?-1:1)===sx&&(dr===-1?-1:1)===sy?0:1);
+    if(sc<bs){bs=sc;best={c,r,ch}}
+  }
+  return best;
+}
+function metroCanAt(n){
+  const m=G.metro;
+  if(!n||!n.alive||n.hwNode||n.c<0)return'Stations go on a street junction.';
+  for(const s of m.stations){const o=G.city.nodes[s.id];if(o&&Math.hypot(o.x-n.x,o.y-n.y)<ST_GAP)return'That is too close to '+s.name+'. Stations need about four blocks between them.'}
+  const d=metroDistrictOfNode(n);
+  if(m.stations.some(s=>s.di===d.id))return d.name+' already has a station. Each district gets one.';
+  if(!metroBlockFor(n))return'There is no room for a station at this junction. Try the next one.';
+  return'';
+}
+function metroBestNode(d){
+  const m=G.metro,C=G.city;let best=null,bs=1e9;
+  for(const n of C.nodes){
+    if(!n.alive||n.hwNode||n.adj.length<3)continue;
+    if(metroDistrictOfNode(n)!==d)continue;
+    if(metroCanAt(n))continue;
+    const dx=n.c-d.c,dy=n.r-d.r,sc=Math.hypot(dx,dy)-(G.stops.has(n.id)?.5:0)-(n.adj.length>=4?.3:0);
+    if(sc<bs){bs=sc;best=n}
+  }
+  return best;
+}
+function metroStationCode(name){
+  const m=G.metro,w=name.replace(/ Station$/,'').split(/\s+/);
+  let c=(w.length>1?w[0][0]+w[1][0]:w[0].slice(0,2)).toUpperCase();
+  const used=new Set(m.stations.map(s=>s.code));let k=2;const base=c;while(used.has(c))c=base+(k++);
+  return c;
+}
+function buildStation(nid){
+  const m=G.metro;if(!m)return false;
+  const info=metroInfo(),C=G.city,n=C.nodes[nid];
+  if(!info.unlocked){toast('Bus stations unlock when the city reaches '+ST_MIN_C+' by '+ST_MIN_R+' blocks. It is '+info.cols+' by '+info.rows+' now.',3400);return false}
+  if(info.full){toast('Six stations is the limit.');return false}
+  const why=metroCanAt(n);if(why){toast(why,3400);return false}
+  if(G.money<info.cost){toast('A station costs '+money(info.cost)+'.');return false}
+  const blk=metroBlockFor(n),d=metroDistrictOfNode(n),first=!m.stations.length;
+  G.money-=info.cost;
+  const g=G.L.map.map(s2=>s2.split(''));g[blk.r][blk.c]='S';G.L.map=g.map(a=>a.join(''));
+  G.city=buildCity(G.L);
+  if(!G.city.connected){const g2=G.L.map.map(s2=>s2.split(''));g2[blk.r][blk.c]=blk.ch;G.L.map=g2.map(a=>a.join(''));G.city=buildCity(G.L);G.money+=info.cost;toast('A station there would cut off a street. Try another junction.');if(T.ok){build3D(G.city);resetDyn()}return false}
+  if(T.ok){build3D(G.city);resetDyn()}
+  const name=first?'Central Station':d.name+' Station';
+  m.stations.push({id:nid,c:blk.c,r:blk.r,di:d.id,name,code:metroStationCode(name),served:0,dayServed:0});
+  if(!G.stops.has(nid))addStop(nid,true);
+  for(const r of G.routes)recalcRoute(r);
+  netChanged();m._tk=null;
+  ach('metro_hub');addXp(60);snd('cheer');
+  const nc=G.city.nodes[nid];fx.ring(nc.x,nc.y,'#2a7de1',90);fx.ring(nc.x,nc.y,'#ffd24d',130);
+  toast(name+' is open in '+d.name+'. Stops within about three blocks can now be shared and transfers are quick here.',4600);
+  ui.dirty=true;saveGame();
+  return true;
+}
+/* express shuttle between two stations: fast (express), cheap to run, thick on the map */
+function metroLink(aid,bid){
+  const m=G.metro,A=metroStationAt(aid),B=metroStationAt(bid);if(!m||!A||!B||aid===bid)return false;
+  if(G.routes.some(r=>r.shuttle&&r.stops.length===2&&r.stops.includes(aid)&&r.stops.includes(bid))){toast('These two stations are already linked by a shuttle.');return false}
+  if(G.routes.length>=maxRoutes()){toast('Maximum of '+maxRoutes()+' routes.');return false}
+  const cost=LINK_COST+BUS_MODELS[0].price;
+  if(G.money<cost){toast('An express shuttle costs '+money(cost)+' (the line and its first bus).');return false}
+  if(G.buses.length>=fleetMax()){toast('Fleet limit reached.');return false}
+  pushUndo();
+  G.money-=LINK_COST;
+  const r=newRoute([aid,bid]);r.shuttle=true;r.express=true;r.expressPaid=true;r.name=('Link '+A.code+'-'+B.code).slice(0,14);
+  if(!addBus(r))toast(r.name+' has no bus yet.');
+  netChanged();ach('express');ach('metro_link');snd('cheer');
+  toast(r.name+' is running: a fast shuttle between '+A.name+' and '+B.name+'.',3600);
+  return true;
+}
+function metroLinks(){
+  const m=G.metro,{find,inRoute}=metroComps(),conn=new Map();
+  for(const s of m.stations)conn.set(s.id,[]);
+  for(const a of m.stations)for(const b of m.stations){
+    if(a===b||!inRoute.has(a.id)||!inRoute.has(b.id))continue;
+    if(find(a.id)===find(b.id))conn.get(a.id).push(b);
+  }
+  return conn;
+}
+function metroPlaceStart(){
+  const info=metroInfo();
+  if(!info.unlocked){toast('Bus stations unlock at '+ST_MIN_C+' by '+ST_MIN_R+' blocks. The city is '+info.cols+' by '+info.rows+'.',3400);return}
+  if(info.full){toast('Six stations is the limit.');return}
+  if(G.money<info.cost){toast('A station costs '+money(info.cost)+'.');return}
+  ui.placeStation=true;ui.sheet=false;ui.drawing=null;setTool('select');if(W<760)ui.town=false;ui.dirty=true;
+  toast('Tap a street junction for the station. Each district gets one.',3800);
+}
+/* ---- growth: a new slab of blocks on one side, with a district ---- */
+function metroCell(kind,j,kk,len,d,R,port){
+  const q=R();
+  switch(kind){
+   case'down':return q<.62?'B':q<.86?'H':q<.93?'P':'.';
+   case'res':return q<.74?'H':q<.86?'P':q<.91?'B':'.';
+   case'ind':return(kk===d-1&&port)?'W':(q<.5?'B':q<.82?'.':q<.9?'H':'P');
+   case'uni':return q<.42?'H':q<.62?'P':q<.74?'B':'.';
+   case'air':return q<.55?'.':q<.7?'B':q<.8?'H':'P';
+  }
+  return'.';
+}
+const cls2=ch=>ch==='W'?'W':(ch==='P'||ch==='C')?'P':'';
+function metroPlan(R){
+  const m=G.metro,L=G.L,map=L.map,rows=map.length,cols=map[0].length;
+  const can={E:cols+4<=METRO_MAXC,W:cols+4<=METRO_MAXC,S:rows+4<=METRO_MAXR,N:rows+4<=METRO_MAXR};
+  let bag=(m.bag||[]).filter(s=>can[s]);
+  if(!bag.length){bag=['E','S','W','N'].filter(s=>can[s]);for(let i=bag.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]]}}
+  if(!bag.length)return null;
+  const side=bag.shift();m.bag=bag;
+  const lm=G.city.landmarks||{};
+  let kind=KIND_SEQ[m.gi]||['res','down','ind','res'][m.gi%4],nH=0,nB=0;
+  for(const row of map)for(const ch of row){if(ch==='H')nH++;else if(ch==='B')nB++}
+  if(nB<nH*.3)kind='down';else if(nH<nB*1.3)kind='res';
+  if(kind==='uni'&&(lm.uni||m.districts.some(d=>d.kind==='uni')))kind='res';
+  if(kind==='air'&&(lm.air||m.districts.some(d=>d.kind==='air')))kind='down';
+  const hz=side==='E'||side==='W',capT=hz?METRO_MAXC-cols:METRO_MAXR-rows;
+  let d={res:4+(R()<.5?1:0),down:4,ind:4+(R()<.4?1:0),uni:5,air:5+(R()<.4?1:0)}[kind]||4;
+  let g=(m.gi>=1&&R()<.55)?2:0;
+  if(d+g>capT)g=0;if(d>capT)d=capT;
+  const T0=g+d,A=hz?rows:cols,len=A<=10?A:Math.min(A,6+Math.floor(R()*4)),a0=len<A?Math.floor(R()*(A-len+1)):0;
+  const stripCh=R()<.5?'W':'P',port=kind==='ind'&&R()<.65,slab=[];
+  for(let a=0;a<A;a++)slab.push(new Array(T0).fill('.'));
+  for(let a=0;a<A;a++){
+    const inSeg=a>=a0&&a<a0+len,j=a-a0;
+    for(let k=0;k<T0;k++){
+      let ch;
+      if(k<g){ch=stripCh;if(inSeg&&(j===Math.floor(len/2)||(len>=8&&j===1)))ch='.'}
+      else if(inSeg)ch=metroCell(kind,j,k-g,len,d,R,port);
+      else{const q=R();ch=q<.5?'.':q<.78?'P':'H'}
+      slab[a][k]=ch;
+    }
+  }
+  // a small lake in the undeveloped land beside the district
+  for(const[f0,f1]of[[0,a0],[a0+len,A]]){
+    if(f1-f0>=3&&T0-g>=3&&R()<.6)for(let a=f0+1;a<f1-1;a++)for(let k=g+1;k<T0-1;k++)slab[a][k]='W';
+  }
+  // specials: the district's landmark
+  const cj=a0+Math.floor(len/2),ck=g+Math.floor(d/2);
+  if(kind==='uni')slab[cj][ck]='U';
+  else if(kind==='air')slab[cj][ck]='A';
+  else if(kind==='down'&&!G.city.venue&&R()<.8){const jj=a0+Math.max(0,Math.min(len-1,1+Math.floor(R()*Math.max(1,len-2))));slab[jj][g+Math.min(d-1,1)]='C'}
+  // never merge a new park or lake with the same kind of block at the old edge: that would delete an existing street
+  for(let a=0;a<A;a++){
+    const cc=side==='E'?cols-1:side==='W'?0:a,rr=side==='S'?rows-1:side==='N'?0:a,oc=map[rr][cc];
+    if(cls2(slab[a][0])&&cls2(slab[a][0])===cls2(oc))slab[a][0]='.';
+  }
+  const grid=map.map(s2=>s2.split(''));let ncols=cols,nrows=rows,dc=0,dr=0,c0,c1,r0,r1,neu;
+  if(side==='E'){for(let r=0;r<rows;r++)for(let k=0;k<T0;k++)grid[r].push(slab[r][k]);ncols+=T0;c0=cols+g;c1=cols+T0;r0=a0;r1=a0+len;neu={x0:MARGIN+cols*S,y0:MARGIN,x1:MARGIN+(cols+T0)*S,y1:MARGIN+rows*S}}
+  else if(side==='W'){for(let r=0;r<rows;r++){const add=[];for(let k=T0-1;k>=0;k--)add.push(slab[r][k]);grid[r]=add.concat(grid[r])}ncols+=T0;dc=T0;c0=0;c1=d;r0=a0;r1=a0+len;neu={x0:MARGIN,y0:MARGIN,x1:MARGIN+T0*S,y1:MARGIN+rows*S}}
+  else if(side==='S'){for(let k=0;k<T0;k++){const row=[];for(let c=0;c<cols;c++)row.push(slab[c][k]);grid.push(row)}nrows+=T0;r0=rows+g;r1=rows+T0;c0=a0;c1=a0+len;neu={x0:MARGIN,y0:MARGIN+rows*S,x1:MARGIN+cols*S,y1:MARGIN+(rows+T0)*S}}
+  else{const add=[];for(let k=T0-1;k>=0;k--){const row=[];for(let c=0;c<cols;c++)row.push(slab[c][k]);add.push(row)}grid.unshift(...add);nrows+=T0;dr=T0;r0=0;r1=d;c0=a0;c1=a0+len;neu={x0:MARGIN,y0:MARGIN,x1:MARGIN+cols*S,y1:MARGIN+T0*S}}
+  const old={x0:MARGIN+dc*S,y0:MARGIN+dr*S,x1:MARGIN+(dc+cols)*S,y1:MARGIN+(dr+rows)*S};
+  return{side,kind,T:T0,dc,dr,cols:ncols,rows:nrows,map:grid.map(a=>a.join('')),seed:{c:(c0+c1)/2,r:(r0+r1)/2},old,neu,oldCols:cols,oldRows:rows};
+}
+function metroName(kind,side,R){
+  const m=G.metro,used=new Set(m.districts.map(d=>d.name));
+  let pool=[];
+  if(kind==='res')pool=DIR_NAMES[side].filter(n=>!used.has(n)).concat(DIST_NAMES.res.filter(n=>!used.has(n)));
+  else pool=DIST_NAMES[kind].filter(n=>!used.has(n));
+  if(!pool.length)return DIST_NAMES[kind][0]+' '+(m.districts.length+1);
+  return kind==='res'?pool[0]:pool[Math.floor(R()*pool.length)];
+}
+function metroExpand(camBefore){
+  const m=G.metro,L=G.L,R=rng(L.seed*131+m.gi*977+G.day*13),tm0=performance.now();
+  const plan=metroPlan(R);
+  if(!plan){m.nextGrow=G.day+2;return null}
+  const os=plan.oldCols+1,ns=plan.cols+1,dc=plan.dc,dr=plan.dr,dx=dc*S,dy=dr*S;
+  const f=id=>(Math.floor(id/os)+dr)*ns+(id%os)+dc;
+  // route waypoints on highway nodes cannot be re-numbered: drop them (the route re-finds a road)
+  const gridN=G.city.gridN==null?G.city.nodes.length:G.city.gridN;
+  for(const r of G.routes){const nv={};for(const k in(r.via||{})){const ps=k.split('>').map(Number),arr=r.via[k];if(ps.some(x=>x>=gridN)||arr.some(x=>x>=gridN))continue;nv[k]=arr}r.via=nv}
+  const keyShift=k=>{if(!k)return k;const p=k.split(',');return(+p[0]+dc)+','+(+p[1]+dr)};
+  L.map=plan.map;
+  remapIds(os,ns,dc,dr);
+  if(dx||dy){
+    for(const st of G.stops.values()){st.x+=dx;st.y+=dy}
+    for(const d of G.depots.values()){d.x+=dx;d.y+=dy}
+    for(const c of G.citizens){c.x+=dx;c.y+=dy;if(c.dest){c.dest.x+=dx;c.dest.y+=dy}if(c._wx!==undefined){c._wx+=dx;c._wy+=dy}c.ob=keyShift(c.ob);c.db=keyShift(c.db)}
+    const sh=o=>{const n2={};for(const k in(o||{}))n2[keyShift(k)]=o[k];return n2};
+    G.gaveBlock=sh(G.gaveBlock);G.okBlock=sh(G.okBlock);
+  }
+  for(const s of m.stations){s.id=f(s.id);s.c+=dc;s.r+=dr}
+  for(const d of m.districts){d.c+=dc;d.r+=dr}
+  G.parts=[];G.bubbles=[];ui.tmark=null;ui.unreach=null;ui.growOpts=null;ui.placeStation=false;
+  const tm1=performance.now();G.city=buildCity(L);const tm2=performance.now();
+  if(!G.city.connected){ // safety net: open every filler block into plain land
+    const g=L.map.map(s2=>s2.split(''));for(let r=0;r<g.length;r++)for(let c=0;c<g[0].length;c++)if(g[r][c]==='W'||g[r][c]==='P'){const oldIn=r>=dr&&r<dr+plan.oldRows&&c>=dc&&c<dc+plan.oldCols;if(!oldIn)g[r][c]='.'}
+    L.map=g.map(a=>a.join(''));G.city=buildCity(L);
+  }
+  if(G.rival)G.rival.routes=[];
+  for(const r of G.routes)recalcRoute(r);
+  for(const b of G.buses){
+    const nid=b.route.stops[Math.min(b.tIdx,b.route.stops.length-1)],n=G.city.nodes[nid];
+    b.x=n.x;b.y=n.y;b.from=b.to=b.dst=nid;b.s=0;b.queue=[];b.state='drive';beginLeg(b)}
+  const name=metroName(plan.kind,plan.side,R),id=m.nextId++;
+  const dist={id,name,kind:plan.kind,c:plan.seed.c,r:plan.seed.r,col:DIST_COL[(id-1)%DIST_COL.length],born:G.day,side:plan.side};
+  m.districts.push(dist);m.gi++;m.nextGrow=G.day+(m.gi<3?1:2);m._tk=null;
+  metroScale();
+  netChanged();const tm3=performance.now();
+  if(T.ok){build3D(G.city);resetDyn()}
+  m.ms={remap:Math.round(tm1-tm0),city:Math.round(tm2-tm1),routes:Math.round(tm3-tm2),d3:Math.round(performance.now()-tm3)};
+  fitCam(true);
+  const cb={x:camBefore.x+dx,y:camBefore.y+dy,zoom:camBefore.zoom,yaw:camBefore.yaw,pitch:camBefore.pitch};
+  metroTick();
+  return{side:SIDE_NAME[plan.side],old:plan.old,neu:plan.neu,label:name,camBefore:cb,district:dist};
+}
+function metroNextDay(camBefore){
+  const m=G.metro;for(const s of m.stations)s.dayServed=0;
+  let ex=null;
+  if(G.day>=m.nextGrow)ex=metroExpand(camBefore);
+  metroTick();
+  return ex;
+}
+/* ---- milestones and the periodic check ---- */
+function metroMilestone(s){
+  const L=G.L,m=G.metro,nm=STAGES[s][0];
+  const reward=[0,1500,4000,10000][s];
+  G.money+=reward;
+  if(s===1){L.riders=L.riders.concat(['tourist']);ach('metro_town')}
+  if(s===2){L.riders=L.riders.concat(['rush','wheel']);L.transfer=true;L.region='metro';ach('metro_city');if(G.city){G.city=buildCity(L);for(const r of G.routes)recalcRoute(r);netChanged();if(T.ok){build3D(G.city);resetDyn()}}}
+  if(s===3){ach('metro_metro')}
+  metroScale();
+  addXp(100*s);snd('cheer');
+  metroBannerShow({name:nm,col:STAGE_COL[s],kind:null},'Your city is now a','Population '+metroPop().toLocaleString('en-US')+' · +'+money(reward)+(s===2?' · transfers open at every stop':s===1?' · tourists are arriving':s===3?' · the whole region knows your name':''));
+  if(PROF.cos.confetti==='on'&&!ui.rm)fx.confetti(cam.x,cam.y);
+}
+function metroTick(){
+  const m=G.metro;if(!m||!G.city||G.over)return;
+  const pop=metroPop();let st=0;
+  for(let i=1;i<STAGES.length;i++)if(pop>=STAGES[i][1])st=i;
+  while(m.stage<st){m.stage++;metroMilestone(m.stage)}
+  metroConn();
+  if(!m.unlocked&&metroInfo().unlocked){m.unlocked=true;metroUnlockTip()}
+}
+/* ---- banners, tip, reports ---- */
+function metroBanner(d){if(ui.expAnim)ui.pendingBanner=d;else metroBannerShow(d)}
+function metroBannerShow(d,top,sub){
+  let el=$('#mbanner');if(!el){el=document.createElement('div');el.id='mbanner';el.className='panel';el.setAttribute('role','status');el.setAttribute('data-act','bannerx');$('#app').appendChild(el)}
+  el.style.setProperty('--bc',d.col);
+  el.innerHTML='<small>'+esc(top||'Welcome to')+'</small><b>'+esc(d.name)+'</b><em>'+esc(sub||DIST_KIND[d.kind]||'')+'</em>';
+  el.hidden=false;el.style.animation='none';void el.offsetWidth;el.style.animation='';
+  clearTimeout(el._t);el._t=setTimeout(()=>{el.hidden=true},5600);snd('cheer');
+}
+function metroUnlockTip(){
+  if(PROF.metroTip)return;
+  let el=$('#mtip');if(!el){el=document.createElement('div');el.id='mtip';el.className='panel';el.setAttribute('role','status');$('#app').appendChild(el)}
+  const c=metroInfo().cost;
+  el.innerHTML='<b>Bus stations are unlocked</b>Your city is now '+ST_MIN_C+' by '+ST_MIN_R+' blocks or bigger. A <b style="display:inline;font-size:inherit">bus station</b> is a big hub for one district (up to '+ST_MAX+', one per district, '+money(c)+' for the first). Stops near it can be shared by several routes, buses stop shorter and turn around faster, and riders wait more patiently. Start your routes at the station, then link stations with an express shuttle so everyone can go everywhere.<div class="btnrow"><button data-act="tipok">Got it</button><button class="go" data-act="tipbuild">Build a station</button></div>';
+  el.hidden=false;PROF.metroTip=true;saveProfile();
+}
+function metroTipClose(build){
+  const el=$('#mtip');if(el)el.hidden=true;
+  if(build){ui.town=true;ui.townTab='net';ui.sheet=false;townTick();ui.dirty=true;metroPlaceStart()}
+}
+function metroHudLine(){
+  const m=G.metro,pop=metroPop(),cn=Math.round(metroConn()*100),info=metroInfo();
+  return'<div class="m goal" data-act="metrohud"><b>★</b><span>'+esc(STAGES[m.stage][0])+' · pop '+pop.toLocaleString('en-US')+' · linked <u class="'+(cn>=60?'ok':'')+'">'+cn+'%</u>'+(info.unlocked?' · stations '+info.n+'/'+ST_MAX:'')+'</span></div>';
+}
+function metroNextLine(){
+  const m=G.metro,inD=m.nextGrow-(G.day+1);
+  return inD<=0?'The city grows overnight: a new district is coming.':'The next district appears in '+(inD+1)+' days.';
+}
+function metroReport(){
+  const m=G.metro,pop=metroPop(),cn=Math.round(metroConn(true)*100),nx=STAGES[m.stage+1];
+  return'<div class="worst" style="background:#e8f0fe"><b>'+esc(STAGES[m.stage][0])+' · population '+pop.toLocaleString('en-US')+'</b>Connectivity '+cn+'% (home and office pairs with a bus link), score '+Math.round(pop*cn/100).toLocaleString('en-US')+'. '+m.districts.length+' districts, '+m.stations.length+' station'+(m.stations.length===1?'':'s')+'.'+(nx?' Next: '+nx[0]+' at '+nx[1].toLocaleString('en-US')+'.':' You have reached the top. The city keeps growing.')+'</div>';
+}
+/* ---- Town Voice: districts without a station ---- */
+function metroTownThoughts(tw,townRec){
+  const m=G.metro;if(!metroInfo().unlocked||tutOn())return;
+  const t=metroTerr();
+  const list=m.districts.filter(d=>!m.stations.some(s=>s.di===d.id)).map(d=>({d,st:t.stat.get(d.id)})).filter(x=>x.st&&x.st.h>=6).sort((a,b)=>b.st.h-a.st.h).slice(0,3);
+  for(const{d,st}of list){
+    const r=townRec(tw,'nost','nost|'+d.id,MARGIN+st.lx*S,MARGIN+st.ly*S);
+    r.did=d.id;r.base=Math.round(st.h*3.5);r.street=d.name;r.minFr=.5;
+  }
+}
+function metroStationFix(r,mk,none){
+  const m=G.metro,info=metroInfo();
+  if(!m||!info.unlocked)return none('Bus stations unlock when the city reaches '+ST_MIN_C+' by '+ST_MIN_R+' blocks.');
+  if(info.full)return none('You already have the maximum of '+ST_MAX+' stations.');
+  const d=m.districts.find(x=>x.id===r.did);if(!d)return none('That district is gone.');
+  if(m.stations.some(s=>s.di===d.id))return none('That district already has a station.');
+  const nd=metroBestNode(d);if(!nd)return none('No good junction found in '+d.name+'. Place one yourself from Network.');
+  return mk('station','Build a station in '+d.name,info.cost,()=>{buildStation(nd.id)});
+}
+/* ---- Network panel ---- */
+function metroNetHtml(){
+  const m=G.metro,info=metroInfo(),pop=metroPop(),cn=Math.round(metroConn(true)*100),terr=metroTerr(),links=metroLinks();
+  const nx=STAGES[m.stage+1];
+  let h='<div class="thead"><b class="tt">Network</b><button class="mini" data-act="netview" aria-label="Show districts on the map">District map</button><button class="mini" data-act="towntab">Town Voice</button><button class="x" data-act="town" aria-label="Close">✕</button></div><div class="net">';
+  h+='<div class="statgrid"><div><b>'+esc(STAGES[m.stage][0])+'</b><span>City size</span></div><div><b>'+pop.toLocaleString('en-US')+'</b><span>Population</span></div><div><b>'+cn+'%</b><span>Connected</span></div><div><b>'+Math.round(pop*cn/100).toLocaleString('en-US')+'</b><span>Score</span></div></div>';
+  h+='<div class="nbar" aria-hidden="true"><i style="width:'+cn+'%"></i></div><div class="tmore">Connected = the share of home and office pairs that have a bus link. '+(nx?'Next: '+nx[0]+' at '+nx[1].toLocaleString('en-US')+' people.':'Top size reached.')+'</div>';
+  h+='<h4>Bus stations ('+info.n+' of '+ST_MAX+')</h4>';
+  if(!info.unlocked)h+='<div class="tmore">Stations unlock when the city reaches '+ST_MIN_C+' by '+ST_MIN_R+' blocks. It is '+info.cols+' by '+info.rows+' now, and it grows every day or two.</div>';
+  for(const s of m.stations){
+    const d=m.districts.find(x=>x.id===s.di),cs=links.get(s.id)||[],hasLine=cs.length;
+    h+='<div class="nrow" style="--nc:'+(d?d.col:'#2a7de1')+'"><div class="nt">\u{1F689} '+esc(s.name)+'<span class="nstate'+(hasLine?'':' no')+'">'+(hasLine?'connected to '+cs.length+' other station'+(cs.length===1?'':'s'):(m.stations.length>1?'not linked yet':'first hub'))+'</span><small>'+esc(d?d.name:'')+' · riders today '+(s.dayServed||0)+' · total '+(s.served||0)+'</small></div><button data-act="netshow" data-id="'+s.id+'">Show</button></div>';
+  }
+  // suggested links
+  const pairs=[];
+  for(const a of m.stations)for(const b of m.stations){if(a.id>=b.id)continue;if((links.get(a.id)||[]).includes(b))continue;const na=G.city.nodes[a.id],nb=G.city.nodes[b.id];pairs.push({a,b,d:Math.hypot(na.x-nb.x,na.y-nb.y)})}
+  pairs.sort((x,y)=>x.d-y.d);
+  const lc=LINK_COST+BUS_MODELS[0].price;
+  for(const p of pairs.slice(0,3))h+='<div class="nrow" style="--nc:#13b3c4"><div class="nt">Link '+esc(p.a.code)+' and '+esc(p.b.code)+'<small>Express shuttle: fast, cheap to run, thick line on the map</small></div><button class="go" data-act="netlink" data-a="'+p.a.id+'" data-b="'+p.b.id+'"'+(G.money>=lc?'':' disabled')+'>'+money(lc)+'</button></div>';
+  if(info.unlocked&&!info.full)h+='<div class="nrow" style="--nc:#2a7de1"><div class="nt">Build a station<small>Tap a junction in a district that has none · '+money(info.cost)+'</small></div><button class="go" data-act="netbuild"'+(G.money>=info.cost?'':' disabled')+'>'+(ui.placeStation?'Tap the map':'Place')+'</button></div>';
+  if(info.full)h+='<div class="tmore">All '+ST_MAX+' stations are built.</div>';
+  h+='<h4>Districts ('+m.districts.length+')</h4>';
+  for(const d of m.districts.slice().reverse()){
+    const st=terr.stat.get(d.id)||{cells:0,h:0},stn=m.stations.find(s=>s.di===d.id);
+    h+='<div class="nrow" style="--nc:'+d.col+'"><div class="nt">'+esc(d.name)+(stn?' \u{1F689}':'')+'<span class="nstate'+(stn?'':' no')+'">'+(stn?'station':'no station')+'</span><small>'+esc(DIST_KIND[d.kind]||'')+' · '+st.cells+' blocks · about '+Math.round(st.h*3.5*4.2)+' people</small></div><button data-act="netdist" data-id="'+d.id+'">Show</button></div>';
+  }
+  return h+'</div>';
+}
+function metroFly(x,y,place,title,col){
+  ui.follow=null;
+  const z=Math.max(cam.zoom,1.2),to=townFrame(clamp(x,0,G.city.w),clamp(y,0,G.city.h),z);
+  glideCam({x:to.x,y:to.y,zoom:z});
+  ui.tmark={x,y,t0:performance.now(),dur:7000,place,title,ic:'\u{1F689}',col};
+}
+function metroShow(id){const s=metroStationAt(id);if(!s)return;const n=G.city.nodes[s.id];if(n){if(W<760)ui.town=false;metroFly(n.x,n.y,s.name,'Bus station',COL.ok);ui.dirty=true}}
+function metroShowDist(id){
+  const m=G.metro,d=m.districts.find(x=>x.id===id);if(!d)return;const t=metroTerr(),st=t.stat.get(id);if(!st)return;
+  if(W<760)ui.town=false;metroFly(MARGIN+st.lx*S,MARGIN+st.ly*S,d.name,m.stations.some(s=>s.di===id)?'Has a station':'No station',d.col);ui.dirty=true;
+}
+/* ---- home menu: intro and a new game ---- */
+function showMetroIntro(){
+  const saves=[1,2,3].map(n=>({n,d:readSave(n)})).filter(x=>x.d&&x.d.mode==='metro').sort((a,b)=>b.d.day-a.d.day);
+  const best=saves[0];
+  showOv('<div class="card small"><h1>Metropolis</h1><p class="sub">Start with one small town. The more you play, the bigger the same city gets: new streets and new districts appear on every side, and you put bus routes on all of it.</p>'+
+   '<ul class="goals" style="text-align:left"><li class="ok"><span>1</span>Day 1: a town of about 6 by 5 blocks</li><li class="ok"><span>2</span>Every day or two the city grows, with a name banner for each new district</li><li class="ok"><span>3</span>At 10 by 8 blocks you unlock big bus stations that control districts, and express links between them</li><li class="ok"><span>4</span>No end. Your goal: make sure everyone can go everywhere</li></ul>'+
+   '<p class="sub">It saves into your normal save slots at the end of every day.</p>'+
+   (best?'<button class="btn ok full" data-act="loadslot" data-n="'+best.n+'">Continue<br><small style="font-weight:600;font-size:12px;opacity:.9">'+slotInfo(best.n)+'</small></button>':'')+
+   '<button class="btn '+(best?'alt':'ok')+' full" data-act="metronew" style="margin-top:8px">'+(best?'New Metropolis':'Start')+'</button><div class="btnrow"><button class="btn alt" data-act="howto">Back</button></div></div>');
+}
+function metroStartNew(){
+  let slot=null,over=false;
+  for(let n=1;n<=3;n++){const d=readSave(n);if(d&&d.mode==='metro'){slot=n;over=true;break}}
+  if(!slot)for(let n=1;n<=3;n++)if(!readSave(n)){slot=n;break}
+  if(!slot){slot=PROF.slot||1;over=true}
+  if(over&&!confirmTap('metronew','This replaces the save in slot '+slot+' at the end of day 1.'))return;
+  PROF.slot=slot;saveProfile();startLevel(METRO_IDX);
+  toast('A new Metropolis. It saves to slot '+slot+'.',3200);
+}
+/* ---- 3D: station building, district territory ---- */
+function metroStationMesh(s){
+  const C=G.city,n=C.nodes[s.id],cx=MARGIN+s.c*S+S/2,cy=MARGIN+s.r*S+S/2,g=new THREE.Group();
+  g.position.set(cx,0,cy);g.rotation.y=(n&&n.y>cy)?0:Math.PI;
+  const wall=M('#e9edf0'),dark=M('#2f3b48',{roughness:.5,metalness:.3}),glass=M('#78b4de',{roughness:.08,metalness:.65}),blue=M('#2a7de1',{roughness:.4}),brick=M('#c9b79c'),yel=M('#ffd24d',{roughness:.6}),conc=M('#c7ccd1',{roughness:.95}),lit=M('#fff6d6',{emissive:'#fff6d6',eBase:.9});
+  box(g,76,.8,76,0,.4,0,conc,false);
+  box(g,54,18,28,0,9.8,-8,wall);
+  box(g,50,11,1,0,9.6,6.4,glass,false);
+  box(g,54,1.4,1.4,0,3.6,6.6,dark,false);
+  for(const x of[-24,-12,0,12,24])box(g,1.2,11,1.4,x,9.6,6.8,dark,false);
+  box(g,62,2.2,40,0,19.4,-4,dark);
+  box(g,62.6,1.1,40.6,0,18.2,-4,blue,false);
+  box(g,36,6,22,0,23.2,-9,wall);box(g,40,1.5,26,0,26.8,-9,dark);
+  box(g,32,3.6,.8,0,23.4,2.2,glass,false);
+  box(g,9,38,9,29,19.8,-24,brick);box(g,11.5,2,11.5,29,39.4,-24,dark);box(g,3,6,3,29,43.4,-24,dark);
+  box(g,5.4,5.4,.7,29,33,-19.4,lit,false);box(g,.7,5.4,5.4,24.4,33,-24,lit,false);
+  box(g,68,1.5,14,0,10.2,29,blue);
+  for(const x of[-32,-11,11,32])box(g,1.5,9.6,1.5,x,5.2,35,dark,false);
+  for(let i=0;i<4;i++)box(g,.9,.2,13,-31.5+i*21,.9,29,yel,false);
+  for(const x of[-21,0,21])box(g,6,.8,2.4,x,4.6,19,dark,false);
+  const nm=s.name,tex=spriteTex('stn|'+nm,512,128,(c,w,h)=>{c.fillStyle='#2a7de1';rrect(c,6,10,w-12,h-20,28);c.fill();c.lineWidth=6;c.strokeStyle='#fff';rrect(c,6,10,w-12,h-20,28);c.stroke();c.fillStyle='#fff';c.font='900 52px Outfit,Arial,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('\u{1F689} '+nm,w/2,h/2+2,w-48)});
+  const sp=mkSprite(tex,78,19.5);sp.position.set(0,34,0);g.add(sp);
+  mergeStatic(g);
+  g.userData.sig=s.c+','+s.r+nm+(n?n.y>cy:'');
+  return g;
+}
+function metroSyncStations(){
+  if(!T.stationObjs)T.stationObjs=new Map();
+  const want=new Map();if(G.metro&&G.city)for(const s of G.metro.stations)want.set(s.id,s);
+  for(const[id,o]of T.stationObjs){const s=want.get(id);if(!s||o.userData.sig!==(s.c+','+s.r+s.name+((G.city.nodes[s.id]?G.city.nodes[s.id].y>MARGIN+s.r*S+S/2:'')))){T.dyn.remove(o);disposeTree(o);T.stationObjs.delete(id)}}
+  for(const[id,s]of want)if(!T.stationObjs.has(id)&&G.city.nodes[id]){const g=metroStationMesh(s);T.dyn.add(g);T.stationObjs.set(id,g)}
+}
+function metroTerrSync(on,now){
+  if(!T.ok||!T.dyn)return;
+  const m=G.metro;
+  if(!on||!m){if(T.terrG)T.terrG.visible=false;return}
+  const t=metroTerr(),key=m._tk+'|'+m.districts.map(d=>d.name+d.col).join(',')+'|'+G.L.map.length;
+  if(!T.terrG){T.terrG=new THREE.Group();T.dyn.add(T.terrG)}
+  if(T.terrKey!==key||T.terrCity!==G.city){
+    T.terrKey=key;T.terrCity=G.city;
+    for(const c of[...T.terrG.children]){T.terrG.remove(c);if(c.userData.own){c.geometry.dispose();if(c.material.map)c.material.map.dispose();c.material.dispose()}else if(c.material)c.material.dispose()}
+    const cols=t.cols,rows=t.rows,k=24,cv2=document.createElement('canvas');cv2.width=cols*k;cv2.height=rows*k;
+    const g2=cv2.getContext('2d'),tmp=document.createElement('canvas');tmp.width=cv2.width;tmp.height=cv2.height;const g3=tmp.getContext('2d');
+    const dcol=new Map(m.districts.map(d=>[d.id,d])),hasSt=id=>m.stations.some(s=>s.di===id);
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const id=t.own[r*cols+c],d=dcol.get(id);if(!d)continue;g3.globalAlpha=hasSt(id)?.55:.36;g3.fillStyle=d.col;g3.fillRect(c*k,r*k,k,k)}
+    try{g2.filter='blur(5px)'}catch(e){}
+    g2.drawImage(tmp,0,0);try{g2.filter='none'}catch(e){}
+    g2.lineCap='round';
+    const own=(c,r)=>(c<0||r<0||c>=cols||r>=rows)?0:t.own[r*cols+c];
+    for(let r=0;r<=rows;r++)for(let c=0;c<=cols;c++){
+      for(const[dc2,dr2]of[[1,0],[0,1]]){ // boundary segment between (c,r)-(c+dc2,r+dr2) cells
+        const a=dc2?own(c,r-1):own(c-1,r),b=own(c,r);
+        if(a===b)continue;
+        const x0=c*k,y0=r*k,x1=dc2?x0+k:x0,y1=dc2?y0:y0+k;
+        g2.strokeStyle='rgba(255,255,255,.85)';g2.lineWidth=3;g2.beginPath();g2.moveTo(x0,y0);g2.lineTo(x1,y1);g2.stroke();
+        for(const id of[a,b])if(id&&hasSt(id)){g2.strokeStyle=dcol.get(id).col;g2.lineWidth=5;g2.globalAlpha=.9;g2.beginPath();g2.moveTo(x0,y0);g2.lineTo(x1,y1);g2.stroke();g2.globalAlpha=1}
+      }
+    }
+    for(const s of m.stations){const n=G.city.nodes[s.id];if(!n)continue;g2.strokeStyle='rgba(255,255,255,.9)';g2.lineWidth=3;g2.setLineDash([10,8]);g2.beginPath();g2.arc((n.x-MARGIN)/S*k,(n.y-MARGIN)/S*k,ST_R/S*k,0,6.283);g2.stroke();g2.setLineDash([])}
+    const tex=new THREE.CanvasTexture(cv2);tex.encoding=THREE.sRGBEncoding;
+    const geo=new THREE.PlaneGeometry(cols*S,rows*S);geo.rotateX(-Math.PI/2);
+    const pl=new THREE.Mesh(geo,basic('#ffffff',{map:tex,transparent:true,depthWrite:false}));pl.position.set(MARGIN+cols*S/2,.7,MARGIN+rows*S/2);pl.renderOrder=3;pl.userData.own=true;T.terrG.add(pl);
+    for(const d of m.districts){
+      const st=t.stat.get(d.id);if(!st)continue;const has=hasSt(d.id);
+      const tx=spriteTex('dn|'+d.name+'|'+d.col+'|'+(has?1:0),460,120,(c,w,h)=>{c.fillStyle=d.col;rrect(c,6,6,w-12,h-12,30);c.fill();c.lineWidth=6;c.strokeStyle='#fff';rrect(c,6,6,w-12,h-12,30);c.stroke();c.fillStyle='#fff';c.shadowColor='rgba(0,0,0,.4)';c.shadowBlur=6;c.textAlign='center';c.textBaseline='middle';c.font='900 46px Outfit,Arial,sans-serif';c.fillText(d.name,w/2,h/2-12,w-40);c.font='800 28px Outfit,Arial,sans-serif';c.fillText(has?'\u{1F689} has a station':'no station yet',w/2,h/2+26,w-40)});
+      const sp=mkSprite(tx,150,39);sp.position.set(MARGIN+st.lx*S,52,MARGIN+st.ly*S);sp.renderOrder=24;T.terrG.add(sp);
+    }
+  }
+  T.terrG.visible=true;
+}
 /* ================= map expansion ================= */
 function expandStart(){return CAMPAIGN.indexOf(G.levelIdx)>=CAMPAIGN.length-2?3:10}
-function canExpand(){const L=G.L;return !!(L&&G.city&&!L.daily&&!L.weekly&&L.growth!==false&&G.day>=expandStart()&&(L.map[0].length<24||L.map.length<16))}
-function remapIds(os,ns){
-  const f=id=>Math.floor(id/os)*ns+(id%os);
+function canExpand(){const L=G.L;return !!(L&&G.city&&!L.metro&&!L.daily&&!L.weekly&&L.growth!==false&&G.day>=expandStart()&&(L.map[0].length<24||L.map.length<16))}
+function remapIds(os,ns,dc,dr){
+  dc=dc||0;dr=dr||0;
+  const f=id=>(Math.floor(id/os)+dr)*ns+(id%os)+dc;
   const st2=new Map();for(const[k,st]of G.stops){st.id=f(k);st2.set(st.id,st)}G.stops=st2;
   for(const r of G.routes){r.stops=r.stops.map(f);const nv={};for(const key in(r.via||{})){const p=key.split('>').map(Number);nv[f(p[0])+'>'+f(p[1])]=r.via[key].map(f)}r.via=nv}
   const dp=new Map();for(const[k,d]of G.depots){d.id=f(k);dp.set(d.id,d)}G.depots=dp;
@@ -3244,12 +3853,12 @@ function expClipMats(){
 }
 function startExpandAnim(ex,camBefore){
   if(ui.expAnim)endExpandAnim();
-  const to={x:cam.x,y:cam.y,zoom:cam.zoom,yaw:cam.yaw,pitch:cam.pitch},now=performance.now(),dur=9000,east=ex.side==='east';
+  const to={x:cam.x,y:cam.y,zoom:cam.zoom,yaw:cam.yaw,pitch:cam.pitch},now=performance.now(),dur=9000,sd=ex.side;
   Object.assign(cam,camBefore);clampCam();updateCamera();
   ui.camAnim={from:camBefore,to,t0:now+.24*dur,dur:.36*dur};
   T.r.localClippingEnabled=true;
   T.clipH=new THREE.Plane(new THREE.Vector3(0,-1,0),400);
-  T.clipW=east?new THREE.Plane(new THREE.Vector3(-1,0,0),ex.old.x1+14):new THREE.Plane(new THREE.Vector3(0,0,-1),ex.old.y1+14);
+  T.clipW=sd==='east'?new THREE.Plane(new THREE.Vector3(-1,0,0),ex.old.x1+14):sd==='south'?new THREE.Plane(new THREE.Vector3(0,0,-1),ex.old.y1+14):sd==='west'?new THREE.Plane(new THREE.Vector3(1,0,0),-(ex.old.x0-14)):new THREE.Plane(new THREE.Vector3(0,0,1),-(ex.old.y0-14));
   const mats=expClipMats();for(const m of mats){m.clippingPlanes=[T.clipH,T.clipW];m.clipShadows=true;m.needsUpdate=true}
   ui.expAnim={t0:now,dur,ex,to,mats,ph:0};
   if(T.expG){clearGroup(T.expG);T.expG._k=null}
@@ -3262,6 +3871,7 @@ function endExpandAnim(){
   if(a.skipped){Object.assign(cam,a.to);clampCam();updateCamera();ui.camAnim=null}
   ui.expAnim=null;ui.dirty=true;
   if(ui.pendingGrowth&&!G.over){const g2=ui.pendingGrowth;ui.pendingGrowth=null;showGrowth(g2)}
+  if(ui.pendingBanner){const d=ui.pendingBanner;ui.pendingBanner=null;metroBannerShow(d)}
 }
 function expandAnimTick(now){
   const a=ui.expAnim;
@@ -3269,7 +3879,7 @@ function expandAnimTick(now){
   if(!T.expG){T.expG=new THREE.Group();T.dyn.add(T.expG)}
   const g=T.expG,ex=a.ex,t=a.fixedT!=null?a.fixedT:(now-a.t0)/a.dur;
   if(t>=1){endExpandAnim();return}
-  const e=x=>x<0?0:x>1?1:x*x*(3-2*x),east=ex.side==='east',nw=ex.neu,w=nw.x1-nw.x0,h=nw.y1-nw.y0;
+  const e=x=>x<0?0:x>1?1:x*x*(3-2*x),hz=ex.side==='east'||ex.side==='west',fw=ex.side==='east'||ex.side==='south',nw=ex.neu,w=nw.x1-nw.x0,h=nw.y1-nw.y0;
   if(!g._k){
     g._k=1;g._m={};
     const base=(T.terrMats&&T.terrMats[0])||null,cm=new THREE.MeshStandardMaterial({color:base?base.color.clone():lin('#6c9a47'),roughness:.97});
@@ -3277,7 +3887,7 @@ function expandAnimTick(now){
     const cover=new THREE.Mesh(T.gBox,cm);cover.renderOrder=3;g.add(cover);g._m.cover=cover;
     const front=new THREE.Mesh(T.gBox,basic('#ffffff',{transparent:true,opacity:.95,depthWrite:false}));front.renderOrder=8;g.add(front);g._m.front=front;
     const tint=new THREE.Mesh(T.gBox,basic('#3fb868',{transparent:true,opacity:.3,depthWrite:false}));tint.renderOrder=7;g.add(tint);g._m.tint=tint;
-    const lb=mkSprite(textTex('NEW','#2a9d57'),90,36);lb.position.set((nw.x0+nw.x1)/2,90,(nw.y0+nw.y1)/2);lb.visible=false;g.add(lb);g._m.lb=lb;
+    const lb=mkSprite(textTex(ex.label||'NEW','#2a9d57'),90,36);lb.position.set((nw.x0+nw.x1)/2,90,(nw.y0+nw.y1)/2);lb.visible=false;g.add(lb);g._m.lb=lb;
   }
   const m=g._m;
   // 1) buildings sink into the ground, 2) the new streets grow out from the old edge, 3) buildings rise, new ones included
@@ -3288,13 +3898,13 @@ function expandAnimTick(now){
   if(t>.6&&a.ph<2){a.ph=2;toast('New buildings are going up!',2600)}
   const prog=e((t-.3)/.26);
   // the grass cover shrinks away from the old edge, so the new roads appear to grow outward
-  const cw=east?w*(1-prog):w,ch=east?h:h*(1-prog),cx=east?nw.x1-cw/2:(nw.x0+nw.x1)/2,cz=east?(nw.y0+nw.y1)/2:nw.y1-ch/2;
+  const cw=hz?w*(1-prog):w,ch=hz?h:h*(1-prog),cx=hz?(fw?nw.x1-cw/2:nw.x0+cw/2):(nw.x0+nw.x1)/2,cz=hz?(nw.y0+nw.y1)/2:(fw?nw.y1-ch/2:nw.y0+ch/2);
   m.cover.visible=prog<.999;m.cover.scale.set(Math.max(.01,cw),.4,Math.max(.01,ch));m.cover.position.set(cx,.9,cz);
-  const rw=east?w*prog:w,rh=east?h:h*prog,rx=east?nw.x0+rw/2:(nw.x0+nw.x1)/2,rz=east?(nw.y0+nw.y1)/2:nw.y0+rh/2;
+  const rw=hz?w*prog:w,rh=hz?h:h*prog,rx=hz?(fw?nw.x0+rw/2:nw.x1-rw/2):(nw.x0+nw.x1)/2,rz=hz?(nw.y0+nw.y1)/2:(fw?nw.y0+rh/2:nw.y1-rh/2);
   const fade=1-e((t-.62)/.18);
   m.tint.visible=prog>.01&&fade>.01;m.tint.scale.set(Math.max(.01,rw),.5,Math.max(.01,rh));m.tint.position.set(rx,1.3,rz);m.tint.material.opacity=(.3+.12*Math.sin(now/200))*fade;
   m.front.visible=prog>.01&&prog<.995;
-  if(east){m.front.scale.set(5,.8,h);m.front.position.set(nw.x0+rw,1.6,(nw.y0+nw.y1)/2)}else{m.front.scale.set(w,.8,5);m.front.position.set((nw.x0+nw.x1)/2,1.6,nw.y0+rh)}
+  if(hz){m.front.scale.set(5,.8,h);m.front.position.set(fw?nw.x0+rw:nw.x1-rw,1.6,(nw.y0+nw.y1)/2)}else{m.front.scale.set(w,.8,5);m.front.position.set((nw.x0+nw.x1)/2,1.6,fw?nw.y0+rh:nw.y1-rh)}
   m.lb.visible=t>.3&&t<.74;m.lb.position.y=80+8*Math.sin(now/260);
 }
 /* ================= growth choices ================= */
@@ -3375,8 +3985,8 @@ function growCity(){
 function serialize(){
   return{v:1,lvl:G.levelIdx,free:G.free||null,day:G.day,money:G.money,engine:G.engine,rev:G.rev,cost:G.cost,delivered:G.delivered,gaveUp:G.gaveUp,map:G.L.map.slice(),win:G.win.slice(),
     stops:[...G.stops.values()].map(s=>({id:s.id,acc:!!s.access,bike:!!s.bike})),
-    routes:G.routes.map(r=>({via:JSON.parse(JSON.stringify(r.via||{})),name:r.name,color:r.color,stops:r.stops.slice(),express:r.express,ep:r.expressPaid,loop:r.loop,lane:r.lane,sched:r.sched,night:!!r.night,model:r.model,spacing:!!r.spacing,buses:r.buses.length})),
-    depots:[...G.depots.keys()],rival:G.rival.stops.slice()};
+    routes:G.routes.map(r=>({via:JSON.parse(JSON.stringify(r.via||{})),name:r.name,color:r.color,stops:r.stops.slice(),express:r.express,ep:r.expressPaid,loop:r.loop,lane:r.lane,sched:r.sched,night:!!r.night,model:r.model,spacing:!!r.spacing,shuttle:!!r.shuttle,buses:r.buses.length})),
+    depots:[...G.depots.keys()],rival:G.rival.stops.slice(),mode:G.metro?'metro':undefined,metro:G.metro?metroSave():undefined};
 }
 function saveGame(){
   try{if(G.L.daily||G.L.weekly||G.over)return;localStorage.setItem(slotKey(PROF.slot||1),JSON.stringify(serialize()))}catch(e){}
@@ -3392,11 +4002,11 @@ function readSave(n){
 }
 function applySave(d){
   setPhases();loadLevel(d.lvl,{skipTut:true,free:d.free||null});
-  G.L.map=d.map.slice();G.city=buildCity(G.L);if(T.ok){build3D(G.city);resetDyn()}
+  G.L.map=d.map.slice();if(d.mode==='metro'&&d.metro&&G.metro)metroLoad(d.metro);G.city=buildCity(G.L);if(T.ok){build3D(G.city);resetDyn()}
   G.day=d.day;G.money=d.money;G.engine=d.engine||0;G.rev=d.rev||0;G.cost=d.cost||0;G.delivered=d.delivered||0;G.gaveUp=d.gaveUp||0;G.win=(d.win||[]).slice();
   for(const s of d.stops){const st=addStop(s.id,true);if(st){st.access=s.acc;st.bike=!!s.bike}}
   for(const rd of d.routes){
-    const r=newRoute(rd.stops);r.name=rd.name;r.color=rd.color;r.express=rd.express;r.expressPaid=rd.ep;r.loop=rd.loop;r.lane=rd.lane;r.sched=rd.sched;r.night=!!rd.night;r.model=rd.model;r.spacing=!!rd.spacing;r.via=rd.via||{};recalcRoute(r);
+    const r=newRoute(rd.stops);r.name=rd.name;r.color=rd.color;r.express=rd.express;r.expressPaid=rd.ep;r.loop=rd.loop;r.lane=rd.lane;r.sched=rd.sched;r.night=!!rd.night;r.model=rd.model;r.spacing=!!rd.spacing;r.shuttle=!!rd.shuttle;r.via=rd.via||{};recalcRoute(r);
     for(let k=0;k<rd.buses;k++)addBus(r,true);
   }
   for(const id of d.depots||[]){const n=G.city.nodes[id],[sx,sy]=stopCorner(G.city,n);G.depots.set(id,{id,x:n.x+sx*34,y:n.y+sy*30,sx,sy})}
@@ -3406,6 +4016,7 @@ function applySave(d){
   ui.tut=false;netChanged();planEvents();makeMissions();ui.sheet=false;setTool('select');ui.dirty=true;G.snap=d;
   if(T.ok){build3D(G.city);resetDyn()}
   applyBank();
+  if(G.metro){metroAfterLoad()}
 }
 function loadSave(n){
   const d=readSave(n);if(!d)return false;
@@ -3418,11 +4029,11 @@ function retryDay(){
 
 /* ================= level setup ================= */
 function resetState(){
-  if(ui.ride)rideExit('reset');
+  if(ui.ride)rideExit('reset');G.metro=null;
   G.parkBonus=0;G.boosts={};G.umbrellaT=0;ui.shopHome=false;ui.shopArm=null;G.hist={};G.histT=0;G.stories=[];G.dayEnding=false;G.warned=false;G.stops=new Map();G.routes=[];G.buses=[];G.citizens=[];G.parts=[];G.day=1;G.t=0;G.acc=0;G.over=false;G.netVer++;
   G.bubbles=[];G.thinkMem=[];G.thinkT=20;G.thinkSeen=false;G.wheelSeen=false;G.xferDelivered=0;G.delivered=0;G.gaveUp=0;G.dayDel=0;G.dayGave=0;G.win=[];G.event=null;G.stormMult=1;G.routeCount=0;G.lastEv='';G.flashSat=0;
   G.gaveBlock={};G.okBlock={};G.town=townNew();G.townT=0;ui.town=false;ui.townSel=null;ui.tmark=null;G.depots=new Map();G.rival={stops:[],routes:[]};G.missions=[];G.mDel=0;G.mClears=0;G.mDest={};G.prioCD=0;G.lostRival=0;G.dayLost=0;G.snap=null;G.xpDay=0;G.lmT=0;G.fogMult=1;G.rev=0;G.cost=0;G.dayRev=0;G.dayCost=0;G.engine=0;G.pendingNext=false;G.congT=0;G.lastPhase='';
-  ui.drawing=null;ui.sel=null;ui.tool='select';ui.sheet=false;ui.moving=null;ui.view='off';ui.follow=null;ui.undo=[];ui.undoSig='';ui.shape=null;
+  ui.drawing=null;ui.placeStation=false;ui.townTab='';ui.sel=null;ui.tool='select';ui.sheet=false;ui.moving=null;ui.view='off';ui.follow=null;ui.undo=[];ui.undoSig='';ui.shape=null;
 }
 function loadLevel(i,opts){
   opts=opts||{};
@@ -3431,7 +4042,7 @@ function loadLevel(i,opts){
   const chal=base.daily||base.weekly;
   if(chal){for(let t=0;t<30;t++){L=dailyLevel(t,!!base.weekly);city=buildCity(L);if(city.connected&&city.homes.length>=10&&city.works.length>=6)break}}
   {const D=DIFFS[PROF.diff]||DIFFS.standard;L=Object.assign({},L,{patience:L.patience*D.pat,perDay:L.perDay*D.day,cash:Math.round(L.cash*D.cash),goals:L.goals?{sat:L.goals.sat,gave:L.goals.gave,profit:Math.round(L.goals.profit*D.goal)}:L.goals});G.fareMult=D.fare;G.costMult=D.cost||1}
-  G.L=L;resetState();G.free=opts.free||null;G.noOver=G.free==='unlimited';rnd=chal?rng(L.seed*31+7):Math.random;G.season=seasonFor(1);
+  G.L=L;resetState();if(L.metro)metroInit();G.free=opts.free||null;G.noOver=G.free==='unlimited';rnd=chal?rng(L.seed*31+7):Math.random;G.season=seasonFor(1);
   G.city=city||buildCity(L);
   G.money=L.cash;if(!opts.skipTut&&!opts.noBonus)startBonus();if(G.free==='unlimited')G.money=9999999;
   if(T.ok){build3D(G.city);resetDyn()}
@@ -3795,6 +4406,7 @@ function nearestNode(sx,sy,maxScreen){
 function onTap(sx,sy){
   if(G.modal||ui.tour||!G.city)return;
   {const rb=$('#rbubble');if(rb)rb.hidden=true}
+  if(ui.placeStation){const n=nearestNode(sx,sy,60);if(n&&n.hwNode)return;if(n){if(buildStation(n.id)){ui.placeStation=false;ui.dirty=true}}else toast('Tap right on a street junction for the station.',1800);return}
   if(ui.shape){const n=nearestNode(sx,sy,60);if(n)shapeTap(n);return}
   if(ui.moving){const n=nearestNode(sx,sy,60);if(n){pushUndo();moveStop(ui.moving,n.id)}return}
   const tool=ui.tool;
@@ -3827,13 +4439,13 @@ function routeTap(n){
     const enders=owner.filter(r=>r.stops[r.stops.length-1]===n.id&&!r.loop);
     if(enders.length&&!ui.newRt){const er=(ui.sel&&ui.sel.type==='route'&&enders.find(r=>r.id===ui.sel.id))||enders.slice().sort((a,b)=>b.id-a.id)[0];ui.drawing={routeId:er.id};ui.sel={type:'route',id:er.id};toast('Extending '+er.name+'. Tap the next stop.');ui.dirty=true;return}
     ui.newRt=false;
-    if(owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfers unlock at Metro Heights (level 3 of the campaign).');return}
+    if(owner.length&&!xferOk(n.id)){toast(xferMsg(owner[0]));return}
     ui.drawing={routeId:null,first:n.id};ui.dirty=true;return;
   }
   if(d.routeId===null){
     if(n.id===d.first){ui.drawing=null;toast('Route cancelled.');ui.dirty=true;return}
-    if(owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfers unlock at Metro Heights (level 3 of the campaign).');return}
-    if(G.routes.length>=8){toast('Maximum of 8 routes.');return}
+    if(owner.length&&!xferOk(n.id)){toast(xferMsg(owner[0]));return}
+    if(G.routes.length>=maxRoutes()){toast('Maximum of '+maxRoutes()+' routes.');return}
     if(!st){const ns=addStop(n.id);if(!ns)return;ns.popT=performance.now()}
     const r=newRoute([d.first,n.id]);r._grow=performance.now();
     const ok=addBus(r);if(!ok)toast(r.name+' has no bus yet. Add one in the Buses panel when you have cash.');
@@ -3845,7 +4457,7 @@ function routeTap(n){
     if(r.stops[r.stops.length-1]===n.id){finishDrawing();return}
     toast('That stop is already on '+r.name+'.');return;
   }
-  if(st&&owner.length&&!L.transfer){toast('That stop is on '+owner[0].name+'. Transfers unlock at Metro Heights (level 3 of the campaign).');return}
+  if(st&&owner.length&&!xferOk(n.id)){toast(xferMsg(owner[0]));return}
   if(!st){const ns=addStop(n.id);if(!ns)return;ns.popT=performance.now()}
   r.stops.push(n.id);recalcRoute(r);r._grow=performance.now();fx.ring(n.x,n.y,r.color,34);snd('pop');haptic(10);netChanged();
 }
@@ -5576,7 +6188,7 @@ function resetDyn(){
   for(const o of T.partObjs)T.dyn.remove(o.o);T.partObjs=[];
   if(T.bubbleObjs){for(const o of T.bubbleObjs.values())T.dyn.remove(o);T.bubbleObjs.clear()}
   if(T.covMap){for(const m of T.covMap.values()){T.covG.remove(m);m.material.dispose()}T.covMap.clear()}
-  for(const m of[T.depotObjs,T.rivalStopObjs,T.rivalBusObjs])if(m){for(const o of m.values()){T.dyn.remove(o);disposeTree(o)}m.clear()}
+  for(const m of[T.depotObjs,T.rivalStopObjs,T.rivalBusObjs,T.stationObjs])if(m){for(const o of m.values()){T.dyn.remove(o);disposeTree(o)}m.clear()}
   if(T.hover)T.hover.visible=false;
 }
 function ribbon(pts,w,y,mat){
@@ -5592,14 +6204,14 @@ function ribbon(pts,w,y,mat){
 function syncRoutes(){syncRoutes0();routeGrowTick(performance.now())}
 function syncRoutes0(){
   const selR=ui.sel&&ui.sel.type==='route'?ui.sel.id:null,dr=ui.drawing;
-  const key=G.netVer+'|'+selR+'|'+(dr?dr.routeId:'')+'|'+(ui.shape||'')+'|'+G.routes.map(r=>r.express?1:0).join('');
+  const key=G.netVer+'|'+selR+'|'+(dr?dr.routeId:'')+'|'+(ui.shape||'')+'|'+G.routes.map(r=>(r.express?1:0)+(r.shuttle?2:0)).join('');
   if(key===T.routeKey)return;T.routeKey=key;clearGroup(T.routeG);T.flow=null;
   for(const r of G.routes){
     const hi=selR===r.id||(dr&&dr.routeId===r.id),dim=selR&&!hi;
     const op=(o)=>({transparent:true,opacity:o,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
     const under=basic(r.express?'#ffd24d':'#ffffff',op(dim?.3:.9)),top=basic(r.color,op(dim?.45:.97));
     const all=[].concat(...r.vis);
-    const rb1=ribbon(all,hi?13:10.5,.55,under),rb2=ribbon(all,hi?8.4:6.4,.7,top);T.routeG.add(rb1);T.routeG.add(rb2);r._rib=[rb1,rb2];r._ribAll=all;r._lastN=r.vis.length?r.vis[r.vis.length-1].length/2:0;
+    const ws=r.shuttle?1.75:1,rb1=ribbon(all,(hi?13:10.5)*ws,.55,under),rb2=ribbon(all,(hi?8.4:6.4)*ws,.7,top);T.routeG.add(rb1);T.routeG.add(rb2);r._rib=[rb1,rb2];r._ribAll=all;r._lastN=r.vis.length?r.vis[r.vis.length-1].length/2:0;
     if(hi&&!T.flow){const segs=[],cum=[0];for(let k=0;k+1<all.length;k+=2){const a=all[k],b=all[k+1],l=Math.hypot(b[0]-a[0],b[1]-a[1]);segs.push([a,b,l]);cum.push(cum[cum.length-1]+l)}
       const total=cum[cum.length-1];
       if(total>60){const n=Math.min(70,Math.floor(total/38)),geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute([-3,0,-2.8,3.4,0,0,-3,0,2.8],3));geo.setIndex([0,2,1]);
@@ -5896,6 +6508,7 @@ function syncParts(u){
 function effView(){
   if(ui.ride)return'off';
   if(ui.view!=='off')return ui.view;
+  if(ui.placeStation)return'districts';
   if(G.paused&&!G.modal&&(ui.tool==='stop'||ui.tool==='route'||ui.drawing))return'coverage';
   return'off';
 }
@@ -5926,7 +6539,7 @@ function syncViews(now,u){
   if(T.streetG)T.streetG.visible=PROF.streets!==false&&(cam.zoom>=.75||!!ui.ride)&&!ui.photo;
   if(!T.heatG)return;
   const view=effView();
-  T.heatG.visible=view==='demand'||view==='coverage'||view==='mood';T.trafG.visible=view==='traffic';
+  T.heatG.visible=view==='demand'||view==='coverage'||view==='mood';metroTerrSync(view==='districts',now);T.trafG.visible=view==='traffic';
   if(T.moodG)T.moodG.visible=view==='mood';
   if(!T.covG){T.covG=new THREE.Group();T.dyn.add(T.covG);T.covMap=new Map()}
   T.covG.visible=view==='coverage';
@@ -6089,6 +6702,7 @@ function syncMeta(u,now){
     const sp=mkSprite(textTex('DEPOT','#2a7de1'),30,12);sp.position.set(0,18,0);g.add(sp);
     mergeStatic(g);T.dyn.add(g);T.depotObjs.set(d.id,g);
   }
+  metroSyncStations();
   const rs=new Set(G.rival.stops);
   for(const[id,o]of T.rivalStopObjs)if(!rs.has(id)){T.dyn.remove(o);disposeTree(o);T.rivalStopObjs.delete(id)}
   for(const id of G.rival.stops)if(!T.rivalStopObjs.has(id)){
@@ -6334,6 +6948,7 @@ function setTool(t){
 }
 function hintText(){
   if(G.over)return'';
+  if(ui.placeStation)return'Placing a station: tap a street junction in a district that has none. Press Cancel to stop.';
   if(tutOn()){
     const t=tutState();
     if(G.routes.length)return'Step 4 of 4 · Your route is running with 1 bus. Press ▶ to start the day, then add stops and buses as crowds grow.';
@@ -6385,8 +7000,9 @@ function refreshUI(){
     const keep=document.activeElement&&document.activeElement.id==='rn';
     if(!keep)sh.innerHTML=html;
   }
-  const db=$('#drawbar'),d=ui.drawing;db.hidden=!(d||ui.shape);
-  if(ui.shape){const r=G.routes.find(x=>x.id===ui.shape);db.innerHTML='<span class="txt">Shaping '+(r?esc(r.name):'route')+'</span><button data-act="clearshape">Reset bends</button><button class="go" data-act="doneshape">Done</button>'}
+  const db=$('#drawbar'),d=ui.drawing;db.hidden=!(d||ui.shape||ui.placeStation);
+  if(ui.placeStation){db.innerHTML='<span class="txt">Tap a junction for the station</span><button class="go" data-act="netcancel">Cancel</button>'}
+  else if(ui.shape){const r=G.routes.find(x=>x.id===ui.shape);db.innerHTML='<span class="txt">Shaping '+(r?esc(r.name):'route')+'</span><button data-act="clearshape">Reset bends</button><button class="go" data-act="doneshape">Done</button>'}
   else if(d){
     const r=d.routeId!==null?G.routes.find(x=>x.id===d.routeId):null;
     db.innerHTML='<span class="txt">'+(r?esc(r.name)+' · '+r.stops.length+' stops':'New route · tap 2nd stop')+'</span><button data-act="undo">Undo</button>'+(r?'<button data-act="newroute">New route</button>':'')+'<button class="go" data-act="done">Done</button>';
@@ -6401,9 +7017,9 @@ function refreshUI(){
   $('#bView').classList.toggle('on',ui.view!=='off');
   {let lg=$('#legend');if(!lg){lg=document.createElement('div');lg.id='legend';lg.className='panel legend';lg.hidden=true;$('#app').appendChild(lg)}
    const cb=PROF.a11y.cb,sw=(c,k)=>'<i style="background:'+c+'"></i>'+(cb?GL[k]+' ':'');
-   const L={demand:'<b>Demand</b><br>'+sw(COL.ok,0)+'Few riders waiting<br>'+sw(COL.warn,1)+'A crowd is building<br>'+sw(COL.bad,2)+'Riders waiting or giving up',traffic:'<b>Traffic</b><br>'+sw(COL.ok,0)+'Flowing<br>'+sw(COL.warn,1)+'Slowing<br>'+sw(COL.bad,2)+'Jammed',coverage:'<b>Coverage</b><br>'+sw(COL.ok,0)+'Stop within walking distance<br>'+sw(COL.bad,2)+'No stop nearby',mood:'<b>Mood</b>'+(G.town&&G.town.happy!=null?' \u00B7 happiness '+G.town.happy+'%':'')+'<br>'+sw(COL.ok,0)+'Happy residents<br>'+sw(COL.warn,1)+'Annoyed<br>'+sw(COL.bad,2)+'Angry<br>Icons mark the biggest need'};
+   const L={demand:'<b>Demand</b><br>'+sw(COL.ok,0)+'Few riders waiting<br>'+sw(COL.warn,1)+'A crowd is building<br>'+sw(COL.bad,2)+'Riders waiting or giving up',traffic:'<b>Traffic</b><br>'+sw(COL.ok,0)+'Flowing<br>'+sw(COL.warn,1)+'Slowing<br>'+sw(COL.bad,2)+'Jammed',coverage:'<b>Coverage</b><br>'+sw(COL.ok,0)+'Stop within walking distance<br>'+sw(COL.bad,2)+'No stop nearby',mood:'<b>Mood</b>'+(G.town&&G.town.happy!=null?' \u00B7 happiness '+G.town.happy+'%':'')+'<br>'+sw(COL.ok,0)+'Happy residents<br>'+sw(COL.warn,1)+'Annoyed<br>'+sw(COL.bad,2)+'Angry<br>Icons mark the biggest need',districts:'<b>Districts</b><br>'+(G.metro?G.metro.districts.map(d=>'<i style="background:'+d.col+'"></i>'+esc(d.name)+(G.metro.stations.some(s=>s.di===d.id)?' \u{1F689}':'')).slice(0,8).join('<br>'):'')+'<br>\u{1F689} has a bus station'};
    const eff=ui.view,h=L[eff]||'';if(lg._h!==h){lg._h=h;lg.innerHTML=h}lg.hidden=!h||ui.photo||((ui.sheet||ui.town)&&W<760)}
-  $('#viewLbl').textContent=ui.view==='demand'?'Demand':ui.view==='traffic'?'Traffic':ui.view==='coverage'?'Coverage':ui.view==='mood'?'Mood':'Map view';
+  $('#viewLbl').textContent=ui.view==='demand'?'Demand':ui.view==='traffic'?'Traffic':ui.view==='coverage'?'Coverage':ui.view==='mood'?'Mood':ui.view==='districts'?'Districts':'Map view';
 }
 function riderSummary(st){
   const c={};for(const w of st.waiters)c[w.type]=(c[w.type]||0)+1;
@@ -6415,8 +7031,8 @@ function updateStopCard(build){
   const n=G.city.nodes[st.id],rs=routesAt(st.id),nr=st.waiters.filter(c=>c.noRoute).length,stat=stopStatus(st);
   const line=st.waiters.length?(st.waiters.length+' waiting · '+(PROF.a11y.cb?GL[stat]+' ':'')+PST[stat]+(nr?' · '+nr+' with no route':'')):'Nobody waiting';
   const who=riderSummary(st);
-  const html='<div class="si"><b>Stop at '+esc(nodeName(n))+(st.access?' · step-free':'')+'</b><span data-sl>'+esc(line)+'</span><span data-sw>'+esc(who)+'</span><span>'+(rs.length?'Routes: '+rs.map(r=>esc(r.name)).join(', '):'Not on a route yet')+'</span></div>'+
-    '<button data-act="prio" data-pc>'+(G.prioCD>0?'Priority ('+Math.ceil(G.prioCD)+'s)':'Priority call')+'</button><button data-act="movestop">Move $'+PRICE.move+'</button>'+(has('depot')?'<button data-act="depot"'+(G.depots.has(st.id)?' disabled':'')+'>'+(G.depots.has(st.id)?'Depot ✓':'Depot $800')+'</button>':'')+(G.L.riders.includes('wheel')?'<button data-act="ramp"'+(st.access?' disabled':'')+'>'+(st.access?'Step-free ✓':'Ramp $'+PRICE.ramp)+'</button>':'')+(has('bikes')?'<button data-act="bike"'+(st.bike?' disabled':'')+'>'+(st.bike?'Bike dock ✓':'Bike dock $450')+'</button>':'')+
+  const html='<div class="si"><b>'+(G.metro&&metroIsStation(st.id)?esc(metroStationAt(st.id).name)+' · ':'Stop at ')+esc(nodeName(n))+(st.access?' · step-free':'')+'</b><span data-sl>'+esc(line)+'</span><span data-sw>'+esc(who)+'</span><span>'+(rs.length?'Routes: '+rs.map(r=>esc(r.name)).join(', '):'Not on a route yet')+'</span></div>'+
+    '<button data-act="prio" data-pc>'+(G.prioCD>0?'Priority ('+Math.ceil(G.prioCD)+'s)':'Priority call')+'</button><button data-act="movestop">Move $'+PRICE.move+'</button>'+(G.metro&&metroInfo().unlocked?'<button data-act="station"'+(metroIsStation(st.id)?' disabled':'')+'>'+(metroIsStation(st.id)?'Station \u2713':'Station '+money(metroInfo().cost))+'</button>':'')+(has('depot')?'<button data-act="depot"'+(G.depots.has(st.id)?' disabled':'')+'>'+(G.depots.has(st.id)?'Depot ✓':'Depot $800')+'</button>':'')+(G.L.riders.includes('wheel')?'<button data-act="ramp"'+(st.access?' disabled':'')+'>'+(st.access?'Step-free ✓':'Ramp $'+PRICE.ramp)+'</button>':'')+(has('bikes')?'<button data-act="bike"'+(st.bike?' disabled':'')+'>'+(st.bike?'Bike dock ✓':'Bike dock $450')+'</button>':'')+
     (invCount()?'<button data-act="items">Items</button>':'')+'<button class="danger" data-act="rmstop">Remove</button><button data-act="closecard">Close</button>';
   if(build){sc.innerHTML=html}else{const pc=sc.querySelector('[data-pc]');if(pc)pc.textContent=G.prioCD>0?'Priority ('+Math.ceil(G.prioCD)+'s)':'Priority call';const e=sc.querySelector('[data-sl]');if(e)e.textContent=line;const w=sc.querySelector('[data-sw]');if(w)w.textContent=who}
 }
@@ -6460,6 +7076,7 @@ function hud(){
   {const mp=$('#missions');let h='';
    if(!tutOn()){for(const m of G.missions){const pr=m.prog?Math.min(m.goal,Math.floor(m.prog())):0;h+='<div class="m '+(m.done?'done':m.failed?'fail':m.mayor?'mayor':'')+'"><b>'+(m.done?'✓':m.failed?'✕':m.mayor?'⚑':'◻')+'</b><span>'+esc(m.text)+(!m.done&&!m.failed&&['arena','uni','air','hosp','mall','school'].includes(m.pin||m.id)?' <button class="pin" data-act="msnpin" data-k="'+(m.pin||m.id)+'">Show me</button>':'')+'</span><em>'+(m.special?(m.special==='pm'?(G.gaveMark>=0?(G.dayGave-G.gaveMark)+' gave up · ':''):m.special==='happy'?((G.dayDel+G.dayGave)?Math.round(100*G.dayDel/(G.dayDel+G.dayGave))+'% · ':''):''):pr+'/'+m.goal+' · ')+'$'+m.reward+'</em></div>'}
      if(G.rival.stops.length)h+='<div class="m rv"><b>⚑</b><span>Rival Transit holds '+G.rival.stops.length+' stop'+(G.rival.stops.length>1?'s':'')+'</span><em>'+G.dayLost+' riders lost today</em></div>'}
+   if(!tutOn()&&G.metro)h+=metroHudLine();
    if(!tutOn()&&G.L.goals){const g=G.L.goals,profit=Math.round(G.rev-G.cost);h+='<div class="m goal"><b>★</b><span>Goals: gave up <u class="'+(G.gaveUp>=g.gave?'bad':'')+'">'+G.gaveUp+'/'+g.gave+'</u> · profit <u class="'+(profit>=g.profit?'ok':'')+'">$'+profit+'/$'+g.profit+'</u></span></div>'}
    if(h!==mp._h){mp._h=h;mp.innerHTML=h;mp.hidden=!h}}
   {const sv=sat();if(G.win.length>=15&&sv<.64&&sv>=.5&&!G.warned&&!G.over){G.warned=true;toast('Riders are getting upset ('+Math.round(sv*100)+'%). Add buses at the red stops before it drops below 50%.',4800);snd('alert')}else if(sv>=.72)G.warned=false}
@@ -6543,6 +7160,21 @@ document.addEventListener('click',e=>{
     case'tool':setTool(el.dataset.tool);break;
     case'sheet':ui.sheet=!ui.sheet;if(ui.sheet)ui.town=false;ui.dirty=true;break;
     case'town':townToggle();break;
+    case'netview':ui.view='districts';if(W<760)ui.town=false;ui.dirty=true;toast('District view: each colour is a district. A bright border and the station icon mean it has a bus station.',3600);break;
+    case'metrohud':ui.town=true;ui.townTab='net';ui.sheet=false;townTick();ui.dirty=true;break;
+    case'townnet':ui.townTab='net';ui.dirty=true;break;
+    case'towntab':ui.townTab='';ui.dirty=true;break;
+    case'netshow':metroShow(+el.dataset.id);break;
+    case'netdist':metroShowDist(+el.dataset.id);break;
+    case'netlink':metroLink(+el.dataset.a,+el.dataset.b);break;
+    case'netbuild':metroPlaceStart();break;
+    case'netcancel':ui.placeStation=false;ui.dirty=true;toast('Station placement cancelled.');break;
+    case'station':if(ui.sel&&ui.sel.type==='stop'){if(buildStation(ui.sel.id))ui.dirty=true}break;
+    case'metro':showMetroIntro();break;
+    case'metronew':metroStartNew();break;
+    case'tipok':metroTipClose(false);break;
+    case'tipbuild':metroTipClose(true);break;
+    case'bannerx':{const b=$('#mbanner');if(b)b.hidden=true;break}
     case'townmood':ui.view='mood';townTick();if(W<760)ui.town=false;ui.dirty=true;toast('Mood view: green blocks are happy, red are angry. Icons show the biggest need there (see the key).',3200);break;
     case'townrow':{const r=townFindRec(el.dataset.key);if(r){ui.townSel=(ui.townSel===r.key&&!r.thx)?null:r.key;townLook(r);ui.dirty=true}break}
     case'townfix':{let k=el.dataset.key||'';if(k.slice(0,3)==='tv|'){advSnooze(k,120);k=k.slice(3)}townDoFix(k);break}
@@ -6563,7 +7195,7 @@ document.addEventListener('click',e=>{
     case'follow':if(route&&route.buses.length){ui.follow=route.buses[0].id;cam.zoom=Math.max(cam.zoom,2);ui.sheet=false;ui.dirty=true}else toast('This route has no buses yet.');break;
     case'movestop':if(ui.sel&&ui.sel.type==='stop'){ui.moving=ui.sel.id;ui.sel=null;setTool('select');ui.dirty=true}break;
     case'ramp':if(ui.sel&&ui.sel.type==='stop')makeAccessible(ui.sel.id);break;
-    case'view':ui.view=ui.view==='off'?'demand':ui.view==='demand'?'traffic':ui.view==='traffic'?'coverage':ui.view==='coverage'?'mood':'off';ui.dirty=true;if(ui.view==='mood')townTick();toast(ui.view==='mood'?'Mood view: green blocks are happy, red are angry. Icons show the biggest need there (see the key).':ui.view==='demand'?'Demand view: homes and offices glow where riders are being missed.':ui.view==='traffic'?'Traffic view: roads change colour where buses slow down (see the key).':ui.view==='coverage'?'Coverage view: blocks marked OK have a stop within walking distance, the others do not (see the key).':'Map view off.');break;
+    case'view':{const VO=G.metro?['off','demand','traffic','coverage','mood','districts']:['off','demand','traffic','coverage','mood'];ui.view=VO[(VO.indexOf(ui.view)+1)%VO.length]}ui.dirty=true;if(ui.view==='mood')townTick();toast(ui.view==='districts'?'District view: each colour is a district, with its name. A bright border and a station icon mean it has a bus station.':ui.view==='mood'?'Mood view: green blocks are happy, red are angry. Icons show the biggest need there (see the key).':ui.view==='demand'?'Demand view: homes and offices glow where riders are being missed.':ui.view==='traffic'?'Traffic view: roads change colour where buses slow down (see the key).':ui.view==='coverage'?'Coverage view: blocks marked OK have a stop within walking distance, the others do not (see the key).':'Map view off.');break;
     case'showworst':{const st=G.stops.get(id);hideOv();G.modal=false;if(st){cam.x=st.x;cam.y=st.y;cam.zoom=Math.max(cam.zoom,1.8);ui.sel={type:'stop',id:st.id};ui.dirty=true}if(isFinite(G.L.days)&&G.day>=G.L.days){}else G.pendingNext=true;syncPlay();showReplay(id);break}
     case'ride':{if(ui.ride)break;const rb=route?rideBusFor(route.id):null;if(route&&!rb){toast('This route has no buses yet.');break}rideEnter(rb?rb.id:ui.follow);break}
     case'rideexit':rideExit('user');break;
@@ -6772,7 +7404,7 @@ function showHomeMenu(){
    '<p class="tag">Run the buses. Keep the city moving.</p>'+
    (best?'<button class="btn main" data-act="loadslot" data-n="'+bn+'" '+bd()+'>Continue<br><small style="font-weight:600;font-size:12px;opacity:.9">'+slotInfo(bn)+'</small></button>':'')+
    '<button class="btn'+(best?'':' main')+'" data-act="newgame" '+bd()+'>Campaign<br><small style="font-weight:600;font-size:12px;opacity:.9">'+esc(campIdx()>0||campIdx()>=CAMPAIGN.length?campLabel():'Start your journey')+'</small></button>'+
-   '<button class="btn" data-act="free" '+bd()+'>Free Play</button>'+
+   '<div class="row2"><button class="btn" data-act="metro" '+bd()+'>Metropolis<br><small>A city that keeps growing</small></button><button class="btn" data-act="free" '+bd()+'>Free Play<br><small>Build freely, no pressure</small></button></div>'+
    (nsaves>=2?'<button class="btn" data-act="slots" data-from="howto" '+bd()+'>Saved Games</button>':'')+
    '<button class="btn" data-act="settings" data-from="howto" '+bd()+'>Settings</button>'+
    '<button class="btn" data-act="howtoplay" '+bd()+'>How to play</button>'+
@@ -6792,6 +7424,7 @@ function howSteps(){return ''+
    '<div><b>6 · Run it like a business</b>Fares pay for stops, buses and upgrades. Each bus costs money to run. Check the Demand and Traffic map views.</div>'+
    '<div><b>7 · Level up</b>Missions, landmarks, weather and surprise events keep every day different. Earn XP to unlock City Hall upgrades and Garage looks.</div>'+
    '<div><b>8 · Grow the city</b>Schools, malls and hospitals open as you deliver more riders. Night service, bike docks and trams unlock at higher company levels.</div>'+
+   '<div><b>Metropolis mode</b>A small town that grows as you play: new streets, districts and bus stations. Link them so everyone can go everywhere.</div>'+
    '<div><b>Controls</b>Drag to pan. Pinch or scroll to zoom. Twist two fingers (or right-drag) to rotate. Tap or click to place. Pause any time to edit. Keys: S, T, R, B, V, +, −, M, Space.</div>'+
    '<div><b>Full guide</b>Every button, every rule and the best strategies are in the Guide. Open it any time from the menu or the buttons below.</div>';}
 function showHowToPlay(){
@@ -6827,7 +7460,7 @@ function levelCards(act,only,unl){act=act||'level';
   const st=getStars(),cont='';
   const order=only||CAMPAIGN.concat(LEVELS.map((_,i)=>i).filter(i=>CAMPAIGN.indexOf(i)<0));
   return'<div class="levels">'+cont+order.map(i=>{const L=LEVELS[i],ci=CAMPAIGN.indexOf(i);return'<button class="lv" data-act="'+act+'" data-i="'+i+'"><b>'+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small>'+
-    '<div class="chips"><span class="chip">'+(isFinite(L.days)?L.days+' days':'Endless')+'</span>'+(unl?'<span class="chip new">Unlimited money</span>':'<span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>')+(i===1?'<span class="chip new">Express routes</span>':'')+(i===2?'<span class="chip new">Transfers · step-free stops</span>':'')+(i===3?'<span class="chip new">Bridges</span>':'')+(i===7?'<span class="chip new">Narrow streets</span>':'')+(i===8?'<span class="chip new">Canals</span>':'')+(i===9?'<span class="chip new">Hill detours</span>':'')+(i===10?'<span class="chip new">Lake</span>':'')+(i===11?'<span class="chip new">Coast</span>':'')+(i===12?'<span class="chip new">Ring road</span>':'')+(i===13?'<span class="chip new">Finale</span>':'')+regionChips(L)+(L.sandbox?'<span class="chip new">No game over</span>':'')+(L.daily?'<span class="chip new">Today only</span>':'')+(L.weekly?'<span class="chip new">This week only</span>':'')+'</div>'+
+    '<div class="chips"><span class="chip">'+(isFinite(L.days)?L.days+' days':'Endless')+'</span>'+(unl?'<span class="chip new">Unlimited money</span>':'<span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>')+(i===1?'<span class="chip new">Express routes</span>':'')+(i===2?'<span class="chip new">Transfers · step-free stops</span>':'')+(i===3?'<span class="chip new">Bridges</span>':'')+(i===7?'<span class="chip new">Narrow streets</span>':'')+(i===8?'<span class="chip new">Canals</span>':'')+(i===9?'<span class="chip new">Hill detours</span>':'')+(i===10?'<span class="chip new">Lake</span>':'')+(i===11?'<span class="chip new">Coast</span>':'')+(i===12?'<span class="chip new">Ring road</span>':'')+(i===13?'<span class="chip new">Finale</span>':'')+regionChips(L)+(L.sandbox?'<span class="chip new">No game over</span>':'')+(L.metro?'<span class="chip new">Growing city</span>':'')+(L.daily?'<span class="chip new">Today only</span>':'')+(L.weekly?'<span class="chip new">This week only</span>':'')+'</div>'+
     (ci>=0&&(st[i]||0)>0?'<div class="stars">'+starStr(st[i]||0)+'</div>':'')+'</button>'}).join('')+'</div>';
 }
 
@@ -6858,7 +7491,7 @@ function stepAll(dt){concertTick(dt);step(dt)}
 
 window.addEventListener('resize',resize);
 window.addEventListener('blur',()=>{pointers.clear();multi=false;gesture=null});
-window.__rhr={meta:{worldFlush,worldOn,worldRect,worldLayout,worldSchedule,worldFly,flyFinish,flyTick,worldMiniMap,WJ,WC,townTick,townFix,townDoFix,townLook,townText,townHtml,townHappy,townToggle,renderTown,showThought,tapBubble,townNodeFor,TH,townThanks,moodBucket,showCampaign,showFree,campIdx,winButtons,showHowToPlay,snd,toggleMute,rmOn,patHtml,routeCols,ac:()=>({ac:AC,out:AOUT}),showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,shopTap,buyShop,useItem,equipLook,showItems,applyBank,shopItem,savePct,realSeason,bo,sp,boostIcons,invCount,applyLooks,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,removeStop,addStop,feel,haptic,moneyTick,coinFly,routeGrowTick,doubleTapZoom,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},wx:WX,vg:VG,info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
+window.__rhr={meta:{worldFlush,worldOn,worldRect,worldLayout,worldSchedule,worldFly,flyFinish,flyTick,worldMiniMap,WJ,WC,townTick,townFix,townDoFix,townLook,townText,townHtml,townHappy,townToggle,renderTown,showThought,tapBubble,townNodeFor,TH,townThanks,moodBucket,showCampaign,showFree,campIdx,winButtons,showHowToPlay,snd,toggleMute,rmOn,patHtml,routeCols,ac:()=>({ac:AC,out:AOUT}),showHomeMenu,saveGame,markHighway,applyHighwayNow,advise,advisorTick,expandMap,canExpand,remapIds,metro:{init:metroInit,expand:metroExpand,nextDay:metroNextDay,info:metroInfo,buildStation,link:metroLink,terr:metroTerr,conn:metroConn,pop:metroPop,score:metroScore,tick:metroTick,netHtml:metroNetHtml,buildCity,serveStop,save:metroSave,idx:METRO_IDX,bestNode:metroBestNode,canAt:metroCanAt,near:metroNearStation,links:metroLinks,xferOk,startNew:metroStartNew,intro:showMetroIntro,milestone:metroMilestone,STAGES,ST_R,place:metroPlaceStart,townFixStation:metroStationFix,build3D,resetDyn,fitCam,recalcRoute,roadPath,metroPlan,metroTerrSync},T,selfCheck,diagReport,DIAG,growChoices,showGrowth,applyGrowth,riderReason,riderBubble,mayorRequest,startTour,tourStep,endTour,initOffline,TOUR,showReplay,showBackup,backupCode,doImport,storiesHtml,addStory,showUnreachable,showGuide,routeTap,showDrivers,drvLevel,drvXp,pickDriver,startEvent,endEvent,landmarkTick,showShop,grantPurchase,shopTap,buyShop,useItem,equipLook,showItems,applyBank,shopItem,savePct,realSeason,bo,sp,boostIcons,invCount,applyLooks,setPhases,toggleNight,buyBike,routeActive,LMK,SHOP,showSettings,showTrophies,removeStop,addStop,feel,haptic,moneyTick,coinFly,routeGrowTick,doubleTapZoom,showSlots,setOpt,applyA11y,applyGfx,musicTick,ach,CAMPAIGN,LEVELS,levelCards,loadSave,readSave,COL,undo,pushUndo,netSnap,shapeTap,segPath,coachTick,callPriority,buildDepot,rivalExpand,rivalPush,addLandmark,makeMissions,completeMission,tickMissions,finishMissions,shareCard,retryDay,serialize,applySave,addXp,buyUnlock,setCosmetic,toggleSpacing,seasonFor,showCityHall,showGarage,P:()=>PROF,xpFor,levelOf,landmarkTick},wx:WX,vg:VG,info:()=>({calls:T.r.info.render.calls,tris:T.r.info.render.triangles,geo:T.r.info.memory.geometries,tex:T.r.info.memory.textures,post:T.post}),fn:{removeBus,upgradeModel,toggleLoop,reverseRoute,buyLane,toggleSched,buyEngine,toggleExpress,moveStop,makeAccessible,growCity,saveGame,loadSave,endOfDay,nextDay,goalsList,updCong,gameOver,dailyLevel,LEVELS,BUS_MODELS,money,readSave,showGoals},dbg:()=>({n:T.bubbleObjs&&T.bubbleObjs.size,o:T.bubbleObjs&&[...T.bubbleObjs.values()].map(o=>[o.position.x|0,o.position.y|0,o.position.z|0,o.material.opacity,o.scale.x,o.visible])}),postOn:()=>T.post,G,ui,cam,THREE:window.THREE,get camera(){return T.camera},step:s=>{let t=s;while(t>0){const d=Math.min(.05,t);stepAll(d);t-=d}},addStop,addBus,newRoute,netChanged,loadLevel,planFrom,routeTap,onTap,nearestNode,roadPath,removeStop,deleteRoute,hud,refreshUI,syncPlay,setTool,sat,toWorld};
 window.__rhr.ride={enter:rideEnter,exit:rideExit,tick:rideTick,camSet:rideCamSet,RD,RW,can:rideCan,look:rideLook,bar:busBarUpdate};
 /* boot (deferred one frame so the splash screen can paint first) */
 function bootGame(){
