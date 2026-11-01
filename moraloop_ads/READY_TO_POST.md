@@ -102,11 +102,14 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 95 | 2026-11-25 | 12:30 PM | loop short | The Deleted App | `moraloop_ads/loops/l033_the_deleted_app.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l033_the_deleted_app.mp4) |
 | 96 | 2026-11-25 | 8:00 PM | loop long | Returned | `moraloop_ads/loops/long/returned.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/long/returned.mp4) |
 | 97 | 2026-11-26 | 12:00 PM | short | The Free Meal | `moraloop_ads/trends/t034_the_free_meal.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t034_the_free_meal.mp4) |
-| 98 | 2026-11-27 | 12:00 PM | short | The Baby Fund | `moraloop_ads/trends/t035_the_baby_fund.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t035_the_baby_fund.mp4) |
-| 99 | 2026-11-28 | 12:00 PM | short | The Front Row | `moraloop_ads/trends/t036_the_front_row.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t036_the_front_row.mp4) |
-| 100 | 2026-11-29 | 12:00 PM | short | The Item Limit | `moraloop_ads/trends/t037_the_item_limit.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t037_the_item_limit.mp4) |
-| 101 | 2026-11-30 | 12:00 PM | short | The Airport Ride | `moraloop_ads/trends/t038_the_airport_ride.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t038_the_airport_ride.mp4) |
-| 102 | 2026-12-01 | 12:00 PM | short | The Late Flight | `moraloop_ads/trends/t039_the_late_flight.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t039_the_late_flight.mp4) |
+| 98 | 2026-11-26 | 12:30 PM | loop short | The Rent Split | `moraloop_ads/loops/l034_the_rent_split.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l034_the_rent_split.mp4) |
+| 99 | 2026-11-27 | 12:00 PM | short | The Baby Fund | `moraloop_ads/trends/t035_the_baby_fund.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t035_the_baby_fund.mp4) |
+| 100 | 2026-11-27 | 12:30 PM | loop short | The Big Order | `moraloop_ads/loops/l035_the_big_order.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l035_the_big_order.mp4) |
+| 101 | 2026-11-28 | 12:00 PM | short | The Front Row | `moraloop_ads/trends/t036_the_front_row.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t036_the_front_row.mp4) |
+| 102 | 2026-11-28 | 12:30 PM | loop short | The Missing Forty | `moraloop_ads/loops/l036_the_missing_forty.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l036_the_missing_forty.mp4) |
+| 103 | 2026-11-29 | 12:00 PM | short | The Item Limit | `moraloop_ads/trends/t037_the_item_limit.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t037_the_item_limit.mp4) |
+| 104 | 2026-11-30 | 12:00 PM | short | The Airport Ride | `moraloop_ads/trends/t038_the_airport_ride.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t038_the_airport_ride.mp4) |
+| 105 | 2026-12-01 | 12:00 PM | short | The Late Flight | `moraloop_ads/trends/t039_the_late_flight.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t039_the_late_flight.mp4) |
 
 ## Captions
 
@@ -983,7 +986,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #restaurant #kindness #friends
 ```
 
-### 98. 2026-11-27 12:00 PM: The Baby Fund (short)
+### 98. 2026-11-26 12:30 PM: The Rent Split (loop short)
+Video: `moraloop_ads/loops/l034_the_rent_split.mp4`
+
+```
+Your friend-landlord raised your rent $150, and you learn he pays far less. Do you push back on the raise, or pay it? Did you catch the whole thread? 👀 Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #roommates #rent #friendship
+```
+
+### 99. 2026-11-27 12:00 PM: The Baby Fund (short)
 Video: `moraloop_ads/trends/t035_the_baby_fund.mp4`
 
 ```
@@ -992,7 +1004,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #work #officelife #money
 ```
 
-### 99. 2026-11-28 12:00 PM: The Front Row (short)
+### 100. 2026-11-27 12:30 PM: The Big Order (loop short)
+Video: `moraloop_ads/loops/l035_the_big_order.mp4`
+
+```
+Your boss suggested ordering more. Now half is wasted and they ask why. Do you show the texts, or take the blame? Did you read the whole thread? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #work #boss #worklife
+```
+
+### 101. 2026-11-28 12:00 PM: The Front Row (short)
 Video: `moraloop_ads/trends/t036_the_front_row.mp4`
 
 ```
@@ -1001,7 +1022,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #graduation #forgiveness
 ```
 
-### 100. 2026-11-29 12:00 PM: The Item Limit (short)
+### 102. 2026-11-28 12:30 PM: The Missing Forty (loop short)
+Video: `moraloop_ads/loops/l036_the_missing_forty.mp4`
+
+```
+Your little brother admits he took $40 from your room. Do you tell your parents, or handle it yourself? Did you read the whole thread? 👀 Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #siblings #family #brothers
+```
+
+### 103. 2026-11-29 12:00 PM: The Item Limit (short)
 Video: `moraloop_ads/trends/t037_the_item_limit.mp4`
 
 ```
@@ -1010,7 +1040,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #shopping #selfcheckout #etiquette
 ```
 
-### 101. 2026-11-30 12:00 PM: The Airport Ride (short)
+### 104. 2026-11-30 12:00 PM: The Airport Ride (short)
 Video: `moraloop_ads/trends/t038_the_airport_ride.mp4`
 
 ```
@@ -1019,7 +1049,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #couples #travel
 ```
 
-### 102. 2026-12-01 12:00 PM: The Late Flight (short)
+### 105. 2026-12-01 12:00 PM: The Late Flight (short)
 Video: `moraloop_ads/trends/t039_the_late_flight.mp4`
 
 ```

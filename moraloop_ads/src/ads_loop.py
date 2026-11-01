@@ -630,4 +630,60 @@ ADS = [
                "shock", set="home_night"),
              M("Did you read the whole thread?"),
          ], close="Do you call them out, or let it go?"),
+
+    # Trend: Reddit story about a friend-landlord raising one tenant's rent more than his own share (TwistedSifter, Nov 1 2026)
+    dict(id="l034_the_rent_split", title="The Rent Split", made_on="2026-11-01",
+         hook="what did your housemate text?",
+         thread=dict(contact="Housemate", stamp="Sat 9:40 PM", msgs=[
+             "did yours go up $150 too?",
+             "he only pays $200 😳",
+             "but he owns the place",
+             "still cheap for the area",
+             "u gonna ask?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You rent a room from your friend. He just raised your rent $150.", ["friend", "you"], "tell",
+               ["🏠", "💸", "📈"], "worried", others="neutral", set="home"),
+             S("Then you learn he pays far less than you do. But it’s his house.", ["you"], "think",
+               ["🏠", "⚖️", "🤔"], "worried", set="home_night"),
+             M("Did you catch the whole thread?"),
+         ], close="Do you push back on the raise, or pay it?"),
+
+    # Trend: Reddit story about a bakery order the owner asked for, then blamed the supervisor for (TwistedSifter, Nov 1 2026)
+    dict(id="l035_the_big_order", title="The Big Order", made_on="2026-11-01",
+         hook="what did your boss text?",
+         thread=dict(contact="Boss", stamp="Mon 7:12 AM", msgs=[
+             "busy week coming 📈",
+             "maybe order more?",
+             "use your judgment",
+             "don’t want to run out",
+             "thx!",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your boss suggests ordering more pastries. You double the order.", ["boss", "you"], "say",
+               ["🥐", "📦", "📈"], "happy", others="happy", set="cafe"),
+             S("Now half of it is going to waste. Your boss asks why you ordered so much.", ["boss", "you"], "say",
+               ["🥐", "🗑️", "❓"], "worried", others="worried", set="cafe"),
+             M("Did you read the whole thread?"),
+         ], close="Do you show the texts, or take the blame?"),
+
+    # Trend: Reddit story about a younger brother taking money from his older brother (TwistedSifter, Nov 1 2026)
+    dict(id="l036_the_missing_forty", title="The Missing Forty", made_on="2026-11-01",
+         hook="what did your brother text?",
+         thread=dict(contact="Little bro", stamp="Thu 4:22 PM", msgs=[
+             "ok yes I took the $40",
+             "it was for a class trip",
+             "same as last time 😅",
+             "pls don’t tell mom",
+             "pls 🙏",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Forty dollars is missing from your room.", ["you"], "see", ["💵", "❓", "🚪"], "shock", set="home"),
+             S("Your little brother admits he took it.", ["sibling", "you"], "say", ["💵", "😬", "📱"], "worried",
+               others="sad", set="home"),
+             M("Did you read the whole thread?"),
+         ], close="Do you tell your parents, or handle it yourself?"),
 ]
