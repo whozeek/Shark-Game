@@ -542,6 +542,10 @@ const RIDERS={patient:{pm:1.5,fare:8,w:0,label:'patient'},shopper:{pm:1.15,fare:
 const HN=['Maple','Oak','Cedar','Pine','Birch','Elm','Willow','Aspen','Linden'];
 const SN=r=>HN[r%HN.length]+(r>=HN.length?' '+(Math.floor(r/HN.length)+1):'');
 const ord=n=>n+(['th','st','nd','rd'][(n%100>10&&n%100<14)?0:(n%10<4?n%10:0)]);
+/* street names: Connecticut districts carry the real names of the streets nearest each grid row (L.rowNames, north to south) and column (L.colNames, west to east); anything else, and rows added by expansion, keeps the generic names */
+const rowStreet=(L,r)=>(L&&L.rowNames&&L.rowNames[r])||SN(r)+' Street';
+const colStreet=(L,c)=>(L&&L.colNames&&L.colNames[c])||ord(c+1)+' Avenue';
+const placeName=(L,r,c)=>(L&&L.rowNames&&L.rowNames[r]&&L.colNames&&L.colNames[c])?L.rowNames[r]+' & '+L.colNames[c]:SN(r)+' & '+ord(c+1);
 
 /* Every campaign map has a REGION (building style, ground, landscape) and a CLIMATE ('mild' = the normal seasons, 'snow' | 'rain' | 'hot' = locked weather).
    Difficulty rises with the CAMPAIGN order below: patience falls, riders per day and goals rise, cash per rider shrinks, and events get more frequent (midProb adds a third event).
@@ -620,7 +624,9 @@ const THEME_OF={0:'meadow',1:'riverbank',2:'urban',3:'harbor',4:'meadow',7:'cobb
 /* Campaign order, easiest to hardest: Maple Hollow, Riverside, Metro Heights, Harborview, Old Town (Europe), Canal District (Europe), Hilltop, Alpine Village (snow), Lakeside (alpine chalets),
    Crescent Bay, Harbor Bay (rain), Isle of Canals, Tokyo Crossing, Windy Lakefront, Dubai Skyline (heat), Sunshine Sprawl, Ring City (Europe), Peach Ring and Grand Central (an island metropolis). Stars are stored by LEVELS index, so new maps are appended to LEVELS.
    Maps 13 and 17 to 21 are not boxes: L.edge says what lies outside the grid ('W' water or 'X' wild land), 'X' cells are wilderness with no streets and 'G' cells are bridges. */
-const CAMPAIGN=[0,1,2,3,7,8,9,14,10,17,11,18,15,19,16,20,12,21,13];
+const CAMPAIGN_CLASSIC=[0,1,2,3,7,8,9,14,10,17,11,18,15,19,16,20,12,21,13];
+/* CAMPAIGN is the ACTIVE campaign (Connecticut or Classic); ctSetMode() refills it in place, so every reader keeps working */
+const CAMPAIGN=CAMPAIGN_CLASSIC.slice();
 const CLIMATE_NAME={snow:'Snowy',rain:'Rainy',hot:'Hot'};
 const seasonLabel=()=>{const c=G.L&&G.L.climate;return CLIMATE_NAME[c]||(G.season[0].toUpperCase()+G.season.slice(1))};
 const STORY={
@@ -643,6 +649,195 @@ const STORY={
  19:{intro:'Windy Lakefront sits on a huge lake, with a river that splits the city in three. The downtown loop is packed and the wind never drops. Keep the bridges busy.',outro:'Three districts, one network. Next, the desert heat.'},
  20:{intro:'Sunshine Sprawl is wide, sunny and spread thin. Long thin neighbourhoods, a river channel and trips that never seem to end. Make every bus count.',outro:'The sprawl is stitched together. The ring city is calling.'},
  21:{intro:'Peach Ring is a city in the woods: a hub downtown, spokes that run out like wheel spokes and a green belt in between. Everything flows to the middle, so keep the middle moving.',outro:'Spokes and rings in perfect rhythm. One city left: the biggest of them all.'}};
+/* CT_DATA:BEGIN  (generated into rush-hour-routes.html by tools/geo/inject.py; edit this file, not the copy in the game)
+   Connecticut world data. Everything here is DATA: the game reads it, so swapping in real data is a data change, not a code change.
+   Sections: outline (real, US Census via us-atlas, public domain), towns, roads (corridors), hills, rivers (hand placed from general knowledge),
+   districts (grid-fitted game maps; approx:true = authored from general geographic knowledge, NOT from surveyed data). */
+const CT_DATA={
+ proj:{lat0:41.2,lon0:-73.0,far:0.2,gx:180,gy:340},   // far = world units per metre between towns (compressed); districts use the game's own block size
+ credit:'State outline: US Census Bureau cartographic boundaries via the us-atlas package (public domain). Districts, street names and landmarks: authored from general knowledge and fitted to the game grid (approximate).',
+ outline:{"36059":{"name":"Nassau","rings":[[[-73.4965,40.9229],[-73.4606,40.8671],[-73.4319,40.7236],[-73.4247,40.6103],[-73.5575,40.5819],[-73.7513,40.5896],[-73.7693,40.624],[-73.7262,40.6532],[-73.7262,40.7245],[-73.7011,40.7529],[-73.7693,40.8001],[-73.7154,40.8697],[-73.6759,40.8568],[-73.64,40.8929],[-73.5647,40.9161],[-73.4965,40.9229]]]},"09007":{"name":"Middlesex","rings":[[[-72.4663,41.5836],[-72.434,41.532],[-72.3228,41.5346],[-72.3048,41.4367],[-72.434,41.4238],[-72.4233,41.3903],[-72.3838,41.3851],[-72.3802,41.3499],[-72.3479,41.3241],[-72.3407,41.2803],[-72.3874,41.2614],[-72.3981,41.2786],[-72.452,41.2786],[-72.5381,41.2554],[-72.5453,41.2803],[-72.6135,41.3301],[-72.6135,41.386],[-72.653,41.4384],[-72.7463,41.4229],[-72.7355,41.4856],[-72.7535,41.5793],[-72.714,41.6042],[-72.714,41.6274],[-72.5058,41.6471],[-72.4663,41.5836]]]},"25003":{"name":"Berkshire","rings":[[[-73.3529,42.5096],[-73.2632,42.7459],[-73.0227,42.7407],[-73.0227,42.7029],[-72.9473,42.7046],[-72.994,42.6737],[-72.9545,42.6651],[-72.9509,42.6411],[-72.976,42.556],[-72.9688,42.5397],[-73.0119,42.3799],[-73.0658,42.3894],[-73.0622,42.3292],[-73.0011,42.3129],[-73.0047,42.2502],[-73.0335,42.1437],[-73.0693,42.148],[-73.0729,42.0938],[-73.055,42.0397],[-73.4965,42.05],[-73.5072,42.0861],[-73.3529,42.5096]]]},"25013":{"name":"Hampden","rings":[[[-73.0011,42.3129],[-72.9545,42.3438],[-72.8863,42.3327],[-72.8791,42.2657],[-72.9114,42.239],[-72.8719,42.2167],[-72.8576,42.2407],[-72.793,42.2365],[-72.7822,42.1995],[-72.6853,42.1832],[-72.6889,42.2133],[-72.6566,42.2279],[-72.635,42.2742],[-72.5991,42.2682],[-72.6243,42.2339],[-72.592,42.2115],[-72.4053,42.2322],[-72.3946,42.1858],[-72.3658,42.2072],[-72.2223,42.245],[-72.2653,42.184],[-72.2007,42.1617],[-72.1361,42.1617],[-72.1361,42.0303],[-72.7571,42.0363],[-72.7678,42.0028],[-72.8181,41.9976],[-72.8145,42.0363],[-73.055,42.0397],[-73.0729,42.0938],[-73.0693,42.148],[-73.0335,42.1437],[-73.0047,42.2502],[-73.0011,42.3129]]]},"36103":{"name":"Suffolk","rings":[[[-72.0356,41.2554],[-72.0249,41.2709],[-71.9279,41.2898],[-72.0033,41.2528],[-72.0356,41.2554]],[[-72.1433,41.0982],[-72.1254,41.1154],[-72.0859,41.1016],[-72.0859,41.0587],[-72.1074,41.0887],[-72.1433,41.0982]],[[-72.2151,41.1832],[-72.1577,41.197],[-72.2007,41.16],[-72.2151,41.1832]],[[-73.4247,40.6103],[-73.4319,40.7236],[-73.4606,40.8671],[-73.4965,40.9229],[-73.4857,40.9461],[-73.4067,40.9204],[-73.3996,40.9556],[-73.3673,40.9315],[-73.2955,40.9247],[-73.2309,40.9049],[-73.1483,40.929],[-73.1411,40.9659],[-73.0801,40.9728],[-73.0442,40.9625],[-72.775,40.965],[-72.635,40.9822],[-72.5848,40.9977],[-72.4771,41.0518],[-72.4448,41.0862],[-72.4017,41.0973],[-72.3551,41.1403],[-72.2797,41.1583],[-72.2366,41.1566],[-72.3012,41.1119],[-72.3335,41.1068],[-72.2797,41.0802],[-72.2618,41.0424],[-72.2007,41.032],[-72.1613,41.0535],[-72.1038,40.9917],[-72.05,41.0063],[-71.9674,41.0475],[-71.9603,41.0716],[-71.8992,41.081],[-71.8562,41.0707],[-71.8741,41.0527],[-72.1146,40.9719],[-72.3946,40.8663],[-72.8648,40.7331],[-73.055,40.6661],[-73.2093,40.6309],[-73.3062,40.6206],[-73.3278,40.6334],[-73.4247,40.6103]]]},"44007":{"name":"Providence","rings":[[[-71.7987,42.0079],[-71.3824,42.0191],[-71.3824,41.8928],[-71.3393,41.898],[-71.3465,41.8284],[-71.3178,41.776],[-71.3608,41.7562],[-71.4398,41.758],[-71.4613,41.7322],[-71.788,41.7253],[-71.7987,42.0079]]]},"09009":{"name":"New Haven","rings":[[[-72.9832,41.6394],[-72.9401,41.6446],[-72.933,41.6076],[-72.9473,41.5569],[-72.8791,41.5629],[-72.8432,41.5449],[-72.8001,41.5733],[-72.7535,41.5793],[-72.7355,41.4856],[-72.7463,41.4229],[-72.653,41.4384],[-72.6135,41.386],[-72.6135,41.3301],[-72.5453,41.2803],[-72.5381,41.2554],[-72.5704,41.2683],[-72.6638,41.2691],[-72.6889,41.2468],[-72.7535,41.2666],[-72.8971,41.2434],[-72.9078,41.2949],[-72.9401,41.2803],[-73.0083,41.2099],[-73.0514,41.2099],[-73.1088,41.1686],[-73.1232,41.1789],[-73.1088,41.2296],[-73.0693,41.3009],[-73.116,41.3319],[-73.1878,41.4083],[-73.3098,41.4685],[-73.3206,41.5037],[-73.1555,41.5157],[-73.1663,41.5569],[-73.0945,41.5698],[-73.0586,41.6068],[-72.9832,41.6394]]]},"36119":{"name":"Westchester","rings":[[[-73.981,41.3216],[-73.5431,41.3662],[-73.5503,41.2958],[-73.4821,41.2125],[-73.7262,41.1008],[-73.6544,41.0131],[-73.658,40.9848],[-73.6831,40.9487],[-73.7585,40.9126],[-73.7657,40.8766],[-73.9164,40.9178],[-73.8949,40.9968],[-73.8877,41.1291],[-73.9308,41.2047],[-73.9703,41.2477],[-73.9451,41.2906],[-73.981,41.3216]]]},"09015":{"name":"Windham","rings":[[[-72.1038,42.0286],[-71.8023,42.0234],[-71.788,41.6403],[-71.8562,41.6446],[-71.9495,41.6343],[-72.1505,41.6678],[-72.1577,41.6574],[-72.2402,41.7141],[-72.1577,41.7537],[-72.1648,41.8353],[-72.2187,41.8353],[-72.2187,41.9581],[-72.1002,41.959],[-72.1038,42.0286]]]},"09011":{"name":"New London","rings":[[[-72.4663,41.5836],[-72.4089,41.6025],[-72.3264,41.605],[-72.3335,41.6437],[-72.2653,41.6772],[-72.2402,41.7141],[-72.1577,41.6574],[-72.1505,41.6678],[-71.9495,41.6343],[-71.8562,41.6446],[-71.788,41.6403],[-71.7987,41.4169],[-71.8418,41.41],[-71.831,41.3447],[-71.8598,41.3198],[-71.8849,41.3362],[-71.9459,41.3379],[-72.0213,41.3173],[-72.0859,41.3198],[-72.1325,41.2992],[-72.19,41.3233],[-72.2115,41.2915],[-72.3407,41.2803],[-72.3479,41.3241],[-72.3802,41.3499],[-72.3838,41.3851],[-72.4233,41.3903],[-72.434,41.4238],[-72.3048,41.4367],[-72.3228,41.5346],[-72.434,41.532],[-72.4663,41.5836]]]},"36087":{"name":"Rockland","rings":[[[-74.2359,41.1429],[-73.981,41.325],[-73.9451,41.2906],[-73.9703,41.2477],[-73.9308,41.2047],[-73.8877,41.1291],[-73.8949,40.9968],[-74.2359,41.1429]]]},"09001":{"name":"Fairfield","rings":[[[-73.5431,41.3662],[-73.518,41.6669],[-73.4965,41.6385],[-73.4462,41.5226],[-73.4426,41.4916],[-73.3852,41.5148],[-73.3744,41.4891],[-73.3098,41.4685],[-73.1878,41.4083],[-73.116,41.3319],[-73.0693,41.3009],[-73.1088,41.2296],[-73.1232,41.1789],[-73.1088,41.1686],[-73.1304,41.1472],[-73.177,41.1669],[-73.2632,41.1171],[-73.2883,41.1283],[-73.3708,41.1042],[-73.3529,41.0853],[-73.3888,41.0578],[-73.4929,41.0484],[-73.5718,41.002],[-73.6042,41.0149],[-73.658,40.9848],[-73.6544,41.0131],[-73.7262,41.1008],[-73.4821,41.2125],[-73.5503,41.2958],[-73.5431,41.3662]]]},"09013":{"name":"Tolland","rings":[[[-72.5094,42.0346],[-72.1038,42.0286],[-72.1002,41.959],[-72.2187,41.9581],[-72.2187,41.8353],[-72.1648,41.8353],[-72.1577,41.7537],[-72.2402,41.7141],[-72.2653,41.6772],[-72.3335,41.6437],[-72.3264,41.605],[-72.4089,41.6025],[-72.4089,41.6308],[-72.4484,41.672],[-72.4771,41.8129],[-72.5058,41.8095],[-72.4951,41.861],[-72.5166,41.8567],[-72.513,41.9452],[-72.4915,41.9478],[-72.5094,42.0346]]]},"09005":{"name":"Litchfield","rings":[[[-73.4857,42.05],[-73.0083,42.0389],[-73.0299,41.9667],[-72.8863,41.9727],[-72.915,41.8971],[-72.9401,41.8954],[-72.9545,41.8542],[-72.9473,41.8061],[-73.0155,41.7983],[-72.9832,41.6394],[-73.0586,41.6068],[-73.0945,41.5698],[-73.1663,41.5569],[-73.1555,41.5157],[-73.3206,41.5037],[-73.3098,41.4685],[-73.3744,41.4891],[-73.3852,41.5148],[-73.4426,41.4916],[-73.4462,41.5226],[-73.4965,41.6385],[-73.518,41.6669],[-73.4857,42.05]]]},"25015":{"name":"Hampshire","rings":[[[-72.976,42.556],[-72.8755,42.5414],[-72.8719,42.4839],[-72.775,42.4667],[-72.7571,42.4461],[-72.6996,42.4529],[-72.7032,42.4057],[-72.4915,42.434],[-72.4843,42.4074],[-72.3766,42.4211],[-72.3551,42.3662],[-72.3551,42.3035],[-72.3156,42.3438],[-72.2905,42.3524],[-72.2761,42.3017],[-72.2115,42.3112],[-72.2223,42.245],[-72.3658,42.2072],[-72.3946,42.1858],[-72.4053,42.2322],[-72.592,42.2115],[-72.6243,42.2339],[-72.5991,42.2682],[-72.635,42.2742],[-72.6566,42.2279],[-72.6889,42.2133],[-72.6853,42.1832],[-72.7822,42.1995],[-72.793,42.2365],[-72.8576,42.2407],[-72.8719,42.2167],[-72.9114,42.239],[-72.8791,42.2657],[-72.8863,42.3327],[-72.9545,42.3438],[-73.0011,42.3129],[-73.0622,42.3292],[-73.0658,42.3894],[-73.0119,42.3799],[-72.9688,42.5397],[-72.976,42.556]]]},"44009":{"name":"Washington","rings":[[[-71.6121,41.16],[-71.5726,41.2288],[-71.5547,41.2167],[-71.5511,41.1515],[-71.6121,41.16]],[[-71.8598,41.3198],[-71.831,41.3447],[-71.8418,41.41],[-71.7987,41.4169],[-71.788,41.5965],[-71.4829,41.6025],[-71.4685,41.6343],[-71.4075,41.654],[-71.4039,41.5896],[-71.447,41.5801],[-71.4183,41.5346],[-71.4183,41.4727],[-71.4542,41.4341],[-71.4829,41.3714],[-71.5259,41.3765],[-71.6229,41.3611],[-71.7198,41.3319],[-71.8562,41.3061],[-71.8598,41.3198]]]},"09003":{"name":"Hartford","rings":[[[-73.0083,42.0389],[-72.8145,42.0363],[-72.8181,41.9976],[-72.7678,42.0028],[-72.7571,42.0363],[-72.6063,42.0311],[-72.5094,42.0346],[-72.4915,41.9478],[-72.513,41.9452],[-72.5166,41.8567],[-72.4951,41.861],[-72.5058,41.8095],[-72.4771,41.8129],[-72.4484,41.672],[-72.4089,41.6308],[-72.4089,41.6025],[-72.4663,41.5836],[-72.5058,41.6471],[-72.714,41.6274],[-72.714,41.6042],[-72.7535,41.5793],[-72.8001,41.5733],[-72.8432,41.5449],[-72.8791,41.5629],[-72.9473,41.5569],[-72.933,41.6076],[-72.9401,41.6446],[-72.9832,41.6394],[-73.0155,41.7983],[-72.9473,41.8061],[-72.9545,41.8542],[-72.9401,41.8954],[-72.915,41.8971],[-72.8863,41.9727],[-73.0299,41.9667],[-73.0083,42.0389]]]}},
+ /* towns: soon:true = shown on the campaign map, locked, no playable level yet. f0/f1 = difficulty at the first and last district of the town (0 easy .. 1 hardest) */
+ towns:[
+  {id:'bridgeport',lab:'l',name:'Bridgeport',ll:[41.1792,-73.1894],f0:0,f1:.44,coastal:1,style:'metro',blurb:'Connecticut\'s largest city: a working harbour on Long Island Sound, the Pequonnock River and I-95 through the middle.'},
+  {id:'norwalk',name:'Norwalk',ll:[41.1177,-73.4082],f0:.28,f1:.42,coastal:1,style:'harbor',blurb:'Oyster harbour, the Norwalk Islands and a historic seaport district.'},
+  {id:'stamford',name:'Stamford',ll:[41.0534,-73.5387],f0:.38,f1:.54,coastal:1,style:'metro',blurb:'A dense corporate downtown on the shore, with a busy rail station and a harbour.'},
+  {id:'newhaven',lab:'r',name:'New Haven',ll:[41.3083,-72.9279],f0:.46,f1:.62,coastal:1,style:'europe',blurb:'Yale, the Green, a deep harbour and a hospital district.'},
+  {id:'hartford',name:'Hartford',ll:[41.7658,-72.6734],f0:.56,f1:.8,style:'metro',blurb:'The capital: towers by the Connecticut River where I-84 meets I-91.'},
+  {id:'stratford',lab:'b',name:'Stratford',ll:[41.1845,-73.1332],soon:1,style:'harbor',blurb:'Housatonic River mouth and Sikorsky Airport.'},
+  {id:'fairfield',lab:'bl',name:'Fairfield',ll:[41.1408,-73.2637],soon:1,style:'maple',blurb:'Beach towns and leafy suburbs west of Bridgeport.'},
+  {id:'milford',lab:'a',name:'Milford',ll:[41.2223,-73.0570],soon:1,style:'harbor',blurb:'Long beaches and a village green.'},
+  {id:'danbury',name:'Danbury',ll:[41.3948,-73.4540],soon:1,style:'maple',blurb:'Lakes and hills in the northwest.'},
+  {id:'waterbury',name:'Waterbury',ll:[41.5582,-73.0515],soon:1,style:'europe',blurb:'The Brass City in the Naugatuck valley.'},
+  {id:'newbritain',name:'New Britain',ll:[41.6612,-72.7795],soon:1,style:'maple',blurb:'Hardware City, between Hartford and the hills.'},
+  {id:'newlondon',name:'New London',ll:[41.3557,-72.0995],soon:1,style:'harbor',blurb:'A deep-water port at the mouth of the Thames River, with Groton across the water.'},
+  {id:'norwich',name:'Norwich',ll:[41.5243,-72.0759],soon:1,style:'europe',blurb:'The Rose of New England, up the Thames.'}
+ ],
+ /* road corridors, west to east or south to north. A point is [lat,lon] (open country, placed by the real bearing between towns, with distances compressed)
+    or {t:town,a:anchor,d:offset}: anchor N S E W (edge of the town's block of districts), C (centre), gK-W / gK-E (the gap below district row K, going through the town) */
+ roads:[
+  {name:'I-95',kind:'hw',pts:[[41.0,-73.66],{t:'stamford',a:'g0-W'},{t:'stamford',a:'g0-E'},{t:'norwalk',a:'g0-W'},{t:'norwalk',a:'g0-E'},[41.16,-73.30],{t:'bridgeport',a:'g1-W'},{t:'bridgeport',a:'g1-E'},[41.22,-73.0],{t:'newhaven',a:'g0-W'},{t:'newhaven',a:'g0-E'},[41.28,-72.70],[41.30,-72.4],[41.35,-72.1]]},
+  {name:'Merritt Parkway',kind:'hw',pts:[[41.09,-73.66],{t:'stamford',a:'N',d:260},{t:'norwalk',a:'N',d:260},{t:'bridgeport',a:'N',d:260},[41.28,-73.0],{t:'newhaven',a:'N',d:260},[41.45,-72.83],{t:'hartford',a:'S',d:300}]},
+  {name:'I-91',kind:'hw',pts:[{t:'newhaven',a:'N',d:260},[41.5,-72.78],{t:'hartford',a:'S',d:300},{t:'hartford',a:'N',d:300},[42.1,-72.6]]},
+  {name:'I-84',kind:'hw',pts:[[41.3,-73.9],[41.39,-73.45],[41.56,-73.04],[41.69,-72.85],{t:'hartford',a:'W',d:300},{t:'hartford',a:'E',d:300},[41.8,-72.4],[41.88,-72.0]]},
+  {name:'Route 8',kind:'hw',pts:[{t:'bridgeport',a:'N',d:260},[41.35,-73.1],[41.56,-73.04],[41.85,-73.1],[42.1,-73.15]]}
+ ],
+ hills:[{name:'Litchfield Hills',ll:[41.8,-73.3],r:34000,h:1,mt:1},{name:'Northeast Hills',ll:[41.85,-72.0],r:30000,h:.8,mt:1},{name:'Central ridge',ll:[41.5,-72.8],r:14000,h:.5},{name:'Naugatuck highlands',ll:[41.5,-73.3],r:20000,h:.55}],
+ rivers:[
+  {name:'Housatonic River',toSea:1,w:150,pts:[[41.8,-73.4],[41.5,-73.25],[41.35,-73.15],[41.24,-73.1]]},
+  {name:'Connecticut River',toSea:1,w:190,pts:[[42.1,-72.6],{t:'hartford',a:'E',d:160},[41.55,-72.55],[41.4,-72.35]]},
+  {name:'Naugatuck River',w:90,pts:[[41.75,-73.12],[41.56,-73.04],[41.34,-73.08]]}
+ ],
+ /* DISTRICTS: row/col names are the streets painted on the grid: rows+1 east-west streets (north to south), cols+1 north-south streets (west to east) */
+ /* CT_DISTRICTS:BEGIN */
+ districts:[
+  {id:'br-blackrock',town:'bridgeport',name:'Black Rock',ll:[41.1700,-73.2250],bs:150,region:'harbor',theme:'harbor',approx:true,
+   chips:['Harbour','Quiet coast'],blurb:'A quiet coastal neighbourhood on Fairfield Avenue, with Black Rock Harbor, a lighthouse point and Seaside Park\'s western tip.',
+   intro:'Welcome to Black Rock, Bridgeport\'s quiet harbour village. A few shops on Fairfield Avenue, lots of homes and a bandstand by the water. A gentle place to start.',outro:'Black Rock is moving. Next: the leafy North End.',
+   map:['HHHH.HHHHHHH','HHHBBHHHHHHW','HHBBBHHHHPWW','HHHBBHHPHHWW','HHHHHHHHHWWW','HHPPCHHHPPWW','WWWWWWWWWWWW'],
+   rows:['Brooklawn Ave','Brinsmade Ave','Grovers Ave','Fairfield Ave','Brewster St','Ellsworth St','Ocean Terrace','Lighthouse Rd'],
+   cols:['Ash Creek Rd','Hollister Ave','Pequot Ave','Black Rock Tpke','Ellsworth Ave','Cottage St','Mill Pond Rd','Wilson Pl','Grovers Pl','Bayview Ave','Harbor Rd','Cove St','Fayerweather Rd'],
+   lm:{C:'Seaside bandstand'}},
+  {id:'br-northend',town:'bridgeport',name:'North End',ll:[41.2150,-73.1880],bs:160,region:'maple',theme:'meadow',approx:true,
+   chips:['Parks','Hospital'],blurb:'Leafy streets around Beardsley Park and the zoo, with Madison Avenue shops and the Pequonnock River valley.',
+   intro:'The North End is green and spread out: Beardsley Park, the river valley and a hospital on the hill. Long walks to the bus, so place stops with care.',outro:'The North End is connected. Next: the West Side.',
+   map:['HHHHH.PPPHHH','HHBHH.PPPWHH','HHBHHH.PPWHH','HHBBHHHHPWHH','HHHBHHOHHWHH','HHPHHHHHBBCH','HHHHH.HHHBHH'],
+   rows:['Huntington Tpke','Reservoir Ave','Noble Ave','Capitol Ave','Park Ave','Mill Hill Ave','Hawley Ave','North Ave'],
+   cols:['Brooklawn Ave','Hillside Ave','Madison Ave','Mountain Grove St','Beardsley Pkwy','Lincoln Blvd','Lakeview Ave','Oakwood Ave','Fairview Ave','Laurel Ave','Colorado Ave','Anton St','Wilmot Ave'],
+   lm:{O:'St. Vincent\'s Medical Center',C:'Beardsley Park field'}},
+  {id:'br-westside',town:'bridgeport',name:'West End',ll:[41.1890,-73.2100],bs:150,region:'maple',theme:'urban',approx:true,
+   chips:['Hospital','Dense homes'],blurb:'Dense triple-decker streets around Bridgeport Hospital, with a school and shops on Fairfield Avenue and Park Avenue.',
+   intro:'The West End packs a lot of homes into few streets, with a big hospital and a high school. Short rides, many riders.',outro:'The West End is humming. Next: across the Yellow Mill to the East Side.',
+   map:['HHHH.HHBBHHHH','HHKHHHHBBHHPH','HHHHBBHHHHHHH','HPHHBBHHOHHHH','HHHHHHHHHHPHH','HHBBHHCHHHBBH','HHBBHH.HHHBBH'],
+   rows:['North Ave','Hallett St','Grant St','Fairfield Ave','Clifford St','Hancock Ave','Atlantic St','Lafayette Blvd'],
+   cols:['Lindley St','Iranistan Ave','Pembroke St','Wood Ave','Bostwick Ave','Ridgefield Ave','Myrtle Ave','Gregory St','Lafayette St','Hough Ave','Clinton Ave','Sherman St','Elm St','Poplar St'],
+   lm:{O:'Bridgeport Hospital',K:'Central High School',C:'West End park'}},
+  {id:'br-eastside',town:'bridgeport',name:'East Side',ll:[41.1880,-73.1730],bs:150,region:'harbor',theme:'harbor',approx:true,
+   chips:['Yellow Mill','Ballpark'],blurb:'Boston Avenue homes, industrial yards by the Yellow Mill Channel, I-95 to the north and the ballpark by the water.',
+   intro:'The East Side lies beyond the Yellow Mill Channel. Factories, homes and a ballpark, and only one bridge across the water. Plan around it.',outro:'The East Side rolls. Next: the East End.',
+   map:['WWHHBBBHHHHHH','WWHHBBBHHHPHH','GGHHHBBHHHHHH','WWHHHHHHHPHHH','WWHPHHBBHHHHH','WWHHHHBBHCHHH','WWWHHHHHHHPHH','WWWWWHHHHHHHH'],
+   rows:['Bishop Ave','Stratford Ave','Connecticut Ave','Barnum Ave','Waterview Ave','Newfield Ave','Seaview Ave','Wordin Ave','Yellow Mill Rd'],
+   cols:['Railroad Ave','Cannon St','East Main St','Boston Ave','Central Ave','Wheeler Ave','Bunnell St','Lexington Ave','Putnam St','Judd St','Meadow St','Gilmore St','Commerce Dr','Arctic St'],
+   lm:{C:'Harbor Yard ballpark'}},
+  {id:'br-eastend',town:'bridgeport',name:'East End',ll:[41.1700,-73.1650],bs:150,region:'harbor',theme:'harbor',approx:true,
+   chips:['Seaview Avenue','Schools'],blurb:'Long residential blocks along Barnum and Seaview Avenues running down to the water, with a school and small shopping strips.',
+   intro:'The East End is long and low, with homes all the way down to the shore. Seaview Avenue is the spine. Keep the outer streets served.',outro:'The East End is covered. Next: the South End and the university.',
+   map:['HHHH.HHHBBHHHH','HHBBHHHHBBHHPH','HHBBHHPHHHHHHH','HHHHHHPHHBBHHH','HHKHHHHHHBBHHH','HHHHBBHHHHCHPH','HHHHHHHHHHHHWW','WWWWWWWWWWWWWW'],
+   rows:['Newfield Ave','Stratford Ave','Boston Ave','Barnum Ave','Pulaski St','Seaview Ave','Wayne St','Wheeler Ave','Beach Rd'],
+   cols:['Maplewood Ave','Kossuth St','Hickory St','Armstrong Rd','Wolcott St','Hamilton St','Fairmount Ave','Orchard St','Bayside Ave','Lordship Blvd','Hurd Ave','Revere St','Shore Dr','Pine St','Dover St'],
+   lm:{K:'East End school',C:'Seaview Ave field'}},
+  {id:'br-southend',town:'bridgeport',name:'South End & University',ll:[41.1650,-73.2000],bs:150,region:'harbor',theme:'harbor',approx:true,
+   chips:['University','Harbour','Seaside Park'],blurb:'The University of Bridgeport peninsula, Seaside Park and the harbour edge, with Park Avenue and Main Street running south to the water.',
+   intro:'The South End has a university on the point, a long park by the sea and the harbour on two sides. Students, tourists and commuters all want to get downtown.',outro:'Students and strollers alike ride your buses. Next: Seaside Park and Pleasure Beach.',
+   map:['WWHHHHHBBHHHHH','WWHHBBHHBBHHHH','WWHHBBHHHHHHPH','WWWHHHHHHHHHHH','WWHHUHHHPPHWWW','WWWHHHHPPPCHWW','WWWPPHHPPPPWWW','WWWWWWWWWWWWWW'],
+   rows:['Pembroke St','Lafayette Blvd','Park Ave','Atlantic St','Iranistan Ave','Seaside Ave','University Ave','Marina Park Rd','Long Island Sound'],
+   cols:['Cedar Creek Rd','Bayview Ave','Hollister Ave','Beach St','Seaside Park Dr','Main St','Park Ave South','Barnum Ave South','Water St','Johnson St','Congress St','Stratford Ave','Harbor Yard Rd','Pequonnock Rd','Ferry Rd'],
+   lm:{U:'University of Bridgeport',C:'Seaside Park bandstand'}},
+  {id:'br-seaside',town:'bridgeport',name:'Seaside Park & Pleasure Beach',ll:[41.1560,-73.1850],bs:140,region:'harbor',theme:'sea',approx:true,
+   chips:['Coast','Park','Beach bridge'],blurb:'The long waterfront of Seaside Park, the harbour entrance, and the Pleasure Beach spit across the water, joined by a single bridge.',
+   intro:'Water on every side: a big park, the harbour entrance and a sandy spit reached by one bridge. Few streets means every stop counts.',outro:'The shore is connected. Only downtown remains.',
+   map:['HHHHPPPPHHWWHH','HHHPPPPPPHWWHB','HHHPPCPPPHWWHB','HHHHPPPPHHGGHH','WHHHPPPHHHWWPP','WWHHHHHHHWWWPP','WWWWWWWWWWWWPW','WWWWWWWWWWWWWW'],
+   rows:['Broad St','Fairfield Ave','Park Ave','Seaside Dr','Norman St','Iranistan Ave','Waterfront Rd','Pleasure Beach Rd','Sound Rd'],
+   cols:['Seaside Park Dr','Atlantic St','Beach Ln','Lafayette St','Fayerweather Rd','Gold St','Water St','Bank St','Main St','Congress St','Ferry Rd','Harbor Rd','Beach Bridge Rd','Pleasure Beach Dr','Spit Rd'],
+   lm:{C:'Seaside Park bandstand'}},
+  {id:'br-downtown',town:'bridgeport',name:'Downtown',ll:[41.1850,-73.1920],bs:150,region:'metro',theme:'urban',approx:true,
+   chips:['Arena','Station','I-95','Harbour'],blurb:'The dense core: Main Street offices, the arena, the train and bus station, I-95 overhead and the Pequonnock River with its bridges.',
+   intro:'Downtown Bridgeport is the hardest map yet: offices packed along Main Street, an arena, the intermodal station, the river and the harbour. Everyone converges here.',outro:'Downtown works. Bridgeport is complete, and the shore towns are waiting.',
+   map:['HHHHBBBBHHWWHHH','HHHPBBBBBHWWHHH','HHHBBBBBBHGGHHH','HHPBBCBBBHWWHBB','HHHBBBBBBHWWHBB','HHHHBBBBHHGGHHB','HHHHBBBBPHWWHHH','HPPBBBBHPPWWWHH','WWWWWWWWWWWWWWW'],
+   rows:['Bishop Ave','Lafayette Blvd','State St','Fairfield Ave','Congress St','Broad St','Bank St','Water St','Housatonic Ave','Harbor'],
+   cols:['Park Ave','Gilbert St','Myrtle Ave','Main St','Golden Hill St','Middle St','Lyon Terr','Courtland St','Washington Ave','Wall St','Pequonnock River','Stratford Ave','Dock St','Rail Ave','Barnum Ave','Boston Ave'],
+   lm:{C:'Total Mortgage Arena'}},
+
+  {id:'nw-eastnorwalk',town:'norwalk',name:'East Norwalk',ll:[41.1100,-73.3900],bs:150,region:'harbor',theme:'harbor',approx:true,
+   chips:['Beach','Harbour'],blurb:'Quiet East Norwalk with Calf Pasture Beach on the Sound and small shopping streets.',
+   intro:'Norwalk starts at the beach. East Norwalk is quiet, with a wide park and a few shops. A gentle restart after Bridgeport.',outro:'East Norwalk done. SoNo and the harbour are next.',
+   map:['HHHH.HHHH.HHH','HHBBHHHHPHHHH','HHBBHHCHHHHHH','HHHHHHHHBBHHH','HHPPHHHHBBHPH','HHPPHHHHHHPPW','WWWWWWWWWWWWW'],
+   rows:['Connecticut Ave','East Ave','Van Zant St','Water St','Woodward Ave','Fort Point St','Calf Pasture Beach Rd','Beach Rd'],
+   cols:['Gregory Blvd','Richards Ave','Newtown Ave','Pine Hill Ave','Rowan St','Taylor Ave','Wilson Ave','Hillside Ave','Highland Ave','Shore Rd','Dr. Martin Luther King Dr','Beachview Ave','Seaview Ave','Harbor Rd'],
+   lm:{C:'Calf Pasture Beach pavilion'}},
+  {id:'nw-sono',town:'norwalk',name:'SoNo & Harbor',ll:[41.0980,-73.4180],bs:150,region:'harbor',theme:'harbor',approx:true,
+   chips:['Harbour','River','Hospital'],blurb:'South Norwalk\'s historic district on Washington Street, the Norwalk River draining into the harbour, and a hospital to the north.',
+   intro:'SoNo has an aquarium, brick lanes and the river splitting the map. Cross at the bridges, and keep the hospital connected.',outro:'SoNo is flowing. Stamford is next.',
+   map:['HHHPHHHWHHBBHH','HHHHBBHWHHBBHH','HHHHBBHGHHHHPH','HOHHHHHWHHHHHH','HHPHHHBWBBHHHH','HHHHHHBWBCHHHH','HHHHHHBGBBHPHH','WWWWWWWWWWWWWW'],
+   rows:['Main Ave','Wall St','Belden Ave','Washington St','Water St','Lexington Ave','Marshall St','Ann St','Harbor Ave'],
+   cols:['Fairfield Ave','Day St','Chestnut St','Rte 7','Elm St','High St','Knight St','Norwalk River','Pine St','Mott Ave','Cedar St','Spring St','Hanford Pl','Quintard Ave','Marvin Ave'],
+   lm:{O:'Norwalk Hospital',C:'Maritime Aquarium plaza'}},
+
+  {id:'sf-shippan',town:'stamford',name:'Shippan & Cove',ll:[41.0120,-73.5250],bs:150,region:'harbor',theme:'harbor',approx:true,
+   chips:['Peninsula','Beach'],blurb:'The Shippan Point peninsula and Cove Island Park, with homes right down to the water.',
+   intro:'Stamford begins on the Shippan peninsula: homes, beaches, one road in and one road out.',outro:'The peninsula is covered. Downtown Stamford is the real test.',
+   map:['HHHHBBHHHHHHW','HHHHBBHHHHHWW','HHPHHHHHHHWWW','WHHHHCHHHPWWW','WWHHHHHHHPPWW','WWWHHHHHPPWWW','WWWWWHHHWWWWW'],
+   rows:['Southfield Ave','Harbor View Ave','Shippan Ave','Ocean Dr W','Ocean Dr E','Cove Rd','Weed Ave','Beach Rd'],
+   cols:['Cove Rd W','Lakeside Dr','Dolphin Cove Quay','Van Rensselaer Ave','Rogers Rd','Wallacks Dr','Hubbard Ave','Palmer Ave','Pulaski St','Harbor Dr','Ludlow St','Southfield Pt','Seaview Ave','Cove Is Rd'],
+   lm:{C:'Cove Island Park pavilion'}},
+  {id:'sf-downtown',town:'stamford',name:'Downtown Stamford',ll:[41.0530,-73.5390],bs:150,region:'metro',theme:'urban',approx:true,
+   chips:['Rail station','Towers','University'],blurb:'A shoreline corporate downtown: Atlantic and Tresser, the rail station, towers by the highway and a university branch campus.',
+   intro:'Downtown Stamford is glass towers around a big rail station, with I-95 right alongside. Commuters arrive in waves.',outro:'Stamford is humming. Next: New Haven.',
+   map:['HHHHHBBHHHHHHH','HHOHHBBBBHHHHH','HHHHBBBBBBHHPH','HHHPBBBUBBBHHH','HHHHBBBBBBBHHH','HHHHHBBCBBHHHH','HHHHHHBBBHHPHH','WWWHHHHHHWWWWW'],
+   rows:['Bedford St','Summer St','Washington Blvd','Tresser Blvd','Atlantic St','Canal St','Henry St','Pacific St','Harbor Point Rd'],
+   cols:['Hope St','Cedar Heights Rd','Stillwater Ave','Greenwich Ave','Broad St','Main St','Bell St','Forest St','Franklin St','Elm St','Park Pl','Myrtle Ave','Prospect St','Fairfield Ave','Washington Pl'],
+   lm:{O:'Stamford Hospital',U:'UConn Stamford',C:'Stamford Town Center plaza'}},
+
+  {id:'nh-wooster',town:'newhaven',name:'Wooster Square & Long Wharf',ll:[41.3020,-72.9150],bs:150,region:'harbor',theme:'harbor',approx:true,
+   chips:['Harbour','Pizza streets'],blurb:'Italian-American Wooster Square, the Mill River and the Long Wharf shoreline.',
+   intro:'New Haven\'s waterfront: Wooster Square, the Quinnipiac River and the wharf. Industrial edges and a historic street grid.',outro:'The wharf is covered. Now the heart of New Haven: Yale.',
+   map:['HHHHBBHHHHHHHH','HHBBBBHHPPHHHH','HHBBHHHHPPHWHH','HHHHHHHHHHHWHH','HHHCHHBBHHHGHH','HHHHHHBBBBHWHH','WWWHHHBBBBHWWW','WWWWWWWWWWWWWW'],
+   rows:['Grand Ave','Chapel St','Wooster St','Court St','Franklin St','Water St','Long Wharf Dr','Sargent Dr','Harbor'],
+   cols:['Hill St','Olive St','Brewery St','Chestnut St','Union St','Wallace St','Hamilton St','Greene St','State St','Ferry St','Front St','Quinnipiac Ave','Grand Ave E','Lombard St','Cedar Hill Ave'],
+   lm:{C:'Wooster Square park'}},
+  {id:'nh-yale',town:'newhaven',name:'Downtown & Yale',ll:[41.3110,-72.9270],bs:150,region:'europe',theme:'urban',approx:true,
+   chips:['Yale','The Green','Hospital','Station'],blurb:'Yale University\'s colleges around the Green, Chapel and College Streets, Union Station and the hospital campus.',
+   intro:'Downtown New Haven is old brick and new towers: Yale, the Green, Union Station and a big hospital. Students flood the streets.',outro:'New Haven rides on. The capital is calling.',
+   map:['HHHHHHBBHHHHHHH','HHHPHHBBBBHHHHH','HHHHOBBBPPBBHHH','HHHHBBBUPPBBBHH','HHHBBBBBBBBBBHH','HHHHBBBCBBBHHHH','WHHHHHBBBBHHHWW','WWWWWWWWWWWWWWW'],
+   rows:['Whalley Ave','Elm St','Chapel St','Crown St','George St','York St','Water St','Union Ave','Harbor'],
+   cols:['Dwight St','Edgewood Ave','Park St','Howe St','Broadway','College St','Temple St','Church St','State St','Orange St','Wall St','Whitney Ave','Prospect St','Grove St','Trumbull St','Ashmun St'],
+   lm:{O:'Yale New Haven Hospital',U:'Yale University',C:'Shubert Theater'}},
+
+  {id:'ht-asylum',town:'hartford',name:'Asylum Hill & Frog Hollow',ll:[41.7680,-72.6900],bs:150,region:'maple',theme:'urban',approx:true,
+   chips:['Insurance towers','College','Park'],blurb:'Insurance towers on Farmington Avenue, Colt Park, a college campus and dense neighbourhoods west of downtown.',
+   intro:'Hartford starts west of downtown: insurance towers, a college and busy Farmington Avenue. The capital brings bigger crowds.',outro:'Asylum Hill is connected. Downtown is next.',
+   map:['HHHHHHHHBBHHHH','HHPPHHHHBBBHHH','HHPPHHBBBBBHHH','HHHHHHBBBUBHHH','HHHHKHHBBHHHPH','HHBBHHHHHHHCHH','HHBBHHHPPHHHHH'],
+   rows:['Albany Ave','Sigourney St','Farmington Ave','Asylum Ave','Capitol Ave','Park St','Washington St','Broad St'],
+   cols:['Prospect Ave','Whitney St','Vernon St','Woodland St','Collins St','Laurel St','Imlay St','Ford St','Garden St','Flatbush Ave','Hawthorn St','Sigourney St N','Trumbull St','Allyn St','Main St'],
+   lm:{U:'Trinity College',K:'Hartford Public High School',C:'Colt Park bandstand'}},
+  {id:'ht-downtown',town:'hartford',name:'Downtown Hartford',ll:[41.7640,-72.6730],bs:150,region:'metro',theme:'riverbank',approx:true,
+   chips:['Capital','River','I-84 / I-91','Arena'],blurb:'The state capital: Bushnell Park and the Capitol, the XL Center arena, Union Station, the Connecticut River and the I-84 / I-91 interchange.',
+   intro:'Hartford, the capital. Towers by the Connecticut River, two interstates crossing and a big arena. This is the hardest city on the Connecticut map so far.',outro:'You\'ve connected the capital. More Connecticut towns are coming soon.',
+   map:['HHHHBBBBBHHHHWW','HHHPBBBBBBHHHWW','HHHPPBBBBBBBHGG','HHHHBBBCBBBHHWW','HHHHBBBBBBHHHWW','HHOHHBBBBBHHHGG','HHHHHBBBBHHPHWW','HHHHHHHBBHHHHWW'],
+   rows:['Jewell St','Asylum St','Church St','Pearl St','State House Sq','Trumbull St','Capitol Ave','Washington St','Wawarme Ave'],
+   cols:['Broad St','Park Terr','Farmington Ave','Jewell','Ann Uccello St','Main St','Pratt St','Market St','Front St','Columbus Blvd','State St','Founders Bridge Rd','Riverside Dr','Connecticut River','Bulkeley Bridge Rd','River Rd'],
+   lm:{O:'Hartford Hospital',C:'XL Center'}}
+ ]
+ /* CT_DISTRICTS:END */
+};
+/* CT_DATA:END */
+/* ================= Connecticut campaign: the districts of CT_DATA become ordinary LEVELS (appended after Metropolis, so every old index stays valid) ================= */
+const CT_TOWN=new Map(CT_DATA.towns.map(t=>[t.id,t]));
+const CT_CAMP=[];            // level indices of the playable Connecticut districts, in campaign order
+const CT_IDX={};             // district id -> level index
+function ctLevel(d,tw,f,k,n,seq){
+  const R=x=>Math.round(x);
+  return{name:tw.name+' · '+d.name,ct:d.id,ctTown:d.town,ctName:d.name,ctF:f,approx:!!d.approx,region:d.region||'maple',climate:'mild',theme:d.theme,chips:d.chips||[],
+   blurb:d.blurb,days:3+R(3*f),patience:R(62-32*f),perDay:R(130+620*f),seed:301+seq,express:f>=.05,transfer:f>=.2,cash:R((7200+14500*f)/100)*100,
+   riders:['commuter','student'].concat(f>=.08?['tourist','rush']:[],f>=.2?['wheel']:[]),map:d.map.slice(),rowNames:d.rows,colNames:d.cols,lmNames:d.lm||{},
+   concert:R(14+42*f),closureDur:R(30+20*f),amProb:Math.min(1,+(f*3.4).toFixed(2)),midProb:Math.max(0,+((f-.3)*1.5).toFixed(2)),
+   goals:{sat:+(.8-.1*f).toFixed(2),gave:R(45+380*f),profit:R((1500+15000*Math.pow(f,1.35))/100)*100}};
+}
+(function(){
+  const by={};CT_DATA.districts.forEach(d=>{(by[d.town]=by[d.town]||[]).push(d)});
+  CT_DATA.districts.forEach((d,seq)=>{
+    const tw=CT_TOWN.get(d.town),list=by[d.town],k=list.indexOf(d),n=list.length,f=tw.f0+(tw.f1-tw.f0)*(n>1?k/(n-1):1);
+    d.idx=LEVELS.push(ctLevel(d,tw,f,k,n,seq))-1;d.k=k;d.n=n;CT_IDX[d.id]=d.idx;CT_CAMP.push(d.idx);
+    STORY[d.idx]={intro:d.intro,outro:d.outro};
+  });
+})();
+function ctGetMode(){try{return localStorage.getItem('rhr.campmode')==='classic'?'classic':'ct'}catch(e){return 'ct'}}
+function ctSetMode(m){
+  m=m==='classic'?'classic':'ct';try{localStorage.setItem('rhr.campmode',m)}catch(e){}
+  CAMPAIGN.length=0;CAMPAIGN.push(...(m==='ct'?CT_CAMP:CAMPAIGN_CLASSIC));return m;
+}
+const isCtLevel=i=>!!(LEVELS[i]&&LEVELS[i].ct);
+ctSetMode(ctGetMode());
 const DIFFS={relaxed:{label:'Relaxed',pat:1.25,cash:1.3,day:.85,fare:1.1,goal:.85},standard:{label:'Standard',pat:1,cash:1,day:1,fare:1,goal:1},plus:{label:'Plus',pat:.7,cash:.75,day:1.3,fare:.95,goal:1.3,cost:1.4},hard:{label:'Hard',pat:.8,cash:.8,day:1.15,fare:.95,goal:1.2}};
 const ACH=[
  {id:'first_route',name:'First Line',desc:'Open your first bus route.'},
@@ -805,8 +1000,8 @@ function buildCity(L){
   const edges=[],edgeMap=new Map();
   function addEdge(a,b,name){const e={id:edges.length,a,b,len:S,closed:false,name};edges.push(e);nodes[a].adj.push({to:b,e});nodes[b].adj.push({to:a,e});edgeMap.set(a*4096+b,e);edgeMap.set(b*4096+a,e)}
   for(let r=0;r<=rows;r++)for(let c=0;c<=cols;c++){
-    if(c<cols){const A=cls(blk(c,r-1)),B=cls(blk(c,r));if(!(A&&A===B))addEdge(id(c,r),id(c+1,r),SN(r)+' Street')}
-    if(r<rows){const A=cls(blk(c-1,r)),B=cls(blk(c,r));if(!(A&&A===B))addEdge(id(c,r),id(c,r+1),ord(c+1)+' Avenue')}
+    if(c<cols){const A=cls(blk(c,r-1)),B=cls(blk(c,r));if(!(A&&A===B))addEdge(id(c,r),id(c+1,r),rowStreet(L,r))}
+    if(r<rows){const A=cls(blk(c-1,r)),B=cls(blk(c,r));if(!(A&&A===B))addEdge(id(c,r),id(c,r+1),colStreet(L,c))}
   }
   for(const n of nodes)n.alive=n.adj.length>0;
   const blocks=[],items=[],homes=[],works=[],landmarks={};let venue=null;
@@ -1712,8 +1907,11 @@ function showDrivers(){
 }
 
 
-const GUIDE_TABS=[['start','Start here'],['town','Town Voice and Mood'],['tools','Tools & top bar'],['routes','Route buttons'],['stops','Stop buttons'],['riders','Riders'],['money','Money'],['events','Events'],['unlocks','Unlocks'],['metro','Metropolis mode'],['strategy','Strategy'],['access','Accessibility']];
+const GUIDE_TABS=[['start','Start here'],['town','Town Voice and Mood'],['tools','Tools & top bar'],['routes','Route buttons'],['stops','Stop buttons'],['riders','Riders'],['money','Money'],['events','Events'],['unlocks','Unlocks'],['metro','Metropolis mode'],['strategy','Strategy'],['access','Accessibility'],['ct','Connecticut and credits']];
 const GUIDE={
+ct:`<h3>The Connecticut campaign</h3><p>The campaign now walks across the real state of Connecticut, town by town. Each map is a district of a real town: Bridgeport first (Black Rock, North End, West End, East Side, East End, South End and University, Seaside Park and Pleasure Beach, Downtown), then Norwalk, Stamford, New Haven and Hartford. The other towns are marked <b>coming soon</b> on the map. Use the switch at the top of the Campaign screen to go back to the <b>Classic</b> campaign: its progress is kept separately.</p>
+<h3>How the real world is fitted onto the game</h3><p>The game still plays on its block grid. Each district's land use (homes, offices, parks, water, an arena, a university, a hospital) is fitted onto that grid following the real layout, and the streets painted on the grid carry the names of real streets nearest to each row and column. <b>These streets are grid-fitted to the real layout, they are not surveyed.</b> Districts marked <i>Approximate</i> were authored from general geographic knowledge; the tools in <code>tools/geo</code> turn real OpenStreetMap downloads into exact district data.</p>
+<h3>Credits</h3><ul><li>State and county outlines: US Census Bureau cartographic boundary files, packaged by the <i>us-atlas</i> npm package (public domain).</li><li>Where a district is built from OpenStreetMap data, it is marked and the credit reads <b>Map data \u00a9 OpenStreetMap contributors</b> (Open Database Licence).</li><li>Street names, landmark names and layouts of the approximate districts: authored for this game from general knowledge.</li></ul>`,
 start:`<p><button class="btn alt" data-act="tour">Take the interactive tour</button></p><h3>The goal</h3><p>You run the city's buses. Riders appear at homes in the morning and at offices in the evening, walk to the nearest stop, wait, ride, and walk to where they are going. Get them there before they lose patience.</p>
 <ul><li><b>You lose</b> if satisfaction drops below 50% (a bit more forgiving on day 1), or if you go more than $800 into debt.</li><li><b>Satisfaction</b> (the big number) is the share of the last 50 riders who reached their destination instead of giving up. It is the one that decides game over. <b>Today</b> beside it is the share of today's riders, and the level goals use all riders on the level. Each screen says which one it shows.</li><li><b>You win a level</b> by finishing all its days. Stars come from the level's goals (satisfaction, riders who gave up, profit).</li></ul>
 <h3>Your first three minutes</h3><ol><li>Pick <b>Stops</b> and tap a road junction next to a cluster of houses.</li><li>Tap another junction next to offices or shops.</li><li>Pick <b>Route</b>, then tap the first stop and the second stop. A route and a bus appear.</li><li>Press ▶ and watch. Colour tells you who needs help: green is calm, amber is impatient, red is about to give up. With Colour-blind mode on (Settings) the colours become blue, yellow and orange and every stop badge also shows a shape: \u25CF calm, \u25B2 impatient, \u25A0 about to give up.</li><li>Open <b>Buses</b> and press + on routes with red stops.</li></ol>
@@ -2775,7 +2973,7 @@ function stopCorner(city,nd){
   for(const[sx,sy]of order){const sc=(has(sx,0)?1:0)+(has(0,sy)?1:0);if(sc>bs){bs=sc;best=[sx,sy]}}
   return best;
 }
-function nodeName(n){return SN(n.r)+' & '+ord(n.c+1)}
+function nodeName(n){return placeName(G.L,n.r,n.c)}
 function addStop(nid,free){
   if(G.stops.has(nid))return G.stops.get(nid);
   if(!free){if(G.money<PRICE.stop){toast('Not enough cash for a stop ($'+PRICE.stop+').');return null}G.money-=PRICE.stop}
@@ -3114,7 +3312,7 @@ function addLandmark(letter){
   G.city=buildCity(L);if(T.ok){build3D(G.city);resetDyn()}
   for(const r of G.routes)recalcRoute(r);
   netChanged();snd('cheer');addXp(40);{const m=G.city.landmarks;if(m.uni&&m.air)ach('landmarks');if(m.uni&&m.air&&m.school&&m.mall&&m.hosp)ach('civic')}
-  toast(LM_MSG[LMK[letter].kind]+' +40 XP',4600);
+  toast((G.L.lmNames&&G.L.lmNames[letter]?G.L.lmNames[letter]+' opened! ':LM_MSG[LMK[letter].kind])+' +40 XP',4600);
   return true;
 }
 // concert spawn helper (rate-based burst from the arena)
@@ -3173,7 +3371,7 @@ function endOfDay(){
     let bestNote='';
     if(st&&!G.L.daily&&!G.L.weekly){PROF.tix=(PROF.tix|0)+10;if(PROF.cos.confetti==='on')fx.confetti(cam.x,cam.y)}
     if(G.L.daily||G.L.weekly){const k=(G.L.weekly?'w':'d')+challengeKey(!!G.L.weekly),pf=Math.round(G.rev-G.cost),old=PROF.best[k];if(!old||pf>old.profit){PROF.best[k]={profit:pf,stars:st};bestNote='<p class="sub" style="text-align:center;color:var(--ok)">New personal best: '+money(pf)+' profit!</p>'}else bestNote='<p class="sub" style="text-align:center">Your best: '+money(old.profit)+' profit.</p>';addXp(100);saveProfile()}
-    try{const k='rhr.stars',o=JSON.parse(localStorage.getItem(k)||'{}');if(!G.L.daily&&!G.L.weekly&&!G.free)o[G.levelIdx]=Math.max(o[G.levelIdx]||0,st);if(G.levelIdx===CAMPAIGN[CAMPAIGN.length-1]&&CAMPAIGN.every(k=>(o[k]||0)>=1))ach('citywide');localStorage.setItem(k,JSON.stringify(o))}catch(e){}
+    try{const k='rhr.stars',o=JSON.parse(localStorage.getItem(k)||'{}');if(!G.L.daily&&!G.L.weekly&&!G.free)o[G.levelIdx]=Math.max(o[G.levelIdx]||0,st);if(!isCtLevel(G.levelIdx)&&G.levelIdx===CAMPAIGN_CLASSIC[CAMPAIGN_CLASSIC.length-1]&&CAMPAIGN_CLASSIC.every(k=>(o[k]||0)>=1))ach('citywide');localStorage.setItem(k,JSON.stringify(o))}catch(e){}
     showOv('<div class="card"><div class="stars" style="text-align:center">'+starStr(st)+'</div><h2 style="text-align:center">'+(st?(G.free?'Map complete':'Map cleared'):'Not quite there')+'</h2><p class="sub" style="text-align:center">'+esc(G.L.name)+' kept moving for '+G.L.days+' days. '+(st?'':'No goals were met, so this map is not cleared yet. Try again with more buses on busy routes. ')+'Cash: '+money(G.money)+'.</p>'+bestNote+((st&&STORY[G.levelIdx]&&STORY[G.levelIdx].outro)?'<p class="quote">'+esc(STORY[G.levelIdx].outro)+'</p>':'')+
       '<ul class="goals">'+gl.map(g=>'<li class="'+(g.ok?'ok':'no')+'"><span>'+(g.ok?'✓':'✕')+'</span>'+esc(g.t)+'<em>'+esc(g.v)+'</em></li>').join('')+'</ul>'+dayReport()+
       '<div class="btnrow">'+winButtons(st)+'</div></div>');
@@ -3187,7 +3385,7 @@ function endOfDay(){
 function winButtons(st){
   const ci=CAMPAIGN.indexOf(G.levelIdx),a=G.free?'freelevel':'level';
   let h='';
-  if(!G.free&&st&&ci>=0){h+=ci<CAMPAIGN.length-1?'<button class="btn ok" data-act="level" data-fly="1" data-i="'+CAMPAIGN[ci+1]+'">Next map</button>':'<button class="btn ok" data-act="mainmenu">Campaign complete!</button>'}
+  if(!G.free&&st&&ci>=0){h+=ci<CAMPAIGN.length-1?'<button class="btn ok" data-act="level" data-fly="1" data-i="'+CAMPAIGN[ci+1]+'">Next map</button>':'<button class="btn ok" data-act="mainmenu">'+(isCtLevel(G.levelIdx)?'More towns coming soon':'Campaign complete!')+'</button>'}
   return h+'<button class="btn alt" data-act="'+a+'" data-i="'+G.levelIdx+'">Replay</button><button class="btn alt" data-act="share">Share card</button><button class="btn alt" data-act="'+(G.free?'free':'mainmenu')+'">'+(G.free?'Free Play':'Main menu')+'</button>';
 }
 function starStr(n){let s='';for(let i=0;i<3;i++)s+=i<n?'★':'<span class="off">★</span>';return s}
@@ -3849,7 +4047,7 @@ function metroTerrSync(on,now){
   T.terrG.visible=true;
 }
 /* ================= map expansion ================= */
-function expandStart(){return CAMPAIGN.indexOf(G.levelIdx)>=CAMPAIGN.length-2?3:10}
+function expandStart(){return !isCtLevel(G.levelIdx)&&CAMPAIGN_CLASSIC.indexOf(G.levelIdx)>=CAMPAIGN_CLASSIC.length-2?3:10}
 function canExpand(){const L=G.L;return !!(L&&G.city&&!L.metro&&!L.daily&&!L.weekly&&L.growth!==false&&G.day>=expandStart()&&(L.map[0].length<24||L.map.length<16))}
 function remapIds(os,ns,dc,dr){
   dc=dc||0;dr=dr||0;
@@ -3962,7 +4160,7 @@ function growChoices(){
   const out=[],far=(a)=>out.every(o=>Math.abs(o.c-a.c)+Math.abs(o.r-a.r)>=2),kinds=['H','B','P'];
   for(const k of kinds){
     const p=cand.find(x=>!out.some(o=>o.c===x.c&&o.r===x.r)&&far(x))||cand.find(x=>!out.some(o=>o.c===x.c&&o.r===x.r));
-    if(!p)break;out.push({c:p.c,r:p.r,letter:k,place:SN(p.r)+' & '+ord(p.c+1)});
+    if(!p)break;out.push({c:p.c,r:p.r,letter:k,place:placeName(L,p.r,p.c)});
   }
   const D={H:['New homes','More riders every morning, about 12% more.'],B:['New offices','Busier destinations and more fare income.'],P:['A park','Calms the whole city: every rider is 3% more patient.']};
   for(const o of out){o.title=D[o.letter][0];o.desc=D[o.letter][1]}
@@ -4015,7 +4213,7 @@ function growCity(){
   const picks=[],n=Math.min(2,cand.length);
   for(let k=0;k<n;k++){const i=Math.floor(rnd()*cand.length),p=cand.splice(i,1)[0];picks.push(p)}
   const grid=L.map.map(s=>s.split('')),names=[];
-  for(const p of picks){const letter=(p.nb>p.nh&&rnd()<.6)||rnd()<.18?'B':'H';grid[p.r][p.c]=letter;names.push((letter==='H'?'homes':'offices')+' near '+SN(p.r)+' & '+ord(p.c+1))}
+  for(const p of picks){const letter=(p.nb>p.nh&&rnd()<.6)||rnd()<.18?'B':'H';grid[p.r][p.c]=letter;names.push((letter==='H'?'homes':'offices')+' near '+placeName(L,p.r,p.c))}
   L.map=grid.map(a=>a.join(''));
   G.city=buildCity(L);
   if(T.ok){build3D(G.city);resetDyn()}
@@ -5310,10 +5508,11 @@ const WC=new Map();                      // cached low-detail town data per leve
 const WJ={tok:0,q:[],ready:false,rects:null,plan:null};
 function worldOn(){
   if(window.__noWorld)return false;
-  const L=G.L;return !!(L&&CAMPAIGN.indexOf(G.levelIdx)>=0&&!G.free&&!L.daily&&!L.weekly&&!L.sandbox);
+  const L=G.L;return !!(L&&(CAMPAIGN_CLASSIC.indexOf(G.levelIdx)>=0||isCtLevel(G.levelIdx))&&!G.free&&!L.daily&&!L.weekly&&!L.sandbox);
 }
 const WIG=1000, WIX=4800;               // the north-south interstate runs through a 1000 wide gap at x = WIX in every band
 function worldLayout(){
+  if(G.L&&isCtLevel(G.levelIdx))return ctLayout();
   if(WLAY)return WLAY;
   const t={},hh=i=>MARGIN*2+LEVELS[i].map.length*S,ww=i=>MARGIN*2+LEVELS[i].map[0].length*S;
   // four bands of towns from north to south; 'I' marks the interstate gap, a negative number is extra space (the heartland lake)
@@ -5334,6 +5533,134 @@ function worldLayout(){
     ends:{W:[9,21,0,17],E:[14,15,20,16]}};
   const vs=Object.values(t);WLAY.geo={x0:Math.min(...vs.map(v=>v.ax)),x1:Math.max(...vs.map(v=>v.ax+v.w)),y0:0,y1:Math.max(...vs.map(v=>v.ay+v.h)),by};
   return WLAY;
+}
+/* ---------- Connecticut layout: every district is placed by its real latitude and longitude (equirectangular projection, latitude-corrected at 41.2 degrees).
+   Districts of one town keep their north-south and west-east ORDER in a tidy block of rows (streets of the world run in the gaps between rows). Distances between towns are
+   compressed (CT_DATA.proj.far world units per metre) and the town blocks are pushed apart where they would overlap. Roads, rivers, hills and the coast are data in CT_DATA. ---------- */
+let CTLAY=null;
+function ctProj(lat,lon){const P=CT_DATA.proj;return[(lon-P.lon0)*111320*Math.cos(P.lat0*Math.PI/180)*P.far,(P.lat0-lat)*110540*P.far]}
+function ctSpline(w){
+  if(w.length<3)return w.slice();
+  const out=[];
+  for(let i=0;i+1<w.length;i++){
+    const p0=w[Math.max(0,i-1)],p1=w[i],p2=w[i+1],p3=w[Math.min(w.length-1,i+2)],n=Math.max(2,Math.min(14,Math.ceil(Math.hypot(p2[0]-p1[0],p2[1]-p1[1])/260)));
+    for(let q=0;q<n;q++){const t=q/n,t2=t*t,t3=t2*t;
+      out.push([.5*((2*p1[0])+(-p0[0]+p2[0])*t+(2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2+(-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),
+                .5*((2*p1[1])+(-p0[1]+p2[1])*t+(2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2+(-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3)])}
+  }
+  out.push(w[w.length-1].slice());return out;
+}
+function ctLayout(){
+  if(CTLAY)return CTLAY;
+  const P=CT_DATA.proj,t={},cl={},hh=i=>MARGIN*2+LEVELS[i].map.length*S,ww=i=>MARGIN*2+LEVELS[i].map[0].length*S;
+  for(const tw of CT_DATA.towns){
+    if(tw.soon)continue;
+    const ds=CT_DATA.districts.filter(d=>d.town===tw.id).sort((a,b)=>b.ll[0]-a.ll[0]),ra=[];
+    for(const d of ds){const tol=.75*d.map.length*(d.bs||150)/110540,lr=ra[ra.length-1];if(lr&&Math.abs(lr.ref-d.ll[0])<=tol)lr.ds.push(d);else ra.push({ref:d.ll[0],ds:[d]})}
+    let y=0,Wd=0;
+    const rws=ra.map(rw=>{rw.ds.sort((a,b)=>a.ll[1]-b.ll[1]);const h=Math.max(...rw.ds.map(d=>hh(d.idx))),w=rw.ds.reduce((a,d)=>a+ww(d.idx),0)+P.gx*(rw.ds.length-1),o={y,h,w,ds:rw.ds};y+=h+P.gy;Wd=Math.max(Wd,w);return o});
+    const p0=ctProj(tw.ll[0],tw.ll[1]);
+    cl[tw.id]={tw,rws,W:Wd,H:y-P.gy,p0,x:p0[0],y:p0[1]};
+  }
+  const ids=Object.keys(cl);
+  for(let it=0;it<400;it++){let moved=false;   // keep the town blocks apart
+    for(let a=0;a<ids.length;a++)for(let b=a+1;b<ids.length;b++){const A=cl[ids[a]],B=cl[ids[b]];
+      const ox=(A.W+B.W)/2+700-Math.abs(A.x-B.x),oy=(A.H+B.H)/2+700-Math.abs(A.y-B.y);
+      if(ox>0&&oy>0){moved=true;if(ox<oy){const s=A.x<=B.x?-1:1;A.x+=s*ox/2;B.x-=s*ox/2}else{const s=A.y<=B.y?-1:1;A.y+=s*oy/2;B.y-=s*oy/2}}}
+    if(!moved)break}
+  for(const id of ids){const c=cl[id];c.x0=c.x-c.W/2;c.y0=c.y-c.H/2;
+    c.rws.forEach((rw,ri)=>{let x=c.x0+(c.W-rw.w)/2;rw.ds.forEach(d=>{t[d.idx]={ax:x,ay:c.y0+rw.y,w:ww(d.idx),h:hh(d.idx),cols:d.map[0].length,rows:d.map.length,band:ri,town:c.tw.id};x+=ww(d.idx)+P.gx})})}
+  const warp=(lat,lon)=>{const p=ctProj(lat,lon);let sx=0,sy=0,sw=0;for(const id of ids){const c=cl[id],w=1/((p[0]-c.p0[0])**2+(p[1]-c.p0[1])**2+4e4);sx+=(c.x-c.p0[0])*w;sy+=(c.y-c.p0[1])*w;sw+=w}return[p[0]+sx/sw,p[1]+sy/sw]};
+  const anchor=o=>{const c=cl[o.t];if(!c)return null;const d=o.d==null?260:o.d,m=/^g(\d+)-([WE])$/.exec(o.a||'');
+    if(m){const k=Math.min(+m[1],c.rws.length-1),gy=c.y0+c.rws[k].y+c.rws[k].h+P.gy/2;return[m[2]==='W'?c.x0-d+60:c.x0+c.W+d-60,gy]}
+    switch(o.a){case'N':return[c.x,c.y0-d];case'S':return[c.x,c.y0+c.H+d];case'W':return[c.x0-d,c.y];case'E':return[c.x0+c.W+d,c.y];default:return[c.x,c.y]}};
+  const pt=p=>Array.isArray(p)?warp(p[0],p[1]):anchor(p);
+  const roads=CT_DATA.roads.map(r=>{const wp=r.pts.map(pt).filter(Boolean);return{name:r.name,kind:r.kind,wp,pts:ctSpline(wp)}});
+  // coast: just south of the southern edge of every coastal town block, flat beyond the last one
+  const cs=ids.filter(id=>cl[id].tw.coastal).sort((a,b)=>cl[a].x-cl[b].x),cp=[];
+  for(const id of cs){const c=cl[id],z=c.y0+c.H-60;cp.push([c.x0-400,z],[c.x0+c.W+400,z])}
+  const coastAbs=x=>{if(x<=cp[0][0])return cp[0][1];for(let i=0;i+1<cp.length;i++)if(x<=cp[i+1][0]){const a=cp[i],b=cp[i+1];return a[1]+(b[1]-a[1])*(x-a[0])/((b[0]-a[0])||1)}return cp[cp.length-1][1]};
+  const rivers=CT_DATA.rivers.map(r=>{const wp=r.pts.map(pt).filter(Boolean);if(r.toSea){const l=wp[wp.length-1];wp.push([l[0]+60,coastAbs(l[0])+500])}return{name:r.name,w:r.w,pts:ctSpline(wp)}});
+  const hills=CT_DATA.hills.map(h=>{const p=warp(h.ll[0],h.ll[1]),r=h.r*P.far;return{x:p[0],z:p[1],rx:r*1.15,rz:r*.85,h:h.h,mt:!!h.mt}});
+  const rs=Object.values(t);
+  CTLAY={ct:true,t,bands:[],H:[],V:[],ends:{W:[],E:[]},cl,roads,rivers,hills,cp,coastAbs,li:{x0:cp[0][0]-3000,x1:cp[cp.length-1][0]+4000,dz:3300,hw:520},
+    geo:{x0:Math.min(...rs.map(v=>v.ax)),x1:Math.max(...rs.map(v=>v.ax+v.w)),y0:Math.min(...rs.map(v=>v.ay)),y1:Math.max(...rs.map(v=>v.ay+v.h)),by:[0,0,0]}};
+  return CTLAY;
+}
+/* absolute layout frame -> the local frame of the playable district (towns east or south of it move away as it grows, exactly like worldRect) */
+function ctLocFn(lay){
+  const A=lay.t[G.levelIdx],gx=Math.max(0,G.city.w-A.w),gy=Math.max(0,G.city.h-A.h);
+  return(x,y)=>[x-A.ax+(x>=A.ax+A.w-1?gx:0),y-A.ay+(y>=A.ay+A.h-1?gy:0)];
+}
+/* terrain features of the Connecticut world in the local frame: coast, Long Island, hills, rivers */
+function ctFeat(lay){
+  if(lay._f&&lay._f.k===G.levelIdx+':'+G.city.w+':'+G.city.h)return lay._f;
+  const loc=ctLocFn(lay),A=lay.t[G.levelIdx];
+  const cp=lay.cp.map(p=>loc(p[0],p[1])),coast=x=>{if(x<=cp[0][0])return cp[0][1];for(let i=0;i+1<cp.length;i++)if(x<=cp[i+1][0]){const a=cp[i],b=cp[i+1];return a[1]+(b[1]-a[1])*(x-a[0])/((b[0]-a[0])||1)}return cp[cp.length-1][1]};
+  const li=lay.li,lx0=li.x0-A.ax,lx1=li.x1-A.ax;
+  const f={k:G.levelIdx+':'+G.city.w+':'+G.city.h,coast,
+    // Long Island: a low strip of land across the Sound on the south horizon
+    liLand:(x,z)=>{const tp=wsm(lx0,lx0+1800,x)*(1-wsm(lx1-1800,lx1,x));if(tp<=0)return 0;const c=coast(x)+li.dz;return(1-wsm(li.hw*.7,li.hw*1.2,Math.abs(z-c)))*tp},
+    mtv:(wx,wz)=>{let v=0;for(const h of lay.hills)if(h.mt)v=Math.max(v,Math.max(0,1-Math.hypot((wx-h.x)/h.rx,(wz-h.z)/h.rz))*h.h);return v},
+    hlv:(wx,wz)=>{let v=0;for(const h of lay.hills)if(!h.mt)v=Math.max(v,Math.max(0,1-Math.hypot((wx-h.x)/h.rx,(wz-h.z)/h.rz))*h.h);return v},
+    rivers:lay.rivers.map(r=>({w:r.w,pts:r.pts.map(p=>loc(p[0],p[1]))}))};
+  f.segs=[];for(const r of f.rivers)for(let i=0;i+1<r.pts.length;i++)f.segs.push([r.pts[i][0],r.pts[i][1],r.pts[i+1][0],r.pts[i+1][1],r.w]);
+  return lay._f=f;
+}
+/* the road network of the Connecticut world: real corridors (I-95, Merritt Parkway, I-91, I-84, Route 8) between the town blocks, clipped where they enter a district, and the
+   playable district's own highway ends joined to the nearest corridor */
+function worldPlanCT(Hp,R,lay){
+  const P=G.levelIdx,{strips,segs,rings,deco,nodes,edges,node,road,hy,sp,isP}=Hp,loc=ctLocFn(lay),rl=Object.keys(R).map(k=>R[k]);
+  const inRect=(x,y,m)=>{for(const r of rl)if(x>r.x-m&&x<r.x+r.w+m&&y>r.y-m&&y<r.y+r.h+m)return true;return false};
+  const cor=[];
+  lay.roads.forEach(rd=>{
+    const pts=rd.pts.map(p=>loc(p[0],p[1])),dens=[];
+    for(let i=0;i+1<pts.length;i++){const a=pts[i],b=pts[i+1],n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/40));for(let q=0;q<n;q++)dens.push([a[0]+(b[0]-a[0])*q/n,a[1]+(b[1]-a[1])*q/n])}
+    dens.push(pts[pts.length-1]);
+    const runs=[];let run=[];
+    for(const p of dens){if(inRect(p[0],p[1],24)){if(run.length>1)runs.push(run);run=[]}else run.push(p)}
+    if(run.length>1)runs.push(run);
+    for(const r of runs){const th=r.filter((p,i)=>i===0||i===r.length-1||i%4===0);cor.push({name:rd.name,pts:th,first:r[0]===dens[0],last:r[r.length-1]===dens[dens.length-1],J:[],wp:rd.wp.map(w=>loc(w[0],w[1]))})}
+  });
+  // junctions where two corridors share a waypoint
+  for(const a of cor)for(const b of cor){if(a===b||a.name===b.name)continue;for(const w of a.wp)if(b.wp.some(v=>Math.hypot(v[0]-w[0],v[1]-w[1])<30))a.J.push({x:w[0],y:w[1]})}
+  // the playable district's highway ends
+  const stubs=[];
+  if(isP(P)){
+    const r0=R[P],spn=sp(P);
+    for(const sg of[-1,1]){const y=hy(P,sg);
+      for(const side of['W','E']){
+        const dir=side==='W'?-1:1,xs=r0.x+(side==='W'?spn.x0:spn.x1),from=[xs+dir*420,y];
+        let best=null,bd=9000,bc=null;
+        for(const c of cor)for(const p of c.pts){if((p[0]-xs)*dir<500)continue;const d=Math.hypot(p[0]-from[0],p[1]-from[1]);if(d<bd){bd=d;best=p;bc=c}}
+        let pts=[[xs,y],from];
+        if(best){pts=[[xs,y],from,[from[0]+(best[0]-from[0])*.55,y],best.slice()];for(let it=0;it<2;it++){const o=[pts[0]];for(let k=0;k+1<pts.length;k++){const a=pts[k],b=pts[k+1];o.push([a[0]*.75+b[0]*.25,a[1]*.75+b[1]*.25],[a[0]*.25+b[0]*.75,a[1]*.25+b[1]*.75])}o.push(pts[pts.length-1]);pts=o}}
+        else pts=[[xs,y],[xs+dir*2600,y]];
+        // keep the part up to the first district it would run into
+        const dn=[];for(let i=0;i+1<pts.length;i++){const a=pts[i],b=pts[i+1],n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/40));for(let q=0;q<n;q++)dn.push([a[0]+(b[0]-a[0])*q/n,a[1]+(b[1]-a[1])*q/n])}
+        dn.push(pts[pts.length-1]);
+        const kept=[];let hit=false;for(const p of dn){if(kept.length>2&&inRect(p[0],p[1],10)){hit=true;break}kept.push(p)}
+        const reached=!!best&&!hit;
+        stubs.push({pts:kept.filter((p,i)=>i===0||i===kept.length-1||i%3===0),side,sg,xs,y,junction:reached?best:null,corr:reached?bc:null});
+        if(reached&&bc)bc.J.push({x:best[0],y:best[1]});
+      }}
+  }
+  for(const c of cor){
+    if(c.pts.length<2)continue;
+    const J=c.J.filter(j=>c.pts.some((p,i)=>i&&wSeg(j.x,j.y,[c.pts[i-1][0],c.pts[i-1][1],p[0],p[1]])<900));
+    road(c.pts,56,'hw',J,{lane:1});
+    if(c.first)node(c.pts[0][0],c.pts[0][1]).horizon=true;
+    if(c.last)node(c.pts[c.pts.length-1][0],c.pts[c.pts.length-1][1]).horizon=true;
+  }
+  for(const s of stubs){
+    if(s.pts.length<2)continue;
+    road(s.pts,56,'hw',[],{lane:1});
+    node(s.xs,s.y).portal={side:s.side,sg:s.sg};
+    const l=s.pts[s.pts.length-1];if(!s.junction)node(l[0],l[1]).horizon=true;
+  }
+  const portals=[];for(const n of nodes)if(n.portal)portals.push({n,side:n.portal.side,sg:n.portal.sg});
+  const f=ctFeat(lay),cx=R[P].x+R[P].w/2;
+  return{strips,segs,rings,deco,nodes,edges,portals,crossings:[],iPts:[],seaApprox:f.coast(cx),xI0:0};
 }
 /* position of town j in the local frame of the playable town (its NW corner is 0,0). Towns east or south of the playable town move away as it grows. */
 function worldRect(j){
@@ -5509,6 +5836,7 @@ function worldPlan(R){
     cuts.sort((a,b)=>a.s-b.s);
     for(let k=0;k+1<cuts.length;k++){if(cuts[k+1].s-cuts[k].s<2||cuts[k].n===cuts[k+1].n)continue;addEdge(cut(pts,cuts[k].s,cuts[k+1].s),cuts[k].n,cuts[k+1].n,{lane:o.lane})}
   };
+  if(lay.ct)return worldPlanCT({strips,segs,rings,deco,nodes,edges,node,road,hy,sp,isP},R,lay);
   const idsAll=Object.keys(lay.t).map(Number);
   // ----- trunks: one polyline per band and side, in pieces (the playable town's own highway takes the place of its section)
   const trunk={};   // key band*2+(sg>0)
@@ -5627,15 +5955,16 @@ function wSeg(px,pz,s){const dx=s[2]-s[0],dz=s[3]-s[1],l2=dx*dx+dz*dz||1;let t=(
 function wRun(ctx,fn){const go=()=>{if(ctx.tok!==WJ.tok)return;if(!fn(performance.now()+5))WJ.q.unshift(go)};go()}
 /* water basins: where a town's map is mostly water along one edge (sea, lake, bay) the water reaches out into the world beyond that edge (boxes in the local frame) */
 function wBasins(R){
-  const out=[];
+  const out=[],ctB=!!worldLayout().ct;
   for(const k in R){
     const j=+k,r=R[k],L=j===G.levelIdx?G.L:LEVELS[j],m=L.map,rows=m.length,cols=m[0].length;
     const fr=a=>{let n=0;for(const ch of a)if(ch==='W')n++;return n/a.length};
     const N=fr(m[0]),Sx=fr(m[rows-1]),Wd=fr(m.map(rw=>rw[0])),E=fr(m.map(rw=>rw[cols-1]));
-    if(N>=.5)out.push({x0:r.x,z0:r.y-650,x1:r.x+r.w,z1:r.y+MARGIN,j,side:'N'});
-    if(Sx>=.5)out.push({x0:r.x,z0:r.y+r.h-MARGIN,x1:r.x+r.w,z1:r.y+r.h+650,j,side:'S'});
-    if(Wd>=.5)out.push({x0:r.x-1100,z0:r.y,x1:r.x+MARGIN,z1:r.y+r.h,j,side:'W'});
-    if(E>=.5)out.push({x0:r.x+r.w-MARGIN,z0:r.y,x1:r.x+r.w+1100,z1:r.y+r.h,j,side:'E'});
+    const ns=ctB?220:650,ew=ctB?70:1100;
+    if(N>=.5)out.push({x0:r.x,z0:r.y-ns,x1:r.x+r.w,z1:r.y+MARGIN,j,side:'N'});
+    if(Sx>=.5)out.push({x0:r.x,z0:r.y+r.h-MARGIN,x1:r.x+r.w,z1:r.y+r.h+ns,j,side:'S'});
+    if(Wd>=.5)out.push({x0:r.x-ew,z0:r.y,x1:r.x+MARGIN,z1:r.y+r.h,j,side:'W'});
+    if(E>=.5)out.push({x0:r.x+r.w-MARGIN,z0:r.y,x1:r.x+r.w+ew,z1:r.y+r.h,j,side:'E'});
   }
   return out;
 }
@@ -5647,7 +5976,7 @@ function wStageTerrain(ctx){
   const nx=Math.ceil((x1-x0)/cell)+1,nz=Math.ceil((z1-z0)/cell)+1,N=nx*nz;
   const H=new Float32Array(N),SD=new Float32Array(N),MT=new Float32Array(N),HL=new Float32Array(N),DD=new Float32Array(N),AJ=new Int16Array(N),AW=new Float32Array(N),NO=new Float32Array(N),WATER=new Float32Array(N),CD=new Float32Array(N);
   const ids=Object.keys(R).map(Number),segs=plan.segs,ox=A.ax,oz=A.ay,bas=wBasins(R);ctx.bas=bas;
-  const seaZ=plan.seaApprox;
+  const seaZ=plan.seaApprox,ctm=lay.ct?ctFeat(lay):null;
   const rad=j=>{const L=LEVELS[j];return L.climate==='snow'?800:L.region==='dubai'?420:L.region==='tokyo'?300:240};
   ctx.TR={x0,z0,nx,nz,cell,H,SD,MT,HL,DD,AJ,AW,NO,WATER,CD,ox,oz,seaZ};ctx.row=0;
   const mtX=GEO.x1-1700,mtZ=GEO.y0+300,hlX=GEO.x0+1500,hlZ=GEO.y0+700,dzo=GEO.by[2]-500;
@@ -5659,18 +5988,19 @@ function wStageTerrain(ctx){
     for(const s of segs){const bx0=Math.min(s[0],s[2])-700,bx1=Math.max(s[0],s[2])+700,bz0=Math.min(s[1],s[3])-700,bz1=Math.max(s[1],s[3])+700;if(x<bx0||x>bx1||z<bz0||z>bz1)continue;const dd=Math.max(0,Math.sqrt(wSeg(x,z,s))-34);if(dd<d)d=dd}
     const fl=wsm(120,800,d);
     // relief: the north-east mountains, the north-west hills, the desert dunes of the south-east and a ring of mountains around the whole region
-    const am=Math.max(0,1-Math.hypot((wx-mtX)/3600,(wz-mtZ)/2600)),ridge=Math.pow(1-Math.abs(2*wnz(wx*1.4,wz*1.4)-1),1.25)*(.4+.6*wnz(wx*.6+300,wz*.6));
-    const dOx=Math.max(GEO.x0-wx,0,wx-GEO.x1),dOz=Math.max(GEO.y0-wz,0,wz-GEO.y1),dOut=Math.hypot(dOx,dOz),rim=wsm(500,2300,dOut);
+    const am=ctm?ctm.mtv(wx,wz):Math.max(0,1-Math.hypot((wx-mtX)/3600,(wz-mtZ)/2600)),ridge=Math.pow(1-Math.abs(2*wnz(wx*1.4,wz*1.4)-1),1.25)*(.4+.6*wnz(wx*.6+300,wz*.6));
+    const dOx=Math.max(GEO.x0-wx,0,wx-GEO.x1),dOz=Math.max(GEO.y0-wz,0,wz-GEO.y1),dOut=Math.hypot(dOx,dOz),rim=(ctm?.25:1)*wsm(500,2300,dOut);
     const rdg=Math.pow(1-Math.abs(2*wnz(wx*1.3+50,wz*1.3)-1),1.2)*(.4+.6*wnz(wx*.5,wz*.5+90)),nor=wsm(0,1,(GEO.y0+300-wz)/1800);
     const mt=Math.max(wsm(.05,.75,am)*ridge,rim*rdg*(.45+.55*nor));
-    const hl=Math.max(wsm(0,.8,Math.max(0,1-Math.hypot((wx-hlX)/2800,(wz-hlZ)/2300)))*(.3+.7*wnz(wx*.8,wz*.8)),rim*.5*(1-nor)*(.4+.6*wnz(wx*.7+9,wz*.7)));
-    const dn=wsm(GEO.x1-3500,GEO.x1-1900,wx)*wsm(dzo,dzo+1200,wz),dune=dn*(.3+.7*(.5+.5*Math.sin((wx*.9+wz*.5)*.0062+wnz(wx*2,wz*2)*4.5)));
+    const hl=Math.max(wsm(0,.8,ctm?ctm.hlv(wx,wz):Math.max(0,1-Math.hypot((wx-hlX)/2800,(wz-hlZ)/2300)))*(.3+.7*wnz(wx*.8,wz*.8)),rim*.5*(1-nor)*(.4+.6*wnz(wx*.7+9,wz*.7)));
+    const dn=ctm?0:wsm(GEO.x1-3500,GEO.x1-1900,wx)*wsm(dzo,dzo+1200,wz),dune=dn*(.3+.7*(.5+.5*Math.sin((wx*.9+wz*.5)*.0062+wnz(wx*2,wz*2)*4.5)));
     const gen=wnz(wx,wz)*30;
-    const sea=wsm(0,1,(z-(seaZ+260))/800);
-    let depB=0;for(const b of bas){const ins=Math.min(x-b.x0,b.x1-x,z-b.z0,b.z1-z);if(ins>0)depB=Math.max(depB,wsm(0,320,ins)*34)}
+    const sea=ctm?wsm(0,1,(z-(ctm.coast(x)+260))/800)*(1-ctm.liLand(x,z)):wsm(0,1,(z-(seaZ+260))/800);
+    let depB=0;
+    if(ctm)for(const sg2 of ctm.segs){const bx0=Math.min(sg2[0],sg2[2])-sg2[4],bx1=Math.max(sg2[0],sg2[2])+sg2[4],bz0=Math.min(sg2[1],sg2[3])-sg2[4],bz1=Math.max(sg2[1],sg2[3])+sg2[4];if(x<bx0||x>bx1||z<bz0||z>bz1)continue;const ins=sg2[4]/2-Math.sqrt(wSeg(x,z,sg2));if(ins>0)depB=Math.max(depB,wsm(0,60,ins)*14)}for(const b of bas){const ins=Math.min(x-b.x0,b.x1-x,z-b.z0,b.z1-z);if(ins>0)depB=Math.max(depB,wsm(0,320,ins)*34)}
     const dep=sea*55*wsm(150,520,d);
     const eg=wsm(0,1400,Math.min(x-x0,x1-x,z-z0,(z1-z)+0));
-    H[k]=(fl*(mt*420+hl*170+dune*55+gen)-dep)*(dep>0?1:eg)-depB;
+    H[k]=(fl*(mt*(ctm?200:420)+hl*(ctm?90:170)+dune*55+gen)-dep)*(dep>0?1:eg)-depB;
     const wd=Math.max(dep,depB);
     SD[k]=Math.max(dn*(.72+.28*wnz(wx*3+7,wz*3+1)),wsm(-1.2,-.2,-H[k])*(wd>0?1:0));MT[k]=mt*fl;HL[k]=hl*fl;DD[k]=d;AJ[k]=aj;AW[k]=aw*(1-wsm(0,500,Math.max(0,wd)*20));NO[k]=wnz(wx*2.3+11,wz*2.3+5);WATER[k]=wd;
     CD[k]=nor;
@@ -5734,7 +6064,16 @@ function wStageWater(ctx){
   const TR=ctx.TR,M2=wMats(),g=wGroup(),pos=[],uv=[],idx=[];
   // one mesh: the sea (everything south of the coast, to the horizon) and a plane under every basin (lakes, bays, rivers of the maps). All sit at y -2, under the flat land (-0.55), so they only show in the depressions.
   const quad=(xa,za,xb,zb)=>{const k=pos.length/3;pos.push(xa,-2,za,xb,-2,za,xb,-2,zb,xa,-2,zb);uv.push(xa/400,za/400,xb/400,za/400,xb/400,zb/400,xa/400,zb/400);idx.push(k,k+3,k+2,k,k+2,k+1)};
-  const sz=TR.seaZ+260;quad(TR.x0-30000,sz,TR.x0+TR.nx*TR.cell+30000,sz+22000);
+  const sz=TR.seaZ+260,xa0=TR.x0-30000,xb0=TR.x0+TR.nx*TR.cell+30000,cm=worldLayout().ct?ctFeat(worldLayout()):null;
+  if(!cm)quad(xa0,sz,xb0,sz+22000);
+  else{ // the Sound: a band that follows the coast, to the horizon
+    const gen=(v0,v1,v2,v3)=>{const k=pos.length/3,sgn=(v3[0]-v0[0])*(v2[1]-v0[1])-(v3[1]-v0[1])*(v2[0]-v0[0]);const vs=sgn<=0?[v0,v1,v2,v3]:[v0,v3,v2,v1];for(const v of vs){pos.push(v[0],-2,v[1]);uv.push(v[0]/400,v[1]/400)}idx.push(k,k+3,k+2,k,k+2,k+1)};
+    const xs=[xa0];for(let x=Math.ceil(TR.x0/600)*600;x<xb0;x+=600)xs.push(x);xs.push(xb0);
+    for(let i=0;i+1<xs.length;i++){const za=cm.coast(xs[i])+260,zb=cm.coast(xs[i+1])+260;gen([xs[i],za],[xs[i+1],zb],[xs[i+1],Math.max(za,zb)+22000],[xs[i],Math.max(za,zb)+22000])}
+    // rivers and Long Island's shore line stay as they are: the strip of Long Island is raised land in the terrain
+    for(const r of cm.rivers)for(let i=0;i+1<r.pts.length;i++){const a=r.pts[i],b=r.pts[i+1],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1,nx=-dz/l*(r.w/2+30),nz=dx/l*(r.w/2+30);
+      gen([a[0]+nx,a[1]+nz],[b[0]+nx,b[1]+nz],[b[0]-nx,b[1]-nz],[a[0]-nx,a[1]-nz])}
+  }
   for(const b of ctx.bas)quad(b.x0+10,b.z0+10,b.x1-10,b.z1-10);
   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();
   const m=new THREE.Mesh(geo,M2.water);m.frustumCulled=false;T.wWater=m;g.add(m);
@@ -6243,7 +6582,9 @@ function worldPath(from,to){
   return out[0]===from?out:[from,to];
 }
 function worldLinkMid(a,b,R){
-  const lay=worldLayout(),ra=R[a],rb=R[b],isH=lay.H.some(p=>(p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a));
+  const lay=worldLayout(),ra=R[a],rb=R[b];
+  if(lay.ct)return[(ra.x+ra.w/2+rb.x+rb.w/2)/2,(ra.y+ra.h/2+rb.y+rb.h/2)/2];
+  const isH=lay.H.some(p=>(p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a));
   if(isH){const w=ra.x<rb.x?ra:rb,e=ra.x<rb.x?rb:ra;return[(w.x+w.w+e.x)/2,(ra.y+ra.h+rb.y+rb.h)/2+40]}
   const up=ra.y<rb.y?ra:rb,dn=ra.y<rb.y?rb:ra,lo=Math.max(ra.x,rb.x)+40,hi=Math.min(ra.x+ra.w,rb.x+rb.w)-40;
   return[(lo+hi)/2,(up.y+up.h+40+dn.y-40)/2];
@@ -6343,6 +6684,102 @@ function wmapBind(){
   const show=e=>{const g=e.target.closest&&e.target.closest('.wmt');if(!g)return;const i=+g.dataset.i,L=LEVELS[i],st=getStars(),k=CAMPAIGN.indexOf(i),cur=campIdx(),done=(st[i]||0)>=1;
     cap.innerHTML=(k<=cur?'<b>'+esc(L.name)+'</b> · '+esc(L.blurb):'<b>Map '+(k+1)+' · locked</b> · Clear the maps before it to open this town.')+(k===cur?' <b>(your next map)</b>':done?' · '+starStr(st[i]||0):'')};
   sv.addEventListener('pointerover',show);sv.addEventListener('click',show);sv.addEventListener('focusin',show);
+}
+/* ---------- Connecticut campaign screen: the state outline (US Census, public domain) with the towns, the road corridors, the current town's districts as an inset ---------- */
+const CT_VB={lon0:-73.8,lat0:42.08,lat1:40.96,lon1:-71.7};
+const ctXY=(lat,lon)=>[(lon-CT_VB.lon0)*Math.cos(41.3*Math.PI/180)*1000,(CT_VB.lat0-lat)*1000];
+function ctTownStats(){
+  const st=getStars(),out={};
+  for(const tw of CT_DATA.towns){const ds=CT_DATA.districts.filter(d=>d.town===tw.id);out[tw.id]={tw,n:ds.length,done:ds.filter(d=>(st[d.idx]||0)>=1).length,stars:ds.reduce((a,d)=>a+(st[d.idx]||0),0)}}
+  return out;
+}
+function ctStateMap(curTown){
+  const V=CT_VB,W=(V.lon1-V.lon0)*Math.cos(41.3*Math.PI/180)*1000,Hh=(V.lat0-V.lat1)*1000,S0=ctTownStats();
+  const path=r=>'M'+r.map(p=>{const q=ctXY(p[1],p[0]);return q[0].toFixed(1)+' '+q[1].toFixed(1)}).join('L')+'Z';
+  let h='<rect width="'+W+'" height="'+Hh+'" fill="#dfe3c9"/><rect y="'+ctXY(41.3,-73)[1].toFixed(0)+'" width="'+W+'" height="'+(Hh-ctXY(41.3,-73)[1]).toFixed(0)+'" fill="#a8d0e6"/>';
+  // sea texture
+  for(let i=0;i<9;i++){const x=80+i*150,y=Hh-110+(i%3)*30;h+='<path d="M'+x+' '+y+' q14 -9 28 0 q14 9 28 0" stroke="#d3ebf6" stroke-width="3" fill="none"/>'}
+  for(const k in CT_DATA.outline){const o=CT_DATA.outline[k],ct=k.slice(0,2)==='09';
+    for(const r of o.rings)h+='<path d="'+path(r)+'" fill="'+(ct?'#efe7c9':k.slice(0,2)==='36'?'#dfe5cc':'#dfe1cd')+'" stroke="'+(ct?'#a39a74':'#c1c6ae')+'" stroke-width="'+(ct?2:1.5)+'" stroke-linejoin="round"/>'}
+  // hills: Litchfield Hills in the north-west, the north-east hills
+  for(const hl of CT_DATA.hills){if(hl.h<.7)continue;const c=ctXY(hl.ll[0],hl.ll[1]);for(let i=0;i<6;i++){const x=c[0]+(i%3-1)*34+(i>2?17:0),y=c[1]+(i>2?18:-8)+(i%2)*6;h+='<path d="M'+(x-17)+' '+(y+13)+' L'+x+' '+(y-11)+' L'+(x+17)+' '+(y+13)+'Z" fill="#b9c79a" stroke="#98a97a" stroke-width="1.5"/>'}}
+  // rivers (Connecticut and Housatonic, Naugatuck)
+  for(const rv of CT_DATA.rivers){const pts=rv.pts.map(p=>Array.isArray(p)?ctXY(p[0],p[1]):ctXY(CT_TOWN.get(p.t).ll[0],CT_TOWN.get(p.t).ll[1]));
+    h+='<polyline points="'+pts.map(q=>q[0].toFixed(0)+','+q[1].toFixed(0)).join(' ')+'" fill="none" stroke="#a8d0e6" stroke-width="'+(rv.w>150?7:5)+'" stroke-linecap="round" stroke-linejoin="round"/>'}
+  h+='<text x="'+(W*.42)+'" y="'+(Hh-52)+'" font-size="30" font-style="italic" text-anchor="middle" fill="#4a86a6" font-family="Outfit,Arial,sans-serif">Long Island Sound</text>';
+  h+='<text x="'+(W*.55)+'" y="'+(Hh-14)+'" font-size="22" font-style="italic" text-anchor="middle" fill="#8d9a74" font-family="Outfit,Arial,sans-serif">Long Island</text>';
+  // road corridors
+  let rd='',bd='';
+  for(const r of CT_DATA.roads){
+    const pts=r.pts.map(p=>{if(Array.isArray(p))return ctXY(p[0],p[1]);const tw=CT_TOWN.get(p.t),sh=p.a==='N'?.05:p.a==='S'?-.03:0;return ctXY(tw.ll[0]+sh,tw.ll[1])});
+    const d=pts.map(q=>q[0].toFixed(0)+','+q[1].toFixed(0)).join(' ');rd+='<polyline points="'+d+'"/>';
+    const m=pts[Math.max(1,Math.floor(pts.length*.35))];bd+='<g transform="translate('+m[0].toFixed(0)+' '+(m[1]-9).toFixed(0)+')"><rect x="-23" y="-9" width="46" height="17" rx="5" fill="#2f5da8" stroke="#fff" stroke-width="2"/><text y="4" font-size="12" font-weight="800" text-anchor="middle" fill="#fff" font-family="Outfit,Arial,sans-serif">'+esc(r.name.replace('Merritt Parkway','Rt 15').replace('Route ','Rt '))+'</text></g>'}
+  h+='<g fill="none" stroke-linecap="round" stroke-linejoin="round"><g stroke="#4a545c" stroke-width="7">'+rd+'</g><g stroke="#f2c94c" stroke-width="2" stroke-dasharray="7 7">'+rd+'</g></g>'+bd;
+  // towns
+  for(const tw of CT_DATA.towns){
+    const c=ctXY(tw.ll[0],tw.ll[1]),s=S0[tw.id],play=!tw.soon,isCur=tw.id===curTown,frac=play&&s.n?s.done/s.n:0;
+    const lbl=tw.name+(play?' ('+s.done+' of '+s.n+')':' (coming soon)');
+    let g='<g class="wmt" data-t="'+tw.id+'" tabindex="0" role="img" aria-label="'+esc(lbl)+'" transform="translate('+c[0].toFixed(0)+' '+c[1].toFixed(0)+')"><title>'+esc(lbl)+'</title>';
+    if(play){
+      if(isCur)g+='<circle r="30" fill="#fff" opacity=".85">'+(ui.rm?'':'<animate attributeName="r" values="24;34;24" dur="2.4s" repeatCount="indefinite"/>')+'</circle>';
+      g+='<circle r="15" fill="'+(frac>=1?'#3fb868':'#2a7de1')+'" stroke="#fff" stroke-width="3"/><circle r="22" fill="none" stroke="#2b3a45" stroke-opacity=".25" stroke-width="5"/>'+
+         '<circle r="22" fill="none" stroke="#f2a900" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+(frac*138.2).toFixed(1)+' 138.2" transform="rotate(-90)"/>'+
+         '<text y="5" font-size="14" font-weight="900" text-anchor="middle" fill="#fff" font-family="Outfit,Arial,sans-serif">'+s.done+'/'+s.n+'</text>';
+    }else g+='<circle r="11" fill="#b8c0c6" stroke="#fff" stroke-width="3"/><text y="5" font-size="13" text-anchor="middle">🔒</text>';
+    const lb=tw.lab||'b',ly=(lb==='a'||lb==='l')?(play?-32:-18):lb[0]==='r'?5:(play?42:28),lx=lb==='l'?-24:lb==='bl'?-14:lb==='r'?28:0,an=lb==='l'||lb==='bl'?'end':lb==='r'?'start':'middle';
+    g+='<text x="'+lx+'" y="'+ly+'" font-size="'+(play?25:19)+'" font-weight="800" text-anchor="'+an+'" fill="'+(play?'#18222a':'#6d7880')+'" stroke="#fff" stroke-width="5" stroke-linejoin="round" style="paint-order:stroke" font-family="Outfit,Arial,sans-serif">'+esc(tw.name)+'</text></g>';
+    h+=g;
+  }
+  return'<svg viewBox="0 0 '+W.toFixed(0)+' '+Hh.toFixed(0)+'" role="group" aria-label="Map of Connecticut with its towns" style="display:block;width:100%;margin:12px auto 0;border-radius:12px;background:#a8d0e6;touch-action:manipulation" id="wmap">'+h+'</svg>';
+}
+/* the districts of one town as little tiles, positioned as in the 3D world */
+function ctInset(town,cur){
+  const lay=ctLayout(),st=getStars(),ds=CT_DATA.districts.filter(d=>d.town===town);if(!ds.length)return'';
+  const rs=ds.map(d=>lay.t[d.idx]),x0=Math.min(...rs.map(r=>r.ax))-120,y0=Math.min(...rs.map(r=>r.ay))-120,x1=Math.max(...rs.map(r=>r.ax+r.w))+120,y1=Math.max(...rs.map(r=>r.ay+r.h))+120;
+  const COL={W:'#7db4d4',X:'#7db4d4',G:'#c9c2b0',P:'#6fae5d',C:'#6fae5d',B:'#5d7894',H:'#d9c9a3','.':'#e8e2c8'};
+  let h='<rect x="'+x0+'" y="'+y0+'" width="'+(x1-x0)+'" height="'+(y1-y0)+'" rx="60" fill="#eef3ec"/>';
+  const k0=CAMPAIGN.indexOf(cur);
+  ds.forEach(d=>{
+    const r=lay.t[d.idx],k=CAMPAIGN.indexOf(d.idx),done=(st[d.idx]||0)>=1,isCur=d.idx===cur,locked=!done&&!isCur,map=d.map,rows=map.length,cols=map[0].length,cw=(r.w-2*MARGIN)/cols,ch=(r.h-2*MARGIN)/rows;
+    let g='<g class="wmt" data-i="'+d.idx+'" tabindex="0" role="img" aria-label="'+esc(locked?d.name+', locked':d.name+(done?', cleared '+(st[d.idx]||0)+' stars':', your next district'))+'"><title>'+esc(d.name)+'</title>';
+    if(isCur)g+='<rect x="'+(r.ax-40)+'" y="'+(r.ay-40)+'" width="'+(r.w+80)+'" height="'+(r.h+80)+'" rx="50" fill="#fff" stroke="#2a7de1" stroke-width="22">'+(ui.rm?'':'<animate attributeName="stroke-opacity" values=".35;1;.35" dur="2.4s" repeatCount="indefinite"/>')+'</rect>';
+    g+='<rect x="'+r.ax+'" y="'+r.ay+'" width="'+r.w+'" height="'+r.h+'" rx="30" fill="'+(locked?'#cfd6db':'#c6d7b4')+'"/>';
+    for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){const c=map[y][x];g+='<rect x="'+(r.ax+MARGIN+x*cw).toFixed(0)+'" y="'+(r.ay+MARGIN+y*ch).toFixed(0)+'" width="'+(cw+1).toFixed(0)+'" height="'+(ch+1).toFixed(0)+'" fill="'+(locked?(c==='W'?'#9db3c2':c==='P'||c==='C'?'#b4c3b4':c==='B'?'#9fabb4':'#cdd3d6'):(COL[c]||COL.H))+'"/>'}
+    const words=d.name.split(' '),lines=[];let cur2='';for(const w of words){if((cur2+' '+w).trim().length>13&&cur2){lines.push(cur2);cur2=w}else cur2=(cur2+' '+w).trim()}lines.push(cur2);
+    const cx=r.ax+r.w/2,cy=r.ay+r.h/2-(lines.length-1)*85+10;
+    lines.forEach((l,q)=>{g+='<text x="'+cx.toFixed(0)+'" y="'+(cy+q*170).toFixed(0)+'" font-size="160" font-weight="800" text-anchor="middle" fill="'+(locked?'#5d6a73':'#14202a')+'" stroke="#fff" stroke-width="40" stroke-linejoin="round" style="paint-order:stroke" font-family="Outfit,Arial,sans-serif">'+esc(l)+'</text>'});
+    g+='<text x="'+cx.toFixed(0)+'" y="'+(cy+lines.length*170+30).toFixed(0)+'" font-size="170" font-weight="800" text-anchor="middle" fill="'+(done?'#c98a00':'#33414b')+'" stroke="#fff" stroke-width="40" stroke-linejoin="round" style="paint-order:stroke" font-family="Outfit,Arial,sans-serif">'+(done?'★'.repeat(st[d.idx]||0):locked?'🔒':'▶ '+(d.k+1))+'</text></g>';
+    h+=g;
+  });
+  return'<svg viewBox="'+x0.toFixed(0)+' '+y0.toFixed(0)+' '+(x1-x0).toFixed(0)+' '+(y1-y0).toFixed(0)+'" role="group" aria-label="The districts of '+esc(CT_TOWN.get(town).name)+'" style="display:block;width:100%;margin:10px auto 0;border-radius:12px;touch-action:manipulation" id="wmap2">'+h+'</svg>';
+}
+function ctBind(){
+  const cap=document.getElementById('wmcap');if(!cap)return;
+  const show=e=>{const g=e.target.closest&&e.target.closest('.wmt');if(!g)return;const st=getStars();
+    if(g.dataset.t){const tw=CT_TOWN.get(g.dataset.t),s=ctTownStats()[tw.id];cap.innerHTML='<b>'+esc(tw.name)+'</b> · '+esc(tw.blurb)+(tw.soon?' <b>Coming soon.</b>':' <b>'+s.done+' of '+s.n+' districts cleared.</b>')}
+    else if(g.dataset.i){const i=+g.dataset.i,L=LEVELS[i],k=CAMPAIGN.indexOf(i),cur=campIdx(),done=(st[i]||0)>=1;
+      cap.innerHTML=(k<=cur?'<b>'+esc(L.name)+'</b> · '+esc(L.blurb):'<b>'+esc(L.name)+' · locked</b> · Clear the districts before it to open this one.')+(k===cur?' <b>(your next district)</b>':done?' · '+starStr(st[i]||0):'')}};
+  for(const id of['wmap','wmap2']){const sv=document.getElementById(id);if(!sv)continue;sv.addEventListener('pointerover',show);sv.addEventListener('click',show);sv.addEventListener('focusin',show)}
+}
+const ctSwitch=m=>'<div class="seg" role="group" aria-label="Campaign" style="margin:4px 0 8px"><button class="'+(m==='ct'?'on':'')+'" data-act="campmode" data-v="ct" aria-pressed="'+(m==='ct')+'">Connecticut</button><button class="'+(m==='classic'?'on':'')+'" data-act="campmode" data-v="classic" aria-pressed="'+(m==='classic')+'">Classic</button></div>';
+function showCampaignCT(){
+  const st=getStars(),cur=campIdx(),n=CAMPAIGN.length,done=cur>=n,L=done?null:LEVELS[CAMPAIGN[cur]],town=L?L.ctTown:'hartford',S0=ctTownStats(),ts=S0[town];
+  const tw=CT_TOWN.get(town),ds=CT_DATA.districts.filter(d=>d.town===town);
+  const trail=ds.map(d=>{const c=(st[d.idx]||0)>=1,isCur=d.idx===(L&&CAMPAIGN[cur]);
+    return'<div class="ctn '+(c?'done':isCur?'cur':'lock')+'"><i>'+(c?'✓':isCur?(d.k+1):'🔒')+'</i><span>'+(c||isCur?esc(d.name):'District '+(d.k+1)+' · locked')+'</span>'+(c?'<small>'+starStr(st[d.idx]||0)+'</small>':'')+'</div>'}).join('');
+  const chips=L?'<div class="chips" style="margin:8px 0"><span class="chip">'+L.days+' days</span><span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>'+regionChips(L)+'</div>':'';
+  const soon=CT_DATA.towns.filter(t=>t.soon).map(t=>t.name).join(', ');
+  const osm=CT_DATA.districts.some(d=>d.osm)?'<br>Map data © OpenStreetMap contributors (ODbL).':'';
+  showOv('<div class="card" style="max-width:760px"><h1>Campaign</h1>'+ctSwitch('ct')+
+    '<p class="sub">'+(done?'You connected every Connecticut town that is open so far. More are coming soon.':'Town by town across Connecticut. Clear a district to open the next one; each town starts a little easier than the last one ended.')+'</p>'+
+    (L?'<div class="lv" style="min-height:0;border-color:var(--accent)"><div class="lbl">'+esc(tw.name)+' '+(ts.done+1)+' of '+ts.n+' districts</div><b style="font-size:20px">'+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small>'+chips+'</div><button class="btn ok full" data-act="level" data-i="'+CAMPAIGN[cur]+'" style="margin:12px 0 0">'+(cur>0?'Play '+esc(L.ctName):'Start in '+esc(L.ctName))+'</button>':'<button class="btn ok full" data-act="free" style="margin:12px 0 0">Free Play</button>')+
+    '<p class="sub" style="margin:10px 0 0"><b>'+esc(tw.name)+'</b>: '+ts.done+' of '+ts.n+' districts cleared · '+(S0&&Object.values(S0).filter(s=>!s.tw.soon&&s.done>=s.n).length)+' of '+Object.values(S0).filter(s=>!s.tw.soon).length+' open towns complete</p>'+
+    ctStateMap(town)+ctInset(town,L?CAMPAIGN[cur]:-1)+
+    '<p id="wmcap" class="sub" aria-live="polite" style="text-align:center;margin:6px 0 0;min-height:36px;font-size:13px">Tap or hover a town or a district to read about it. Only your next district is playable.</p>'+
+    '<div class="trail">'+trail+'</div><p class="sub" style="font-size:12px;margin:2px 0">Coming soon: '+esc(soon)+'.</p>'+
+    '<p class="sub" style="font-size:11px;margin:8px 0 2px">'+esc(CT_DATA.credit)+osm+' Streets are fitted to the game\'s block grid, not surveyed.</p>'+
+    '<div class="btnrow"><button class="btn alt" data-act="campreset">Restart campaign</button><button class="btn alt" data-act="howto">Back</button></div></div>');
+  ctBind();
 }
 /* WORLD:END */
 /* ---------- VEH: little people and proper cars (merged vertex-animated geometry, one draw call per kind; all cosmetic) ----------
@@ -8187,7 +8624,8 @@ document.addEventListener('click',e=>{
     case'challenges':showChallenges();break;
     case'freelevel':startLevel(+el.dataset.i,{free:PROF.freeMoney==='limited'?'limited':'unlimited'});break;
     case'freemoney':PROF.freeMoney=el.dataset.v;saveProfile();showFree();break;
-    case'campreset':if(confirmTap('campreset','This clears your campaign progress (not your profile or shop items).')){try{localStorage.removeItem('rhr.stars')}catch(e){}showCampaign()}break;
+    case'campreset':if(confirmTap('campreset','This clears the progress of this campaign (not the other campaign, your profile or shop items).')){try{const o=getStars();for(const k of CAMPAIGN)delete o[k];localStorage.setItem('rhr.stars',JSON.stringify(o))}catch(e){}showCampaign()}break;
+    case'campmode':ctSetMode(el.dataset.v);showCampaign();break;
     case'level':if(el.dataset.fly&&!G.free)worldFly(+el.dataset.i);else startLevel(+el.dataset.i);break;
     case'nextday':nextDay();break;
     case'tool':setTool(el.dataset.tool);break;
@@ -8463,15 +8901,16 @@ function howSteps(){return ''+
 function showHowToPlay(){
   showOv('<div class="card"><h1>How to play</h1><p class="sub">You run the buses. Get everyone to work and back home before they lose patience.</p><div class="how">'+howSteps()+'</div><div class="btnrow" style="margin-top:14px"><button class="btn alt" data-act="guide" data-from="howto">Full guide</button><button class="btn ok" data-act="howto">Back</button></div></div>');
 }
-function regionChips(L){const R={europe:'Europe',tokyo:'Tokyo',dubai:'Dubai',alpine:'Alps',harbor:'Harbor',metro:'Metropolis'}[L.region];return(L.chip?'<span class="chip new">'+esc(L.chip)+'</span>':'')+(R?'<span class="chip new">'+R+'</span>':'')+(L.climate&&L.climate!=='mild'?'<span class="chip new">'+({snow:'Snow all year',rain:'Always raining',hot:'Hot all year'}[L.climate]||'')+'</span>':'')}
+function regionChips(L){const R=L.ct?'':{europe:'Europe',tokyo:'Tokyo',dubai:'Dubai',alpine:'Alps',harbor:'Harbor',metro:'Metropolis'}[L.region];return(L.chip?'<span class="chip new">'+esc(L.chip)+'</span>':'')+(L.chips||[]).map(c=>'<span class="chip new">'+esc(c)+'</span>').join('')+(L.approx?'<span class="chip" title="Streets are fitted to the game grid, not surveyed">Approximate</span>':'')+(R?'<span class="chip new">'+R+'</span>':'')+(L.climate&&L.climate!=='mild'?'<span class="chip new">'+({snow:'Snow all year',rain:'Always raining',hot:'Hot all year'}[L.climate]||'')+'</span>':'')}
 function campIdx(){const st=getStars();for(let k=0;k<CAMPAIGN.length;k++)if((st[CAMPAIGN[k]]||0)<1)return k;return CAMPAIGN.length}
 function campLabel(){const k=campIdx();return k>=CAMPAIGN.length?'Campaign complete':(k>0?'Map '+(k+1)+' · ':'')+LEVELS[CAMPAIGN[k]].name}
 function showCampaign(){
+  if(ctGetMode()==='ct'){showCampaignCT();return}
   const st=getStars(),cur=campIdx(),n=CAMPAIGN.length,done=cur>=n,L=done?null:LEVELS[CAMPAIGN[cur]];
   const trail=CAMPAIGN.map((li,k)=>{const D=LEVELS[li],c=(st[li]||0)>=1,isCur=k===cur;
     return'<div class="ctn '+(c?'done':isCur?'cur':'lock')+'"><i>'+(c?'✓':isCur?(k+1):'🔒')+'</i><span>'+(c||isCur?esc(D.name):'Map '+(k+1)+' · locked')+'</span>'+(c?'<small>'+starStr(st[li]||0)+'</small>':'')+'</div>'}).join('');
   const chips=L?'<div class="chips" style="margin:8px 0"><span class="chip">'+(isFinite(L.days)?L.days+' days':'Endless')+'</span><span class="chip">$'+L.cash.toLocaleString('en-US')+'</span>'+regionChips(L)+'</div>':'';
-  showOv('<div class="card small"><h1>Campaign</h1><p class="sub">'+(done?'You finished every map. Replay any of them from Free Play.':'Clear a map to open the next. Every map is harder and looks different.')+'</p>'+
+  showOv('<div class="card small"><h1>Campaign</h1>'+ctSwitch('classic')+'<p class="sub">'+(done?'You finished every map. Replay any of them from Free Play.':'Clear a map to open the next. Every map is harder and looks different.')+'</p>'+
     (L?'<div class="lv" style="min-height:0;border-color:var(--accent)"><div class="lbl">Map '+(cur+1)+' of '+n+'</div><b style="font-size:20px">'+esc(L.name)+'</b><small>'+esc(L.blurb)+'</small>'+chips+'</div><button class="btn ok full" data-act="level" data-i="'+CAMPAIGN[cur]+'" style="margin:12px 0 0">'+(cur>0?'Play Map '+(cur+1):'Start')+'</button>':'<button class="btn ok full" data-act="free" style="margin:12px 0 0">Free Play</button>')+
     worldMiniMap(done?-1:CAMPAIGN[cur])+'<div class="trail">'+trail+'</div><div class="btnrow"><button class="btn alt" data-act="campreset">Restart campaign</button><button class="btn alt" data-act="howto">Back</button></div></div>');
   wmapBind();
