@@ -6400,7 +6400,7 @@ const GBX={
   }
 };
 /* ---- people ---- */
-const FIG_SKIN=['#f6d8bd','#f1c9a5','#e0ac82','#c68b5f','#8d5a3b'],FIG_PANTS=['#26334d','#33363d','#4d3c2c','#1f2833','#5a4e40','#6b2f2f','#2f4a3d'],FIG_HAIR=['#1c1714','#3a2a1e','#6b4424','#c9a35a','#a8512a','#b9b9bd'],
+const FIG_SKIN=['#f8dfc9','#f1c9a5','#e0ac82','#c68b5f','#a8714a','#8d5a3b','#6b4128','#4a2c1a'],FIG_PANTS=['#26334d','#33363d','#4d3c2c','#1f2833','#5a4e40','#6b2f2f','#2f4a3d'],FIG_HAIR=['#1c1714','#3a2a1e','#6b4424','#c9a35a','#a8512a','#b9b9bd'],
   FIG_ACC=['#e8742a','#2fb5a8','#d93c3c','#2f6fe0','#7f8f2a','#f2c230','#f4f1ea','#8a5cf6'];
 let FIG_GEO=null;
 function figGeo(){
@@ -6440,6 +6440,19 @@ function figGeo(){
   B(g,-1.1,4.55,0,.85,1.95,1.9,L('#fff'),A(5,0,6),W);                                // backpack
   B(g,0,2.2,2.3,.5,.95,1.1,L('#fff'),A(5,3,7),pv(5.45));B(g,0,2.78,2.3,.12,.5,.6,L('#2a2a2e'),A(0,3,7),pv(5.45)); // bag in the hand
   GBX.cyl(g,'y',0,9.35,0,4.3,.2,1.5,8,L('#fff'),A(5,0,8),W);GBX.cyl(g,'y',0,8.9,0,.12,.12,3.4,5,L('#3a3f46'),A(0,0,8),W); // umbrella
+  // ---- clothing layers (op 18 jacket, 19 skirt, 20 hi-vis vest, 21 school blazer, 22 spiky hair, 23 bob, 24 suit, 25 robe, 26 head wrap)
+  const cloth=(op,slot,col,pad,sleeves)=>{
+    B(g,0,4.35,0,1.35+pad,2.5,2.6+pad,col,A(slot,0,op),W);B(g,0,3.15,0,1.35+pad*1.6,.95,2.6+pad*1.6,col,A(slot,0,op),W);
+    if(sleeves)for(const s of[1,-1]){const jt=s>0?3:4,p=pv(5.45);B(g,0,4.5,s*1.62,.82+pad,1.95,.82+pad,col,A(slot,jt,op),p);B(g,0,3.35,s*1.62,.7+pad,1.0,.7+pad,col,A(slot,jt,op),p)}};
+  cloth(18,5,L('#fff'),.22,true);                                  // jacket / coat in an accessory colour
+  cloth(21,0,L('#24386b'),.2,true);B(g,.86,4.75,0,.08,1.5,.5,L('#f4f1ea'),A(0,0,21),W);B(g,.92,4.55,0,.06,1.3,.2,L('#d23b3b'),A(0,0,21),W); // school blazer, shirt and tie
+  cloth(24,0,L('#2b2f3a'),.2,true);B(g,.86,4.75,0,.08,1.5,.4,L('#e9ecef'),A(0,0,24),W);B(g,.92,4.6,0,.06,1.2,.16,L('#7b2230'),A(0,0,24),W); // business suit
+  B(g,0,4.3,0,1.5,2.2,2.75,L('#d6f21a'),A(0,0,20),W);B(g,0,3.9,0,1.58,.24,2.83,L('#f4f4f0'),A(0,0,20),W);B(g,0,4.8,0,1.58,.2,2.83,L('#f4f4f0'),A(0,0,20),W); // hi-vis vest with reflective bands
+  B(g,0,2.55,0,1.75,1.5,2.55,L('#fff'),A(3,0,19),W);              // skirt (trouser colour)
+  B(g,0,2.1,0,1.7,2.6,2.3,L('#f1eee6'),A(0,0,25),W);B(g,0,3.6,0,1.55,.9,2.65,L('#f1eee6'),A(0,0,25),W); // long white robe
+  B(g,-.1,8.0,0,2.5,1.0,2.5,L('#f1eee6'),A(0,0,26),W);B(g,-1.0,7.0,0,.5,1.8,2.5,L('#f1eee6'),A(0,0,26),W);  // head cloth
+  B(g,-.1,8.5,0,1.7,.55,1.7,L('#fff'),A(4,0,22),W);B(g,.4,8.9,.5,.4,.55,.4,L('#fff'),A(4,0,22),W);B(g,-.3,8.95,-.5,.4,.6,.4,L('#fff'),A(4,0,22),W); // spiky hair
+  for(const s of[1,-1])B(g,.1,6.35,s*1.2,1.7,1.6,.3,L('#fff'),A(4,0,23),W); // bob: side curtains
   // wheelchair (static frame, the rider sits lower)
   const ch=L('#3b4350'),tyre=L('#1e2226'),rim=L('#c9ced4');
   B(g,0,2.15,0,2.0,.3,2.2,ch,A(0,5,9),W);B(g,-.9,3.55,0,.25,2.5,2.3,ch,A(0,5,9),W);B(g,2.2,.9,0,.9,.15,1.6,ch,A(0,5,9),W);
@@ -6451,29 +6464,30 @@ function figGeo(){
 function figUniforms(){
   if(T.figU)return T.figU;
   const pack=(list)=>{const a=new Float32Array(list.length*3);list.forEach((h,i)=>{const c=lin(h);a[i*3]=c.r;a[i*3+1]=c.g;a[i*3+2]=c.b});return a};
-  return T.figU={uT:{value:0},uAnim:{value:1},uCB:{value:0},uSkin:{value:pack(FIG_SKIN)},uPants:{value:pack(FIG_PANTS)},uHair:{value:pack(FIG_HAIR)},uAcc:{value:pack(FIG_ACC)}};
+  return T.figU={uT:{value:0},uAnim:{value:1},uCB:{value:0},uJ:{value:.25},uSk:{value:.3},uReg:{value:0},uSkin:{value:pack(FIG_SKIN)},uPants:{value:pack(FIG_PANTS)},uHair:{value:pack(FIG_HAIR)},uAcc:{value:pack(FIG_ACC)}};
 }
 function figMat(){
   if(T.figM)return T.figM;
-  const U=figUniforms(),m=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.78,metalness:0,vertexColors:true});
+  const U=figUniforms(),m=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.95,metalness:0,vertexColors:true});
   m.onBeforeCompile=sh=>{
     Object.assign(sh.uniforms,U);
     sh.vertexShader=sh.vertexShader
       .replace('#include <common>',`#include <common>
 attribute vec4 iA;attribute vec4 iB;attribute vec3 pj;attribute vec3 pv;
-uniform float uT;uniform float uAnim;uniform float uCB;uniform vec3 uSkin[5];uniform vec3 uPants[7];uniform vec3 uHair[6];uniform vec3 uAcc[8];
+uniform float uT;uniform float uAnim;uniform float uCB;uniform float uJ;uniform float uSk;uniform float uReg;uniform vec3 uSkin[8];uniform vec3 uPants[7];uniform vec3 uHair[6];uniform vec3 uAcc[8];
 float fh(float s,float k){return fract(sin(s*127.1+k*311.7)*43758.5453);}
 vec2 frz(vec2 p,vec2 c,float a){float s=sin(a),co=cos(a);vec2 d=p-c;return c+vec2(co*d.x-s*d.y,s*d.x+co*d.y);}
 vec2 frd(vec2 d,float a){float s=sin(a),co=cos(a);return vec2(co*d.x-s*d.y,s*d.x+co*d.y);}`)
       .replace('#include <beginnormal_vertex>',`#include <beginnormal_vertex>
 float fwalk=min(fwk,1.0),frun=step(1.3,fwk);
 float fph=uT*mix(8.5,13.5,frun)+fsd*50.0;
+float fwi=(fwalk<.5&&fwv<.5&&fwc<.5)?step(fract(uT*.045+fsd*17.0),.05)*step(.6,fh(fsd,16.0))*uAnim:0.0;
 float fleg=mix(0.32,sin(fph),uAnim)*(0.62+0.28*frun)*fwalk;
 float fck=step(fract(uT*0.07+fsd*13.0),0.12+0.35*step(0.5,ffz))*uAnim*(1.0-fwalk)*(1.0-fum);
 float fang=0.0;
 if(fjt>0.5&&fjt<1.5)fang=fleg+1.35*fwc;
 else if(fjt>1.5&&fjt<2.5)fang=-fleg+1.35*fwc;
-else if(fjt>2.5&&fjt<3.5){fang=-fleg*0.9+sin(uT*1.1+fsd*31.0)*0.05*uAnim*(1.0-fwalk);if(fwv>0.5)fang=mix(2.5,2.5+sin(uT*9.0+fsd*11.0)*0.55,uAnim);}
+else if(fjt>2.5&&fjt<3.5){fang=-fleg*0.9+sin(uT*1.1+fsd*31.0)*0.05*uAnim*(1.0-fwalk);if(fwv>0.5||fwi>0.5)fang=mix(2.5,2.5+sin(uT*9.0+fsd*11.0)*0.55,uAnim);}
 else if(fjt>3.5&&fjt<4.5){fang=fleg*0.9+sin(uT*1.1+fsd*37.0)*0.05*uAnim*(1.0-fwalk);if(fck>0.5)fang=1.3;if(fum>0.5)fang=2.3;}
 float flean=sin(uT*0.6+fsd*20.0)*0.05*uAnim*(1.0-fwalk);
 bool fbody=fjt<0.5||fjt>2.5&&fjt<4.5;
@@ -6491,6 +6505,13 @@ float fst=floor(fh(fsd,1.0)*6.0);if(fpc>2.5&&fpc<3.5)fst=2.0;
 float fbg=fh(fsd,2.0),fbag=fbg<0.4?0.0:(fbg<0.72?1.0:2.0);
 if(fpc>0.5)fbag=(fpc<1.5||(fpc>3.5&&fpc<5.5))?2.0:(fpc<3.5?1.0:0.0);
 float fvis=1.0;
+float fgen=step(.5,fh(fsd,9.0)),fhs=floor(fh(fsd,11.0)*4.0);
+float fvest=(fpc>4.5&&fpc<5.5)?step(fh(fsd,12.0),.7):step(.96,fh(fsd,13.0));
+float funi=(fpc>1.5&&fpc<2.5)?1.0:0.0;
+float fsuit=(fpc>.5&&fpc<1.5&&uReg>.5&&uReg<1.5)?step(fh(fsd,14.0),.6):0.0;
+float frob=(uReg>1.5&&uReg<2.5&&fgen<.5)?step(fh(fsd,15.0),.45):0.0;
+float fjk=step(fh(fsd,8.0),uJ)*(1.0-fvest)*(1.0-funi)*(1.0-fsuit)*(1.0-frob);
+float fsk=fgen*step(fh(fsd,10.0),uSk)*(1.0-frob);
 if(abs(fop-1.0)<.5)fvis=fst==3.0?0.0:1.0;
 else if(abs(fop-2.0)<.5)fvis=fst==1.0?1.0:0.0;
 else if(abs(fop-3.0)<.5)fvis=fst==2.0?1.0:0.0;
@@ -6506,19 +6527,29 @@ else if(abs(fop-14.0)<.5)fvis=(uCB>0.5&&ffz>0.5&&ffz<1.5)?1.0:0.0;
 else if(abs(fop-15.0)<.5)fvis=(uCB>0.5&&ffz>1.5)?1.0:0.0;
 else if(abs(fop-16.0)<.5)fvis=fh(fsd,7.0)>0.8?1.0:0.0;
 else if(abs(fop-17.0)<.5)fvis=fh(fsd,7.0)>0.8?0.0:1.0;
+else if(abs(fop-18.0)<.5)fvis=fjk;
+else if(abs(fop-19.0)<.5)fvis=fsk;
+else if(abs(fop-20.0)<.5)fvis=fvest*(1.0-frob);
+else if(abs(fop-21.0)<.5)fvis=funi;
+else if(abs(fop-22.0)<.5)fvis=(fhs>.5&&fhs<1.5)?1.0:0.0;
+else if(abs(fop-23.0)<.5)fvis=(fgen>.5&&fhs>1.5&&fhs<2.5)?1.0:0.0;
+else if(abs(fop-24.0)<.5)fvis=fsuit;
+else if(abs(fop-25.0)<.5||abs(fop-26.0)<.5)fvis=frob;
 transformed=fp*fvis;`)
       .replace('#include <color_vertex>',`#include <color_vertex>
 float fsd=iA.x,fwk=iA.y,fpc=iA.z,fwv=iB.x,ffz=iB.y,fwc=iB.z,fum=iB.w,fsl=pj.x,fjt=pj.y,fop=pj.z;
 #ifdef USE_COLOR
 if(fsl<0.5)vColor=color;
-else if(fsl<1.5)vColor=uSkin[int(floor(fh(fsd,0.0)*5.0))];
+else if(fsl<1.5)vColor=uSkin[int(floor(fh(fsd,0.0)*8.0))];
 else if(fsl<2.5)vColor=instanceColor;
 else if(fsl<3.5)vColor=uPants[int(floor(fh(fsd,4.0)*7.0))];
 else if(fsl<4.5)vColor=uHair[(fpc>5.5&&fpc<6.5)?5:int(floor(fh(fsd,3.0)*5.0))];
 else vColor=uAcc[int(floor(fh(fsd,6.0)*8.0))];
 #endif`);
   };
-  m.customProgramCacheKey=()=>'figm1';
+  m.onBeforeCompile=(f=>sh=>{f(sh);const q='outgoingLight=floor(outgoingLight*7.0+0.5)/7.0;\n';
+    sh.fragmentShader=sh.fragmentShader.replace('gl_FragColor = vec4( outgoingLight, diffuseColor.a );',q+'gl_FragColor = vec4( outgoingLight, diffuseColor.a );').replace('#include <opaque_fragment>',q+'#include <opaque_fragment>')})(m.onBeforeCompile);
+  m.customProgramCacheKey=()=>'figm2';
   return T.figM=m;
 }
 /* one instanced figure mesh (the geometry buffers are cloned so each mesh has its own per-instance attributes) */
@@ -7434,7 +7465,7 @@ function syncCitizens(u,now){
   let i=0,ai=0;const MAXI=1500,t=now/1000;
   // full little people up close (and at street level), the simple capsule figure when zoomed far out, in a huge crowd or in Battery saver
   const near=PROF.gfx!=='saver'&&!!T.pFig&&(!!ui.ride||u<1.5)&&G.citizens.length<320,F=T.pFig,FA=near?F.userData.A.array:null,FB=near?F.userData.B.array:null;
-  if(T.figU){T.figU.uT.value=t%2000;T.figU.uAnim.value=calm?0:1;T.figU.uCB.value=PROF.a11y.cb?1:0}
+  if(T.figU){const cl=G.L&&G.L.climate,rg=G.L&&G.L.region;T.figU.uJ.value=(cl==='snow'||rg==='alpine'?.8:cl==='rain'||WX.rain>.5?.55:cl==='hot'?.04:.25);T.figU.uSk.value=cl==='hot'?.5:cl==='snow'?.15:.3;T.figU.uReg.value=rg==='tokyo'?1:rg==='dubai'?2:0;T.figU.uT.value=t%2000;T.figU.uAnim.value=calm?0:1;T.figU.uCB.value=PROF.a11y.cb?1:0}
   // fz: 0 calm, 1 restless, 2 furious (hops and paces); shr: shrink while stepping through the door; hd: heading; pc: persona code
   const put=(x,z,c,seed,walk,wheel,hurry,wave,fz,shr,hd,pc)=>{
     if(i>=MAXI)return;
@@ -7463,6 +7494,14 @@ function syncCitizens(u,now){
       c._wx=px;c._wy=pz;
       put(px,pz,pcol(c),c.seed,moving,c.type==='wheel',moving&&d>6,arr&&n<14&&((n+Math.floor(c.seed*10))%3===0),f<.2?2:f<.35?1:0,undefined,near?hTurn(c,moving?Math.atan2(dz,dx):Math.atan2(-c._lz,-c._lx),dtq,calm):0,PERSONA[c.type]||0)
     }
+  }
+  // cosmetic chatting pairs beside busy stops (never part of the simulation)
+  if(near)for(const st of G.stops.values()){
+    if(st.waiters.length<2)continue;const pairs=1+(st.waiters.length>7?1:0)+(st.waiters.length>14?1:0);
+    for(let p=0;p<pairs&&i<MAXI-2;p++){
+      const bx=st.x+st.sx*(-6.5-p*4.4)*u,bz=st.y+st.sy*(4.6+(p&1)*1.8)*u,sd=((st.id+1)*.6180339+p*.371)%1;
+      put(bx-1.5*u,bz,FIG_ACC[Math.floor(sd*8)%8],sd,false,false,false,p===0&&((st.id+p)%3===0),0,undefined,0,1);
+      put(bx+1.5*u,bz,FIG_ACC[Math.floor(sd*8+3)%8],(sd+.43)%1,false,false,false,false,0,undefined,Math.PI,((st.id+p)&1)?3:1)}
   }
   // riders stepping through the bus door (boarding) or out of it (getting off)
   for(const g of VG){
