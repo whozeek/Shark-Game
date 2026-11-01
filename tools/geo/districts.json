@@ -1,0 +1,1019 @@
+[
+ {
+  "id": "br-blackrock",
+  "town": "bridgeport",
+  "name": "Black Rock",
+  "ll": [
+   41.17,
+   -73.225
+  ],
+  "bs": 150,
+  "region": "harbor",
+  "theme": "harbor",
+  "approx": true,
+  "chips": [
+   "Harbour",
+   "Quiet coast"
+  ],
+  "blurb": "A quiet coastal neighbourhood on Fairfield Avenue, with Black Rock Harbor, a lighthouse point and Seaside Park's western tip.",
+  "intro": "Welcome to Black Rock, Bridgeport's quiet harbour village. A few shops on Fairfield Avenue, lots of homes and a bandstand by the water. A gentle place to start.",
+  "outro": "Black Rock is moving. Next: the leafy North End.",
+  "map": [
+   "HHHH.HHHHHHH",
+   "HHHBBHHHHHHW",
+   "HHBBBHHHHPWW",
+   "HHHBBHHPHHWW",
+   "HHHHHHHHHWWW",
+   "HHPPCHHHPPWW",
+   "WWWWWWWWWWWW"
+  ],
+  "lm": {
+   "C": "Seaside bandstand"
+  },
+  "rowNames": [
+   "Brooklawn Ave",
+   "Brinsmade Ave",
+   "Grovers Ave",
+   "Fairfield Ave",
+   "Brewster St",
+   "Ellsworth St",
+   "Ocean Terrace",
+   "Lighthouse Rd"
+  ],
+  "colNames": [
+   "Ash Creek Rd",
+   "Hollister Ave",
+   "Pequot Ave",
+   "Black Rock Tpke",
+   "Ellsworth Ave",
+   "Cottage St",
+   "Mill Pond Rd",
+   "Wilson Pl",
+   "Grovers Pl",
+   "Bayview Ave",
+   "Harbor Rd",
+   "Cove St",
+   "Fayerweather Rd"
+  ],
+  "gridCols": 12,
+  "gridRows": 7
+ },
+ {
+  "id": "br-northend",
+  "town": "bridgeport",
+  "name": "North End",
+  "ll": [
+   41.215,
+   -73.188
+  ],
+  "bs": 160,
+  "region": "maple",
+  "theme": "meadow",
+  "approx": true,
+  "chips": [
+   "Parks",
+   "Hospital"
+  ],
+  "blurb": "Leafy streets around Beardsley Park and the zoo, with Madison Avenue shops and the Pequonnock River valley.",
+  "intro": "The North End is green and spread out: Beardsley Park, the river valley and a hospital on the hill. Long walks to the bus, so place stops with care.",
+  "outro": "The North End is connected. Next: the West Side.",
+  "map": [
+   "HHHHH.PPPHHH",
+   "HHBHH.PPPWHH",
+   "HHBHHH.PPWHH",
+   "HHBBHHHHPWHH",
+   "HHHBHHOHHWHH",
+   "HHPHHHHHBBCH",
+   "HHHHH.HHHBHH"
+  ],
+  "lm": {
+   "O": "St. Vincent's Medical Center",
+   "C": "Beardsley Park field"
+  },
+  "rowNames": [
+   "Huntington Tpke",
+   "Reservoir Ave",
+   "Noble Ave",
+   "Capitol Ave",
+   "Park Ave",
+   "Mill Hill Ave",
+   "Hawley Ave",
+   "North Ave"
+  ],
+  "colNames": [
+   "Brooklawn Ave",
+   "Hillside Ave",
+   "Madison Ave",
+   "Mountain Grove St",
+   "Beardsley Pkwy",
+   "Lincoln Blvd",
+   "Lakeview Ave",
+   "Oakwood Ave",
+   "Fairview Ave",
+   "Laurel Ave",
+   "Colorado Ave",
+   "Anton St",
+   "Wilmot Ave"
+  ],
+  "gridCols": 12,
+  "gridRows": 7
+ },
+ {
+  "id": "br-westside",
+  "town": "bridgeport",
+  "name": "West End",
+  "ll": [
+   41.189,
+   -73.21
+  ],
+  "bs": 150,
+  "region": "maple",
+  "theme": "urban",
+  "approx": true,
+  "chips": [
+   "Hospital",
+   "Dense homes"
+  ],
+  "blurb": "Dense triple-decker streets around Bridgeport Hospital, with a school and shops on Fairfield Avenue and Park Avenue.",
+  "intro": "The West End packs a lot of homes into few streets, with a big hospital and a high school. Short rides, many riders.",
+  "outro": "The West End is humming. Next: across the Yellow Mill to the East Side.",
+  "map": [
+   "HHHH.HHBBHHHH",
+   "HHKHHHHBBHHPH",
+   "HHHHBBHHHHHHH",
+   "HPHHBBHHOHHHH",
+   "HHHHHHHHHHPHH",
+   "HHBBHHCHHHBBH",
+   "HHBBHH.HHHBBH"
+  ],
+  "lm": {
+   "O": "Bridgeport Hospital",
+   "K": "Central High School",
+   "C": "West End park"
+  },
+  "rowNames": [
+   "North Ave",
+   "Hallett St",
+   "Grant St",
+   "Fairfield Ave",
+   "Clifford St",
+   "Hancock Ave",
+   "Atlantic St",
+   "Lafayette Blvd"
+  ],
+  "colNames": [
+   "Lindley St",
+   "Iranistan Ave",
+   "Pembroke St",
+   "Wood Ave",
+   "Bostwick Ave",
+   "Ridgefield Ave",
+   "Myrtle Ave",
+   "Gregory St",
+   "Lafayette St",
+   "Hough Ave",
+   "Clinton Ave",
+   "Sherman St",
+   "Elm St",
+   "Poplar St"
+  ],
+  "gridCols": 13,
+  "gridRows": 7
+ },
+ {
+  "id": "br-eastside",
+  "town": "bridgeport",
+  "name": "East Side",
+  "ll": [
+   41.188,
+   -73.173
+  ],
+  "bs": 150,
+  "region": "harbor",
+  "theme": "harbor",
+  "approx": true,
+  "chips": [
+   "Yellow Mill",
+   "Ballpark"
+  ],
+  "blurb": "Boston Avenue homes, industrial yards by the Yellow Mill Channel, I-95 to the north and the ballpark by the water.",
+  "intro": "The East Side lies beyond the Yellow Mill Channel. Factories, homes and a ballpark, and only one bridge across the water. Plan around it.",
+  "outro": "The East Side rolls. Next: the East End.",
+  "map": [
+   "WWHHBBBHHHHHH",
+   "WWHHBBBHHHPHH",
+   "GGHHHBBHHHHHH",
+   "WWHHHHHHHPHHH",
+   "WWHPHHBBHHHHH",
+   "WWHHHHBBHCHHH",
+   "WWWHHHHHHHPHH",
+   "WWWWWHHHHHHHH"
+  ],
+  "lm": {
+   "C": "Harbor Yard ballpark"
+  },
+  "rowNames": [
+   "Bishop Ave",
+   "Stratford Ave",
+   "Connecticut Ave",
+   "Barnum Ave",
+   "Waterview Ave",
+   "Newfield Ave",
+   "Seaview Ave",
+   "Wordin Ave",
+   "Yellow Mill Rd"
+  ],
+  "colNames": [
+   "Railroad Ave",
+   "Cannon St",
+   "East Main St",
+   "Boston Ave",
+   "Central Ave",
+   "Wheeler Ave",
+   "Bunnell St",
+   "Lexington Ave",
+   "Putnam St",
+   "Judd St",
+   "Meadow St",
+   "Gilmore St",
+   "Commerce Dr",
+   "Arctic St"
+  ],
+  "gridCols": 13,
+  "gridRows": 8
+ },
+ {
+  "id": "br-eastend",
+  "town": "bridgeport",
+  "name": "East End",
+  "ll": [
+   41.17,
+   -73.165
+  ],
+  "bs": 150,
+  "region": "harbor",
+  "theme": "harbor",
+  "approx": true,
+  "chips": [
+   "Seaview Avenue",
+   "Schools"
+  ],
+  "blurb": "Long residential blocks along Barnum and Seaview Avenues running down to the water, with a school and small shopping strips.",
+  "intro": "The East End is long and low, with homes all the way down to the shore. Seaview Avenue is the spine. Keep the outer streets served.",
+  "outro": "The East End is covered. Next: the South End and the university.",
+  "map": [
+   "HHHH.HHHBBHHHH",
+   "HHBBHHHHBBHHPH",
+   "HHBBHHPHHHHHHH",
+   "HHHHHHPHHBBHHH",
+   "HHKHHHHHHBBHHH",
+   "HHHHBBHHHHCHPH",
+   "HHHHHHHHHHHHWW",
+   "WWWWWWWWWWWWWW"
+  ],
+  "lm": {
+   "K": "East End school",
+   "C": "Seaview Ave field"
+  },
+  "rowNames": [
+   "Newfield Ave",
+   "Stratford Ave",
+   "Boston Ave",
+   "Barnum Ave",
+   "Pulaski St",
+   "Seaview Ave",
+   "Wayne St",
+   "Wheeler Ave",
+   "Beach Rd"
+  ],
+  "colNames": [
+   "Maplewood Ave",
+   "Kossuth St",
+   "Hickory St",
+   "Armstrong Rd",
+   "Wolcott St",
+   "Hamilton St",
+   "Fairmount Ave",
+   "Orchard St",
+   "Bayside Ave",
+   "Lordship Blvd",
+   "Hurd Ave",
+   "Revere St",
+   "Shore Dr",
+   "Pine St",
+   "Dover St"
+  ],
+  "gridCols": 14,
+  "gridRows": 8
+ },
+ {
+  "id": "br-southend",
+  "town": "bridgeport",
+  "name": "South End & University",
+  "ll": [
+   41.165,
+   -73.2
+  ],
+  "bs": 150,
+  "region": "harbor",
+  "theme": "harbor",
+  "approx": true,
+  "chips": [
+   "University",
+   "Harbour",
+   "Seaside Park"
+  ],
+  "blurb": "The University of Bridgeport peninsula, Seaside Park and the harbour edge, with Park Avenue and Main Street running south to the water.",
+  "intro": "The South End has a university on the point, a long park by the sea and the harbour on two sides. Students, tourists and commuters all want to get downtown.",
+  "outro": "Students and strollers alike ride your buses. Next: Seaside Park and Pleasure Beach.",
+  "map": [
+   "WWHHHHHBBHHHHH",
+   "WWHHBBHHBBHHHH",
+   "WWHHBBHHHHHHPH",
+   "WWWHHHHHHHHHHH",
+   "WWHHUHHHPPHWWW",
+   "WWWHHHHPPPCHWW",
+   "WWWPPHHPPPPWWW",
+   "WWWWWWWWWWWWWW"
+  ],
+  "lm": {
+   "U": "University of Bridgeport",
+   "C": "Seaside Park bandstand"
+  },
+  "rowNames": [
+   "Pembroke St",
+   "Lafayette Blvd",
+   "Park Ave",
+   "Atlantic St",
+   "Iranistan Ave",
+   "Seaside Ave",
+   "University Ave",
+   "Marina Park Rd",
+   "Long Island Sound"
+  ],
+  "colNames": [
+   "Cedar Creek Rd",
+   "Bayview Ave",
+   "Hollister Ave",
+   "Beach St",
+   "Seaside Park Dr",
+   "Main St",
+   "Park Ave South",
+   "Barnum Ave South",
+   "Water St",
+   "Johnson St",
+   "Congress St",
+   "Stratford Ave",
+   "Harbor Yard Rd",
+   "Pequonnock Rd",
+   "Ferry Rd"
+  ],
+  "gridCols": 14,
+  "gridRows": 8
+ },
+ {
+  "id": "br-seaside",
+  "town": "bridgeport",
+  "name": "Seaside Park & Pleasure Beach",
+  "ll": [
+   41.156,
+   -73.185
+  ],
+  "bs": 140,
+  "region": "harbor",
+  "theme": "sea",
+  "approx": true,
+  "chips": [
+   "Coast",
+   "Park",
+   "Beach bridge"
+  ],
+  "blurb": "The long waterfront of Seaside Park, the harbour entrance, and the Pleasure Beach spit across the water, joined by a single bridge.",
+  "intro": "Water on every side: a big park, the harbour entrance and a sandy spit reached by one bridge. Few streets means every stop counts.",
+  "outro": "The shore is connected. Only downtown remains.",
+  "map": [
+   "HHHHPPPPHHWWHH",
+   "HHHPPPPPPHWWHB",
+   "HHHPPCPPPHWWHB",
+   "HHHHPPPPHHGGHH",
+   "WHHHPPPHHHWWPP",
+   "WWHHHHHHHWWWPP",
+   "WWWWWWWWWWWWPW",
+   "WWWWWWWWWWWWWW"
+  ],
+  "lm": {
+   "C": "Seaside Park bandstand"
+  },
+  "rowNames": [
+   "Broad St",
+   "Fairfield Ave",
+   "Park Ave",
+   "Seaside Dr",
+   "Norman St",
+   "Iranistan Ave",
+   "Waterfront Rd",
+   "Pleasure Beach Rd",
+   "Sound Rd"
+  ],
+  "colNames": [
+   "Seaside Park Dr",
+   "Atlantic St",
+   "Beach Ln",
+   "Lafayette St",
+   "Fayerweather Rd",
+   "Gold St",
+   "Water St",
+   "Bank St",
+   "Main St",
+   "Congress St",
+   "Ferry Rd",
+   "Harbor Rd",
+   "Beach Bridge Rd",
+   "Pleasure Beach Dr",
+   "Spit Rd"
+  ],
+  "gridCols": 14,
+  "gridRows": 8
+ },
+ {
+  "id": "br-downtown",
+  "town": "bridgeport",
+  "name": "Downtown",
+  "ll": [
+   41.185,
+   -73.192
+  ],
+  "bs": 150,
+  "region": "metro",
+  "theme": "urban",
+  "approx": true,
+  "chips": [
+   "Arena",
+   "Station",
+   "I-95",
+   "Harbour"
+  ],
+  "blurb": "The dense core: Main Street offices, the arena, the train and bus station, I-95 overhead and the Pequonnock River with its bridges.",
+  "intro": "Downtown Bridgeport is the hardest map yet: offices packed along Main Street, an arena, the intermodal station, the river and the harbour. Everyone converges here.",
+  "outro": "Downtown works. Bridgeport is complete, and the shore towns are waiting.",
+  "map": [
+   "HHHHBBBBHHWWHHH",
+   "HHHPBBBBBHWWHHH",
+   "HHHBBBBBBHGGHHH",
+   "HHPBBCBBBHWWHBB",
+   "HHHBBBBBBHWWHBB",
+   "HHHHBBBBHHGGHHB",
+   "HHHHBBBBPHWWHHH",
+   "HPPBBBBHPPWWWHH",
+   "WWWWWWWWWWWWWWW"
+  ],
+  "lm": {
+   "C": "Total Mortgage Arena"
+  },
+  "rowNames": [
+   "Bishop Ave",
+   "Lafayette Blvd",
+   "State St",
+   "Fairfield Ave",
+   "Congress St",
+   "Broad St",
+   "Bank St",
+   "Water St",
+   "Housatonic Ave",
+   "Harbor"
+  ],
+  "colNames": [
+   "Park Ave",
+   "Gilbert St",
+   "Myrtle Ave",
+   "Main St",
+   "Golden Hill St",
+   "Middle St",
+   "Lyon Terr",
+   "Courtland St",
+   "Washington Ave",
+   "Wall St",
+   "Pequonnock River",
+   "Stratford Ave",
+   "Dock St",
+   "Rail Ave",
+   "Barnum Ave",
+   "Boston Ave"
+  ],
+  "gridCols": 15,
+  "gridRows": 9
+ },
+ {
+  "id": "nw-eastnorwalk",
+  "town": "norwalk",
+  "name": "East Norwalk",
+  "ll": [
+   41.11,
+   -73.39
+  ],
+  "bs": 150,
+  "region": "harbor",
+  "theme": "harbor",
+  "approx": true,
+  "chips": [
+   "Beach",
+   "Harbour"
+  ],
+  "blurb": "Quiet East Norwalk with Calf Pasture Beach on the Sound and small shopping streets.",
+  "intro": "Norwalk starts at the beach. East Norwalk is quiet, with a wide park and a few shops. A gentle restart after Bridgeport.",
+  "outro": "East Norwalk done. SoNo and the harbour are next.",
+  "map": [
+   "HHHH.HHHH.HHH",
+   "HHBBHHHHPHHHH",
+   "HHBBHHCHHHHHH",
+   "HHHHHHHHBBHHH",
+   "HHPPHHHHBBHPH",
+   "HHPPHHHHHHPPW",
+   "WWWWWWWWWWWWW"
+  ],
+  "lm": {
+   "C": "Calf Pasture Beach pavilion"
+  },
+  "rowNames": [
+   "Connecticut Ave",
+   "East Ave",
+   "Van Zant St",
+   "Water St",
+   "Woodward Ave",
+   "Fort Point St",
+   "Calf Pasture Beach Rd",
+   "Beach Rd"
+  ],
+  "colNames": [
+   "Gregory Blvd",
+   "Richards Ave",
+   "Newtown Ave",
+   "Pine Hill Ave",
+   "Rowan St",
+   "Taylor Ave",
+   "Wilson Ave",
+   "Hillside Ave",
+   "Highland Ave",
+   "Shore Rd",
+   "Dr. Martin Luther King Dr",
+   "Beachview Ave",
+   "Seaview Ave",
+   "Harbor Rd"
+  ],
+  "gridCols": 13,
+  "gridRows": 7
+ },
+ {
+  "id": "nw-sono",
+  "town": "norwalk",
+  "name": "SoNo & Harbor",
+  "ll": [
+   41.098,
+   -73.418
+  ],
+  "bs": 150,
+  "region": "harbor",
+  "theme": "harbor",
+  "approx": true,
+  "chips": [
+   "Harbour",
+   "River",
+   "Hospital"
+  ],
+  "blurb": "South Norwalk's historic district on Washington Street, the Norwalk River draining into the harbour, and a hospital to the north.",
+  "intro": "SoNo has an aquarium, brick lanes and the river splitting the map. Cross at the bridges, and keep the hospital connected.",
+  "outro": "SoNo is flowing. Stamford is next.",
+  "map": [
+   "HHHPHHHWHHBBHH",
+   "HHHHBBHWHHBBHH",
+   "HHHHBBHGHHHHPH",
+   "HOHHHHHWHHHHHH",
+   "HHPHHHBWBBHHHH",
+   "HHHHHHBWBCHHHH",
+   "HHHHHHBGBBHPHH",
+   "WWWWWWWWWWWWWW"
+  ],
+  "lm": {
+   "O": "Norwalk Hospital",
+   "C": "Maritime Aquarium plaza"
+  },
+  "rowNames": [
+   "Main Ave",
+   "Wall St",
+   "Belden Ave",
+   "Washington St",
+   "Water St",
+   "Lexington Ave",
+   "Marshall St",
+   "Ann St",
+   "Harbor Ave"
+  ],
+  "colNames": [
+   "Fairfield Ave",
+   "Day St",
+   "Chestnut St",
+   "Rte 7",
+   "Elm St",
+   "High St",
+   "Knight St",
+   "Norwalk River",
+   "Pine St",
+   "Mott Ave",
+   "Cedar St",
+   "Spring St",
+   "Hanford Pl",
+   "Quintard Ave",
+   "Marvin Ave"
+  ],
+  "gridCols": 14,
+  "gridRows": 8
+ },
+ {
+  "id": "sf-shippan",
+  "town": "stamford",
+  "name": "Shippan & Cove",
+  "ll": [
+   41.012,
+   -73.525
+  ],
+  "bs": 150,
+  "region": "harbor",
+  "theme": "harbor",
+  "approx": true,
+  "chips": [
+   "Peninsula",
+   "Beach"
+  ],
+  "blurb": "The Shippan Point peninsula and Cove Island Park, with homes right down to the water.",
+  "intro": "Stamford begins on the Shippan peninsula: homes, beaches, one road in and one road out.",
+  "outro": "The peninsula is covered. Downtown Stamford is the real test.",
+  "map": [
+   "HHHHBBHHHHHHW",
+   "HHHHBBHHHHHWW",
+   "HHPHHHHHHHWWW",
+   "WHHHHCHHHPWWW",
+   "WWHHHHHHHPPWW",
+   "WWWHHHHHPPWWW",
+   "WWWWWHHHWWWWW"
+  ],
+  "lm": {
+   "C": "Cove Island Park pavilion"
+  },
+  "rowNames": [
+   "Southfield Ave",
+   "Harbor View Ave",
+   "Shippan Ave",
+   "Ocean Dr W",
+   "Ocean Dr E",
+   "Cove Rd",
+   "Weed Ave",
+   "Beach Rd"
+  ],
+  "colNames": [
+   "Cove Rd W",
+   "Lakeside Dr",
+   "Dolphin Cove Quay",
+   "Van Rensselaer Ave",
+   "Rogers Rd",
+   "Wallacks Dr",
+   "Hubbard Ave",
+   "Palmer Ave",
+   "Pulaski St",
+   "Harbor Dr",
+   "Ludlow St",
+   "Southfield Pt",
+   "Seaview Ave",
+   "Cove Is Rd"
+  ],
+  "gridCols": 13,
+  "gridRows": 7
+ },
+ {
+  "id": "sf-downtown",
+  "town": "stamford",
+  "name": "Downtown Stamford",
+  "ll": [
+   41.053,
+   -73.539
+  ],
+  "bs": 150,
+  "region": "metro",
+  "theme": "urban",
+  "approx": true,
+  "chips": [
+   "Rail station",
+   "Towers",
+   "University"
+  ],
+  "blurb": "A shoreline corporate downtown: Atlantic and Tresser, the rail station, towers by the highway and a university branch campus.",
+  "intro": "Downtown Stamford is glass towers around a big rail station, with I-95 right alongside. Commuters arrive in waves.",
+  "outro": "Stamford is humming. Next: New Haven.",
+  "map": [
+   "HHHHHBBHHHHHHH",
+   "HHOHHBBBBHHHHH",
+   "HHHHBBBBBBHHPH",
+   "HHHPBBBUBBBHHH",
+   "HHHHBBBBBBBHHH",
+   "HHHHHBBCBBHHHH",
+   "HHHHHHBBBHHPHH",
+   "WWWHHHHHHWWWWW"
+  ],
+  "lm": {
+   "O": "Stamford Hospital",
+   "U": "UConn Stamford",
+   "C": "Stamford Town Center plaza"
+  },
+  "rowNames": [
+   "Bedford St",
+   "Summer St",
+   "Washington Blvd",
+   "Tresser Blvd",
+   "Atlantic St",
+   "Canal St",
+   "Henry St",
+   "Pacific St",
+   "Harbor Point Rd"
+  ],
+  "colNames": [
+   "Hope St",
+   "Cedar Heights Rd",
+   "Stillwater Ave",
+   "Greenwich Ave",
+   "Broad St",
+   "Main St",
+   "Bell St",
+   "Forest St",
+   "Franklin St",
+   "Elm St",
+   "Park Pl",
+   "Myrtle Ave",
+   "Prospect St",
+   "Fairfield Ave",
+   "Washington Pl"
+  ],
+  "gridCols": 14,
+  "gridRows": 8
+ },
+ {
+  "id": "nh-wooster",
+  "town": "newhaven",
+  "name": "Wooster Square & Long Wharf",
+  "ll": [
+   41.302,
+   -72.915
+  ],
+  "bs": 150,
+  "region": "harbor",
+  "theme": "harbor",
+  "approx": true,
+  "chips": [
+   "Harbour",
+   "Pizza streets"
+  ],
+  "blurb": "Italian-American Wooster Square, the Mill River and the Long Wharf shoreline.",
+  "intro": "New Haven's waterfront: Wooster Square, the Quinnipiac River and the wharf. Industrial edges and a historic street grid.",
+  "outro": "The wharf is covered. Now the heart of New Haven: Yale.",
+  "map": [
+   "HHHHBBHHHHHHHH",
+   "HHBBBBHHPPHHHH",
+   "HHBBHHHHPPHWHH",
+   "HHHHHHHHHHHWHH",
+   "HHHCHHBBHHHGHH",
+   "HHHHHHBBBBHWHH",
+   "WWWHHHBBBBHWWW",
+   "WWWWWWWWWWWWWW"
+  ],
+  "lm": {
+   "C": "Wooster Square park"
+  },
+  "rowNames": [
+   "Grand Ave",
+   "Chapel St",
+   "Wooster St",
+   "Court St",
+   "Franklin St",
+   "Water St",
+   "Long Wharf Dr",
+   "Sargent Dr",
+   "Harbor"
+  ],
+  "colNames": [
+   "Hill St",
+   "Olive St",
+   "Brewery St",
+   "Chestnut St",
+   "Union St",
+   "Wallace St",
+   "Hamilton St",
+   "Greene St",
+   "State St",
+   "Ferry St",
+   "Front St",
+   "Quinnipiac Ave",
+   "Grand Ave E",
+   "Lombard St",
+   "Cedar Hill Ave"
+  ],
+  "gridCols": 14,
+  "gridRows": 8
+ },
+ {
+  "id": "nh-yale",
+  "town": "newhaven",
+  "name": "Downtown & Yale",
+  "ll": [
+   41.311,
+   -72.927
+  ],
+  "bs": 150,
+  "region": "europe",
+  "theme": "urban",
+  "approx": true,
+  "chips": [
+   "Yale",
+   "The Green",
+   "Hospital",
+   "Station"
+  ],
+  "blurb": "Yale University's colleges around the Green, Chapel and College Streets, Union Station and the hospital campus.",
+  "intro": "Downtown New Haven is old brick and new towers: Yale, the Green, Union Station and a big hospital. Students flood the streets.",
+  "outro": "New Haven rides on. The capital is calling.",
+  "map": [
+   "HHHHHHBBHHHHHHH",
+   "HHHPHHBBBBHHHHH",
+   "HHHHOBBBPPBBHHH",
+   "HHHHBBBUPPBBBHH",
+   "HHHBBBBBBBBBBHH",
+   "HHHHBBBCBBBHHHH",
+   "WHHHHHBBBBHHHWW",
+   "WWWWWWWWWWWWWWW"
+  ],
+  "lm": {
+   "O": "Yale New Haven Hospital",
+   "U": "Yale University",
+   "C": "Shubert Theater"
+  },
+  "rowNames": [
+   "Whalley Ave",
+   "Elm St",
+   "Chapel St",
+   "Crown St",
+   "George St",
+   "York St",
+   "Water St",
+   "Union Ave",
+   "Harbor"
+  ],
+  "colNames": [
+   "Dwight St",
+   "Edgewood Ave",
+   "Park St",
+   "Howe St",
+   "Broadway",
+   "College St",
+   "Temple St",
+   "Church St",
+   "State St",
+   "Orange St",
+   "Wall St",
+   "Whitney Ave",
+   "Prospect St",
+   "Grove St",
+   "Trumbull St",
+   "Ashmun St"
+  ],
+  "gridCols": 15,
+  "gridRows": 8
+ },
+ {
+  "id": "ht-asylum",
+  "town": "hartford",
+  "name": "Asylum Hill & Frog Hollow",
+  "ll": [
+   41.768,
+   -72.69
+  ],
+  "bs": 150,
+  "region": "maple",
+  "theme": "urban",
+  "approx": true,
+  "chips": [
+   "Insurance towers",
+   "College",
+   "Park"
+  ],
+  "blurb": "Insurance towers on Farmington Avenue, Colt Park, a college campus and dense neighbourhoods west of downtown.",
+  "intro": "Hartford starts west of downtown: insurance towers, a college and busy Farmington Avenue. The capital brings bigger crowds.",
+  "outro": "Asylum Hill is connected. Downtown is next.",
+  "map": [
+   "HHHHHHHHBBHHHH",
+   "HHPPHHHHBBBHHH",
+   "HHPPHHBBBBBHHH",
+   "HHHHHHBBBUBHHH",
+   "HHHHKHHBBHHHPH",
+   "HHBBHHHHHHHCHH",
+   "HHBBHHHPPHHHHH"
+  ],
+  "lm": {
+   "U": "Trinity College",
+   "K": "Hartford Public High School",
+   "C": "Colt Park bandstand"
+  },
+  "rowNames": [
+   "Albany Ave",
+   "Sigourney St",
+   "Farmington Ave",
+   "Asylum Ave",
+   "Capitol Ave",
+   "Park St",
+   "Washington St",
+   "Broad St"
+  ],
+  "colNames": [
+   "Prospect Ave",
+   "Whitney St",
+   "Vernon St",
+   "Woodland St",
+   "Collins St",
+   "Laurel St",
+   "Imlay St",
+   "Ford St",
+   "Garden St",
+   "Flatbush Ave",
+   "Hawthorn St",
+   "Sigourney St N",
+   "Trumbull St",
+   "Allyn St",
+   "Main St"
+  ],
+  "gridCols": 14,
+  "gridRows": 7
+ },
+ {
+  "id": "ht-downtown",
+  "town": "hartford",
+  "name": "Downtown Hartford",
+  "ll": [
+   41.764,
+   -72.673
+  ],
+  "bs": 150,
+  "region": "metro",
+  "theme": "riverbank",
+  "approx": true,
+  "chips": [
+   "Capital",
+   "River",
+   "I-84 / I-91",
+   "Arena"
+  ],
+  "blurb": "The state capital: Bushnell Park and the Capitol, the XL Center arena, Union Station, the Connecticut River and the I-84 / I-91 interchange.",
+  "intro": "Hartford, the capital. Towers by the Connecticut River, two interstates crossing and a big arena. This is the hardest city on the Connecticut map so far.",
+  "outro": "You've connected the capital. More Connecticut towns are coming soon.",
+  "map": [
+   "HHHHBBBBBHHHHWW",
+   "HHHPBBBBBBHHHWW",
+   "HHHPPBBBBBBBHGG",
+   "HHHHBBBCBBBHHWW",
+   "HHHHBBBBBBHHHWW",
+   "HHOHHBBBBBHHHGG",
+   "HHHHHBBBBHHPHWW",
+   "HHHHHHHBBHHHHWW"
+  ],
+  "lm": {
+   "O": "Hartford Hospital",
+   "C": "XL Center"
+  },
+  "rowNames": [
+   "Jewell St",
+   "Asylum St",
+   "Church St",
+   "Pearl St",
+   "State House Sq",
+   "Trumbull St",
+   "Capitol Ave",
+   "Washington St",
+   "Wawarme Ave"
+  ],
+  "colNames": [
+   "Broad St",
+   "Park Terr",
+   "Farmington Ave",
+   "Jewell",
+   "Ann Uccello St",
+   "Main St",
+   "Pratt St",
+   "Market St",
+   "Front St",
+   "Columbus Blvd",
+   "State St",
+   "Founders Bridge Rd",
+   "Riverside Dr",
+   "Connecticut River",
+   "Bulkeley Bridge Rd",
+   "River Rd"
+  ],
+  "gridCols": 15,
+  "gridRows": 8
+ }
+]
