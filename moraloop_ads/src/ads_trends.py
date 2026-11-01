@@ -293,4 +293,28 @@ ADS = [
         S("He’s really trying. But your mom and stepdad were there for everything.", ["you"], "think",
           ["🪑", "👨‍👩‍👦", "🤔"], "worried", set="home"),
     ], close="Do you give him a front-row seat, or a seat further back?"),
+
+    # Trend: Reddit story about a shopper over the self-checkout item limit (TwistedSifter, Nov 1 2026)
+    dict(id="t037_the_item_limit", title="The Item Limit", made_on="2026-11-01", beats=[
+        S("Self-checkout says fifteen items max. You have eighteen.", ["you"], "think", ["🛒", "🔢", "🤔"],
+          "worried", set="store"),
+        S("The only cashier line is ten people deep.", ["stranger", "coworker", "you"], "react",
+          ["🧍", "⏳", "😩"], "worried", others="neutral", set="store"),
+    ], close="Do you use self-checkout anyway, or wait in line?"),
+
+    # Trend: viral Reddit debate over whether an early airport ride for a partner is a big ask (Fox News)
+    dict(id="t038_the_airport_ride", title="The Airport Ride", made_on="2026-11-01", beats=[
+        S("Your partner has a six a.m. flight. They ask you for a ride to the airport.", ["partner", "you"],
+          "say", ["✈️", "🚗", "⏰"], "worried", set="home_night"),
+        S("That means leaving at four. You have a big day at work.", ["you"], "think", ["😴", "💼", "🚕"],
+          "worried", set="home_night"),
+    ], close="Do you drive them, or suggest a rideshare?"),
+
+    # Trend: viral Reddit debate about houseguests staying all day before a late flight (Newsweek)
+    dict(id="t039_the_late_flight", title="The Late Flight", made_on="2026-11-01", beats=[
+        S("Your friends visit for the weekend. Their flight home leaves at midnight.", ["friend", "friend2", "you"],
+          "react", ["🧳", "✈️", "🌙"], "happy", others="happy", set="home"),
+        S("They ask to stay all day Sunday. You were hoping for a quiet afternoon.", ["you"], "think",
+          ["🛋️", "⏰", "🤔"], "worried", set="home"),
+    ], close="Do you let them stay, or ask them to head out?"),
 ]
