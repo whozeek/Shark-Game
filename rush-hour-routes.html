@@ -6400,8 +6400,8 @@ const GBX={
   }
 };
 /* ---- people ---- */
-const FIG_SKIN=['#f6d8bd','#f1c9a5','#e0ac82','#c68b5f','#8d5a3b'],FIG_PANTS=['#2b3a55','#3b3f46','#5a4a3a','#27313f','#6b5e50','#7c3a3a','#3d5a4c'],FIG_HAIR=['#1c1714','#3a2a1e','#6b4424','#c9a35a','#a8512a','#b9b9bd'],
-  FIG_ACC=['#e2483d','#2f80ed','#f2b632','#3fb868','#8a5cf6','#e0509a','#f4f1ea','#2d9aa8'];
+const FIG_SKIN=['#f6d8bd','#f1c9a5','#e0ac82','#c68b5f','#8d5a3b'],FIG_PANTS=['#26334d','#33363d','#4d3c2c','#1f2833','#5a4e40','#6b2f2f','#2f4a3d'],FIG_HAIR=['#1c1714','#3a2a1e','#6b4424','#c9a35a','#a8512a','#b9b9bd'],
+  FIG_ACC=['#e8742a','#2fb5a8','#d93c3c','#2f6fe0','#7f8f2a','#f2c230','#f4f1ea','#8a5cf6'];
 let FIG_GEO=null;
 function figGeo(){
   if(FIG_GEO)return FIG_GEO;
@@ -6409,27 +6409,28 @@ function figGeo(){
   const pv=(y)=>[0,y,0],A=(sl,jt,op)=>[sl,jt,op];
   // legs: trousers (upper), trousers or bare skin (lower), shoes
   for(const s of[1,-1]){const jt=s>0?1:2,p=pv(3.05);
-    B(g,0,2.55,s*.62,.95,1.1,.95,L('#fff'),A(3,jt,0),p);
-    B(g,0,1.35,s*.62,.92,1.35,.92,L('#fff'),A(3,jt,17),p);
-    B(g,0,1.35,s*.62,.9,1.35,.9,L('#fff'),A(1,jt,16),p);
+    B(g,0,2.55,s*.62,1.1,1.1,1.1,L('#fff'),A(3,jt,0),p);
+    B(g,0,1.35,s*.62,1.08,1.35,1.08,L('#fff'),A(3,jt,17),p);
+    B(g,0,1.35,s*.62,1.06,1.35,1.06,L('#fff'),A(1,jt,16),p);
     B(g,.34,.32,s*.62,1.7,.64,1.0,sh,A(0,jt,0),p);
   }
   B(g,0,3.2,0,1.3,.5,2.3,L('#fff'),A(3,0,0),W);                       // hips and belt line
   B(g,0,4.4,0,1.35,2.3,2.6,L('#fff'),A(2,0,0),W);                     // torso (takes the patience colour)
   B(g,.7,4.65,0,.1,1.3,.85,L('#fff'),A(5,0,0),W);                     // shirt front, tie or scarf
   B(g,0,5.7,0,.6,.5,.6,L('#fff'),A(1,0,0),W);                         // neck
-  GBX.sph(g,0,6.8,0,1.05,1.12,1.05,L('#fff'),A(1,0,0),W,8,6);       // head
+  B(g,0,6.8,0,2.0,2.2,2.0,L('#fff'),A(1,0,0),W);       // head (square, voxel style)
+  B(g,-.1,.05,0,3.0,.1,3.4,L('#1e2328'),A(0,0,0),W); // square contact shadow
   B(g,0,6.8,1.08,.3,.5,.2,L('#fff'),A(1,0,0),W);B(g,0,6.8,-1.08,.3,.5,.2,L('#fff'),A(1,0,0),W);
   B(g,1.1,6.65,0,.25,.35,.3,L('#fff'),A(1,0,0),W);                     // nose
   for(const s of[1,-1])B(g,.98,6.98,s*.42,.16,.32,.3,c0,A(0,0,0),W);   // eyes
   B(g,1.02,6.35,0,.1,.15,.6,mouth,A(0,0,0),W);                          // mouth
   for(const s of[1,-1])B(g,1.1,6.98,s*.42,.06,.44,.5,c0,A(0,0,12),W);  // glasses
   B(g,1.1,6.98,0,.06,.1,.4,c0,A(0,0,12),W);
-  GBX.sph(g,-.2,7.1,0,1.14,.9,1.14,L('#fff'),A(4,0,1),W,8,4,0,Math.PI/2);       // hair cap
+  B(g,-.12,7.95,0,2.2,.75,2.2,L('#fff'),A(4,0,1),W);B(g,-.95,7.1,0,.4,1.5,2.2,L('#fff'),A(4,0,1),W);B(g,.9,7.65,0,.3,.35,2.2,L('#fff'),A(4,0,1),W); // hair cap: top, back, fringe
   B(g,-.8,6.2,0,.7,2.3,2.0,L('#fff'),A(4,0,2),W);                                  // long hair
-  GBX.cyl(g,'y',0,7.7,0,1.2,1.2,.7,8,L('#fff'),A(5,0,3),W);GBX.cyl(g,'y',0,7.38,0,1.9,1.9,.14,8,L('#fff'),A(5,0,3),W); // hat with brim
-  GBX.sph(g,0,7.05,0,1.2,1.05,1.2,L('#fff'),A(5,0,4),W,8,4,0,Math.PI*.62);GBX.sph(g,0,8.1,0,.32,.32,.32,L('#fff'),A(5,0,4),W,6,4); // beanie
-  GBX.sph(g,-.95,7.7,0,.5,.5,.5,L('#fff'),A(4,0,5),W,6,4);                         // bun
+  B(g,0,8.0,0,2.35,.8,2.35,L('#fff'),A(5,0,3),W);B(g,1.4,7.7,0,1.2,.16,2.3,L('#fff'),A(5,0,3),W); // cap with brim
+  B(g,0,7.95,0,2.4,1.0,2.4,L('#fff'),A(5,0,4),W);B(g,0,8.6,0,.6,.45,.6,L('#fff'),A(5,0,4),W); // beanie
+  B(g,-1.1,8.0,0,.8,.8,.8,L('#fff'),A(4,0,5),W);                         // bun
   // arms: sleeve takes the patience colour, hand is skin
   for(const s of[1,-1]){const jt=s>0?3:4,p=pv(5.45);
     B(g,0,4.6,s*1.62,.82,1.75,.82,L('#fff'),A(2,jt,0),p);
