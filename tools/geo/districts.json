@@ -56,7 +56,14 @@
    "Fayerweather Rd"
   ],
   "gridCols": 12,
-  "gridRows": 7
+  "gridRows": 7,
+  "isFF": true,
+  "ffm": [
+   2497,
+   1832
+  ],
+  "ffsc": 0.6,
+  "ffRef": "FF_TRACED"
  },
  {
   "id": "br-northend",
@@ -116,7 +123,14 @@
    "Wilmot Ave"
   ],
   "gridCols": 12,
-  "gridRows": 7
+  "gridRows": 7,
+  "isFF": true,
+  "ffm": [
+   2497,
+   3066
+  ],
+  "ffsc": 0.5,
+  "ffRef": "FF_TRACED"
  },
  {
   "id": "br-westside",
@@ -501,7 +515,14 @@
    "Boston Ave"
   ],
   "gridCols": 15,
-  "gridRows": 9
+  "gridRows": 9,
+  "isFF": true,
+  "ffm": [
+   2051,
+   2409
+  ],
+  "ffsc": 0.6,
+  "ffRef": "FF_TRACED"
  },
  {
   "id": "nw-eastnorwalk",

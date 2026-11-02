@@ -25,6 +25,8 @@ def bbox(d, pad=0.15):
     bs = d.get('bs', 150)
     h = d['gridRows'] * bs / 2 * (1 + pad)
     w = d['gridCols'] * bs / 2 * (1 + pad)
+    if d.get('ffm'):   # free-form district: the box is given in metres
+        w, h = d['ffm'][0] / 2 * (1 + pad), d['ffm'][1] / 2 * (1 + pad)
     dlat = h / 110540.0
     dlon = w / (111320.0 * math.cos(math.radians(lat)))
     return (lat - dlat, lon - dlon, lat + dlat, lon + dlon)
@@ -35,8 +37,8 @@ def query(bb):
     b = '(%s,%s,%s,%s)' % (s, w, n, e)
     return f'''[out:json][timeout:120];
 (
-  way["highway"~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street|motorway_link|trunk_link|primary_link|secondary_link|service|pedestrian)$"]{b};
-  way["natural"~"^(water|coastline|bay|wetland)$"]{b};
+  way["highway"~"^(motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link|service|pedestrian)$"]{b};
+  way["natural"~"^(water|coastline|bay|wetland|wood)$"]{b};
   relation["natural"="water"]{b};
   way["waterway"~"^(river|canal|stream|riverbank|dock)$"]{b};
   way["landuse"~"^(residential|commercial|retail|industrial|forest|grass|recreation_ground|cemetery|port|railway|reservoir|basin)$"]{b};

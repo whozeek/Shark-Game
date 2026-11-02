@@ -16,6 +16,16 @@ How a district is fitted onto the block grid (the game itself stays a rectangula
     C arena or stadium (exactly one C is kept: the biggest arena/stadium, else the park block nearest the centre);
   * street names: every named road is classed east-west or north-south by its direction, and votes (weighted by its length inside the
     box) for the nearest grid row line or column line; the best name of each line is painted on the game's row / column.
+
+FREE-FORM districts (districts.json entry with isFF:true, e.g. br-blackrock, br-northend, br-downtown): the game does not use a block grid there, it uses a road GRAPH.
+build_ff() is the roads-to-graph step: OSM ways become polylines [name, class, [[x,y]..], {br:1}] in metres from the north-west corner of the district box (ffm = [W, H] metres),
+  * highway classes: motorway / trunk -> m (motorway), primary / secondary / long tertiary -> a (arterial), everything else drivable -> s (street);
+    footways, paths, tracks and steps are dropped, service roads are the first to go when the district is over budget;
+  * ways are cut where two ways share an OSM node (so junctions survive), each piece is simplified with Douglas-Peucker (5 m, 7 m on streets)
+    and side streets are thinned until the district has about MAX_NODES vertices (the game wants fewer than about 400 junctions per district);
+  * water polygons and the sea (coastline closed along the district box, sea on the right of the way), parks, woods (zone '.'), commercial and industrial land (zone 'B') and
+    landmarks are written in the same units; the game turns them into the ground, the water meshes, the land-use cells and the buildings.
+  The game itself snaps near-by ends together, splits roads where they cross and keeps the largest connected piece, so the polylines only need to be roughly clean.
 Standard library only.  Data (c) OpenStreetMap contributors (ODbL): districts built from it are flagged osm:true and the game shows the credit."""
 import json, math, os, re, sys
 
@@ -42,6 +52,8 @@ class Frame:
         s.cols, s.rows = d['gridCols'], d['gridRows']
         s.cl = math.cos(math.radians(s.lat0))
         s.W, s.H = s.cols * s.bs, s.rows * s.bs
+        if d.get('ffm'):  # free-form district: the box is given in metres
+            s.W, s.H = d['ffm']
 
     def xy(s, lat, lon):
         return ((lon - s.lon0) * 111320.0 * s.cl + s.W / 2, (s.lat0 - lat) * 110540.0 + s.H / 2)
@@ -329,8 +341,203 @@ def build(d, data, report=False):
     return e
 
 
+MAX_NODES = 520
+
+
+def dp(pts, tol):
+    """Douglas-Peucker; keeps the two end points"""
+    if len(pts) < 3:
+        return pts
+    keep = [False] * len(pts)
+    keep[0] = keep[-1] = True
+    st = [(0, len(pts) - 1)]
+    while st:
+        a, b = st.pop()
+        ax, ay = pts[a]
+        bx, by = pts[b]
+        dx, dy = bx - ax, by - ay
+        l2 = dx * dx + dy * dy or 1e-9
+        best, bi = -1, -1
+        for i in range(a + 1, b):
+            t = max(0, min(1, ((pts[i][0] - ax) * dx + (pts[i][1] - ay) * dy) / l2))
+            dd = math.hypot(pts[i][0] - (ax + dx * t), pts[i][1] - (ay + dy * t))
+            if dd > best:
+                best, bi = dd, i
+        if best > tol:
+            keep[bi] = True
+            st.append((a, bi))
+            st.append((bi, b))
+    return [p for p, k in zip(pts, keep) if k]
+
+
+def road_class(t, length):
+    hw = t.get('highway')
+    if hw in ('motorway', 'trunk'):
+        return 'm'
+    if hw in ('primary', 'secondary', 'primary_link', 'secondary_link') or (hw == 'tertiary' and length > 500):
+        return 'a'
+    if hw in ('motorway_link', 'trunk_link', 'tertiary', 'tertiary_link', 'residential', 'unclassified', 'living_street', 'service'):
+        return 's'
+    return None
+
+
+def clip_box(pts, W, H):
+    """pieces of a polyline inside [0,W] x [0,H] (Liang-Barsky per segment)"""
+    out, cur = [], []
+    for i in range(len(pts) - 1):
+        p, q = pts[i], pts[i + 1]
+        dx, dy = q[0] - p[0], q[1] - p[1]
+        t0, t1 = 0.0, 1.0
+        ok = True
+        for pp, qq in ((-dx, p[0]), (dx, W - p[0]), (-dy, p[1]), (dy, H - p[1])):
+            if pp == 0:
+                if qq < 0:
+                    ok = False
+            else:
+                r = qq / pp
+                if pp < 0:
+                    t0 = max(t0, r)
+                else:
+                    t1 = min(t1, r)
+        if not ok or t0 > t1:
+            if len(cur) > 1:
+                out.append(cur)
+            cur = []
+            continue
+        a = (p[0] + t0 * dx, p[1] + t0 * dy)
+        b = (p[0] + t1 * dx, p[1] + t1 * dy)
+        if cur and math.hypot(cur[-1][0] - a[0], cur[-1][1] - a[1]) < .01:
+            cur.append(b)
+        else:
+            if len(cur) > 1:
+                out.append(cur)
+            cur = [a, b]
+    if len(cur) > 1:
+        out.append(cur)
+    return out
+
+
+def sea_polygons(coast, W, H):
+    """close each coastline piece along the district box so that the sea (on the RIGHT of an OSM coastline way) becomes a polygon"""
+    corners = [(0, 0), (W, 0), (W, H), (0, H)]          # clockwise on screen (y points south)
+    per = 2 * (W + H)
+    cpos = [0, W, W + H, 2 * W + H]
+
+    def t_of(p):
+        x, y = p
+        if abs(y) < .5: return x
+        if abs(x - W) < .5: return W + y
+        if abs(y - H) < .5: return W + H + (W - x)
+        return 2 * W + H + (H - y)
+
+    def walk(t0, t1, cw):
+        """corner points met going from boundary position t0 to t1"""
+        pts = []
+        if cw:
+            span = (t1 - t0) % per
+            for k in range(4):
+                if 0 < (cpos[k] - t0) % per < span:
+                    pts.append((((cpos[k] - t0) % per), corners[k]))
+        else:
+            span = (t0 - t1) % per
+            for k in range(4):
+                if 0 < (t0 - cpos[k]) % per < span:
+                    pts.append((((t0 - cpos[k]) % per), corners[k]))
+        pts.sort()
+        return [p for _, p in pts]
+    out = []
+    for way in coast:
+        for piece in clip_box(way, W, H):
+            if len(piece) < 2:
+                continue
+            a, b = piece[0], piece[-1]
+            m = len(piece) // 2
+            p0, p1 = piece[max(0, m - 1)], piece[min(len(piece) - 1, m + 1)]
+            dx, dy = p1[0] - p0[0], p1[1] - p0[1]
+            ln = math.hypot(dx, dy) or 1
+            probe = (piece[m][0] - dy / ln * 3, piece[m][1] + dx / ln * 3)  # a few metres to the right of the way (y down)
+            for cw in (True, False):
+                poly = list(piece) + walk(t_of(b), t_of(a), cw)
+                if len(poly) >= 3 and pip(probe[0], probe[1], poly):
+                    out.append([(round(x), round(y)) for x, y in poly])
+                    break
+    return out
+
+
+def build_ff(d, data, report=False):
+    F = Frame(d)
+    W, H = F.W, F.H
+    els = data.get('elements', [])
+    rings = lambda el: [[(round(x), round(y)) for x, y in r] for r in rings_of(F, el)]
+    ways, water, parks, zones, coast, poi = [], [], [], [], [], []
+    for el in els:
+        t = el.get('tags') or {}
+        pts = geom(F, el['geometry']) if el['type'] == 'way' and el.get('geometry') else None
+        if 'highway' in t and pts:
+            ln = sum(math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]) for i in range(len(pts) - 1))
+            c = road_class(t, ln)
+            if c:
+                ways.append({'name': abbr(t.get('name', '')), 'cls': c, 'pts': pts, 'br': t.get('bridge') in ('yes', 'viaduct', 'movable'), 'ref': t.get('ref', ''),
+                             'key': [(round(g['lat'], 6), round(g['lon'], 6)) for g in el['geometry']], 'svc': t.get('highway') == 'service'})
+            continue
+        if t.get('natural') == 'coastline' and pts:
+            coast.append(pts)
+        elif t.get('natural') in ('water', 'bay', 'wetland') or t.get('landuse') in ('reservoir', 'basin') or t.get('waterway') in ('riverbank', 'dock'):
+            water.extend(rings(el))
+        elif t.get('leisure') in ('park', 'pitch', 'golf_course', 'nature_reserve', 'garden', 'playground', 'track') or t.get('landuse') in ('grass', 'recreation_ground', 'cemetery'):
+            parks.extend(rings(el))
+        elif t.get('landuse') == 'forest' or t.get('natural') == 'wood':
+            zones.extend(['.', r] for r in rings(el))
+        elif t.get('landuse') in ('commercial', 'retail', 'industrial', 'port'):
+            zones.extend(['B', r] for r in rings(el))
+        am, lei, bd = t.get('amenity'), t.get('leisure'), t.get('building')
+        for letter, hit in (('O', am == 'hospital' or bd == 'hospital'), ('U', am in ('university', 'college') or bd == 'university'), ('K', am == 'school'),
+                            ('C', am == 'arena' or lei == 'stadium' or bd == 'stadium'), ('A', t.get('aeroway') in ('aerodrome', 'terminal')), ('M', t.get('shop') == 'mall')):
+            if hit:
+                c = center_of(F, el)
+                if c and 0 <= c[0] < W and 0 <= c[1] < H and not any(q[0] == letter for q in poi):
+                    poi.append([letter, round(c[0]), round(c[1]), t.get('name', '')])
+    water.extend(sea_polygons(coast, W, H))
+    # cut ways where they share an OSM node, simplify each piece, then thin to the node budget
+    count = {}
+    for w in ways:
+        for k in set(w['key']):
+            count[k] = count.get(k, 0) + 1
+    pieces = []
+    for w in ways:
+        cur = [0]
+        for i in range(1, len(w['key']) - 1):
+            if count[w['key'][i]] > 1:
+                cur.append(i)
+        cur.append(len(w['key']) - 1)
+        for a, b in zip(cur, cur[1:]):
+            seg = w['pts'][a:b + 1]
+            for part in clip_box(seg, W, H):
+                ln = sum(math.hypot(part[i + 1][0] - part[i][0], part[i + 1][1] - part[i][1]) for i in range(len(part) - 1))
+                if ln >= 25:
+                    pieces.append({'name': w['name'] or w['ref'], 'cls': w['cls'], 'pts': part, 'br': w['br'], 'len': ln, 'svc': w['svc']})
+    pri = {'m': 0, 'a': 1, 's': 2}
+    pieces.sort(key=lambda q: (pri[q['cls']], q['svc'], -q['len']))
+    out, nodes = [], 0
+    for q in pieces:
+        s = dp(q['pts'], 5 if q['cls'] != 's' else 7)
+        if nodes + len(s) > MAX_NODES and q['cls'] == 's':
+            continue
+        nodes += len(s)
+        ent = [q['name'], q['cls'], [[round(x), round(y)] for x, y in s]]
+        if q['br']:
+            ent.append({'br': 1})
+        out.append(ent)
+    ff = {'src': 'osm', 'm': [round(W), round(H)], 'sc': d.get('ffsc', .6), 'roads': out, 'water': water, 'parks': parks, 'zones': zones, 'poi': poi}
+    if report:
+        print(d['id'], 'roads', len(out), 'vertices', nodes, 'water', len(water), 'parks', len(parks), 'zones', len(zones), 'poi', poi)
+    e = keep_authored(d)
+    e.update({'approx': False, 'osm': True, 'ff': ff})
+    return e
+
+
 def keep_authored(d):
-    e = {k: v for k, v in d.items() if k not in ('gridCols', 'gridRows', 'rowNames', 'colNames')}
+    e = {k: v for k, v in d.items() if k not in ('gridCols', 'gridRows', 'rowNames', 'colNames', 'isFF', 'ffm', 'ffsc', 'ffRef')}
     e['rows'], e['cols'] = d['rowNames'], d['colNames']
     return e
 
@@ -340,7 +547,12 @@ def js_entry(e):
     parts = []
     for k in keys + [k for k in e if k not in keys]:
         if k in e:
-            parts.append(json.dumps(k) + ':' + json.dumps(e[k], ensure_ascii=False))
+            if k == 'ff' and isinstance(e[k], str):   # a reference to the traced data block, FF_TRACED["id"]
+                parts.append('"ff":' + e[k])
+            elif k == 'ff':
+                parts.append('"ff":' + json.dumps(e[k], ensure_ascii=False, separators=(',', ':')))
+            else:
+                parts.append(json.dumps(k) + ':' + json.dumps(e[k], ensure_ascii=False))
     return '  {' + ',\n   '.join(parts) + '}'
 
 
@@ -358,16 +570,26 @@ def main():
     res, nreal = [], 0
     for d in ds:
         if args and d['id'] not in args:
-            res.append(keep_authored(d))
+            e = keep_authored(d)
+            if d.get('ffRef'):
+                e['ff'] = d['ffRef'] + '[' + json.dumps(d['id']) + ']'
+            res.append(e)
             continue
         p = os.path.join(geo_dir, d['id'] + '.json')
-        if os.path.exists(p):
+        if os.path.exists(p) and d.get('isFF'):
+            res.append(build_ff(d, json.load(open(p, encoding='utf-8')), '--report' in sys.argv))
+            nreal += 1
+            print('built a free-form road graph from data:', d['id'])
+        elif os.path.exists(p):
             res.append(build(d, json.load(open(p, encoding='utf-8')), '--report' in sys.argv))
             nreal += 1
             print('built from data:', d['id'])
         else:
-            res.append(keep_authored(d))
-            print('no data file, keeping the approximate authored map:', d['id'])
+            e = keep_authored(d)
+            if d.get('ffRef'):
+                e['ff'] = d['ffRef'] + '[' + json.dumps(d['id']) + ']'   # the traced Bridgeport data (tools/geo/trace_bridgeport.py)
+            res.append(e)
+            print('no data file, keeping the', 'traced' if d.get('ffRef') else 'approximate authored', 'map:', d['id'])
     text = 'districts:[\n' + ',\n'.join(js_entry(e) for e in res) + '\n ]'
     if out_path:
         open(out_path, 'w', encoding='utf-8').write(text + '\n')
