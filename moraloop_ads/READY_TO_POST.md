@@ -110,6 +110,9 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 103 | 2026-11-29 | 12:00 PM | short | The Item Limit | `moraloop_ads/trends/t037_the_item_limit.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t037_the_item_limit.mp4) |
 | 104 | 2026-11-30 | 12:00 PM | short | The Airport Ride | `moraloop_ads/trends/t038_the_airport_ride.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t038_the_airport_ride.mp4) |
 | 105 | 2026-12-01 | 12:00 PM | short | The Late Flight | `moraloop_ads/trends/t039_the_late_flight.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t039_the_late_flight.mp4) |
+| 106 | 2026-12-02 | 12:00 PM | short | The Library Call | `moraloop_ads/trends/t040_the_library_call.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t040_the_library_call.mp4) |
+| 107 | 2026-12-03 | 12:00 PM | short | The League Rules | `moraloop_ads/trends/t041_the_league_rules.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t041_the_league_rules.mp4) |
+| 108 | 2026-12-04 | 12:00 PM | short | The Fence Camera | `moraloop_ads/trends/t042_the_fence_camera.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t042_the_fence_camera.mp4) |
 
 ## Captions
 
@@ -1056,5 +1059,32 @@ Video: `moraloop_ads/trends/t039_the_late_flight.mp4`
 Your weekend guests’ flight leaves at midnight, and they ask to stay all day. Do you let them stay, or ask them to head out? Comment A or B 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #houseguests #etiquette
+```
+
+### 106. 2026-12-02 12:00 PM: The Library Call (short)
+Video: `moraloop_ads/trends/t040_the_library_call.mp4`
+
+```
+Exam tomorrow, and the man at the next library table keeps taking loud work calls. Do you ask him to stop, or move tables? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #library #studying #etiquette
+```
+
+### 107. 2026-12-03 12:00 PM: The League Rules (short)
+Video: `moraloop_ads/trends/t041_the_league_rules.mp4`
+
+```
+Your friend quietly changed a fantasy league rule that helps his team. Do you call it out to the group, or ask him privately? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #fantasyfootball #friendship #fairplay
+```
+
+### 108. 2026-12-04 12:00 PM: The Fence Camera (short)
+Video: `moraloop_ads/trends/t042_the_fence_camera.mp4`
+
+```
+Your neighbor’s new camera points over your fence. They say it’s for package thieves. Ask them to move it, or block it yourself? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #neighbors #privacy #homeowners
 ```
 

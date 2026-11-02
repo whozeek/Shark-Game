@@ -317,4 +317,28 @@ ADS = [
         S("They ask to stay all day Sunday. You were hoping for a quiet afternoon.", ["you"], "think",
           ["🛋️", "⏰", "🤔"], "worried", set="home"),
     ], close="Do you let them stay, or ask them to head out?"),
+
+    # Trend: Reddit story about a contractor taking loud business calls in a library (TwistedSifter, Nov 2 2026)
+    dict(id="t040_the_library_call", title="The Library Call", made_on="2026-11-02", beats=[
+        S("You’re studying in the library. A man at the next table takes loud work calls.", ["stranger", "you"],
+          "say", ["📞", "🔊", "📚"], "worried", set="library"),
+        S("Your exam is tomorrow. He might have nowhere else to work.", ["you"], "think", ["📝", "⏰", "🤔"],
+          "worried", set="library"),
+    ], close="Do you ask him to stop, or move tables?"),
+
+    # Trend: Reddit story about a fantasy football commissioner secretly changing league rules (TwistedSifter, Nov 2 2026)
+    dict(id="t041_the_league_rules", title="The League Rules", made_on="2026-11-02", beats=[
+        S("Your friend runs your fantasy football league. You notice he quietly changed a rule.",
+          ["you"], "see", ["📱", "🏈", "📋"], "shock", set="home"),
+        S("It helps his team. It might be an honest mistake. The league is your friend group.",
+          ["friend", "you"], "react", ["🏈", "🤝", "🤔"], "worried", others="happy", set="home"),
+    ], close="Do you call it out to the group, or ask him privately?"),
+
+    # Trend: Reddit story about a neighbor's camera aimed over a privacy fence (TwistedSifter, Nov 2 2026)
+    dict(id="t042_the_fence_camera", title="The Fence Camera", made_on="2026-11-02", beats=[
+        S("Your neighbor installs a camera. It points right over your fence into your yard.", ["you"], "react",
+          ["📹", "🏡", "👀"], "shock", set="street"),
+        S("They say it’s for package thieves. You feel watched.", ["stranger", "you"], "say", ["📦", "📹", "😬"],
+          "worried", set="street"),
+    ], close="Do you ask them to move it, or block the view yourself?"),
 ]
