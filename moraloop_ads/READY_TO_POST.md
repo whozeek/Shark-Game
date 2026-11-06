@@ -117,6 +117,8 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 110 | 2026-12-04 | 12:00 PM | short | The Fence Camera | `moraloop_ads/trends/t042_the_fence_camera.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t042_the_fence_camera.mp4) |
 | 111 | 2026-12-05 | 12:00 PM | short | The Late Game | `moraloop_ads/trends/t043_the_late_game.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t043_the_late_game.mp4) |
 | 112 | 2026-12-06 | 12:00 PM | short | The Translator | `moraloop_ads/trends/t044_the_translator.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t044_the_translator.mp4) |
+| 113 | 2026-12-07 | 12:00 PM | short | The Store Brand | `moraloop_ads/trends/t045_the_store_brand.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t045_the_store_brand.mp4) |
+| 114 | 2026-12-08 | 12:00 PM | short | The Callback | `moraloop_ads/trends/t046_the_callback.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t046_the_callback.mp4) |
 
 ## Captions
 
@@ -1126,5 +1128,23 @@ Video: `moraloop_ads/trends/t044_the_translator.mp4`
 You’ve always translated for your dad. He needs you tomorrow, during your test. Do you skip class to translate, or take your test? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #college #parents
+```
+
+### 113. 2026-12-07 12:00 PM: The Store Brand (short)
+Video: `moraloop_ads/trends/t045_the_store_brand.mp4`
+
+```
+You buy your mother-in-law’s groceries every week. Then you hear she complains about the store brand. Keep buying, or stop? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #inlaws #groceries
+```
+
+### 114. 2026-12-08 12:00 PM: The Callback (short)
+Video: `moraloop_ads/trends/t046_the_callback.mp4`
+
+```
+The boss who let you go wants you back to save a failing project. The pay is great. Do you go back, or say no? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #work #career #worklife
 ```
 

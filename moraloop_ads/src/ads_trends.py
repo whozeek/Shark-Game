@@ -357,4 +357,20 @@ ADS = [
         S("It’s during your class, and you have a test.", ["you"], "think", ["🎓", "📝", "⏰"], "worried",
           set="classroom"),
     ], close="Do you skip class to translate, or take your test?"),
+
+    # Trend: Reddit post about buying a mother-in-law's groceries, then hearing she dislikes the store brands (Daily Dot, Nov 5 2026)
+    dict(id="t045_the_store_brand", title="The Store Brand", made_on="2026-11-06", beats=[
+        S("Every week you buy your mother-in-law’s groceries. She can’t afford them, and it isn’t cheap.", ["elder", "you"], "give",
+          ["🛒", "🥫", "💵"], "worried", set="home"),
+        S("Then you hear she complains that you always get the store brand.", ["partner", "you"], "tell",
+          ["🏷️", "😒", "🛒"], "shock", set="home"),
+    ], close="Do you keep buying her groceries, or stop?"),
+
+    # Trend: Reddit story about a fired supervisor recruited back to rescue a failing contract (TwistedSifter, Nov 6 2026)
+    dict(id="t046_the_callback", title="The Callback", made_on="2026-11-06", beats=[
+        S("Your old boss let you go last year. Now their big project is failing.", ["boss", "you"], "say",
+          ["📉", "📞", "🙏"], "shock", set="office"),
+        S("They want you back to fix it. The pay is great, but they let you go.", ["you"], "think",
+          ["💵", "🤔", "🚪"], "worried", set="home"),
+    ], close="Do you go back to help, or say no?"),
 ]
