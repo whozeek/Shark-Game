@@ -115,7 +115,7 @@ async function build(cb, step) {
   addHills(cb, { seed: 7, center: [0, 0], r: 1100, arcFrom: -Math.PI * 0.95, arcTo: -Math.PI * 0.05, h: 260, base: 40, color: '#2a3036', top: '#3a3a44', lights: true });
   addHills(cb, { seed: 9, center: [0, 0], r: 1350, arcFrom: -Math.PI * 1.05, arcTo: Math.PI * 0.2, h: 420, base: 60, color: '#353a44', top: '#4a4a56' });
   addSkyline(cb, { seed: 51, center: [-200, -100], minR: 500, maxR: 700, count: 30, arcFrom: -Math.PI * 0.9, arcTo: -Math.PI * 0.55, hMin: 80, hMax: 300, color: '#2a2e38', lit: 0.4 });
-  cb.spawn = { x: -8 + 11 + 2.5, z: -6 + 8.5 + 2.3, yaw: -Math.PI / 2 - 0.12 };
+  cb.spawn = { x: -8 + 11 + 2.5, z: -6 + 8.5 + 2.3, yaw: -Math.PI / 2 + 0.3 };
   cb.viewpoints = [
     { x: -8 + 11 + 2.4, z: -100 + 9 + 2.3, look: [-300, 60, -800], label: 'Hills in the haze' },
     { x: 60, z: -6 - 8.5 - 2.4, look: [60, 6, -40], label: 'Murals on Traction Ave' },

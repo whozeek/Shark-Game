@@ -112,13 +112,13 @@ async function build(cb, step) {
     }
     await step(0.3 + 0.35 * grid.blocks.indexOf(blk) / grid.blocks.length, 'Raising towers');
   }
-  cb.keepClear = [[-21.5, -10, 4]];
+  cb.keepClear = [[-70, -39, 4]];
   furnish(cb, layout);
   elevated(cb, layout.zs[0], layout);
   for (const A of layout.xs) bridge(cb, A, -36, 36);
   await step(0.75, 'Lighting the river');
   addSkyline(cb, { seed: 31, center: [0, 0], minR: 420, maxR: 950, count: 80, arcFrom: -Math.PI, arcTo: Math.PI * 0.4, hMin: 70, hMax: 330, color: '#232a34', lit: 0.45, extra: [{ x: -380, z: -620, w: 70, d: 70, h: 440 }, { x: -380, z: -620, w: 6, d: 6, h: 520 }, { x: 260, z: -560, w: 50, d: 50, h: 360 }] });
-  cb.spawn = { x: -30 + 7 + 2.5, z: -6, yaw: -Math.PI / 2 + 0.25 };
+  cb.spawn = { x: -70, z: -39, yaw: -Math.PI / 2 - 0.35 };
   cb.viewpoints = [
     { x: -30 + 7 + 2.5, z: 0, look: [200, 10, 0], label: 'River view from the bridge' },
     { x: 50 - 7 - 2.5, z: 10, look: [-300, 10, 0], label: 'Bridges upstream' },

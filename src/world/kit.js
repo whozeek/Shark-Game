@@ -426,10 +426,10 @@ export function tree(cb, x, z, o = {}) {
   }
   const trunkH = (kind === 'willow' ? 2.6 : kind === 'cherry' ? 2.0 : 3.3) * s;
   cb.batch.prim('cyl', M.bark, x, trunkH / 2, z, 0.26 * s, trunkH, 0.26 * s, 0x4a3a2c);
-  const baseCol = o.color ?? (kind === 'cherry' ? 0xf2a7c3 : kind === 'pine' ? 0x2d4a2f : 0x5a8a45);
-  const blobs = kind === 'willow' ? 5 : 6;
+  const baseCol = o.color ?? (kind === 'cherry' ? 0xf6bfd2 : kind === 'pine' ? 0x2d4a2f : 0x5a8a45);
+  const blobs = kind === 'willow' ? 6 : 10;
   for (let k = 0; k < blobs; k++) {
-    const r = (kind === 'cherry' ? rng.range(1.1, 1.7) : rng.range(1.0, 1.6)) * s;
+    const r = (kind === 'cherry' ? rng.range(0.7, 1.1) : rng.range(0.75, 1.25)) * s;
     const bx = x + rng.range(-1.2, 1.2) * s, bz = z + rng.range(-1.2, 1.2) * s, by = trunkH + rng.range(0.9, 2.8) * s;
     const c = new THREE.Color(baseCol).offsetHSL(rng.range(-0.02, 0.02), 0, rng.range(-0.06, 0.06));
     const g = blobGeo(rng.int(0, 2));
