@@ -341,4 +341,20 @@ ADS = [
         S("They say it’s for package thieves. You feel watched.", ["stranger", "you"], "say", ["📦", "📹", "😬"],
           "worried", set="street"),
     ], close="Do you ask them to move it, or block the view yourself?"),
+
+    # Trend: Reddit story about a housemate who games late while the other starts work at five (TwistedSifter, Nov 5 2026)
+    dict(id="t043_the_late_game", title="The Late Game", made_on="2026-11-05", beats=[
+        S("Gaming at night is how you unwind after work.", ["you"], "react", ["🎮", "🌙", "😌"], "happy",
+          set="home_night"),
+        S("Your roommate starts work at five. They ask for quiet after nine.", ["friend", "you"], "say",
+          ["⏰", "🤫", "😴"], "worried", set="home_night"),
+    ], close="Do you stop at nine, or keep your evenings?"),
+
+    # Trend: Reddit story about a son asked to translate his dad's meeting during class (TwistedSifter, Nov 5 2026)
+    dict(id="t044_the_translator", title="The Translator", made_on="2026-11-05", beats=[
+        S("You’ve translated for your dad your whole life. He needs you at a meeting tomorrow.", ["stranger", "you"],
+          "say", ["🗣️", "📄", "🙏"], "worried", set="home"),
+        S("It’s during your class, and you have a test.", ["you"], "think", ["🎓", "📝", "⏰"], "worried",
+          set="classroom"),
+    ], close="Do you skip class to translate, or take your test?"),
 ]

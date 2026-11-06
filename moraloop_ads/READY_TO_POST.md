@@ -113,6 +113,8 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 106 | 2026-12-02 | 12:00 PM | short | The Library Call | `moraloop_ads/trends/t040_the_library_call.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t040_the_library_call.mp4) |
 | 107 | 2026-12-03 | 12:00 PM | short | The League Rules | `moraloop_ads/trends/t041_the_league_rules.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t041_the_league_rules.mp4) |
 | 108 | 2026-12-04 | 12:00 PM | short | The Fence Camera | `moraloop_ads/trends/t042_the_fence_camera.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t042_the_fence_camera.mp4) |
+| 109 | 2026-12-05 | 12:00 PM | short | The Late Game | `moraloop_ads/trends/t043_the_late_game.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t043_the_late_game.mp4) |
+| 110 | 2026-12-06 | 12:00 PM | short | The Translator | `moraloop_ads/trends/t044_the_translator.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t044_the_translator.mp4) |
 
 ## Captions
 
@@ -1086,5 +1088,23 @@ Video: `moraloop_ads/trends/t042_the_fence_camera.mp4`
 Your neighbor’s new camera points over your fence. They say it’s for package thieves. Ask them to move it, or block it yourself? Comment A or B 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #neighbors #privacy #homeowners
+```
+
+### 109. 2026-12-05 12:00 PM: The Late Game (short)
+Video: `moraloop_ads/trends/t043_the_late_game.mp4`
+
+```
+Gaming at night is how you unwind. Your roommate starts work at five and asks for quiet after nine. Stop at nine, or keep your evenings? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #roommates #gaming #apartmentlife
+```
+
+### 110. 2026-12-06 12:00 PM: The Translator (short)
+Video: `moraloop_ads/trends/t044_the_translator.mp4`
+
+```
+You’ve always translated for your dad. He needs you tomorrow, during your test. Do you skip class to translate, or take your test? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #college #parents
 ```
 
