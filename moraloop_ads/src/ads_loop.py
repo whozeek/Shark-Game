@@ -686,4 +686,42 @@ ADS = [
                others="sad", set="home"),
              M("Did you read the whole thread?"),
          ], close="Do you tell your parents, or handle it yourself?"),
+
+    # Trend: Reddit story about a hotel clerk and a guest who showed up on the wrong date during a sold-out week (TwistedSifter, Nov 2 2026)
+    dict(id="l037_the_wrong_date", title="The Wrong Date", made_on="2026-11-02",
+         hook="what did your manager text?",
+         thread=dict(contact="Manager", stamp="Fri 10:48 PM", msgs=[
+             "policy is no refunds",
+             "but we’re slammed tonight",
+             "the room’s already resold",
+             "your call at the desk",
+             "I trust you",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You work the front desk. A guest shows up, but their booking was for last night.", ["stranger", "you"],
+               "say", ["🏨", "🌙", "❗"], "worried", others="worried", set="hall"),
+             S("The hotel is sold out. They ask for a full refund.", ["stranger", "you"], "say", ["💳", "🔙", "🙏"],
+               "worried", others="sad", set="hall"),
+             M("Did you read the whole thread?"),
+         ], close="Do you refund them, or stick to the policy?"),
+
+    # Trend: Reddit story about a kid's art party asking guests to bring their own pricey supplies (TwistedSifter, Nov 2 2026)
+    dict(id="l038_the_supply_list", title="The Supply List", made_on="2026-11-02",
+         hook="what does the invite say?",
+         note=dict(title="Art Party! 🎨", lines=[
+             "Saturday, 2 PM",
+             "Each guest please bring:",
+             "canvas, paints, brushes",
+             "(about $40 per kid)",
+             "No gifts needed!",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your kid is invited to a classmate’s art party.", ["kid", "you"], "laugh", ["🎨", "🎂", "💌"], "happy",
+               others="happy", set="home"),
+             S("Then you read the invite. Every guest brings their own supplies.", ["you"], "think", ["🖌️", "💸", "🤔"],
+               "worried", set="home"),
+             M("Did you catch the whole invite?"),
+         ], close="Do you buy the supplies, or skip the party?"),
 ]
