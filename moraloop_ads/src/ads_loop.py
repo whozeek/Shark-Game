@@ -724,4 +724,42 @@ ADS = [
                "worried", set="home"),
              M("Did you catch the whole invite?"),
          ], close="Do you buy the supplies, or skip the party?"),
+
+    # Trend: Reddit story about a neighbor's visitors repeatedly filling someone's driveway (TwistedSifter, Nov 5 2026)
+    dict(id="l039_the_blocked_drive", title="The Blocked Drive", made_on="2026-11-06",
+         hook="what did your neighbor text?",
+         thread=dict(contact="Neighbor", stamp="Sat 7:55 PM", msgs=[
+             "sorry!! my cousins are over",
+             "street was full 😩",
+             "they’ll move by 11?",
+             "third time this month tho",
+             "my bad 🙏",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You come home, and a strange car is parked in your driveway. Again.", ["you"], "see",
+               ["🚗", "🏠", "😬"], "shock", set="street"),
+             S("It belongs to your neighbor’s guests. You have to leave early tomorrow.", ["you"], "think",
+               ["🚗", "⏰", "🤔"], "worried", set="street"),
+             M("Did you read the whole thread?"),
+         ], close="Do you call a tow, or wait for them to move?"),
+
+    # Trend: Reddit story about kids stuck spending the weekend with a grandparent they didn't get along with (TwistedSifter, Nov 5 2026)
+    dict(id="l040_the_weekend_sitter", title="The Weekend Sitter", made_on="2026-11-06",
+         hook="what did your mom text?",
+         thread=dict(contact="Mom", stamp="Wed 6:30 PM", msgs=[
+             "I can take the kids Sat & Sun!",
+             "no screens at my house tho",
+             "bedtime is 7:30 sharp",
+             "it’s free, sweetie 😊",
+             "let me know!",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You and your partner need a weekend away. Your mom offers to watch the kids.", ["elder", "you"], "say",
+               ["🧳", "👵", "🧸"], "happy", others="happy", set="home"),
+             S("But the kids say they don’t like staying with grandma.", ["kid", "you"], "say", ["😕", "🏠", "🤔"],
+               "worried", others="sad", set="home"),
+             M("Did you read the whole thread?"),
+         ], close="Do you take her offer, or find another sitter?"),
 ]
