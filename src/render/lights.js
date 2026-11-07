@@ -3,6 +3,7 @@
 // volumetric cones beneath streetlights.
 import * as THREE from 'three';
 import { U, POOL_COUNT } from './shared.js';
+import { isOpen } from '../world/kit.js';
 import { LAYER_NO_REFLECT } from '../world/cityBase.js';
 
 export class LightRig {
@@ -58,7 +59,7 @@ export class LightRig {
         for (const L of cb.lights) {
           const d2 = (L.x - camPos.x) ** 2 + (L.z - camPos.z) ** 2;
           if (d2 > 70 * 70) continue;
-          const w = this.kindScale(L.kind) * L.intensity;
+          const w = this.kindScale(L.kind) * L.intensity * (isOpen(L.hours, this.hour ?? 20) ? 1 : 0.04);
           if (w < 0.05) continue;
           scored.push([d2 / (0.5 + Math.min(w, 30) / 30), L]);
         }
@@ -77,7 +78,7 @@ export class LightRig {
       for (const P of cb.pools) {
         const d2 = (P.x - camPos.x) ** 2 + (P.z - camPos.z) ** 2;
         if (d2 > 110 * 110) continue;
-        const s = this.kindScale(P.kind) * P.strength;
+        const s = this.kindScale(P.kind) * P.strength * (isOpen(P.hours, this.hour ?? 20) ? 1 : 0.05);
         if (s < 0.02) continue;
         pools.push([d2, P, s]);
       }
@@ -89,7 +90,7 @@ export class LightRig {
       const want = p.src && this.wanted?.has(p.src);
       p.f = Math.max(0, Math.min(1, p.f + (want ? dt * 2.5 : -dt * 2.5)));
       if (!want && p.f === 0) p.src = null;
-      p.light.intensity = p.src ? p.src.intensity * this.kindScale(p.src.kind) * p.f : 0;
+      p.light.intensity = p.src ? p.src.intensity * this.kindScale(p.src.kind) * p.f * (isOpen(p.src.hours, this.hour ?? 20) ? 1 : 0.04) : 0;
     }
     // write pool uniforms: dynamic first (headlights), then static
     const A = U.uPoolA.value, C = U.uPoolC.value;

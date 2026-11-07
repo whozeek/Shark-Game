@@ -107,6 +107,7 @@ export const DEFAULTS = {
   cyclists: true,
   dogs: true,
   citySounds: true,
+  cityRhythm: true,
   // Audio
   masterVol: 0.8,
   musicVol: 0.55,
@@ -230,7 +231,7 @@ export const SCHEMA_KEYS = {
   city: ['mode', 'reducedMotion', 'headBob', 'lookSensitivity', 'invertY', 'walkSpeed', 'umbrella', 'showMinimap'],
   weather: ['rainIntensity', 'rainSpeed', 'dropSize', 'rainColor', 'fog', 'mist', 'wind', 'windDir', 'puddles', 'wetness', 'clouds', 'cloudDarkness', 'cloudHeight', 'cloudSpeed', 'storm', 'thunder', 'lightning', 'timeOfDay', 'timeFlow'],
   style: ['style', 'palette', 'custom1', 'custom2', 'custom3', 'rainbow', 'rainbowSpeed', 'rainbowSpread', 'rainbowDir', 'rainbowSat', 'rainbowMove', 'reflections', 'reflStreet', 'reflPuddle', 'reflWindow', 'reflCar', 'reflRain', 'reflNeon', 'reflBlur', 'reflLength', 'reflColor', 'reflMotion', 'streetlights', 'storefronts', 'windowGlow', 'headlights', 'neon', 'ambient', 'moonlight', 'bloom', 'exposure'],
-  life: ['pedestrians', 'pedSpeed', 'umbrellaPct', 'groups', 'traffic', 'trafficSpeed', 'taxis', 'buses', 'headlightsOn', 'cyclists', 'dogs', 'citySounds'],
+  life: ['pedestrians', 'pedSpeed', 'umbrellaPct', 'groups', 'traffic', 'trafficSpeed', 'taxis', 'buses', 'headlightsOn', 'cyclists', 'dogs', 'citySounds', 'cityRhythm'],
   audio: ['masterVol', 'musicVol', 'musicStyle', 'shuffle', 'rainVol', 'thunderVol', 'trafficVol', 'peopleVol', 'windVol', 'ambienceVol', 'footstepsVol'],
   display: ['quality', 'fpsCap', 'resolutionScale', 'showFps'],
 };

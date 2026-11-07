@@ -15,6 +15,7 @@ import { AudioEngine } from './audio/engine.js';
 import { Ambience } from './audio/ambience.js';
 import { LofiMusic } from './audio/music.js';
 import { UI } from './ui/ui.js';
+import { peopleRhythm, trafficRhythm, windowRhythm } from './core/rhythm.js';
 
 export class App {
   constructor() {
@@ -88,7 +89,12 @@ export class App {
       if (first) throw e;
     }
   }
-  popTarget() { return Math.round(this.engine.quality.peds * Math.pow(settings.get('pedestrians'), 1.1)); }
+  rhythm(kind) {
+    if (!settings.get('cityRhythm')) return 1;
+    const h = settings.get('timeOfDay');
+    return kind === 'traffic' ? trafficRhythm(h) : peopleRhythm(h);
+  }
+  popTarget() { return Math.round(this.engine.quality.peds * Math.min(1, Math.pow(settings.get('pedestrians'), 1.1) * this.rhythm('people'))); }
 
   async switchCity(id) {
     if (this.switching || (this.def && this.def.id === id)) return;
@@ -159,7 +165,7 @@ export class App {
     if (k === 'city' && this.def && v !== this.def.id && !this.switching) this.switchCity(v);
     if (k === 'quality') this.changeQuality(v);
     if (k === 'resolutionScale') { this.engine.userScale = v; this.engine.resize(); }
-    if (['pedestrians', 'groups', 'dogs', 'umbrellaPct'].includes(k)) this.engine.crowd?.setPopulation(this.popTarget(), settings.values);
+    if (['pedestrians', 'groups', 'dogs', 'umbrellaPct', 'cityRhythm', 'timeOfDay'].includes(k)) this.engine.crowd?.setPopulation(this.popTarget(), settings.values);
     if (k.endsWith('Vol')) this.applyVolumes();
     if (k === 'shuffle' && this.music) this.music.shuffle = v;
     if (k === 'musicStyle' && this.music) this.music.setStyle(v);
@@ -335,10 +341,16 @@ export class App {
     const onRoad = cb.groundAt && cb.groundAt(this.player.x, this.player.z) < 0.05;
     const crowd = eng.crowd, traffic = eng.traffic;
     if (crowd) crowd.update(frozen ? 0 : dt, t, { cam: camPos, player: playerPos, rain: s.rainIntensity, frozen, hidePeople: photo && P.hidePeople, viewDist: eng.quality.viewDist });
-    if (traffic) traffic.update(frozen ? 0 : dt, t, { settings: s, cam: camPos, obstacles: onRoad && !photo ? [playerPos] : [], peds: crowd ? crowd.crossing() : [], night: atm.night, haze: Math.min(1, s.fog * 0.6 + s.rainIntensity * 0.6), frozen, hideCars: photo && P.hideCars });
+    if (traffic) traffic.update(frozen ? 0 : dt, t, { settings: s, cam: camPos, obstacles: onRoad && !photo ? [playerPos] : [], peds: crowd ? crowd.crossing() : [], trafficMul: this.rhythm('traffic'), hour: s.timeOfDay, rhythmOn: s.cityRhythm, night: atm.night, haze: Math.min(1, s.fog * 0.6 + s.rainIntensity * 0.6), frozen, hideCars: photo && P.hideCars });
     for (const a of cb.animated) a.update(dt, t);
+    // ---- daily rhythm: open hours, bedtime windows and how busy the streets are
+    U.uHour.value = ((s.timeOfDay % 24) + 24) % 24;
+    U.uWinFrac.value = s.cityRhythm ? windowRhythm(s.timeOfDay) : 1;
+    this.rhythmTimer = (this.rhythmTimer || 0) - dt;
+    if (this.rhythmTimer <= 0 && crowd) { this.rhythmTimer = 4; crowd.setPopulation(this.popTarget(), s); }
     // ---- lighting & atmosphere
     const rig = eng.rig;
+    rig.hour = s.cityRhythm ? U.uHour.value : 20;
     rig.scales.street = s.streetlights; rig.scales.shop = s.storefronts; rig.scales.neon = s.neon * (0.5 + 0.5 * s.reflNeon); rig.scales.headlight = s.headlights * (s.headlightsOn ? 1 : 0.1);
     rig.update(dt, camPos, traffic ? traffic.dynPools : []);
     eng.rain.update(frozen ? 0 : dt, t, s, eng.camera, atm, { hidden: photo && P.hideRain, frozen });

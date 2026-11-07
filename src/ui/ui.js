@@ -497,6 +497,7 @@ export class UI {
         { type: 'toggle', key: 'cyclists', label: 'Cyclists' },
         { type: 'toggle', key: 'headlightsOn', label: 'Headlights on' },
         { type: 'toggle', key: 'citySounds', label: 'City sounds' },
+        { type: 'toggle', key: 'cityRhythm', label: 'City follows the clock (shops close, streets quieten late at night, dawn deliveries)' },
         { type: 'buttons', items: [{ label: 'Reset city life', action: () => settings.reset('life') }] },
       ],
       audio: [

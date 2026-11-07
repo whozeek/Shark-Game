@@ -67,10 +67,17 @@ export function facadeMaterials(cb, specs) {
 export function shopMaterial(cb, shops, seed, opts) {
   const a = makeShopAtlas(shops, seed, opts);
   cb.track(a.map); cb.track(a.emissive);
-  const mat = cb.track(patchFacade(new THREE.MeshStandardMaterial({ map: a.map, emissiveMap: a.emissive, emissive: 0xffffff, emissiveIntensity: 1.2, roughness: 0.7 }), { parallax: 0.006 }));
+  const mat = cb.track(patchFacade(new THREE.MeshStandardMaterial({ map: a.map, emissiveMap: a.emissive, emissive: 0xffffff, emissiveIntensity: 1.2, roughness: 0.7, vertexColors: true }), { parallax: 0.006, shop: true }));
   cb.shopMats.push(mat);
   return { mat, atlas: a, shops };
 }
+
+/** Opening hours by shop type: [open, close] (close may exceed 24 for after midnight). */
+export const SHOP_HOURS = {
+  cafe: [6.5, 20], tea: [9, 18.5], bar: [16, 26], restaurant: [11, 23.5], deli: [0, 30], grocery: [7, 23],
+  books: [9, 21], flowers: [8, 19], records: [11, 21.5], shop: [10, 20], laundry: [6, 24],
+};
+export function isOpen(hours, h) { if (!hours) return true; const [o, c] = hours; return (h >= o && h < c) || (h + 24 < c); }
 
 const SIDES = {
   n: { nx: 0, nz: -1, ry: Math.PI },
@@ -128,7 +135,8 @@ export function building(cb, b, o) {
         const { g: sg, w: sw } = faceQuad(side, b, y0, y0 + gfH, uvr);
         const S = SIDES[side];
         sg.translate(S.nx * 0.03, 0, S.nz * 0.03);
-        cb.batch.addGeometry(sg, s.mat);
+        const hrs = SHOP_HOURS[s.shops[idx]?.type] || [9, 20];
+        cb.batch.addGeometry(sg, s.mat, new THREE.Color(hrs[0] / 30, hrs[1] / 30, 0.5));
         // spill light on the sidewalk + candidate point light
         const cx = side === 'e' ? b.x1 : side === 'w' ? b.x0 : (b.x0 + b.x1) / 2;
         const cz = side === 's' ? b.z1 : side === 'n' ? b.z0 : (b.z0 + b.z1) / 2;
@@ -136,7 +144,9 @@ export function building(cb, b, o) {
         const hue = shopName?.hue ?? 35;
         const col3 = new THREE.Color().setHSL(hue / 360, 0.75, 0.6);
         cb.pool(cx + S.nx * 1.8, cz + S.nz * 1.8, Math.min(sw * 0.45, 4.5), col3, 0.55, 'shop');
+        cb.pools[cb.pools.length - 1].hours = hrs;
         cb.light(cx + S.nx * 1.2, 2.6, cz + S.nz * 1.2, col3, 14, 9, 'shop');
+        cb.lights[cb.lights.length - 1].hours = hrs;
         // sign cornice
         cornice(cb, side, b, y0 + gfH, 0.35, 0.25, o.signTrim ?? 0x222222);
         if (o.awning) awning(cb, side, b, y0 + gfH - 0.25, o.awning);

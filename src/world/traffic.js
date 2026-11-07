@@ -250,7 +250,7 @@ export class Traffic {
 
   update(dt, t, ctx) {
     const s = ctx.settings;
-    const target = Math.round(this.max * s.traffic);
+    const target = Math.round(this.max * Math.min(1, s.traffic * (ctx.trafficMul ?? 1)));
     if (!this.populated) { this.populate(target, s); this.populated = true; }
     // adjust population gradually
     if (this.vehicles.length > target) {
@@ -301,6 +301,11 @@ export class Traffic {
             }
           }
         }
+        // dawn deliveries: vans double-park for a while with hazard lights
+        if (v.type === 'van' && ctx.rhythmOn && ctx.hour >= 4.8 && ctx.hour <= 8.5) {
+          if (!v.dwell && !v.delivered && this.rng.f() < dt * 0.04 && lane.stops.every((st) => Math.abs(st.c - v.pos) > 22)) { v.dwell = 16 + this.rng.f() * 14; v.delivered = true; }
+        } else v.delivered = false;
+        if (v.dwell > 0) { v.dwell -= dt; limit = 0; v.hazard = true; if (v.dwell <= 0) { v.dwell = 0; v.hazard = false; } }
         // cars merging into this lane from a turn
         for (const o of this.vehicles) {
           if (!o.turn || o === v) continue;
@@ -406,9 +411,10 @@ export class Traffic {
       const bob = Math.sin(t * 9 + v.idx) * 0.004 * Math.min(1, v.speed);
       _m.compose(_p.set(x, L.y + bob, z), _q, _s.set(1, 1, 1));
       for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra', 'trim', 'bumpers']) if (M[k]) M[k].setMatrixAt(v.idx, _m);
+      const blink = v.hazard && Math.sin(t * 9) > 0;
       const br = v.braking > 0.5 ? 2.6 : 1;
-      M.rear.setColorAt(v.idx, _brake.setRGB(br, br, br));
-      M.front.setColorAt(v.idx, _brake.setRGB(1, 1, 1));
+      if (v.hazard) { M.rear.setColorAt(v.idx, blink ? _brake.setRGB(4, 9, 0) : _brake.setRGB(0.4, 0.4, 0.4)); M.front.setColorAt(v.idx, blink ? _brake.setRGB(1.6, 0.9, 0.1) : _brake.setRGB(0.7, 0.7, 0.7)); }
+      else { M.rear.setColorAt(v.idx, _brake.setRGB(br, br, br)); M.front.setColorAt(v.idx, _brake.setRGB(1, 1, 1)); }
       // beams
       if (hl > 0.05 && d < 90 && v.beam >= 0) {
         const fx = Math.cos(ry), fz = -Math.sin(ry);

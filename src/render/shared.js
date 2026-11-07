@@ -38,6 +38,8 @@ export const U = {
   uPoolA: { value: Array.from({ length: 40 }, () => new THREE.Vector4(0, 0, 1, 0)) },
   uPoolC: { value: Array.from({ length: 40 }, () => new THREE.Vector3()) },
   uPoolGain: { value: 1 },
+  uHour: { value: 20 },
+  uWinFrac: { value: 1 },
 };
 export const POOL_COUNT = 40;
 
@@ -210,12 +212,12 @@ export function patchGround(mat, { puddleScale = 1, taps = 5 } = {}) {
  * Building façades: the map's alpha channel marks glass. Glass gets a fake environment
  * reflection (sky, city lights, lightning, rainbow) and walls receive a faint rainbow wash.
  */
-export function patchFacade(mat, { parallax = 0.045 } = {}) {
+export function patchFacade(mat, { parallax = 0.045, shop = false } = {}) {
   mat.onBeforeCompile = (shader) => {
     addUniforms(shader);
     injectVertex(shader);
     shader.fragmentShader = shader.fragmentShader
-      .replace('#include <common>', '#include <common>\n' + VERT_PARS + GLSL_COMMON + 'uniform float uReflWindow, uWetness;\n')
+      .replace('#include <common>', '#include <common>\n' + VERT_PARS + GLSL_COMMON + 'uniform float uReflWindow, uWetness, uHour, uWinFrac;\n')
       .replace('#include <map_fragment>', /* glsl */`
         float raGlass = 0.0;
         #ifdef USE_MAP
@@ -224,7 +226,18 @@ export function patchFacade(mat, { parallax = 0.045 } = {}) {
           raGlass = raS.a;
         #endif
         diffuseColor.rgb *= mix(1.0, 0.82, uWetness * (1.0 - raGlass));
+        float raOpen = 1.0;
+        ${shop ? `
+        {
+          float oH = vColor.r * 30.0, cH = vColor.g * 30.0;
+          raOpen = ((uHour >= oH && uHour < cH) || (uHour + 24.0 < cH)) ? 1.0 : 0.0;
+          // closed shops pull down a ribbed metal shutter over the glass
+          float rib = 0.82 + 0.18 * step(0.5, fract(vMapUv.y * 70.0));
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.36, 0.37, 0.39) * rib, raGlass * (1.0 - raOpen));
+          raGlass *= raOpen;
+        }` : ''}
       `)
+      .replace('#include <color_fragment>', shop ? '' : '#include <color_fragment>')
       .replace('#include <roughnessmap_fragment>', /* glsl */`
         #include <roughnessmap_fragment>
         roughnessFactor = mix(roughnessFactor, 0.12, raGlass);
@@ -246,6 +259,10 @@ export function patchFacade(mat, { parallax = 0.045 } = {}) {
           // soft shadowed reveal near the frame edge
           vec4 raE0 = texture2D(emissiveMap, vEmissiveMapUv);
           totalEmissiveRadiance *= mix(raE0.rgb, emissiveColor.rgb, raGlass) * (0.8 + 0.2 * raGlass);
+          ${shop ? 'totalEmissiveRadiance *= mix(0.05, 1.0, raOpen);' : `
+          // households go to bed: each window cell has its own bedtime
+          float raCell = raHash12(floor(vRaWPos.xz / 2.6) + floor(vRaWPos.y / 3.2) * 17.31);
+          totalEmissiveRadiance *= smoothstep(raCell - 0.03, raCell + 0.03, uWinFrac);`}
         }
         #endif
       `)
@@ -261,7 +278,7 @@ export function patchFacade(mat, { parallax = 0.045 } = {}) {
         }
       `);
   };
-  mat.customProgramCacheKey = () => 'ra-facade-' + parallax;
+  mat.customProgramCacheKey = () => 'ra-facade-' + parallax + (shop ? '-shop' : '');
   return mat;
 }
 
