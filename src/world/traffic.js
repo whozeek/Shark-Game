@@ -28,11 +28,12 @@ export class Traffic {
     this.lanes = [];
     const bodyMat = patchGlossy(new THREE.MeshStandardMaterial({ roughness: 0.32, metalness: 0.45 }), { strengthUniform: 'uReflCar', base: 0.08, rainbowAmt: 0.25 });
     const glassMat = patchGlossy(new THREE.MeshStandardMaterial({ color: 0x0b0f15, roughness: 0.05, metalness: 0.5 }), { strengthUniform: 'uReflCar', base: 0.3, rainbowAmt: 0.45 });
-    const rubber = new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.9 });
+    const rubber = new THREE.MeshStandardMaterial({ color: 0x1c1d20, roughness: 0.8 });
+    const chrome = patchGlossy(new THREE.MeshStandardMaterial({ color: 0xc8ccd2, roughness: 0.25, metalness: 0.9 }), { strengthUniform: 'uReflCar', base: 0.4, rainbowAmt: 0.2 });
     this.headMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 1, 1) });
     this.tailMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 1, 1) });
     this.extraMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 1, 1) });
-    this.mats = [bodyMat, glassMat, rubber, this.headMat, this.tailMat, this.extraMat];
+    this.mats = [bodyMat, glassMat, rubber, chrome, this.headMat, this.tailMat, this.extraMat];
     this.meshes = {};
     const perType = { sedan: max, taxi: max, suv: max, van: Math.ceil(max / 3), bus: Math.ceil(max / 6) };
     this.capacity = perType;
@@ -52,6 +53,7 @@ export class Traffic {
       this.meshes[t] = {
         body: mk(p.body, bodyMat, true), glass: mk(p.glass, glassMat), wheels: mk(p.wheels, rubber),
         front: mk(p.front, this.headMat, true), rear: mk(p.rear, this.tailMat, true), extra: mk(p.extra, this.extraMat, true),
+        trim: mk(p.trim, chrome), bumpers: mk(p.bumpers, rubber),
         free: Array.from({ length: n }, (_, i) => n - 1 - i), parts: p,
       };
     }
@@ -100,6 +102,78 @@ export class Traffic {
     this.allowBus = def.bus !== false;
     this.allowBikes = def.bikes !== false;
     this.populated = false;
+    // which cross-street lanes a car can turn onto at each intersection (lane-correct turns only)
+    const vec = (L) => (L.axis === 'x' ? [L.dir, 0] : [0, L.dir]);
+    const posOf = (L) => (L.axis === 'x' ? [0, L.fixed] : [L.fixed, 0]);
+    for (const L of this.lanes) {
+      L.turnOpts = [];
+      const h = vec(L), r = [-h[1], h[0]];
+      const street = this.lanes.filter((o) => o.axis === L.axis && Math.abs(o.fixed - L.fixed) < 12);
+      const same = street.filter((o) => o.dir === L.dir);
+      const twoWay = street.some((o) => o.dir !== L.dir);
+      const sideVal = (o) => { const p = posOf(o); return p[0] * r[0] + p[1] * r[1]; };
+      const rightmost = same.every((o) => sideVal(o) <= sideVal(L) + 0.01);
+      const leftmost = same.every((o) => sideVal(o) >= sideVal(L) - 0.01);
+      for (const stop of L.stops) {
+        const cross = this.lanes.filter((T) => T.axis !== L.axis && Math.abs(T.fixed - stop.c) < stop.hw - 1.5 && (T.kinds || ['car']).includes('car'));
+        const lanes = [];
+        for (const want of [1, -1]) { // 1 = right turn, -1 = left turn
+          if (want === 1 && !rightmost) continue;
+          if (want === -1 && (twoWay || !leftmost)) continue;
+          const cands = cross.filter((T) => { const t = vec(T); return t[0] * r[0] * want + t[1] * r[1] * want > 0.5; });
+          if (!cands.length) continue;
+          // enter the lane nearest the corner we came from
+          const along = (T) => { const p = posOf(T); return p[0] * h[0] + p[1] * h[1]; };
+          lanes.push(cands.reduce((a, b) => (along(b) < along(a) ? b : a)));
+        }
+        if (lanes.length) L.turnOpts.push({ c: stop.c, lanes });
+      }
+    }
+  }
+
+  /** World position and heading of a vehicle (on a lane or mid-turn). */
+  pose(v) {
+    if (v.turn) return v.turn.p;
+    const L = v.lane;
+    return {
+      x: L.axis === 'x' ? v.pos : L.fixed, z: L.axis === 'x' ? L.fixed : v.pos,
+      ry: L.axis === 'x' ? (L.dir > 0 ? 0 : Math.PI) : (L.dir > 0 ? -Math.PI / 2 : Math.PI / 2),
+    };
+  }
+
+  /** Decide on (and possibly start) a turn for a car travelling on lane L. Returns true if it left the lane. */
+  considerTurn(v, L) {
+    if (v.type === 'bike' || v.type === 'bus') return false;
+    const R = 7.5;
+    if (!v.plan) {
+      for (const o of L.turnOpts) {
+        const ahead = (o.c - v.pos) * L.dir;
+        if (ahead < 18 || ahead > 60 || v.decided === o.c) continue;
+        v.decided = o.c;
+        if (this.rng.f() < this.turnRate) {
+          // prefer the cross-street lane on the near side for right turns, any for left turns
+          v.plan = { c: o.c, T: this.rng.pick(o.lanes) };
+        }
+        break;
+      }
+      return false;
+    }
+    const T = v.plan.T;
+    const sAlong = T.fixed - L.dir * R;
+    const toStart = (sAlong - v.pos) * L.dir;
+    if (toStart > 0) return false;
+    if (toStart < -2.5) { v.plan = null; return false; }
+    const eAlong = L.fixed + T.dir * R;
+    const clear = T.cars.every((c) => Math.abs(c.pos - eAlong) > 10) && !this.vehicles.some((c) => c.turn && c.turn.T === T && c !== v);
+    if (!clear) { v.plan = null; return false; }
+    // quadratic Bezier from the current lane into the new one, through the lanes' crossing point
+    const P = (along, lane) => lane.axis === 'x' ? [along, lane.fixed] : [lane.fixed, along];
+    const S = P(v.pos, L), C = L.axis === 'x' ? [T.fixed, L.fixed] : [L.fixed, T.fixed], E = P(eAlong, T);
+    let len = 0, prev = S;
+    for (let k = 1; k <= 10; k++) { const q = bez(S, C, E, k / 10); len += Math.hypot(q[0] - prev[0], q[1] - prev[1]); prev = q; }
+    v.turn = { S, C, E, t: 0, len, T, eAlong, p: { ...this.pose(v) } };
+    v.plan = null;
+    return true;
   }
 
   pickType(lane, s) {
@@ -127,10 +201,11 @@ export class Traffic {
     } else {
       const M = this.meshes[v.type];
       M.free.push(v.idx);
-      for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra']) if (M[k]) M[k].setMatrixAt(v.idx, ZERO);
+      for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra', 'trim', 'bumpers']) if (M[k]) M[k].setMatrixAt(v.idx, ZERO);
     }
     if (v.beam >= 0) { this.beams.setMatrixAt(v.beam * 2, ZERO); this.beams.setMatrixAt(v.beam * 2 + 1, ZERO); this.beamFree.push(v.beam); v.beam = -1; }
     if (v.lane) v.lane.cars = v.lane.cars.filter((c) => c !== v);
+    v.turn = null; v.plan = null;
   }
 
   spawn(lane, pos, s) {
@@ -192,6 +267,9 @@ export class Traffic {
     if (ctx.frozen) { this.writeMatrices(ctx, 0); return; }
     const sig = this.signals;
     const sp = s.trafficSpeed;
+    this.turnRate = 0.35;
+    const turners = [];
+    const crossingPeds = (ctx.peds || []).filter((a) => a.mode === 'walk' && a.edge?.kind === 'cross');
     for (const lane of this.lanes) {
       const cars = lane.cars;
       cars.sort((a, b) => (b.pos - a.pos) * lane.dir);
@@ -223,8 +301,18 @@ export class Traffic {
             }
           }
         }
-        // people standing in the roadway (the player / stroll)
-        for (const p of ctx.obstacles) {
+        // cars merging into this lane from a turn
+        for (const o of this.vehicles) {
+          if (!o.turn || o === v) continue;
+          const op = o.turn.p;
+          const along = lane.axis === 'x' ? op.x : op.z, perp = lane.axis === 'x' ? op.z : op.x;
+          if (Math.abs(perp - lane.fixed) > 2.6) continue;
+          const d = (along - front) * lane.dir;
+          if (d < -1 || d > 18) continue;
+          limit = Math.min(limit, Math.sqrt(Math.max(0, 2 * 4 * (d - 2.5))));
+        }
+        // people standing in the roadway (the player / stroll) and anyone still on a crosswalk
+        for (const p of ctx.obstacles.concat(crossingPeds)) {
           const along = lane.axis === 'x' ? p.x : p.z;
           const perp = lane.axis === 'x' ? p.z : p.x;
           if (Math.abs(perp - lane.fixed) > 2.0) continue;
@@ -238,6 +326,7 @@ export class Traffic {
         v.speed = Math.max(0, v.speed);
         v.braking = (v.speed < prev - 0.01 || v.speed < 0.2) ? 1 : Math.max(0, v.braking - dt * 3);
         v.pos += lane.dir * v.speed * dt;
+        if (this.considerTurn(v, lane)) { turners.push([v, lane]); continue; }
         // wrap at the end of the lane
         const past = lane.dir > 0 ? v.pos > lane.to : v.pos < lane.from;
         if (past) {
@@ -247,12 +336,38 @@ export class Traffic {
         }
       }
     }
+    for (const [v, lane] of turners) lane.cars = lane.cars.filter((c) => c !== v);
+    // cars part-way through a turn: slow, smooth, and they yield to anyone on the crosswalk
+    const people = (ctx.obstacles || []).concat(ctx.peds || []);
+    for (const v of this.vehicles) {
+      const tr = v.turn; if (!tr) continue;
+      const p = tr.p;
+      const hx = Math.cos(p.ry), hz = -Math.sin(p.ry);
+      let limit = Math.min(5.5, tr.T.speed * sp * 0.6);
+      for (const o of people) {
+        const dx = o.x - p.x, dz = o.z - p.z;
+        const ahead = dx * hx + dz * hz;
+        if (ahead > 0 && ahead < v.len / 2 + 5 && Math.abs(dx * -hz + dz * hx) < 1.8) limit = 0;
+      }
+      for (const o of this.vehicles) {
+        if (o === v) continue;
+        const q = this.pose(o);
+        const dx = q.x - p.x, dz = q.z - p.z;
+        const ahead = dx * hx + dz * hz;
+        if (ahead > 0 && ahead < v.len / 2 + o.len / 2 + 3 && Math.abs(dx * -hz + dz * hx) < 2.0) limit = 0;
+      }
+      v.speed = limit > v.speed ? Math.min(limit, v.speed + 2 * dt) : Math.max(limit, v.speed - 7 * dt);
+      v.braking = limit < v.speed + 0.1 && limit < 1 ? 1 : 0;
+      tr.t = Math.min(1, tr.t + v.speed * dt / tr.len);
+      const q = bez(tr.S, tr.C, tr.E, tr.t), d = bezD(tr.S, tr.C, tr.E, Math.min(0.999, Math.max(0.001, tr.t)));
+      p.x = q[0]; p.z = q[1]; p.ry = Math.atan2(-d[1], d[0]);
+      if (tr.t >= 1) { v.turn = null; v.lane = tr.T; v.pos = tr.eAlong; tr.T.cars.push(v); }
+    }
     this.writeMatrices(ctx, dt, t);
   }
   dist(v, cam) {
-    const L = v.lane;
-    const x = L.axis === 'x' ? v.pos : L.fixed, z = L.axis === 'x' ? L.fixed : v.pos;
-    return Math.hypot(x - cam.x, z - cam.z);
+    const p = this.pose(v);
+    return Math.hypot(p.x - cam.x, p.z - cam.z);
   }
   writeMatrices(ctx, dt, t = 0) {
     const s = ctx.settings;
@@ -267,8 +382,7 @@ export class Traffic {
     this.group.visible = !hide;
     for (const v of this.vehicles) {
       const L = v.lane;
-      const x = L.axis === 'x' ? v.pos : L.fixed, z = L.axis === 'x' ? L.fixed : v.pos;
-      const ry = L.axis === 'x' ? (L.dir > 0 ? 0 : Math.PI) : (L.dir > 0 ? -Math.PI / 2 : Math.PI / 2);
+      const { x, z, ry } = this.pose(v);
       const d = Math.hypot(x - ctx.cam.x, z - ctx.cam.z);
       const far = d > 160;
       _e.set(0, ry, 0); _q.setFromEuler(_e);
@@ -288,10 +402,10 @@ export class Traffic {
         continue;
       }
       const M = this.meshes[v.type];
-      if (far) { for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra']) if (M[k]) M[k].setMatrixAt(v.idx, ZERO); if (v.beam >= 0) { this.beams.setMatrixAt(v.beam * 2, ZERO); this.beams.setMatrixAt(v.beam * 2 + 1, ZERO); } continue; }
+      if (far) { for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra', 'trim', 'bumpers']) if (M[k]) M[k].setMatrixAt(v.idx, ZERO); if (v.beam >= 0) { this.beams.setMatrixAt(v.beam * 2, ZERO); this.beams.setMatrixAt(v.beam * 2 + 1, ZERO); } continue; }
       const bob = Math.sin(t * 9 + v.idx) * 0.004 * Math.min(1, v.speed);
       _m.compose(_p.set(x, L.y + bob, z), _q, _s.set(1, 1, 1));
-      for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra']) if (M[k]) M[k].setMatrixAt(v.idx, _m);
+      for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra', 'trim', 'bumpers']) if (M[k]) M[k].setMatrixAt(v.idx, _m);
       const br = v.braking > 0.5 ? 2.6 : 1;
       M.rear.setColorAt(v.idx, _brake.setRGB(br, br, br));
       M.front.setColorAt(v.idx, _brake.setRGB(1, 1, 1));
@@ -311,7 +425,7 @@ export class Traffic {
     this.dynPools = pools.slice(0, 10);
     for (const t2 of TYPES) {
       const M = this.meshes[t2];
-      for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra']) if (M[k]) { M[k].instanceMatrix.needsUpdate = true; if (M[k].instanceColor) M[k].instanceColor.needsUpdate = true; }
+      for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra', 'trim', 'bumpers']) if (M[k]) { M[k].instanceMatrix.needsUpdate = true; if (M[k].instanceColor) M[k].instanceColor.needsUpdate = true; }
     }
     for (const k of ['frame', 'rider', 'helmet', 'leg', 'lamp']) this.bike[k].instanceMatrix.needsUpdate = true;
     this.beams.instanceMatrix.needsUpdate = true;
@@ -320,8 +434,7 @@ export class Traffic {
   nearest(cam, n = 3) {
     const out = [];
     for (const v of this.vehicles) {
-      const L = v.lane;
-      const x = L.axis === 'x' ? v.pos : L.fixed, z = L.axis === 'x' ? L.fixed : v.pos;
+      const { x, z } = this.pose(v);
       out.push({ x, z, speed: v.speed, d: Math.hypot(x - cam.x, z - cam.z), type: v.type });
     }
     out.sort((a, b) => a.d - b.d);
@@ -330,8 +443,7 @@ export class Traffic {
   /** Is any vehicle within the given rectangle around a crossing? */
   occupied(x0, z0, x1, z1, margin = 0) {
     for (const v of this.vehicles) {
-      const L = v.lane;
-      const x = L.axis === 'x' ? v.pos : L.fixed, z = L.axis === 'x' ? L.fixed : v.pos;
+      const { x, z } = this.pose(v);
       if (x > x0 - margin - v.len / 2 && x < x1 + margin + v.len / 2 && z > z0 - margin - v.len / 2 && z < z1 + margin + v.len / 2 && v.speed > 0.3) return true;
     }
     return false;
@@ -345,6 +457,8 @@ export class Traffic {
   }
 }
 const _brake = new THREE.Color();
+function bez(a, c, b, t) { const u = 1 - t; return [u * u * a[0] + 2 * u * t * c[0] + t * t * b[0], u * u * a[1] + 2 * u * t * c[1] + t * t * b[1]]; }
+function bezD(a, c, b, t) { return [2 * (1 - t) * (c[0] - a[0]) + 2 * t * (b[0] - c[0]), 2 * (1 - t) * (c[1] - a[1]) + 2 * t * (b[1] - c[1])]; }
 const _warm = new THREE.Color(1, 0.9, 0.75);
 
 function mergeG(geos) {

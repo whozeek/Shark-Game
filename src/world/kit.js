@@ -2,7 +2,7 @@
 // City modules combine these with their own landmarks so each place keeps a distinct identity.
 import * as THREE from 'three';
 import { patchGround, patchFacade, patchGlossy, patchWash } from '../render/shared.js';
-import { makeAsphalt, makePaving, makeStripes, makeFacade, makeShopAtlas, makeNeonAtlas } from '../render/textures.js';
+import { makeAsphalt, makePaving, makeStripes, makeFacade, makeShopAtlas, makeNeonAtlas, makeLeaves } from '../render/textures.js';
 import { worldUVBox, PRIM, compose } from './batcher.js';
 import { vehicleParts, CAR_COLORS } from './vehicleGeo.js';
 
@@ -23,7 +23,8 @@ export function createMaterials(cb, q, opt = {}) {
   M.glass = cb.track(patchGlossy(new THREE.MeshStandardMaterial({ color: 0x0d131c, roughness: 0.08, metalness: 0.3 }), { strengthUniform: 'uReflWindow', base: 0.25, rainbowAmt: 0.35 }));
   M.bulb = cb.track(new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 1, 1).multiplyScalar(6), vertexColors: true }));
   M.bulbSoft = cb.track(new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 1, 1).multiplyScalar(2.2), vertexColors: true }));
-  M.leaf = cb.track(patchWash(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.85, vertexColors: true, flatShading: true }), 0.04));
+  M.leaf = cb.track(patchWash(new THREE.MeshStandardMaterial({ map: T(makeLeaves(21, '#c8d8b8', null)), color: 0xffffff, roughness: 0.8, vertexColors: true }), 0.04));
+  M.leaf.map.repeat.set(2, 2);
   M.bark = cb.track(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95, vertexColors: true }));
   M.fabric = cb.track(patchWash(new THREE.MeshStandardMaterial({ map: T(makeStripes()), roughness: 0.9, vertexColors: true, side: THREE.DoubleSide }), 0.05));
   M.fabricSolid = cb.track(patchWash(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, vertexColors: true, side: THREE.DoubleSide }), 0.05));
@@ -45,6 +46,13 @@ export function createMaterials(cb, q, opt = {}) {
 }
 
 /** Build a set of façade materials for a city from texture specs. */
+/** Textured, rain-darkened grass/moss for parks, banks and gardens. */
+export function grassMaterial(cb, tint = 0x5a7a48) {
+  const tex = cb.track(makePaving(31, { kind: 'grass', base: '#3e5a32' }));
+  tex.repeat.set(1, 1);
+  return cb.track(patchGround(new THREE.MeshStandardMaterial({ map: tex, color: tint, roughness: 0.95, vertexColors: true }), { puddleScale: 0.25, taps: cb.q.reflTaps }));
+}
+
 export function facadeMaterials(cb, specs) {
   return specs.map((spec, i) => {
     const f = makeFacade({ seed: (spec.seed ?? 100) + i * 17, ...spec });
@@ -59,7 +67,7 @@ export function facadeMaterials(cb, specs) {
 export function shopMaterial(cb, shops, seed, opts) {
   const a = makeShopAtlas(shops, seed, opts);
   cb.track(a.map); cb.track(a.emissive);
-  const mat = cb.track(patchFacade(new THREE.MeshStandardMaterial({ map: a.map, emissiveMap: a.emissive, emissive: 0xffffff, emissiveIntensity: 1.2, roughness: 0.7 })));
+  const mat = cb.track(patchFacade(new THREE.MeshStandardMaterial({ map: a.map, emissiveMap: a.emissive, emissive: 0xffffff, emissiveIntensity: 1.2, roughness: 0.7 }), { parallax: 0.006 }));
   cb.shopMats.push(mat);
   return { mat, atlas: a, shops };
 }
@@ -427,11 +435,12 @@ export function tree(cb, x, z, o = {}) {
   const trunkH = (kind === 'willow' ? 2.6 : kind === 'cherry' ? 2.0 : 3.3) * s;
   cb.batch.prim('cyl', M.bark, x, trunkH / 2, z, 0.26 * s, trunkH, 0.26 * s, 0x4a3a2c);
   const baseCol = o.color ?? (kind === 'cherry' ? 0xf6bfd2 : kind === 'pine' ? 0x2d4a2f : 0x5a8a45);
-  const blobs = kind === 'willow' ? 6 : 10;
+  const blobs = kind === 'willow' ? 8 : 14;
   for (let k = 0; k < blobs; k++) {
-    const r = (kind === 'cherry' ? rng.range(0.7, 1.1) : rng.range(0.75, 1.25)) * s;
-    const bx = x + rng.range(-1.2, 1.2) * s, bz = z + rng.range(-1.2, 1.2) * s, by = trunkH + rng.range(0.9, 2.8) * s;
-    const c = new THREE.Color(baseCol).offsetHSL(rng.range(-0.02, 0.02), 0, rng.range(-0.06, 0.06));
+    const r = (kind === 'cherry' ? rng.range(0.65, 1.0) : rng.range(0.7, 1.15)) * s;
+    const ang = rng.f() * Math.PI * 2, rad = Math.sqrt(rng.f()) * 1.7 * s;
+    const bx = x + Math.cos(ang) * rad, bz = z + Math.sin(ang) * rad, by = trunkH + (0.6 + (1 - rad / (1.8 * s)) * 1.8 + rng.range(0, 0.6)) * s;
+    const c = new THREE.Color(baseCol).offsetHSL(rng.range(-0.03, 0.03), rng.range(-0.05, 0.05), rng.range(-0.08, 0.08) + (by > trunkH + 2 * s ? 0.05 : -0.03));
     const g = blobGeo(rng.int(0, 2));
     g.applyMatrix4(compose(bx, by, bz, r, r * 0.85, r, 0, rng.f() * 6, 0));
     cb.batch.addGeometry(g, M.leaf, c);
@@ -615,6 +624,8 @@ export function parkedCar(cb, x, z, yaw, type = 'sedan', color = null) {
   cb.batch.addGeometry(parts.rear.clone().applyMatrix4(m), M.paint, 0x5a0e0e);
   cb.batch.addGeometry(parts.front.clone().applyMatrix4(m), M.paint, 0xbfc4c9);
   if (parts.extra) cb.batch.addGeometry(parts.extra.clone().applyMatrix4(m), M.paint, 0xf2e6b0);
+  if (parts.trim) cb.batch.addGeometry(parts.trim.clone().applyMatrix4(m), M.metal, 0xc8ccd2);
+  if (parts.bumpers) cb.batch.addGeometry(parts.bumpers.clone().applyMatrix4(m), M.rubber, 0x222326);
   cb.col.addBox(x, z, parts.length / 2, parts.width / 2, yaw);
   cb.parked.push({ x, z, yaw });
 }

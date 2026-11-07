@@ -103,7 +103,7 @@ export class Atmosphere {
     const rig = this.rig;
     rig.hemi.color.copy(top).lerp(new THREE.Color(0.6, 0.65, 0.8), 0.5);
     rig.hemi.groundColor.copy(new THREE.Color(0.28, 0.24, 0.2)).add(city.clone().multiplyScalar(0.5));
-    rig.hemi.intensity = 0.25 + ambient * 2.2 + night * 0.35 + U.uFlash.value * 4;
+    rig.hemi.intensity = 0.32 + ambient * 2.2 + night * 0.55 + U.uFlash.value * 4;
     const sunUp = sunDir.y > 0;
     if (sunUp) {
       rig.dir.color.copy(su.uSunCol.value).lerp(new THREE.Color(1, 1, 1), 0.5);

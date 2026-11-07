@@ -4,8 +4,7 @@ import * as THREE from 'three';
 import { buildGrid } from '../world/cityBase.js';
 import {
   createMaterials, facadeMaterials, shopMaterial, building, perimeterLots, streetlight, tree,
-  trashCan, bench, trafficSignal, parkedCar, neonMaterial, neonSign, cafeSet, SIDES,
-} from '../world/kit.js';
+  trashCan, bench, trafficSignal, parkedCar, neonMaterial, neonSign, cafeSet, SIDES, grassMaterial } from '../world/kit.js';
 import { addSkyline } from '../world/skyline.js';
 import { makePaving } from '../render/textures.js';
 import { patchGround } from '../render/shared.js';
@@ -147,7 +146,7 @@ function oceanfront(cb, layout) {
   const oceanX = layout.xs[1].x + layout.xs[1].road / 2; // east curb
   const parkX0 = oceanX + layout.xs[1].walk, parkX1 = 50, beachX1 = 112;
   const z0 = -260, z1 = 260;
-  const grass = cb.track(new THREE.MeshStandardMaterial({ color: 0x2f4a2c, roughness: 1 }));
+  const grass = grassMaterial(cb, 0x6a9a58);
   cb.addGround(grass, parkX0, z0, parkX1, z1, 0.14, 4);
   const sandTex = cb.track(makePaving(8, { kind: 'sand', base: '#cbb796' }));
   const sand = cb.track(patchGround(new THREE.MeshStandardMaterial({ map: sandTex, roughness: 0.95, vertexColors: true }), { puddleScale: 0.4, taps: cb.q.reflTaps }));

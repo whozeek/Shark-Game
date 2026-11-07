@@ -58,7 +58,7 @@ export class WalkGraph {
 
 /** Global traffic signal timing shared by cars, pedestrians and the stroll. */
 export class Signals {
-  constructor(cycle = 34) { this.cycle = cycle; this.t = 0; this.disabled = false; }
+  constructor(cycle = 44) { this.cycle = cycle; this.t = 0; this.disabled = false; }
   update(dt) { this.t = (this.t + dt) % this.cycle; }
   // phase: 0..cycle. X-axis green for first ~45%, then yellow, all red, Z green, yellow, all red.
   state(axis) {
@@ -77,7 +77,7 @@ export class Signals {
     return tt < g ? g - tt : 0;
   }
   /** Pedestrians crossing along `axis` may start when that axis' traffic is green. */
-  canWalk(axis, need = 6) { return this.disabled || this.greenLeft(axis) > need; }
+  canWalk(axis, need = 6) { return this.disabled || this.greenLeft(axis) > Math.min(need, this.cycle * 0.42 * 0.8); }
 }
 
 export class CityBuilder {
@@ -89,7 +89,7 @@ export class CityBuilder {
     this.batch = new Batcher(70);
     this.col = new CollisionWorld(8);
     this.graph = new WalkGraph();
-    this.signals = new Signals(def.signalCycle || 34);
+    this.signals = new Signals(def.signalCycle || 44);
     this.signals.disabled = !!def.noSignals;
     this.lanes = [];
     this.lights = []; // point light candidates {x,y,z,color,intensity,distance}

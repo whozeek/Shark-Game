@@ -4,8 +4,7 @@ import * as THREE from 'three';
 import { buildGrid } from '../world/cityBase.js';
 import {
   createMaterials, facadeMaterials, shopMaterial, building, stoop, perimeterLots, streetlight, tree, hydrant,
-  trashCan, bench, planter, newsBox, cafeSet, busShelter, trafficSignal, parkedCar, neonMaterial, neonSign,
-} from '../world/kit.js';
+  trashCan, bench, planter, newsBox, cafeSet, busShelter, trafficSignal, parkedCar, neonMaterial, neonSign, grassMaterial } from '../world/kit.js';
 import { CAR_COLORS, TAXI_YELLOW } from '../world/vehicleGeo.js';
 import { addSkyline } from '../world/skyline.js';
 
@@ -191,7 +190,7 @@ function pocketPark(cb, blk) {
   const { x0, x1, z0, z1 } = blk;
   const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
   // lawn & paths
-  const grassMat = cb.track(new THREE.MeshStandardMaterial({ color: 0x2c4a2a, roughness: 1 }));
+  const grassMat = grassMaterial(cb, 0x5a7a48);
   cb.addGround(grassMat, x0 + 1, z0 + 1, x1 - 1, z1 - 1, 0.17, 4);
   cb.addGround(M.sidewalk, cx - 1.6, z0, cx + 1.6, z1, 0.19, 3);
   cb.addGround(M.sidewalk, x0, cz - 1.6, x1, cz + 1.6, 0.191, 3);

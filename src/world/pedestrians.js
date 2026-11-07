@@ -505,6 +505,13 @@ export class Crowd {
       const arr = this.leashGeo.attributes.position.array; if (arr[i * 6 + 1] !== 0) arr.fill(0, i * 6, i * 6 + 6);
     }
   }
+  /** People currently on (or waiting at) a crosswalk — turning cars yield to them. */
+  crossing() {
+    const out = this._cross || (this._cross = []);
+    out.length = 0;
+    for (const a of this.agents) if (a.alive && (a.edge?.kind === 'cross' || a.mode === 'wait')) out.push(a);
+    return out;
+  }
   /** People near a point (for the stroll and audio). */
   countNear(x, z, r) { let n = 0; for (const a of this.agents) if (a.alive && Math.abs(a.x - x) < r && Math.abs(a.z - z) < r) n++; return n; }
   blockedAhead(x, z, dx, dz, dist = 1.6) {

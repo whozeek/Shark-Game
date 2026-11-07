@@ -335,7 +335,7 @@ export class App {
     const onRoad = cb.groundAt && cb.groundAt(this.player.x, this.player.z) < 0.05;
     const crowd = eng.crowd, traffic = eng.traffic;
     if (crowd) crowd.update(frozen ? 0 : dt, t, { cam: camPos, player: playerPos, rain: s.rainIntensity, frozen, hidePeople: photo && P.hidePeople, viewDist: eng.quality.viewDist });
-    if (traffic) traffic.update(frozen ? 0 : dt, t, { settings: s, cam: camPos, obstacles: onRoad && !photo ? [playerPos] : [], night: atm.night, haze: Math.min(1, s.fog * 0.6 + s.rainIntensity * 0.6), frozen, hideCars: photo && P.hideCars });
+    if (traffic) traffic.update(frozen ? 0 : dt, t, { settings: s, cam: camPos, obstacles: onRoad && !photo ? [playerPos] : [], peds: crowd ? crowd.crossing() : [], night: atm.night, haze: Math.min(1, s.fog * 0.6 + s.rainIntensity * 0.6), frozen, hideCars: photo && P.hideCars });
     for (const a of cb.animated) a.update(dt, t);
     // ---- lighting & atmosphere
     const rig = eng.rig;

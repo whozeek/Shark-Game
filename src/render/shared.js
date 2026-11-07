@@ -210,7 +210,7 @@ export function patchGround(mat, { puddleScale = 1, taps = 5 } = {}) {
  * Building façades: the map's alpha channel marks glass. Glass gets a fake environment
  * reflection (sky, city lights, lightning, rainbow) and walls receive a faint rainbow wash.
  */
-export function patchFacade(mat) {
+export function patchFacade(mat, { parallax = 0.045 } = {}) {
   mat.onBeforeCompile = (shader) => {
     addUniforms(shader);
     injectVertex(shader);
@@ -229,6 +229,26 @@ export function patchFacade(mat) {
         #include <roughnessmap_fragment>
         roughnessFactor = mix(roughnessFactor, 0.12, raGlass);
       `)
+      .replace('#include <emissivemap_fragment>', /* glsl */`
+        #ifdef USE_EMISSIVEMAP
+        {
+          // interior parallax: lit rooms sit behind the glass and shift with the viewing angle
+          vec3 raN0 = normalize(vRaWNrm);
+          vec3 raT = cross(vec3(0.0, 1.0, 0.0), raN0);
+          vec2 raOff = vec2(0.0);
+          if (dot(raT, raT) > 0.01) {
+            raT = normalize(raT);
+            vec3 raVv = normalize(cameraPosition - vRaWPos);
+            float raNd = max(dot(raVv, raN0), 0.3);
+            raOff = -vec2(dot(raVv, raT), raVv.y) / raNd * ${parallax.toFixed(4)} * raGlass;
+          }
+          vec4 emissiveColor = texture2D(emissiveMap, vEmissiveMapUv + raOff);
+          // soft shadowed reveal near the frame edge
+          vec4 raE0 = texture2D(emissiveMap, vEmissiveMapUv);
+          totalEmissiveRadiance *= mix(raE0.rgb, emissiveColor.rgb, raGlass) * (0.8 + 0.2 * raGlass);
+        }
+        #endif
+      `)
       .replace('#include <opaque_fragment>', /* glsl */`
         #include <opaque_fragment>
         {
@@ -241,7 +261,7 @@ export function patchFacade(mat) {
         }
       `);
   };
-  mat.customProgramCacheKey = () => 'ra-facade';
+  mat.customProgramCacheKey = () => 'ra-facade-' + parallax;
   return mat;
 }
 

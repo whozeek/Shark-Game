@@ -74,7 +74,24 @@ export function vehicleParts(type) {
     const extra = type === 'taxi' ? boxAt(-L * 0.1, roof + 0.16, 0, 0.55, 0.22, 0.28) : null;
     out = { body: bodyAll, glass, wheels, front, rear, extra, length: L, width: W, height: roof };
   }
-  for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra']) {
+  // details: bumpers, hubcaps, mirrors, grille and plates
+  {
+    const L = out.length, W = out.width, wr = type === 'bus' ? 0.5 : type === 'suv' ? 0.38 : 0.34;
+    const bump = type === 'bus' ? 0.55 : 0.42;
+    out.bumpers = mergeGeometries([
+      boxAt(L / 2 + 0.03, bump, 0, 0.14, 0.2, W - 0.06), boxAt(-L / 2 - 0.03, bump, 0, 0.14, 0.2, W - 0.06),
+      boxAt(L / 2 + 0.02, bump + 0.22, 0, 0.04, 0.16, W * 0.42), // grille
+      boxAt(0, 0.38, W / 2 + 0.005, L * 0.62, 0.08, 0.02), boxAt(0, 0.38, -W / 2 - 0.005, L * 0.62, 0.08, 0.02), // side skirts
+    ]);
+    const hubs = [];
+    const wx = type === 'bus' ? [3.8, -3.4] : type === 'van' ? [1.6, -1.6] : [L * 0.33, -L * 0.31];
+    const wz = type === 'bus' ? 1.1 : type === 'van' ? 0.85 : W / 2 - 0.12;
+    for (const x of wx) for (const sz of [1, -1]) { const g = new THREE.CylinderGeometry(wr * 0.55, wr * 0.55, 0.04, 10); g.rotateX(Math.PI / 2); g.translate(x, wr, sz * (wz + (type === 'bus' ? 0.16 : 0.13))); hubs.push(g.toNonIndexed()); }
+    if (type !== 'bus') for (const sz of [1, -1]) hubs.push(boxAt(L * 0.16, (out.height + 0.85) / 2 - 0.05, sz * (W / 2 + 0.08), 0.12, 0.1, 0.12));
+    hubs.push(boxAt(-L / 2 - 0.06, bump + 0.16, 0, 0.02, 0.12, 0.34), boxAt(L / 2 + 0.06, bump - 0.02, 0, 0.02, 0.1, 0.3)); // plates
+    out.trim = mergeGeometries(hubs);
+  }
+  for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra', 'trim', 'bumpers']) {
     if (out[k]) {
       let g = out[k].index ? out[k].toNonIndexed() : out[k];
       for (const name of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(name)) g.deleteAttribute(name);
@@ -87,5 +104,5 @@ export function vehicleParts(type) {
   return out;
 }
 
-export const CAR_COLORS = [0x1c1f26, 0xd9d9d6, 0x8a1c22, 0x2a3d5c, 0x5c6066, 0x0f3b2e, 0xb5b5b0, 0x3a2a22, 0x6b7a8f, 0x7d1f3d, 0xe8e2d0, 0x23395b];
+export const CAR_COLORS = [0x23272f, 0xdcdcd8, 0xa3222a, 0x34507a, 0x6c7178, 0x1f5a45, 0xc3c4c0, 0x5a4232, 0x7f90a8, 0x8f2a4a, 0xece6d4, 0x2c4a78, 0xb08a3a, 0x4a6a5a];
 export const TAXI_YELLOW = 0xf2b51b;

@@ -3,7 +3,7 @@
 // canal, small bridges and a quiet garden. Not a reconstruction of any real street.
 import * as THREE from 'three';
 import { buildGrid } from '../world/cityBase.js';
-import { createMaterials, facadeMaterials, shopMaterial, building, perimeterLots, streetlight, tree, bench, SIDES } from '../world/kit.js';
+import { createMaterials, facadeMaterials, shopMaterial, building, perimeterLots, streetlight, tree, bench, SIDES, grassMaterial } from '../world/kit.js';
 import { addHills, addSkyline } from '../world/skyline.js';
 import { makePaving, makeNoren, makeLantern } from '../render/textures.js';
 import { patchGround, patchWash } from '../render/shared.js';
@@ -169,7 +169,7 @@ function canal(cb, blk) {
   const { x0, x1, z0, z1 } = blk;
   const mid = (z0 + z1) / 2, half = 3.2;
   // grassy/stone banks
-  const bank = cb.track(new THREE.MeshStandardMaterial({ color: 0x3a4a34, roughness: 1 }));
+  const bank = grassMaterial(cb, 0x6a7a58);
   cb.addGround(bank, x0, z0, x1, mid - half, 0.08, 4);
   cb.addGround(bank, x0, mid + half, x1, z1, 0.08, 4);
   const water = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0 + 2, half * 2).rotateX(-Math.PI / 2), M.water);
@@ -203,7 +203,7 @@ function garden(cb, blk) {
   const { x0, x1, z0, z1 } = blk;
   const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
   const gravel = cb.track(new THREE.MeshStandardMaterial({ color: 0x8a8478, roughness: 1 }));
-  const moss = cb.track(new THREE.MeshStandardMaterial({ color: 0x2e4a2a, roughness: 1 }));
+  const moss = grassMaterial(cb, 0x5a7a4a);
   cb.addGround(moss, x0, z0, x1, z1, 0.09, 4);
   cb.addGround(gravel, cx - 2, z0, cx + 2, z1, 0.1, 3);
   cb.addGround(gravel, x0, cz - 2, x1, cz + 2, 0.101, 3);
