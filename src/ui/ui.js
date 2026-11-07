@@ -631,7 +631,7 @@ export class UI {
             <kbd>Drag</kbd><span>Look around (mouse, touch or trackpad)</span>
             <kbd>Shift</kbd><span>Walk faster</span>
             <kbd>T</kbd><span>Switch free walk ↔ scenic stroll</span>
-            <kbd>E</kbd><span>Sit / stand / pause at a viewpoint</span>
+            <kbd>E</kbd><span>Sit / stand, take stairs and doors, pause at a viewpoint</span>
             <kbd>U</kbd><span>Open or close umbrella</span>
             <kbd>P</kbd><span>Photo mode (Enter captures)</span>
             <kbd>M</kbd><span>Open settings · <kbd>Esc</kbd> closes</span>

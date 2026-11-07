@@ -30,7 +30,7 @@ const NEON = [{ text: 'Pub', color: '#ffb347' }, { text: 'Coffee', color: '#ff9a
 async function build(cb, step) {
   const M = createMaterials(cb, cb.q, { asphalt: '#2a2a2e', sidewalk: '#8a8884', sidewalkKind: 'tiles' });
   cb.mats = M;
-  cb.walkIns.push({ x: -5, z: 10, kind: 'cafe', name: 'Pressed Coffee House' });
+  cb.walkIns.push({ x: -2, z: 10, kind: 'cafe', name: 'Pressed Coffee House' });
   const F = facadeMaterials(cb, [
     { wall: 'brick', color: '#9a8058', mortar: '#b0a48e', trim: '#f2ede2', lintel: '#e8e2d4', windowStyle: 'tall', bays: 3, bayW: 2.4, floorH: 3.3, bands: false, litRatio: 0.5, seed: 501, frame: '#f2ede2' },
     { wall: 'stucco', color: '#e8e2d4', trim: '#f4f0e6', windowStyle: 'tall', bays: 3, bayW: 2.4, floorH: 3.3, bands: true, bandColor: '#ddd6c6', litRatio: 0.5, seed: 503, frame: '#f4f0e6' },

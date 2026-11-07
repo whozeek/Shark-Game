@@ -6,5 +6,9 @@ export const CITIES = [
   { id: 'la', name: 'Los Angeles', neighborhood: 'Arts District', blurb: 'Wide streets, murals on old warehouses, palms and hills in the haze.', palette: { fog: '#2a2230', accent: '#ff9f6b' }, load: () => import('./la.js').then((m) => m.la) },
   { id: 'miami', name: 'Miami', neighborhood: 'Ocean Drive', blurb: 'Pastel Art Deco hotels, palms, neon and the sound of the sea.', palette: { fog: '#1c2a38', accent: '#ff6fd8' }, load: () => import('./miami.js').then((m) => m.miami) },
   { id: 'kyoto', name: 'Kyoto', neighborhood: 'Canal Lanes', blurb: 'A stylised canal quarter of wooden houses, lanterns, willows and bridges.', palette: { fog: '#1e2420', accent: '#ffcf7a' }, load: () => import('./kyoto.js').then((m) => m.kyoto) },
+  { id: 'london', name: 'London', neighborhood: 'Marylebone Terraces', blurb: 'Georgian terraces, corner pubs, red buses and black cabs in the drizzle.', palette: { fog: '#22262c', accent: '#d8402a' }, load: () => import('./london.js').then((m) => m.london) },
+  { id: 'paris', name: 'Paris', neighborhood: 'Left Bank Boulevards', blurb: 'Haussmann façades, iron balconies, café terraces and plane-tree boulevards.', palette: { fog: '#262430', accent: '#ffcf8a' }, load: () => import('./paris.js').then((m) => m.paris) },
+  { id: 'seoul', name: 'Seoul', neighborhood: 'Neon Alleys', blurb: 'Glowing sign stacks, tent bars and delivery scooters in narrow rainy lanes.', palette: { fog: '#1c1e2c', accent: '#4dffd8' }, load: () => import('./seoul.js').then((m) => m.seoul) },
+  { id: 'amsterdam', name: 'Amsterdam', neighborhood: 'Canal Ring', blurb: 'Gabled canal houses, houseboats, lit bridges and bicycles everywhere.', palette: { fog: '#1e2428', accent: '#ffb86b' }, load: () => import('./amsterdam.js').then((m) => m.amsterdam) },
 ];
 export const cityMeta = (id) => CITIES.find((c) => c.id === id) || CITIES[0];
