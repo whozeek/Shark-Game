@@ -116,13 +116,15 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 109 | 2026-12-02 | 12:00 PM | short | The Library Call | `moraloop_ads/trends/t040_the_library_call.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t040_the_library_call.mp4) |
 | 110 | 2026-12-02 | 12:30 PM | loop short | The Weekend Sitter | `moraloop_ads/loops/l040_the_weekend_sitter.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l040_the_weekend_sitter.mp4) |
 | 111 | 2026-12-03 | 12:00 PM | short | The League Rules | `moraloop_ads/trends/t041_the_league_rules.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t041_the_league_rules.mp4) |
-| 112 | 2026-12-04 | 12:00 PM | short | The Fence Camera | `moraloop_ads/trends/t042_the_fence_camera.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t042_the_fence_camera.mp4) |
-| 113 | 2026-12-05 | 12:00 PM | short | The Late Game | `moraloop_ads/trends/t043_the_late_game.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t043_the_late_game.mp4) |
-| 114 | 2026-12-06 | 12:00 PM | short | The Translator | `moraloop_ads/trends/t044_the_translator.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t044_the_translator.mp4) |
-| 115 | 2026-12-07 | 12:00 PM | short | The Store Brand | `moraloop_ads/trends/t045_the_store_brand.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t045_the_store_brand.mp4) |
-| 116 | 2026-12-08 | 12:00 PM | short | The Callback | `moraloop_ads/trends/t046_the_callback.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t046_the_callback.mp4) |
-| 117 | 2026-12-09 | 12:00 PM | short | The Honest Survey | `moraloop_ads/trends/t047_the_honest_survey.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t047_the_honest_survey.mp4) |
-| 118 | 2026-12-10 | 12:00 PM | short | The Handmade Gifts | `moraloop_ads/trends/t048_the_handmade_gifts.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t048_the_handmade_gifts.mp4) |
+| 112 | 2026-12-03 | 12:30 PM | loop short | The Pay Tomorrow | `moraloop_ads/loops/l041_the_pay_tomorrow.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l041_the_pay_tomorrow.mp4) |
+| 113 | 2026-12-04 | 12:00 PM | short | The Fence Camera | `moraloop_ads/trends/t042_the_fence_camera.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t042_the_fence_camera.mp4) |
+| 114 | 2026-12-04 | 12:30 PM | loop short | The Instant Reply | `moraloop_ads/loops/l042_the_instant_reply.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l042_the_instant_reply.mp4) |
+| 115 | 2026-12-05 | 12:00 PM | short | The Late Game | `moraloop_ads/trends/t043_the_late_game.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t043_the_late_game.mp4) |
+| 116 | 2026-12-06 | 12:00 PM | short | The Translator | `moraloop_ads/trends/t044_the_translator.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t044_the_translator.mp4) |
+| 117 | 2026-12-07 | 12:00 PM | short | The Store Brand | `moraloop_ads/trends/t045_the_store_brand.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t045_the_store_brand.mp4) |
+| 118 | 2026-12-08 | 12:00 PM | short | The Callback | `moraloop_ads/trends/t046_the_callback.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t046_the_callback.mp4) |
+| 119 | 2026-12-09 | 12:00 PM | short | The Honest Survey | `moraloop_ads/trends/t047_the_honest_survey.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t047_the_honest_survey.mp4) |
+| 120 | 2026-12-10 | 12:00 PM | short | The Handmade Gifts | `moraloop_ads/trends/t048_the_handmade_gifts.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t048_the_handmade_gifts.mp4) |
 
 ## Captions
 
@@ -1125,7 +1127,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #fantasyfootball #friendship #fairplay
 ```
 
-### 112. 2026-12-04 12:00 PM: The Fence Camera (short)
+### 112. 2026-12-03 12:30 PM: The Pay Tomorrow (loop short)
+Video: `moraloop_ads/loops/l041_the_pay_tomorrow.mp4`
+
+```
+A regular orders food for twenty, then asks to pay tomorrow. Do you let him pay tomorrow, or ask for payment now? Did you read the whole thread? 👀 Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #restaurant #work #customerservice
+```
+
+### 113. 2026-12-04 12:00 PM: The Fence Camera (short)
 Video: `moraloop_ads/trends/t042_the_fence_camera.mp4`
 
 ```
@@ -1134,7 +1145,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #neighbors #privacy #homeowners
 ```
 
-### 113. 2026-12-05 12:00 PM: The Late Game (short)
+### 114. 2026-12-04 12:30 PM: The Instant Reply (loop short)
+Video: `moraloop_ads/loops/l042_the_instant_reply.mp4`
+
+```
+Your roommate gets upset if you don’t reply within minutes, even while you’re at work. Do you reply faster, or tell them you can’t? Did you read the whole thread? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #roommates #texting #boundaries
+```
+
+### 115. 2026-12-05 12:00 PM: The Late Game (short)
 Video: `moraloop_ads/trends/t043_the_late_game.mp4`
 
 ```
@@ -1143,7 +1163,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #roommates #gaming #apartmentlife
 ```
 
-### 114. 2026-12-06 12:00 PM: The Translator (short)
+### 116. 2026-12-06 12:00 PM: The Translator (short)
 Video: `moraloop_ads/trends/t044_the_translator.mp4`
 
 ```
@@ -1152,7 +1172,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #college #parents
 ```
 
-### 115. 2026-12-07 12:00 PM: The Store Brand (short)
+### 117. 2026-12-07 12:00 PM: The Store Brand (short)
 Video: `moraloop_ads/trends/t045_the_store_brand.mp4`
 
 ```
@@ -1161,7 +1181,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #inlaws #groceries
 ```
 
-### 116. 2026-12-08 12:00 PM: The Callback (short)
+### 118. 2026-12-08 12:00 PM: The Callback (short)
 Video: `moraloop_ads/trends/t046_the_callback.mp4`
 
 ```
@@ -1170,7 +1190,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #work #career #worklife
 ```
 
-### 117. 2026-12-09 12:00 PM: The Honest Survey (short)
+### 119. 2026-12-09 12:00 PM: The Honest Survey (short)
 Video: `moraloop_ads/trends/t047_the_honest_survey.mp4`
 
 ```
@@ -1179,7 +1199,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #work #worklife #office
 ```
 
-### 118. 2026-12-10 12:00 PM: The Handmade Gifts (short)
+### 120. 2026-12-10 12:00 PM: The Handmade Gifts (short)
 Video: `moraloop_ads/trends/t048_the_handmade_gifts.mp4`
 
 ```

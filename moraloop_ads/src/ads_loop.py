@@ -762,4 +762,42 @@ ADS = [
                "worried", others="sad", set="home"),
              M("Did you read the whole thread?"),
          ], close="Do you take her offer, or find another sitter?"),
+
+    # Trend: Reddit story about a regular who ordered food for twenty and asked to pay the next day (TwistedSifter, Nov 6 2026)
+    dict(id="l041_the_pay_tomorrow", title="The Pay Tomorrow", made_on="2026-11-07",
+         hook="what did your manager text?",
+         thread=dict(contact="Manager", stamp="Fri 8:05 PM", msgs=[
+             "he’s been coming for years",
+             "tipped $5 on $300 last time",
+             "we don’t usually do tabs",
+             "but it’s a big order",
+             "up to you",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("A regular orders takeout for twenty people at your restaurant.", ["stranger", "you"], "say",
+               ["🍝", "🥡", "🧾"], "happy", others="happy", set="cafe"),
+             S("Then he says he’ll pay tomorrow. He left his wallet at home.", ["stranger", "you"], "say",
+               ["💳", "❌", "⏳"], "worried", others="neutral", set="cafe"),
+             M("Did you read the whole thread?"),
+         ], close="Do you let him pay tomorrow, or ask for payment now?"),
+
+    # Trend: Reddit story about a roommate who demands instant replies to texts (TwistedSifter, Nov 6 2026)
+    dict(id="l042_the_instant_reply", title="The Instant Reply", made_on="2026-11-07",
+         hook="what did your roommate text?",
+         thread=dict(contact="Roommate", stamp="Tue 2:41 PM", msgs=[
+             "did u take out the trash?",
+             "hello??",
+             "I get anxious when u don’t answer",
+             "it’s been 20 min",
+             "u ok?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your roommate texts you all day about the apartment.", ["friend", "you"], "say", ["📱", "🏠", "💬"],
+               "worried", others="neutral", set="home"),
+             S("If you don’t reply within minutes, they get upset. You’re at work.", ["you"], "see",
+               ["📱", "💼", "⏰"], "worried", set="office"),
+             M("Did you read the whole thread?"),
+         ], close="Do you reply faster, or tell them you can’t?"),
 ]
