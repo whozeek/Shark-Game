@@ -86,8 +86,8 @@ export class Player {
     this.applyCamera(dt, settings, speed);
   }
   /** Used by the stroll: move along a desired position with collision. */
-  moveTo(nx, nz) {
-    const p = this.cb.col.resolve(nx, nz, this.radius * 0.8);
+  moveTo(nx, nz, slim = false) {
+    const p = this.cb.col.resolve(nx, nz, this.radius * (slim ? 0.35 : 0.8));
     this.x = p.x; this.z = p.z;
     const g = this.cb.groundAt ? this.cb.groundAt(this.x, this.z) : 0.15;
     this.ground += (g - this.ground) * 0.15;

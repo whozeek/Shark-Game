@@ -118,7 +118,7 @@ export class Stroll {
     const eCur = this.segEdge(cur.i);
     if (eNext && eNext.kind === 'cross' && eCur !== eNext) {
       const A = ahead.a, B = ahead.b;
-      const ok = this.cb.signals.canWalk(eNext.axis, eNext.len / 1.1 + 2);
+      const ok = this.cb.signals.canWalk(eNext.axis, Math.min(eNext.len / 1.1 + 2, 8));
       const x0 = Math.min(A.x, B.x) - 1.5, x1 = Math.max(A.x, B.x) + 1.5, z0 = Math.min(A.z, B.z) - 1.5, z1 = Math.max(A.z, B.z) + 1.5;
       const busy = this.traffic && this.traffic.occupied(x0, z0, x1, z1, 3, eNext.axis);
       if (!ok || busy) { want = 0; this.status = ok ? 'Waiting for traffic' : 'Waiting to cross'; this.waitLook = eNext; }
@@ -135,8 +135,14 @@ export class Stroll {
     if (this.s > this.total) this.s -= this.total;
     if (d > 0.05 && this.speed > 0.02) {
       const step = Math.min(d, this.speed * dt * (d > 1.6 ? 1.15 : 1));
-      p.moveTo(p.x + dx / d * step, p.z + dz / d * step);
+      const bx = p.x, bz = p.z;
+      p.moveTo(p.x + dx / d * step, p.z + dz / d * step, this.slimT > 0);
+      // wedged between obstacles? squeeze through with a slimmer footprint for a moment
+      const moved = Math.hypot(p.x - bx, p.z - bz);
+      this.stuckT = moved < step * 0.25 ? (this.stuckT || 0) + dt : 0;
+      if (this.stuckT > 0.8) { this.slimT = 2.5; this.stuckT = 0; }
     } else p.moveTo(p.x, p.z);
+    this.slimT = Math.max(0, (this.slimT || 0) - dt);
     if (d > 6) { // drifted (e.g. after a collision) — gently re-sync
       this.s = this.nearestS(p.x, p.z);
     }

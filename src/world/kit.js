@@ -111,7 +111,6 @@ export function building(cb, b, o) {
   const rng = cb.rng;
   const y0 = o.base ?? 0.15;
   const H = o.h;
-  const gfH = o.ground === 'shop' || o.ground === 'lobby' ? (o.gfH ?? 4.2) : 0;
   const fronts = o.fronts || ['s'];
   const fac = o.facade;
   // a requested walk-in café/laundromat/tea house takes over this lot's ground floor
@@ -120,6 +119,7 @@ export function building(cb, b, o) {
     req.used = true; b.walkIn = req;
     o = { ...o, ground: 'shop', gfH: o.gfH ?? 4.2, awning: null, walkIn: req, collide: false };
   }
+  const gfH = o.ground === 'shop' || o.ground === 'lobby' ? (o.gfH ?? 4.2) : 0;
   const sideFac = o.side || fac;
   const offU = rng.int(0, 7) * (fac.tileW / 4) / fac.tileW;
   const offV = rng.int(0, 3) / 4;

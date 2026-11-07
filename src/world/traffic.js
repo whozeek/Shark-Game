@@ -475,8 +475,8 @@ export class Traffic {
   /** Is any vehicle within the given rectangle around a crossing? */
   occupied(x0, z0, x1, z1, margin = 0, crossAxis = null) {
     for (const v of this.vehicles) {
-      // cars driving parallel to the crosswalk never cross it (turning cars always count)
-      if (crossAxis && !v.turn && v.lane.axis === crossAxis) continue;
+      // cars driving parallel to the crosswalk never cross it; turning cars yield to walkers themselves
+      if (crossAxis && (v.turn || v.lane.axis === crossAxis)) continue;
       const { x, z } = this.pose(v);
       if (x > x0 - margin - v.len / 2 && x < x1 + margin + v.len / 2 && z > z0 - margin - v.len / 2 && z < z1 + margin + v.len / 2 && v.speed > 0.3) return true;
     }
