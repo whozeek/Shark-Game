@@ -62,6 +62,8 @@ export const DEFAULTS = {
   lightning: true,
   timeOfDay: 20.4,
   timeFlow: 'still',
+  season: 'autumn',
+  precip: 'auto',
   // Visual style
   style: 'cozy',
   palette: 'rainbow',
@@ -114,6 +116,7 @@ export const DEFAULTS = {
   musicStyle: 'all',
   shuffle: false,
   musicOn: true,
+  musicSource: 'builtin',
   rainVol: 0.7,
   thunderVol: 0.7,
   trafficVol: 0.45,
@@ -145,6 +148,9 @@ export const PRESETS = [
   { id: 'thunderstorm', name: 'NYC Thunderstorm', desc: 'Heavy rain, rolling thunder', values: { city: 'nyc', rainIntensity: 1, storm: 0.9, thunder: true, lightning: true, wind: 0.65, clouds: 1, cloudDarkness: 0.85, fog: 0.65, timeOfDay: 21.5, style: 'realistic', pedestrians: 0.2, traffic: 0.35, rainbow: 0, puddles: 0.85 } },
   { id: 'empty', name: 'Empty NYC', desc: 'Nobody out but you', values: { city: 'nyc', pedestrians: 0.02, traffic: 0.04, timeOfDay: 3.2, rainIntensity: 0.4, fog: 0.6, style: 'film', storm: 0, rainbow: 0 } },
   { id: 'sunrise', name: 'Rainy Sunrise', desc: 'Pale gold through thinning clouds', values: { timeOfDay: 6.3, clouds: 0.65, cloudDarkness: 0.3, rainIntensity: 0.3, fog: 0.55, mist: 0.7, style: 'golden', rainbow: 0.25, palette: 'sunset', storm: 0 } },
+  { id: 'snownight', name: 'Snowy Night', desc: 'Soft snowfall, quiet glowing streets', values: { season: 'winter', precip: 'snow', rainIntensity: 0.55, timeOfDay: 21.5, fog: 0.5, style: 'cozy', pedestrians: 0.3, traffic: 0.25, wind: 0.15, windowGlow: 1.2, storm: 0, rainbow: 0 } },
+  { id: 'autumnleaves', name: 'Autumn Leaves', desc: 'Golden trees and blowing leaves', values: { season: 'autumn', precip: 'rain', rainIntensity: 0.3, timeOfDay: 17.4, wind: 0.45, style: 'golden', fog: 0.35, storm: 0, rainbow: 0 } },
+  { id: 'blossom', name: 'Blossom Drizzle', desc: 'Spring petals in a light shower', values: { season: 'spring', precip: 'rain', rainIntensity: 0.25, timeOfDay: 10.5, style: 'pastel', fog: 0.4, storm: 0, rainbow: 0.15, palette: 'purplepink' } },
   { id: 'dreamy', name: 'Dreamy NYC', desc: 'Pastel glow and gentle colour', values: { city: 'nyc', style: 'pastel', rainbow: 0.45, palette: 'purplepink', bloom: 1.2, timeOfDay: 19.4, fog: 0.55, rainIntensity: 0.45, storm: 0 } },
 ];
 
@@ -229,10 +235,10 @@ export class Settings extends Emitter {
 // Keys grouped by UI section, used for per-section reset.
 export const SCHEMA_KEYS = {
   city: ['mode', 'reducedMotion', 'headBob', 'lookSensitivity', 'invertY', 'walkSpeed', 'umbrella', 'showMinimap'],
-  weather: ['rainIntensity', 'rainSpeed', 'dropSize', 'rainColor', 'fog', 'mist', 'wind', 'windDir', 'puddles', 'wetness', 'clouds', 'cloudDarkness', 'cloudHeight', 'cloudSpeed', 'storm', 'thunder', 'lightning', 'timeOfDay', 'timeFlow'],
+  weather: ['rainIntensity', 'rainSpeed', 'dropSize', 'rainColor', 'fog', 'mist', 'wind', 'windDir', 'puddles', 'wetness', 'clouds', 'cloudDarkness', 'cloudHeight', 'cloudSpeed', 'storm', 'thunder', 'lightning', 'timeOfDay', 'timeFlow', 'season', 'precip'],
   style: ['style', 'palette', 'custom1', 'custom2', 'custom3', 'rainbow', 'rainbowSpeed', 'rainbowSpread', 'rainbowDir', 'rainbowSat', 'rainbowMove', 'reflections', 'reflStreet', 'reflPuddle', 'reflWindow', 'reflCar', 'reflRain', 'reflNeon', 'reflBlur', 'reflLength', 'reflColor', 'reflMotion', 'streetlights', 'storefronts', 'windowGlow', 'headlights', 'neon', 'ambient', 'moonlight', 'bloom', 'exposure'],
   life: ['pedestrians', 'pedSpeed', 'umbrellaPct', 'groups', 'traffic', 'trafficSpeed', 'taxis', 'buses', 'headlightsOn', 'cyclists', 'dogs', 'citySounds', 'cityRhythm'],
-  audio: ['masterVol', 'musicVol', 'musicStyle', 'shuffle', 'rainVol', 'thunderVol', 'trafficVol', 'peopleVol', 'windVol', 'ambienceVol', 'footstepsVol'],
+  audio: ['masterVol', 'musicVol', 'musicSource', 'musicStyle', 'shuffle', 'rainVol', 'thunderVol', 'trafficVol', 'peopleVol', 'windVol', 'ambienceVol', 'footstepsVol'],
   display: ['quality', 'fpsCap', 'resolutionScale', 'showFps'],
 };
 

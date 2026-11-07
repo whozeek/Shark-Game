@@ -112,6 +112,7 @@ export class CityBuilder {
     this.spawn = { x: 0, z: 0, yaw: 0 };
     this.route = null;
     this.waterRects = [];
+    this.levels = {}; this.portals = []; this.indoors = []; this.walkIns = [];
   }
   track(obj) { this.disposables.push(obj); return obj; }
   addMesh(mesh, noReflect = false) {
@@ -411,7 +412,7 @@ function addLanes(cb, s, axis, crossStreets, ext) {
       const nd = dirs.filter((d) => d === dir).length;
       const idx = dirs.slice(0, k).filter((d) => d === dir).length;
       const half = usable / 2;
-      const sideSign = axis === 'x' ? dir : -dir;
+      const sideSign = (axis === 'x' ? dir : -dir) * (cb.layout?.leftHand ? -1 : 1);
       off = sideSign * (half * (idx + 0.5) / nd);
       off += (start + usable / 2);
     } else {

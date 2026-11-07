@@ -16,11 +16,23 @@ export class Player {
     this.lookYawOff = 0; this.lookPitchOff = 0;
     this.speed = 0;
   }
-  setCity(cb) { this.cb = cb; this.toSpawn(); }
+  setCity(cb) { this.cb = cb; this.level = null; this.toSpawn(); }
+  get lv() { return this.level ? this.cb.levels[this.level] : null; }
+  colWorld() { return this.lv ? this.lv.col : this.cb.col; }
+  groundHere() { return this.lv ? this.lv.floor : (this.cb.groundAt ? this.cb.groundAt(this.x, this.z) : 0.15); }
+  /** Move to another level (or back to the street with level null). */
+  teleport(to) {
+    if (this.seat) this.seat = null;
+    this.level = to.level || null;
+    this.x = to.x; this.z = to.z;
+    if (to.yaw !== undefined) this.yaw = to.yaw;
+    this.vx = this.vz = 0;
+    this.ground = this.groundHere();
+  }
   toSpawn() {
     const s = this.cb.spawn;
     this.x = s.x; this.z = s.z; this.yaw = s.yaw; this.pitch = -0.03;
-    this.vx = this.vz = 0; this.seat = null;
+    this.vx = this.vz = 0; this.seat = null; this.level = null;
     this.ground = this.cb.groundAt ? this.cb.groundAt(this.x, this.z) : 0.15;
   }
   sit(seat) {
@@ -33,7 +45,7 @@ export class Player {
     const s = this.seat;
     // step forward off the seat
     const fx = -Math.sin(s.yaw), fz = -Math.cos(s.yaw);
-    const p = this.cb.col.resolve(s.x + fx * 0.9, s.z + fz * 0.9, this.radius);
+    const p = this.colWorld().resolve(s.x + fx * 0.9, s.z + fz * 0.9, this.radius);
     this.x = p.x; this.z = p.z;
     this.seat = null;
   }
@@ -64,10 +76,10 @@ export class Player {
       this.vx += (tvx - this.vx) * k; this.vz += (tvz - this.vz) * k;
       speed = Math.hypot(this.vx, this.vz);
       if (speed > 0.001) {
-        const p = this.cb.col.resolve(this.x + this.vx * dt, this.z + this.vz * dt, this.radius);
+        const p = this.colWorld().resolve(this.x + this.vx * dt, this.z + this.vz * dt, this.radius);
         this.x = p.x; this.z = p.z;
       }
-      const g = this.cb.groundAt ? this.cb.groundAt(this.x, this.z) : 0.15;
+      const g = this.groundHere();
       this.ground += (g - this.ground) * Math.min(1, dt * 10);
     }
     this.speed = speed;

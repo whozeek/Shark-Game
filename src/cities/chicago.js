@@ -4,10 +4,10 @@ import * as THREE from 'three';
 import { buildGrid } from '../world/cityBase.js';
 import {
   createMaterials, facadeMaterials, shopMaterial, building, perimeterLots, streetlight, tree, hydrant,
-  trashCan, bench, planter, trafficSignal, parkedCar, neonMaterial, neonSign, busShelter,
-} from '../world/kit.js';
+  trashCan, bench, planter, trafficSignal, parkedCar, neonMaterial, neonSign, busShelter, cartOnKerb } from '../world/kit.js';
 import { CAR_COLORS } from '../world/vehicleGeo.js';
 import { addSkyline } from '../world/skyline.js';
+import { elevatedPlatform } from '../world/interiors.js';
 
 export const chicago = {
   id: 'chicago', name: 'Chicago', neighborhood: 'Riverfront Loop',
@@ -31,6 +31,7 @@ const NEON = [{ text: 'Diner', color: '#ff5a4a' }, { text: 'Tavern', color: '#ff
 async function build(cb, step) {
   const M = createMaterials(cb, cb.q, { asphalt: '#2a2b30', sidewalk: '#8a8a88', water: 0x15242e });
   cb.mats = M;
+  cb.walkIns.push({ x: -70, z: -66, kind: 'cafe', name: 'Riverbend Coffee' });
   const F = facadeMaterials(cb, [
     { wall: 'glass', color: '#24404e', mullion: '#1c2228', bays: 4, bayW: 3, floorH: 3.8, litRatio: 0.55, lightTint: 'cool', seed: 3 },
     { wall: 'glass', color: '#1c2430', mullion: '#2c3036', bays: 4, bayW: 3, floorH: 3.8, litRatio: 0.45, lightTint: 'mixed', seed: 5 },
@@ -114,8 +115,11 @@ async function build(cb, step) {
   }
   cb.keepClear = [[-70, -39, 4]];
   furnish(cb, layout);
+  cartOnKerb(cb, 120, -90, Math.PI / 2, 'coffee');
+  cartOnKerb(cb, -102, 80, -Math.PI / 2, 'hotdog');
   elevated(cb, layout.zs[0], layout);
   for (const A of layout.xs) bridge(cb, A, -36, 36);
+  elevatedPlatform(cb, layout.zs[0], -40, 20, 6.4 + 1.0, [-10, -112.5], { name: 'Lake & Clark station' });
   await step(0.75, 'Lighting the river');
   addSkyline(cb, { seed: 31, center: [0, 0], minR: 420, maxR: 950, count: 80, arcFrom: -Math.PI, arcTo: Math.PI * 0.4, hMin: 70, hMax: 330, color: '#232a34', lit: 0.45, extra: [{ x: -380, z: -620, w: 70, d: 70, h: 440 }, { x: -380, z: -620, w: 6, d: 6, h: 520 }, { x: 260, z: -560, w: 50, d: 50, h: 360 }] });
   cb.spawn = { x: -70, z: -39, yaw: -Math.PI / 2 - 0.35 };
@@ -227,10 +231,18 @@ function elevated(cb, S, layout) {
   }
   train.position.set(x0, y + 2.9, S.z - 1.6);
   cb.group.add(train);
-  let tx = x0 - 200, dir = 1;
+  let tx = x0 - 200, dir = 1, v = 14, wait = 0, served = false;
+  const station = -10; // trains on the south track stop at the platform
   cb.animated.push({ update: (dt) => {
-    tx += dir * dt * 14;
-    if (tx > x1 + 120) { dir = -1; train.position.z = S.z + 1.6; }
+    if (wait > 0) { wait -= dt; if (wait <= 0) v = 0.5; return; }
+    const center = tx + 21.9;
+    if (dir === -1 && !served) {
+      const d = center - station;
+      if (d > 0) v = Math.max(0.8, Math.min(14, Math.sqrt(2 * 1.3 * d)));
+      if (d <= 0.3) { wait = 12; served = true; return; }
+    } else v = Math.min(14, v + dt * 1.4);
+    tx += dir * dt * v;
+    if (tx > x1 + 120) { dir = -1; served = false; train.position.z = S.z + 1.6; }
     if (tx < x0 - 240) { dir = 1; train.position.z = S.z - 1.6; }
     train.position.x = tx;
   } });

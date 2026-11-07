@@ -29,7 +29,19 @@ const cache = new Map();
 export function vehicleParts(type) {
   if (cache.has(type)) return cache.get(type);
   let out;
-  if (type === 'bus') {
+  if (type === 'decker') {
+    const L = 10.6, W = 2.55, H = 4.4;
+    const body = mergeGeometries([
+      boxAt(0, 0.95, 0, L, 1.3, W), boxAt(0, 2.45, 0, L, 0.35, W), boxAt(0, 4.25, 0, L - 0.2, 0.3, W - 0.04),
+      boxAt(L / 2 - 0.1, 3.3, 0, 0.2, 0.25, W - 0.1), boxAt(-L / 2 + 0.1, 3.3, 0, 0.2, 1.6, W - 0.1),
+    ]);
+    const glass = mergeGeometries([boxAt(0, 1.95, 0, L - 0.4, 0.75, W - 0.04), boxAt(0, 3.4, 0, L - 0.5, 0.9, W - 0.04), boxAt(L / 2 - 0.05, 3.4, 0, 0.12, 0.9, W - 0.2), boxAt(L / 2 - 0.05, 1.9, 0, 0.12, 1.0, W - 0.2)]);
+    const wheels = wheelSet([[3.6, 1.1], [3.6, -1.1], [-3.2, 1.1], [-3.2, -1.1]], 0.5, 0.3);
+    const front = mergeGeometries([boxAt(L / 2 + 0.01, 0.75, 0.95, 0.04, 0.2, 0.35), boxAt(L / 2 + 0.01, 0.75, -0.95, 0.04, 0.2, 0.35)]);
+    const rear = mergeGeometries([boxAt(-L / 2 - 0.01, 0.9, 1.0, 0.04, 0.35, 0.25), boxAt(-L / 2 - 0.01, 0.9, -1.0, 0.04, 0.35, 0.25)]);
+    const extra = boxAt(L / 2 + 0.02, 2.75, 0, 0.04, 0.3, 1.8);
+    out = { body, glass, wheels, front, rear, extra, length: L, width: W, height: H };
+  } else if (type === 'bus') {
     const L = 11.5, W = 2.55, H = 3.1;
     const body = mergeGeometries([
       boxAt(0, 0.95, 0, L, 1.3, W),
@@ -76,18 +88,19 @@ export function vehicleParts(type) {
   }
   // details: bumpers, hubcaps, mirrors, grille and plates
   {
-    const L = out.length, W = out.width, wr = type === 'bus' ? 0.5 : type === 'suv' ? 0.38 : 0.34;
-    const bump = type === 'bus' ? 0.55 : 0.42;
+    const big = type === 'bus' || type === 'decker';
+    const L = out.length, W = out.width, wr = big ? 0.5 : type === 'suv' ? 0.38 : 0.34;
+    const bump = big ? 0.55 : 0.42;
     out.bumpers = mergeGeometries([
       boxAt(L / 2 + 0.03, bump, 0, 0.14, 0.2, W - 0.06), boxAt(-L / 2 - 0.03, bump, 0, 0.14, 0.2, W - 0.06),
       boxAt(L / 2 + 0.02, bump + 0.22, 0, 0.04, 0.16, W * 0.42), // grille
       boxAt(0, 0.38, W / 2 + 0.005, L * 0.62, 0.08, 0.02), boxAt(0, 0.38, -W / 2 - 0.005, L * 0.62, 0.08, 0.02), // side skirts
     ]);
     const hubs = [];
-    const wx = type === 'bus' ? [3.8, -3.4] : type === 'van' ? [1.6, -1.6] : [L * 0.33, -L * 0.31];
-    const wz = type === 'bus' ? 1.1 : type === 'van' ? 0.85 : W / 2 - 0.12;
-    for (const x of wx) for (const sz of [1, -1]) { const g = new THREE.CylinderGeometry(wr * 0.55, wr * 0.55, 0.04, 10); g.rotateX(Math.PI / 2); g.translate(x, wr, sz * (wz + (type === 'bus' ? 0.16 : 0.13))); hubs.push(g.toNonIndexed()); }
-    if (type !== 'bus') for (const sz of [1, -1]) hubs.push(boxAt(L * 0.16, (out.height + 0.85) / 2 - 0.05, sz * (W / 2 + 0.08), 0.12, 0.1, 0.12));
+    const wx = type === 'bus' ? [3.8, -3.4] : type === 'decker' ? [3.6, -3.2] : type === 'van' ? [1.6, -1.6] : [L * 0.33, -L * 0.31];
+    const wz = big ? 1.1 : type === 'van' ? 0.85 : W / 2 - 0.12;
+    for (const x of wx) for (const sz of [1, -1]) { const g = new THREE.CylinderGeometry(wr * 0.55, wr * 0.55, 0.04, 10); g.rotateX(Math.PI / 2); g.translate(x, wr, sz * (wz + (big ? 0.16 : 0.13))); hubs.push(g.toNonIndexed()); }
+    if (!big) for (const sz of [1, -1]) hubs.push(boxAt(L * 0.16, (out.height + 0.85) / 2 - 0.05, sz * (W / 2 + 0.08), 0.12, 0.1, 0.12));
     hubs.push(boxAt(-L / 2 - 0.06, bump + 0.16, 0, 0.02, 0.12, 0.34), boxAt(L / 2 + 0.06, bump - 0.02, 0, 0.02, 0.1, 0.3)); // plates
     out.trim = mergeGeometries(hubs);
   }

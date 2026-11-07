@@ -5,6 +5,7 @@ import { patchGround, patchFacade, patchGlossy, patchWash } from '../render/shar
 import { makeAsphalt, makePaving, makeStripes, makeFacade, makeShopAtlas, makeNeonAtlas, makeLeaves } from '../render/textures.js';
 import { worldUVBox, PRIM, compose } from './batcher.js';
 import { vehicleParts, CAR_COLORS } from './vehicleGeo.js';
+import { walkInShop, rooftop } from './interiors.js';
 
 const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
 
@@ -23,12 +24,12 @@ export function createMaterials(cb, q, opt = {}) {
   M.glass = cb.track(patchGlossy(new THREE.MeshStandardMaterial({ color: 0x0d131c, roughness: 0.08, metalness: 0.3 }), { strengthUniform: 'uReflWindow', base: 0.25, rainbowAmt: 0.35 }));
   M.bulb = cb.track(new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 1, 1).multiplyScalar(6), vertexColors: true }));
   M.bulbSoft = cb.track(new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 1, 1).multiplyScalar(2.2), vertexColors: true }));
-  M.leaf = cb.track(patchWash(new THREE.MeshStandardMaterial({ map: T(makeLeaves(21, '#c8d8b8', null)), color: 0xffffff, roughness: 0.8, vertexColors: true }), 0.04));
+  M.leaf = cb.track(patchWash(new THREE.MeshStandardMaterial({ map: T(makeLeaves(21, '#c8d8b8', null)), color: 0xffffff, roughness: 0.8, vertexColors: true, side: THREE.DoubleSide }), 0.04, { leaf: true }));
   M.leaf.map.repeat.set(2, 2);
-  M.bark = cb.track(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95, vertexColors: true }));
+  M.bark = cb.track(patchWash(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95, vertexColors: true }), 0.02));
   M.fabric = cb.track(patchWash(new THREE.MeshStandardMaterial({ map: T(makeStripes()), roughness: 0.9, vertexColors: true, side: THREE.DoubleSide }), 0.05));
   M.fabricSolid = cb.track(patchWash(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, vertexColors: true, side: THREE.DoubleSide }), 0.05));
-  M.roof = cb.track(new THREE.MeshStandardMaterial({ color: 0x2a2a2c, roughness: 0.95, vertexColors: true }));
+  M.roof = cb.track(patchWash(new THREE.MeshStandardMaterial({ color: 0x2a2a2c, roughness: 0.95, vertexColors: true }), 0.02));
   M.carPaint = cb.track(patchGlossy(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35, metalness: 0.4, vertexColors: true }), { strengthUniform: 'uReflCar', base: 0.08, rainbowAmt: 0.25 }));
   M.carGlass = cb.track(patchGlossy(new THREE.MeshStandardMaterial({ color: 0x0b0f15, roughness: 0.05, metalness: 0.5 }), { strengthUniform: 'uReflCar', base: 0.3, rainbowAmt: 0.45 }));
   M.rubber = cb.track(new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 0.9, vertexColors: true }));
@@ -113,6 +114,12 @@ export function building(cb, b, o) {
   const gfH = o.ground === 'shop' || o.ground === 'lobby' ? (o.gfH ?? 4.2) : 0;
   const fronts = o.fronts || ['s'];
   const fac = o.facade;
+  // a requested walk-in café/laundromat/tea house takes over this lot's ground floor
+  const req = fronts.length === 1 && (o.base ?? 0.15) < 0.5 && cb.walkIns.find((r) => !r.used && r.x > b.x0 && r.x < b.x1 && r.z > b.z0 && r.z < b.z1);
+  if (req) {
+    req.used = true; b.walkIn = req;
+    o = { ...o, ground: 'shop', gfH: o.gfH ?? 4.2, awning: null, walkIn: req, collide: false };
+  }
   const sideFac = o.side || fac;
   const offU = rng.int(0, 7) * (fac.tileW / 4) / fac.tileW;
   const offV = rng.int(0, 3) / 4;
@@ -126,7 +133,10 @@ export function building(cb, b, o) {
     const u1 = w / F.tileW, vh = (H - (isFront ? gfH : 0)) / F.tileH;
     for (let i = 0; i < uv.count; i++) uv.setXY(i, offU + uv.getX(i) * u1, offV + (isFront ? 0 : 0.0) + uv.getY(i) * vh);
     cb.batch.addGeometry(g, F.mat);
-    if (isFront && gfH > 0) {
+    if (isFront && gfH > 0 && o.walkIn) {
+      const w = walkInShop(cb, b, side, H, { ...o.walkIn, base: y0, gfH, doorLeft: cb.rng.chance(0.5) });
+      if (o.walkIn.rooftop) rooftop(cb, b, H, w.stairs);
+    } else if (isFront && gfH > 0) {
       if (o.ground === 'shop' && o.shop) {
         const s = o.shop; const a = s.atlas;
         const idx = o.shopIdx ?? rng.int(0, a.count - 1);
@@ -528,8 +538,13 @@ export function bench(cb, x, z, yaw, o = {}) {
   if (o.back !== false) for (let k = 0; k < 2; k++) { const [px, pz] = P(0, 0.26); cb.batch.box(M.paint, px, 0.82 + k * 0.18, pz + 0, L, 0.1, 0.04, wood, -yaw); }
   for (const a of [-L / 2 + 0.15, L / 2 - 0.15]) { const [px, pz] = P(a, 0.02); cb.batch.box(M.metal, px, 0.4, pz, 0.06, 0.8, 0.55, 0x1c1c1c, -yaw); }
   const [sx, sz] = P(0, -0.35);
-  // seat registration: facing direction is -back (local -z rotated)
-  cb.seat(sx, sz, yaw + Math.PI, o.label || 'bench', 0.15);
+  // some benches already have someone on them; the rest are free to sit on
+  const occupied = o.occupied ?? cb.rng.chance(0.28);
+  if (occupied) {
+    const [px, pz] = P(cb.rng.range(-L / 2 + 0.4, L / 2 - 0.4), -0.05);
+    staticPerson(cb, px, pz, yaw + Math.PI, { pose: 'sit', seatH: 0.48, cup: cb.rng.chance(0.4) });
+  }
+  if (!occupied || L > 1.9) cb.seat(sx, sz, yaw + Math.PI, o.label || 'bench', 0.15);
   cb.col.addBox(x, z, L / 2, 0.32, yaw);
 }
 
@@ -589,7 +604,10 @@ export function busShelter(cb, x, z, yaw, o = {}) {
   cb.batch.box(M.bulbSoft, ax, 1.4, az, 0.08, 1.6, 1.0, o.ad ?? 0x9ad7ff, -yaw);
   cb.light(...[ax - s * 0.0, 1.6, az], o.ad ?? 0x9ad7ff, 4, 6, 'shelter');
   // bench
-  bench(cb, ...P(0, D / 2 - 0.45), yaw, { back: false, length: 2.2, label: 'bus shelter bench' });
+  bench(cb, ...P(0, D / 2 - 0.45), yaw, { back: false, length: 2.2, label: 'bus shelter bench', occupied: true });
+  const [wx, wz] = P(1.3, -0.1);
+  staticPerson(cb, wx, wz, yaw + Math.PI + 0.4, {});
+  (cb.busStops || (cb.busStops = [])).push({ x, z });
   cb.batch.box(M.bulbSoft, x, H - 0.08, z, L * 0.8, 0.04, 0.1, 0xeef4ff, -yaw);
   cb.pool(x, z, 2.4, 0xd8ecff, 0.3, 'shelter');
   const ex = Math.abs(c) * L / 2 + Math.abs(s) * D / 2, ez = Math.abs(s) * L / 2 + Math.abs(c) * D / 2;
@@ -700,4 +718,158 @@ export function neonSign(cb, x, y, z, yaw, idx, o = {}) {
   if (o.backing !== false) cb.batch.box(cb.mats.paint, x - Math.sin(-yaw) * 0.0, y, z, Math.abs(Math.cos(yaw)) * (o.vertical ? h : w) + 0.08, (o.vertical ? w : h) + 0.1, Math.abs(Math.sin(yaw)) * (o.vertical ? h : w) + 0.08, 0x111111, 0);
   cb.light(x, y, z, color, 8 * (o.strength ?? 1), 9, 'neon');
   cb.pool(x + (o.poolDx ?? 0), z + (o.poolDz ?? 0), 2.6, color, 0.5 * (o.strength ?? 1), 'neon');
+}
+
+// ---------------------------------------------------------------- static people & street vendors
+const P_COATS = [0x1f2a3a, 0x2b2b2e, 0xa8835a, 0x4a4f36, 0x5c1f2a, 0x3a3f45, 0x8a6a2a, 0x22352b, 0x6a6e74, 0x7a3b2e, 0x384a63, 0xc9b79a];
+const P_SKIN = [0xf1d3bd, 0xe5b896, 0xc98e68, 0xa86f4c, 0x8a5537, 0x5e3a26];
+const P_HAIR = [0x141110, 0x2a1d16, 0x5a3c26, 0x8a5a34, 0xb88a52, 0x8d8a86];
+const P_PANTS = [0x1c2433, 0x121214, 0x3a3a3e, 0x2c3a52, 0x5a4e3c];
+
+/**
+ * A person who stays put (sitting on a bench, standing at a cart, waiting for the bus).
+ * yaw: the direction they face (atan2 of forward x,z).
+ */
+export function staticPerson(cb, x, z, yaw, o = {}) {
+  const M = cb.mats; const rng = cb.rng;
+  const y = o.y ?? 0.15;
+  const coat = o.coat ?? rng.pick(P_COATS), skin = rng.pick(P_SKIN), hair = rng.pick(P_HAIR), pants = rng.pick(P_PANTS);
+  const s = o.scale ?? rng.range(0.92, 1.06);
+  const fx = Math.sin(yaw), fz = Math.cos(yaw), rx = fz, rz = -fx;
+  const at = (fwd, up, right) => [x + fx * fwd * s + rx * right * s, y + up * s, z + fz * fwd * s + rz * right * s];
+  const box = (p, sx, sy, sz, col, pitch = 0) => cb.batch.box(M.paint, p[0], p[1], p[2], sx * s, sy * s, sz * s, col, yaw, pitch);
+  if (o.pose === 'sit') {
+    const seat = o.seatH ?? 0.45;
+    for (const sd of [-0.1, 0.1]) {
+      box(at(0.2, seat + 0.07, sd), 0.13, 0.13, 0.42, pants);           // thigh
+      box(at(0.4, seat / 2, sd), 0.11, seat, 0.11, pants);             // shin
+      box(at(0.45, 0.04, sd), 0.1, 0.07, 0.22, 0x1a1a1a);              // shoe
+    }
+    box(at(-0.02, seat + 0.42, 0), 0.38, 0.58, 0.22, coat, -0.08);      // torso
+    for (const sd of [-0.22, 0.22]) box(at(0.12, seat + 0.36, sd), 0.09, 0.09, 0.36, coat, 0.6);
+    const hp = at(0.0, seat + 0.86, 0);
+    cb.batch.prim('sphere', M.paint, hp[0], hp[1], hp[2], 0.2 * s, 0.24 * s, 0.21 * s, skin);
+    cb.batch.prim('sphere', M.paint, hp[0] - fx * 0.02, hp[1] + 0.04 * s, hp[2] - fz * 0.02, 0.22 * s, 0.17 * s, 0.22 * s, hair);
+    if (o.cup) { const c = at(0.3, seat + 0.32, 0.18); cb.batch.prim('cyl', M.paint, c[0], c[1], c[2], 0.07, 0.1, 0.07, 0xf2ece0); }
+  } else {
+    for (const sd of [-0.1, 0.1]) { box(at(0, 0.45, sd), 0.13, 0.9, 0.14, pants); box(at(0.04, 0.04, sd), 0.1, 0.07, 0.24, 0x1a1a1a); }
+    box(at(0, 1.2, 0), 0.4, 0.62, 0.24, coat);
+    for (const sd of [-0.24, 0.24]) box(at(o.working ? 0.15 : 0, o.working ? 1.1 : 1.08, sd), 0.09, o.working ? 0.3 : 0.56, 0.09, coat, o.working ? 0.9 : 0);
+    const hp = at(0, 1.64, 0);
+    cb.batch.prim('sphere', M.paint, hp[0], hp[1], hp[2], 0.2 * s, 0.24 * s, 0.21 * s, skin);
+    cb.batch.prim('sphere', M.paint, hp[0] - fx * 0.02, hp[1] + 0.04 * s, hp[2] - fz * 0.02, 0.22 * s, 0.17 * s, 0.22 * s, o.hat ?? hair);
+    if (o.umbrella) { const u = at(0.05, 2.05, 0.1); cb.batch.prim('cone', M.fabricSolid, u[0], u[1], u[2], 1.1, 0.3, 1.1, o.umbrella); cb.batch.prim('cyl', M.metal, u[0], u[1] - 0.45, u[2], 0.02, 0.9, 0.02, 0x222222); }
+  }
+}
+
+/** Street food cart with a vendor. style: hotdog | coffee | tacos | juice | yatai */
+export function foodCart(cb, x, z, yaw, style = 'hotdog') {
+  const M = cb.mats;
+  const cols = { hotdog: [0x2a6ad8, 0xf2c41a], coffee: [0x2a2a2a, 0xd8a050], tacos: [0xd84a2a, 0x2aa86a], juice: [0xff7aa8, 0x5ad0c8], yatai: [0x8a2a1a, 0x3a2416] }[style] || [0x2a6ad8, 0xf2c41a];
+  const fx = Math.sin(yaw), fz = Math.cos(yaw);
+  const L = style === 'yatai' ? 2.4 : 1.9, D = 1.0;
+  const across = Math.abs(fx) > 0.5; // cart length runs perpendicular to the facing direction
+  if (style === 'yatai') {
+    cb.batch.box(M.bark, x, 0.55, z, across ? D : L, 0.9, across ? L : D, 0x5a3a22);
+    cb.batch.box(M.bark, x, 1.0, z, across ? D + 0.3 : L + 0.3, 0.06, across ? L + 0.3 : D + 0.3, 0x3a2416);
+    for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) cb.batch.box(M.bark, x + a * (across ? D : L) / 2, 1.5, z + b * (across ? L : D) / 2, 0.08, 1.0, 0.08, 0x3a2416);
+    cb.batch.box(M.roof, x, 2.05, z, across ? D + 0.8 : L + 0.6, 0.12, across ? L + 0.6 : D + 0.8, 0x2a2c30);
+    cb.batch.box(M.fabricSolid, x - fx * (D / 2 + 0.05), 1.75, z - fz * (D / 2 + 0.05), across ? 0.03 : L, 0.45, across ? L : 0.03, 0xe8e0d0);
+    for (const o of [-0.7, 0.7]) { const lx = x + (across ? 0 : o) - fx * 0.7, lz = z + (across ? o : 0) - fz * 0.7; cb.batch.prim('cyl', M.bulb, lx, 1.6, lz, 0.28, 0.4, 0.28, 0xff7a40); }
+  } else {
+    cb.batch.box(M.metal, x, 0.75, z, across ? D : L, 0.7, across ? L : D, 0xc8ccd2);
+    cb.batch.box(M.paint, x, 1.12, z, across ? D + 0.05 : L + 0.05, 0.05, across ? L + 0.05 : D + 0.05, 0x3a3a3a);
+    cb.batch.box(M.bulbSoft, x - fx * (D / 2 + 0.02), 0.85, z - fz * (D / 2 + 0.02), across ? 0.02 : L * 0.8, 0.35, across ? L * 0.8 : 0.02, cols[1]);
+    for (const o of [-0.6, 0.6]) cb.batch.prim('cyl', M.rubber, x + (across ? 0 : o), 0.28, z + (across ? o : 0), 0.5, 0.08, 0.5, 0x151515);
+    cb.batch.prim('cyl', M.metal, x, 1.9, z, 0.04, 1.6, 0.04, 0x333333);
+    cb.batch.prim('cone', M.fabricSolid, x, 2.75, z, 2.3, 0.45, 2.3, cols[0]);
+    cb.batch.prim('sphere', M.bulb, x, 2.35, z, 0.14, 0.14, 0.14, 0xffd59a);
+    cb.shelters.push({ x0: x - 1.1, z0: z - 1.1, x1: x + 1.1, z1: z + 1.1, label: 'cart umbrella' });
+  }
+  staticPerson(cb, x + fx * (D / 2 + 0.45), z + fz * (D / 2 + 0.45), yaw + Math.PI, { working: true, hat: style === 'yatai' ? 0xe8e0d0 : undefined });
+  cb.light(x - fx * 1.2, 1.6, z - fz * 1.2, 0xffcf8a, 7, 8, 'shop');
+  cb.pool(x - fx * 1.0, z - fz * 1.0, 2.6, 0xffcf8a, 0.55, 'shop');
+  cb.pools[cb.pools.length - 1].hours = style === 'coffee' ? [6, 15] : [10, 24];
+  cb.col.addBox(x, z, (across ? D : L) / 2 + 0.1, (across ? L : D) / 2 + 0.1);
+  cb.col.addCircle(x + fx * (D / 2 + 0.45), z + fz * (D / 2 + 0.45), 0.3);
+}
+
+/** Place a food cart on the kerb strip near (x, z), sliding along `axis` to find a clear spot. */
+export function cartOnKerb(cb, x, z, yaw, style, axis = 'z') {
+  for (let k = 0; k < 14; k++) {
+    const off = (k % 2 ? 1 : -1) * Math.ceil(k / 2) * 2.5;
+    const px = axis === 'x' ? x + off : x, pz = axis === 'z' ? z + off : z;
+    if (!cb.col.blocked(px, pz, 1.7)) { foodCart(cb, px, pz, yaw, style); return true; }
+  }
+  return false;
+}
+
+/**
+ * Generic street furnishing for grid cities: lamps, trees, hydrants, bins, parked cars and signals.
+ * o: { lamp, lampColor, tree: {kind, every, chance, fence}, hydrant, bin, parkTypes, carColors, signals, skip(axis, s, a) }
+ */
+export function furnishGrid(cb, layout, o = {}) {
+  const rng = cb.rng; const b = layout.bounds;
+  const { xs, zs } = layout;
+  const side = (axis, s, sgn) => {
+    if (s.noFurnish) return;
+    const curb = (axis === 'x' ? s.z : s.x) + sgn * (s.road / 2 + 0.55);
+    const cross = axis === 'x' ? xs : zs;
+    const lo = axis === 'x' ? b.minX - 30 : b.minZ - 30, hi = axis === 'x' ? Math.min(b.maxX + 30, layout.openFrom ?? Infinity) : b.maxZ + 30;
+    const cuts = cross.map((c) => { const cc = axis === 'x' ? c.x : c.z; const hw = c.road / 2 + c.walk; return [cc - hw, cc + hw]; }).sort((a1, b1) => a1[0] - b1[0]);
+    const segs = []; let p = lo;
+    for (const [c0, c1] of cuts) { if (c0 > p) segs.push([p, Math.min(c0, hi)]); p = c1; }
+    if (p < hi) segs.push([p, hi]);
+    const P = (a, off = 0) => (axis === 'x' ? [a, curb + sgn * off] : [curb + sgn * off, a]);
+    const armYaw = axis === 'x' ? (sgn > 0 ? -Math.PI / 2 : Math.PI / 2) : (sgn > 0 ? Math.PI : 0);
+    for (const [a0, a1] of segs) {
+      const len = a1 - a0; if (len < 8) continue;
+      if (o.skip && o.skip(axis, s, (a0 + a1) / 2)) continue;
+      const nL = Math.max(1, Math.round(len / (o.lampEvery || 26)));
+      for (let k = 0; k < nL; k++) { const a = a0 + (k + 0.5) * len / nL; const [x, z] = P(a); streetlight(cb, x, z, armYaw, o.lamp || 'nyc', { color: o.lampColor ?? 0xffc27a, pole: o.pole }); }
+      if (o.tree && s.trees !== false) for (let a = a0 + 6; a < a1 - 6; a += rng.range(o.tree.every || 10, (o.tree.every || 10) * 1.4)) {
+        if (!rng.chance(o.tree.chance ?? 1)) continue;
+        const [x, z] = P(a, 0.25); if (!cb.col.blocked(x, z, 1)) tree(cb, x, z, { kind: o.tree.kind || 'street', fence: o.tree.fence, scale: o.tree.scale });
+      }
+      if (o.hydrant !== false) { const [x, z] = P(a0 + 3, 0.05); if (!cb.col.blocked(x, z, 0.4)) hydrant(cb, x, z, o.hydrant ?? 0xb8322a); }
+      if (rng.chance(0.6)) { const [x, z] = P(a1 - 2.5, 0.05); if (!cb.col.blocked(x, z, 0.5)) trashCan(cb, x, z, o.bin ?? 0x2f4a34); }
+      if (o.extra) o.extra(P, a0, a1, axis, s, sgn, armYaw);
+      const parkSide = sgn < 0 ? s.park?.[0] : s.park?.[1];
+      if (parkSide) {
+        const laneC = (axis === 'x' ? s.z : s.x) + sgn * (s.road / 2 - 1.2);
+        const lh = layout.leftHand ? -1 : 1;
+        for (let a = a0 + 6; a < a1 - 6;) {
+          const L = 5.6 + rng.f() * 1.2;
+          if (rng.chance(o.parkChance ?? 0.75)) {
+            const type = rng.weighted(o.parkTypes || [['sedan', 5], ['suv', 3], ['van', 1]]);
+            const yaw = axis === 'x' ? (sgn * lh > 0 ? 0 : Math.PI) : (sgn * lh > 0 ? -Math.PI / 2 : Math.PI / 2);
+            parkedCar(cb, axis === 'x' ? a + L / 2 : laneC, axis === 'x' ? laneC : a + L / 2, yaw + (rng.f() - 0.5) * 0.03, type, type === 'taxi' ? (o.taxiColor ?? 0xf2b51b) : rng.pick(o.carColors || CAR_COLORS));
+          }
+          a += L;
+        }
+      }
+    }
+  };
+  for (const s of zs) { side('x', s, -1); side('x', s, 1); }
+  for (const s of xs) { side('z', s, -1); side('z', s, 1); }
+  if (o.signals !== false) for (const A of xs) for (const C of zs) {
+    if (A.x < b.minX - 1 || A.x > b.maxX + 1 || C.z < b.minZ - 1 || C.z > b.maxZ + 1) continue;
+    if ((A.dirs || []).length === 0 && (C.dirs || []).length === 0) continue;
+    const ox = A.road / 2 + 0.5, oz = C.road / 2 + 0.5;
+    trafficSignal(cb, A.x + ox, C.z - oz, [0, 1], C.road * 0.8, 'x', { heads: [C.road * 0.3, C.road * 0.7], color: o.signalColor });
+    trafficSignal(cb, A.x - ox, C.z + oz, [1, 0], A.road * 0.8, 'z', { heads: [A.road * 0.3, A.road * 0.7], color: o.signalColor });
+  }
+}
+
+/** Front-face helpers for city-specific details. */
+export function frontOf(lot) {
+  const side = lot.side; const S = SIDES[side];
+  const horiz = side === 'n' || side === 's';
+  const len = horiz ? lot.x1 - lot.x0 : lot.z1 - lot.z0;
+  const fx = side === 'e' ? lot.x1 : side === 'w' ? lot.x0 : (lot.x0 + lot.x1) / 2;
+  const fz = side === 's' ? lot.z1 : side === 'n' ? lot.z0 : (lot.z0 + lot.z1) / 2;
+  // u runs along the façade; out is the street normal
+  const ux = horiz ? 1 : 0, uz = horiz ? 0 : 1;
+  const at = (u, out = 0) => [fx + ux * u + S.nx * out, fz + uz * u + S.nz * out];
+  return { side, S, horiz, len, fx, fz, at, yawOut: Math.atan2(S.nx, S.nz) };
 }

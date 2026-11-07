@@ -46,7 +46,11 @@ function buildPartGeos() {
   const dogHead = mergeSimple([new THREE.SphereGeometry(0.09, 8, 6), new THREE.BoxGeometry(0.06, 0.06, 0.1).translate(0.09, -0.02, 0)]);
   const dogLeg = new THREE.CylinderGeometry(0.025, 0.022, 0.22, 5); dogLeg.translate(0, -0.11, 0);
   const dogTail = new THREE.CylinderGeometry(0.015, 0.008, 0.18, 4); dogTail.translate(0, 0.09, 0);
-  return { torso, coat, head, neck, hairShort, hairL, bun, cap, upperArm, foreArm, thigh, shin, umbrella, shaft, folded, bag, dogBody, dogHead, dogLeg, dogTail };
+  const band = new THREE.TorusGeometry(0.122, 0.014, 5, 14, Math.PI); band.rotateY(Math.PI / 2); band.translate(0, 0.02, 0);
+  const cupL = new THREE.CylinderGeometry(0.045, 0.045, 0.035, 10).rotateZ(Math.PI / 2).translate(0.118, 0.0, 0);
+  const cupR = new THREE.CylinderGeometry(0.045, 0.045, 0.035, 10).rotateZ(Math.PI / 2).translate(-0.118, 0.0, 0);
+  const phones = mergeSimple([band, cupL, cupR]);
+  return { torso, coat, head, neck, hairShort, hairL, bun, cap, upperArm, foreArm, thigh, shin, umbrella, shaft, folded, bag, dogBody, dogHead, dogLeg, dogTail, phones };
 }
 
 function mergeSimple(geos) {
@@ -100,11 +104,12 @@ export class Crowd {
       hair0: mk('hair0', geos.hairShort, N), hair1: mk('hair1', geos.hairL, N), hair2: mk('hair2', geos.bun, N), hair3: mk('hair3', geos.cap, N),
       uArm: mk('uarm', geos.upperArm, N * 2), fArm: mk('farm', geos.foreArm, N * 2), thigh: mk('thigh', geos.thigh, N * 2), shin: mk('shin', geos.shin, N * 2),
       umb: mk('umb', geos.umbrella, N, umbMat), shaft: mk('shaft', geos.shaft, N), folded: mk('folded', geos.folded, N), bag: mk('bag', geos.bag, N),
-      dogBody: mk('dogb', geos.dogBody, N), dogHead: mk('dogh', geos.dogHead, N), dogLeg: mk('dogl', geos.dogLeg, N * 4), dogTail: mk('dogt', geos.dogTail, N),
+      dogBody: mk('dogb', geos.dogBody, N * 2), dogHead: mk('dogh', geos.dogHead, N * 2), dogLeg: mk('dogl', geos.dogLeg, N * 8), dogTail: mk('dogt', geos.dogTail, N * 2),
+      phones: mk('phones', geos.phones, N),
     };
     // leashes
     this.leashGeo = new THREE.BufferGeometry();
-    this.leashGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 6), 3));
+    this.leashGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 12), 3));
     this.leash = new THREE.LineSegments(this.leashGeo, new THREE.LineBasicMaterial({ color: 0x222222 }));
     this.leash.frustumCulled = false;
     this.group.add(this.leash);
@@ -147,8 +152,13 @@ export class Crowd {
     M.shaft.setColorAt(a.i, new THREE.Color(0x222222));
     M.bag.setColorAt(a.i, c.set(r.pick(['#3a2a1e', '#1a1a1a', '#6a4a2a', '#8a2a2a', '#2a3a4a'])).clone());
     const dog = c.set(r.pick(['#d8b880', '#3a2a1e', '#f0ead8', '#1a1a1a', '#a8683a', '#8a8a8a'])).clone();
-    M.dogBody.setColorAt(a.i, dog); M.dogHead.setColorAt(a.i, dog); M.dogTail.setColorAt(a.i, dog);
-    for (let k = 0; k < 4; k++) M.dogLeg.setColorAt(a.i * 4 + k, dog);
+    const dog2 = c.set(r.pick(['#f0ead8', '#3a2a1e', '#d8b880', '#6a6a6a'])).clone();
+    for (const [slot, col] of [[a.i, dog], [a.i + this.max, dog2]]) {
+      M.dogBody.setColorAt(slot, col); M.dogHead.setColorAt(slot, col); M.dogTail.setColorAt(slot, col);
+      for (let k = 0; k < 4; k++) M.dogLeg.setColorAt(slot * 4 + k, col);
+    }
+    M.phones.setColorAt(a.i, c.set(r.pick(['#1a1a1a', '#e8e8e8', '#2a4a8a', '#c83a5a', '#d8c8a8'])).clone());
+    a.phones = r.chance(0.22);
   }
 
   setGraph(graph, signals, style) {
@@ -184,7 +194,7 @@ export class Crowd {
           a.followers.push(f);
           alive++;
         }
-      } else if (s.dogs && a.mode === 'walk' && r.chance(0.08)) a.dog = true;
+      } else if (s.dogs && a.mode === 'walk' && r.chance(0.09)) { a.dog = true; a.dogs = r.chance(0.3) ? 2 : 1; }
     }
     // despawn extras (followers go with leaders)
     if (alive > n) {
@@ -206,10 +216,12 @@ export class Crowd {
   }
   hide(a) {
     const M = this.M;
-    for (const k of ['torso', 'coat', 'head', 'neck', 'hair0', 'hair1', 'hair2', 'hair3', 'umb', 'shaft', 'folded', 'bag', 'dogBody', 'dogHead', 'dogTail']) M[k].setMatrixAt(a.i, ZERO);
+    for (const k of ['torso', 'coat', 'head', 'neck', 'hair0', 'hair1', 'hair2', 'hair3', 'umb', 'shaft', 'folded', 'bag', 'dogBody', 'dogHead', 'dogTail', 'phones']) M[k].setMatrixAt(a.i, ZERO);
+    for (const k of ['dogBody', 'dogHead', 'dogTail']) M[k].setMatrixAt(a.i + this.max, ZERO);
+    for (let k = 0; k < 4; k++) M.dogLeg.setMatrixAt((a.i + this.max) * 4 + k, ZERO);
     for (let k = 0; k < 2; k++) for (const p of ['uArm', 'fArm', 'thigh', 'shin']) M[p].setMatrixAt(a.i * 2 + k, ZERO);
     for (let k = 0; k < 4; k++) M.dogLeg.setMatrixAt(a.i * 4 + k, ZERO);
-    const arr = this.leashGeo.attributes.position.array; arr.fill(0, a.i * 6, a.i * 6 + 6);
+    const arr = this.leashGeo.attributes.position.array; arr.fill(0, a.i * 6, a.i * 6 + 6); arr.fill(0, (a.i + this.max) * 6, (a.i + this.max) * 6 + 6);
   }
   spawn(a, atExit = false, avoid = null) {
     const r = this.rng; const G = this.graph;
@@ -325,7 +337,19 @@ export class Crowd {
           if (pAhead < 1.0 && Math.abs(pSide) < 0.5) want *= 0.2;
         }
         const [lo, hi] = this.band(a);
-        const target = Math.max(lo, Math.min(hi, this.latFor(a, a.latPref) + latPush));
+        // steer around solid things on the pavement (carts, posts, tree pits, tables)
+        if (this.col && e.kind === 'walk' && (frame + a.i) % 4 === 0) {
+          const look = Math.min(e.len, a.s + 1.6);
+          const bx = A.x + dx * look, bz = A.z + dz * look;
+          const probe = (lat) => this.col.blocked(bx - dz * lat, bz + dx * lat, 0.32);
+          if (probe(a.lat)) {
+            let best = null;
+            for (const d of [0.5, -0.5, 1.0, -1.0, 1.5, -1.5, 2.0, -2.0]) { const l = a.lat + d; if (l >= lo - 0.6 && l <= hi + 0.6 && !probe(l)) { best = l; break; } }
+            a.avoid = best ?? a.lat; a.avoidT = 1.6;
+          }
+        }
+        if (a.avoidT > 0) { a.avoidT -= dt; latPush += a.avoid - this.latFor(a, a.latPref); }
+        const target = Math.max(lo - 0.6, Math.min(hi + 0.6, this.latFor(a, a.latPref) + latPush));
         a.lat += (target - a.lat) * Math.min(1, dt * 1.6);
         a.speed += (want - a.speed) * Math.min(1, dt * 2);
         a.s += a.speed * dt;
@@ -431,10 +455,12 @@ export class Crowd {
     put(M.torso, i, _tmp);
     if (a.coatLong) put(M.coat, i, local(0, 0.95, 0, hunch * 0.3, sway, 0, 1, _tmp)); else M.coat.setMatrixAt(i, ZERO);
     // head & neck via torso
-    const headM = new THREE.Matrix4().multiplyMatrices(torsoM, local(0, 0.66, 0.02, -hunch * 0.7 + (a.mode === 'browse' ? 0.15 : 0), a.mode === 'stand' ? Math.sin(t * 0.4 + a.i) * 0.5 : 0, 0, 1, _tmp));
+    const nod = a.phones && ctx.beat !== undefined ? Math.max(0, Math.sin(ctx.beat * Math.PI * 2 + a.i)) * 0.09 : 0;
+    const headM = new THREE.Matrix4().multiplyMatrices(torsoM, local(0, 0.66, 0.02, -hunch * 0.7 + nod + (a.mode === 'browse' ? 0.15 : 0), a.mode === 'stand' ? Math.sin(t * 0.4 + a.i) * 0.5 : 0, 0, 1, _tmp));
     put(M.neck, i, new THREE.Matrix4().multiplyMatrices(torsoM, local(0, 0.6, 0.01, 0, 0, 0, 1, _tmp)));
     put(M.head, i, headM);
     for (let k = 0; k < 4; k++) { if (k === a.hair) put(M['hair' + k], i, headM); else M['hair' + k].setMatrixAt(i, ZERO); }
+    if (a.phones) put(M.phones, i, headM); else M.phones.setMatrixAt(i, ZERO);
     // legs
     for (let k = 0; k < 2; k++) {
       const sgn = k === 0 ? 1 : -1;
@@ -477,32 +503,35 @@ export class Crowd {
       }
     }
     if (a.bag) put(M.bag, i, new THREE.Matrix4().multiplyMatrices(torsoM, local(0.2 * a.w, 0.45, -0.02, 0, 0, 0.05, 1, _tmp))); else M.bag.setMatrixAt(i, ZERO);
-    // dog
-    if (a.dog && !leader) {
-      const dxs = Math.sin(a.yaw), dzs = Math.cos(a.yaw);
-      const off = this.towardBld(a) > 0 ? -0.65 : 0.65;
-      const rx = dzs, rz = -dxs; // right of facing
-      const gx = x + dxs * 0.9 + rx * off * 0.0 - dzs * 0 + (-dzs) * 0, gz = z + dzs * 0.9;
-      const ddx = gx + (dz) * 0 + rx * 0.45, ddz = gz + rz * 0.45;
-      const dph = ph * 1.9;
-      const dRoot = local(ddx, a.y + 0.34 + (walking ? Math.abs(Math.sin(dph)) * 0.02 : 0), ddz, 0, a.yaw - Math.PI / 2, 0, 1, new THREE.Matrix4());
-      M.dogBody.setMatrixAt(i, dRoot);
-      M.dogHead.setMatrixAt(i, new THREE.Matrix4().multiplyMatrices(dRoot, local(0.3, 0.12, 0, 0, 0, Math.sin(t * 2 + i) * 0.1, 1, _tmp)));
-      M.dogTail.setMatrixAt(i, new THREE.Matrix4().multiplyMatrices(dRoot, local(-0.26, 0.04, 0, Math.sin(t * 9 + i) * 0.5, 0, -0.9, 1, _tmp)));
-      const legs = [[0.17, 0.07, 0], [0.17, -0.07, Math.PI], [-0.17, 0.07, Math.PI], [-0.17, -0.07, 0]];
-      legs.forEach(([lx, lz, o], k) => {
-        const sw = walking ? Math.sin(dph + o) * 0.5 : 0;
-        M.dogLeg.setMatrixAt(i * 4 + k, new THREE.Matrix4().multiplyMatrices(dRoot, local(lx, -0.05, lz, 0, 0, sw, 1, _tmp)));
-      });
-      // leash from left hand to collar
-      const arr = this.leashGeo.attributes.position.array;
-      const lh = new THREE.Vector3().setFromMatrixPosition(_m.multiplyMatrices(_root, local(0.25, 0.75, 0.15, 0, 0, 0, 1, _tmp)));
-      const col = new THREE.Vector3().setFromMatrixPosition(new THREE.Matrix4().multiplyMatrices(dRoot, local(0.24, 0.08, 0, 0, 0, 0, 1, _tmp)));
-      arr.set([lh.x, lh.y, lh.z, col.x, col.y, col.z], i * 6);
-    } else {
-      M.dogBody.setMatrixAt(i, ZERO); M.dogHead.setMatrixAt(i, ZERO); M.dogTail.setMatrixAt(i, ZERO);
-      for (let k = 0; k < 4; k++) M.dogLeg.setMatrixAt(i * 4 + k, ZERO);
-      const arr = this.leashGeo.attributes.position.array; if (arr[i * 6 + 1] !== 0) arr.fill(0, i * 6, i * 6 + 6);
+    // dogs (some walkers have two)
+    const N = this.max;
+    for (let d = 0; d < 2; d++) {
+      const slot = i + d * N;
+      if (a.dog && !leader && d < (a.dogs || 1)) {
+        const dxs = Math.sin(a.yaw), dzs = Math.cos(a.yaw);
+        const rx = dzs, rz = -dxs; // right of facing
+        const side = d === 0 ? 0.45 : -0.15, ahead = d === 0 ? 0.9 : 1.35;
+        const ddx = x + dxs * ahead + rx * side, ddz = z + dzs * ahead + rz * side;
+        const dph = ph * 1.9 + d * 1.3;
+        const dRoot = local(ddx, a.y + 0.34 * (d ? 0.8 : 1) + (walking ? Math.abs(Math.sin(dph)) * 0.02 : 0), ddz, 0, a.yaw - Math.PI / 2 + (d ? Math.sin(t * 0.7 + i) * 0.25 : 0), 0, d ? 0.8 : 1, new THREE.Matrix4());
+        M.dogBody.setMatrixAt(slot, dRoot);
+        M.dogHead.setMatrixAt(slot, new THREE.Matrix4().multiplyMatrices(dRoot, local(0.3, 0.12, 0, 0, 0, Math.sin(t * 2 + i + d) * 0.1, 1, _tmp)));
+        M.dogTail.setMatrixAt(slot, new THREE.Matrix4().multiplyMatrices(dRoot, local(-0.26, 0.04, 0, Math.sin(t * 9 + i + d * 2) * 0.5, 0, -0.9, 1, _tmp)));
+        const legs = [[0.17, 0.07, 0], [0.17, -0.07, Math.PI], [-0.17, 0.07, Math.PI], [-0.17, -0.07, 0]];
+        legs.forEach(([lx, lz, o], k) => {
+          const sw = walking ? Math.sin(dph + o) * 0.5 : 0;
+          M.dogLeg.setMatrixAt(slot * 4 + k, new THREE.Matrix4().multiplyMatrices(dRoot, local(lx, -0.05, lz, 0, 0, sw, 1, _tmp)));
+        });
+        // leash from left hand to collar
+        const arr = this.leashGeo.attributes.position.array;
+        const lh = new THREE.Vector3().setFromMatrixPosition(_m.multiplyMatrices(_root, local(0.25, 0.75, 0.15, 0, 0, 0, 1, _tmp)));
+        const col = new THREE.Vector3().setFromMatrixPosition(new THREE.Matrix4().multiplyMatrices(dRoot, local(0.24, 0.08, 0, 0, 0, 0, 1, _tmp)));
+        arr.set([lh.x, lh.y, lh.z, col.x, col.y, col.z], slot * 6);
+      } else {
+        M.dogBody.setMatrixAt(slot, ZERO); M.dogHead.setMatrixAt(slot, ZERO); M.dogTail.setMatrixAt(slot, ZERO);
+        for (let k = 0; k < 4; k++) M.dogLeg.setMatrixAt(slot * 4 + k, ZERO);
+        const arr = this.leashGeo.attributes.position.array; if (arr[slot * 6 + 1] !== 0) arr.fill(0, slot * 6, slot * 6 + 6);
+      }
     }
   }
   /** People currently on (or waiting at) a crosswalk — turning cars yield to them. */

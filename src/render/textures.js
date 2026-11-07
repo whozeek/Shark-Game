@@ -641,3 +641,35 @@ export function makeLeaves(seed = 21, base = '#3c6b3a', blossom = null) {
   }
   return finishCanvasTex(cv, { repeat: true });
 }
+
+export function makeSignTex(text, bg = '#1a2a22', fg = '#f4e7c4', font = 'Georgia, serif') {
+  const [cv, c] = canvas(512, 96);
+  c.fillStyle = bg; c.fillRect(0, 0, 512, 96);
+  c.strokeStyle = fg; c.globalAlpha = 0.5; c.lineWidth = 3; c.strokeRect(8, 8, 496, 80); c.globalAlpha = 1;
+  c.fillStyle = fg; c.font = `bold ${Math.min(56, 900 / Math.max(6, text.length))}px ${font}`; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText(text, 256, 50);
+  return finishCanvasTex(cv);
+}
+export function makeWoodFloor(seed = 61, base = '#6a4a30') {
+  const rng = new RNG(seed);
+  const [cv, c] = canvas(512, 512);
+  const pw = 512 / 8;
+  for (let i = 0; i < 8; i++) {
+    let y = -rng.f() * 200;
+    while (y < 512) {
+      const len = rng.range(120, 300);
+      c.fillStyle = jitterColor(base, rng, 0.1); c.fillRect(i * pw + 1, y, pw - 2, len - 2);
+      for (let k = 0; k < 6; k++) { c.fillStyle = 'rgba(0,0,0,0.06)'; c.fillRect(i * pw + rng.f() * pw, y, 1, len); }
+      y += len;
+    }
+  }
+  return finishCanvasTex(cv, { repeat: true });
+}
+export function makeTiles(base = '#e8e6df', grout = '#a8a49a', w = 8, h = 16) {
+  const rng = new RNG(71);
+  const [cv, c] = canvas(512, 512);
+  c.fillStyle = grout; c.fillRect(0, 0, 512, 512);
+  const tw = 512 / w, th = 512 / h;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { c.fillStyle = jitterColor(base, rng, 0.03); c.fillRect(x * tw + 2, y * th + 2, tw - 4, th - 4); }
+  return finishCanvasTex(cv, { repeat: true });
+}

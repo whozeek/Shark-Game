@@ -4,8 +4,7 @@ import * as THREE from 'three';
 import { buildGrid } from '../world/cityBase.js';
 import {
   createMaterials, facadeMaterials, shopMaterial, building, perimeterLots, streetlight, tree, hydrant,
-  trashCan, bench, trafficSignal, parkedCar, neonMaterial, neonSign, SIDES,
-} from '../world/kit.js';
+  trashCan, bench, trafficSignal, parkedCar, neonMaterial, neonSign, SIDES, cartOnKerb } from '../world/kit.js';
 import { CAR_COLORS } from '../world/vehicleGeo.js';
 import { addSkyline, addHills } from '../world/skyline.js';
 import { makeMural } from '../render/textures.js';
@@ -17,6 +16,7 @@ export const la = {
   seed: 9191, palette: { fog: '#2a2230', accent: '#ff9f6b' },
   glow: '#7a5040', vehicleMix: { car: 0.55, suv: 0.3, van: 0.15, taxi: 0 }, busColor: 0xc8a020, bus: true,
   bldClear: 1.2,
+  seasonal: false,
   build,
 };
 
@@ -33,6 +33,7 @@ const NEON = [{ text: 'Tacos', color: '#ffb347' }, { text: 'Brewery', color: '#f
 async function build(cb, step) {
   const M = createMaterials(cb, cb.q, { asphalt: '#2e2d2f', sidewalk: '#9a948a' });
   cb.mats = M;
+  cb.walkIns.push({ x: 10, z: -30, kind: 'cafe', name: 'Hewitt House Coffee' });
   const F = facadeMaterials(cb, [
     { wall: 'brick', color: '#7a3e2c', mortar: '#8f8273', trim: '#c9bda8', windowStyle: 'wide', bays: 3, bayW: 3.8, floorH: 4.2, litRatio: 0.45, seed: 41 },
     { wall: 'concrete', color: '#c8bfae', windowStyle: 'wide', frame: '#2a2a2a', bays: 3, bayW: 3.8, floorH: 4.2, litRatio: 0.4, seed: 43 },
@@ -86,7 +87,7 @@ async function build(cb, step) {
         cornice: rng.chance(0.4), corniceColor: 0x8a7a6a, parapet: rng.range(0.8, 1.6), trim: rng.pick([0x9a8a7a, 0x6a6a6a, 0xb8a890]),
         awning: isShop && rng.chance(0.5) ? { color: rng.pick([0x2a2a2a, 0x8a3a1f, 0x1f4a4a, 0xd8a020]), solid: true, depth: 2.0, drop: 0.3 } : null,
       });
-      if (!isShop) rollupDoor(cb, lot, rng);
+      if (!isShop && !lot.walkIn) rollupDoor(cb, lot, rng);
       // murals on visible side walls of corner lots and on some fronts
       for (const side of ['n', 's', 'e', 'w']) {
         if (side === lot.side) continue;
@@ -94,7 +95,7 @@ async function build(cb, step) {
         if (onStreet && rng.chance(0.75)) mural(cb, lot, side, 0.3, h - 0.3, muralMats[mi++ % muralMats.length]);
       }
       if (!isShop && rng.chance(0.35) && w > 12) mural(cb, lot, lot.side, 5, h - 0.5, muralMats[mi++ % muralMats.length], 0.6);
-      if (isShop) {
+      if (isShop && !lot.walkIn) {
         const s = SHOPS[idx]; const ni = { restaurant: 0, bar: 1, cafe: 2, records: 3, shop: 5 }[s.type];
         if (ni !== undefined && rng.chance(0.7)) {
           const S = SIDES[lot.side];
@@ -111,6 +112,8 @@ async function build(cb, step) {
   }
   cb.keepClear = [[-8 + 11 + 2.5, -6 + 8.5 + 2.3, 4]];
   furnish(cb, layout);
+  cartOnKerb(cb, 4, -40, -Math.PI / 2, 'tacos');
+  cartOnKerb(cb, -20, 40, Math.PI / 2, 'juice');
   await step(0.72, 'Planting palms');
   addHills(cb, { seed: 7, center: [0, 0], r: 1100, arcFrom: -Math.PI * 0.95, arcTo: -Math.PI * 0.05, h: 260, base: 40, color: '#2a3036', top: '#3a3a44', lights: true });
   addHills(cb, { seed: 9, center: [0, 0], r: 1350, arcFrom: -Math.PI * 1.05, arcTo: Math.PI * 0.2, h: 420, base: 60, color: '#353a44', top: '#4a4a56' });

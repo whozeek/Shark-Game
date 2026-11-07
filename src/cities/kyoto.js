@@ -3,8 +3,9 @@
 // canal, small bridges and a quiet garden. Not a reconstruction of any real street.
 import * as THREE from 'three';
 import { buildGrid } from '../world/cityBase.js';
-import { createMaterials, facadeMaterials, shopMaterial, building, perimeterLots, streetlight, tree, bench, SIDES, grassMaterial } from '../world/kit.js';
+import { createMaterials, facadeMaterials, shopMaterial, building, perimeterLots, streetlight, tree, bench, SIDES, grassMaterial, foodCart } from '../world/kit.js';
 import { addHills, addSkyline } from '../world/skyline.js';
+import { coveredArcade } from '../world/interiors.js';
 import { makePaving, makeNoren, makeLantern } from '../render/textures.js';
 import { patchGround, patchWash } from '../render/shared.js';
 
@@ -28,6 +29,7 @@ async function build(cb, step) {
   // stone-paved lanes instead of asphalt
   M.asphalt = cb.track(patchGround(new THREE.MeshStandardMaterial({ map: cb.track(makePaving(12, { kind: 'cobble', base: '#5e5a54' })), roughness: 0.85, vertexColors: true }), { puddleScale: 1.1, taps: cb.q.reflTaps }));
   cb.mats = M;
+  cb.walkIns.push({ x: -28, z: 30, kind: 'tea', name: 'Willow Tea House' });
   const F = facadeMaterials(cb, [
     { wall: 'wood', color: '#4a2e1e', trim: '#2a1a10', windowStyle: 'lattice', frame: '#2a1a10', bays: 3, bayW: 2.2, floorH: 3.0, litRatio: 0.65, seed: 301 },
     { wall: 'wood', color: '#5a3a26', trim: '#2e1c12', windowStyle: 'lattice', frame: '#3a2416', bays: 3, bayW: 2.2, floorH: 3.0, litRatio: 0.6, seed: 307 },
@@ -81,6 +83,7 @@ async function build(cb, step) {
   }
   cb.keepClear = [[-60, -6 - 2.75 - 1.1 + 0.0, 3]];
   furnish(cb, layout, lanternMats);
+  coveredArcade(cb, layout.zs[0], -86, -24, { name: 'Yanagi covered market' });
   await step(0.72, 'Hanging lanterns');
   addHills(cb, { seed: 21, center: [0, 0], r: 900, arcFrom: -Math.PI, arcTo: Math.PI, h: 220, base: 50, color: '#1e2a24', top: '#2a3430', lights: true });
   addHills(cb, { seed: 23, center: [0, 0], r: 1300, arcFrom: -Math.PI, arcTo: Math.PI, h: 360, base: 80, color: '#28302e', top: '#343c3c' });
@@ -131,7 +134,9 @@ function machiya(cb, lot, fac, rng, o) {
   if (o.simple) return;
   // wooden plinth and bench-like ledge
   cb.batch.box(M.paint, fx + S.nx * 0.12, 0.25, fz + S.nz * 0.12, horiz ? len : 0.24, 0.3, horiz ? 0.24 : len, 0x2a1a10);
-  if (o.shop) {
+  if (lot.walkIn) {
+    // the walk-in tea house has its own front
+  } else if (o.shop) {
     // noren curtain over the entrance and a hanging lantern
     const along = rng.range(-len / 2 + 1, len / 2 - 1);
     const nx = horiz ? fx + along : fx + S.nx * 0.25, nz = horiz ? fz + S.nz * 0.25 : fz + along;
@@ -237,6 +242,8 @@ function garden(cb, blk) {
   for (const o of [-2.2, 2.2]) { cb.batch.box(M.bark, cx + o, 1.9, gz, 0.35, 3.8, 0.35, 0x2a1a10); cb.col.addCircle(cx + o, gz, 0.3); }
   cb.batch.box(M.bark, cx, 3.6, gz, 5.6, 0.3, 0.4, 0x2a1a10);
   cb.batch.box(cb.lanternMats ? M.roof : M.roof, cx, 4.1, gz, 6.4, 0.25, 1.6, 0x3a3c40);
+  // a little food stall by the path
+  foodCart(cb, cx - 7, cz + 7, Math.PI / 2, 'yatai');
   // benches by the pond
   bench(cb, cx + 6.5, cz + 14, Math.PI / 2 + Math.PI, { label: 'garden bench', color: 0x4a3020 });
   bench(cb, cx + 18, cz + 2.5, 0, { label: 'garden bench', color: 0x4a3020 });

@@ -15,6 +15,7 @@ const RainU = {
   uRainLight: { value: 1 },
   uRainGlint: { value: 0.5 },
   uIntensity: { value: 0.5 },
+  uSnowP: { value: 0 },
 };
 
 function rainLayer(count, box, len, width, alpha, near, far, seed) {
@@ -34,20 +35,26 @@ function rainLayer(count, box, len, width, alpha, near, far, seed) {
     uniforms: { ...U, ...RainU, uBox: { value: new THREE.Vector3(box[0], box[1], box[0]) }, uLen: { value: len }, uWidth: { value: width }, uAlpha: { value: alpha }, uNear: { value: near }, uFar: { value: far } },
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     vertexShader: /* glsl */`
-      uniform vec3 uCam, uBox; uniform vec2 uWind; uniform float uTime, uSpeed, uLen, uWidth, uDrop;
+      uniform vec3 uCam, uBox; uniform vec2 uWind; uniform float uTime, uSpeed, uLen, uWidth, uDrop, uSnowP;
       attribute vec4 aRnd;
-      varying float vA; varying vec2 vUv; varying vec3 vW;
+      varying float vA; varying vec2 vUv; varying vec3 vW; varying float vFlake;
       void main(){
-        float sp = (7.5 + aRnd.w * 3.5) * uSpeed;
+        float flake = step(aRnd.z, uSnowP * 0.999 + 0.0005) * step(0.001, uSnowP);
+        vFlake = flake;
+        float sp = (7.5 + aRnd.w * 3.5) * uSpeed * mix(1.0, 0.12, flake);
         vec3 vel = vec3(uWind.x, -sp, uWind.y);
         vec3 p = aRnd.xyz * uBox + vel * uTime;
         vec3 origin = uCam - vec3(uBox.x * 0.5, uBox.y * 0.35, uBox.z * 0.5);
         p = mod(p - origin, uBox) + origin;
+        p.x += sin(uTime * 1.1 + aRnd.w * 30.0) * 0.45 * flake;
+        p.z += cos(uTime * 0.9 + aRnd.x * 20.0) * 0.45 * flake;
         vec3 axis = normalize(vel);
         vec3 toCam = normalize(uCam - p);
         vec3 side = normalize(cross(axis, toCam));
         float L = uLen * uDrop * (0.7 + aRnd.w * 0.6) * (0.6 + 0.4 * uSpeed);
-        vec3 wp = p + side * position.x * uWidth * uDrop - axis * position.y * L;
+        float W = uWidth * uDrop;
+        if (flake > 0.5) { W = max(W * 3.0, 0.03) * (0.6 + aRnd.y * 0.8); L = W; }
+        vec3 wp = p + side * position.x * W - axis * position.y * L;
         vA = step(0.05, p.y) * (0.5 + aRnd.y * 0.5);
         vUv = uv; vW = wp;
         gl_Position = projectionMatrix * viewMatrix * vec4(wp, 1.0);
@@ -55,7 +62,7 @@ function rainLayer(count, box, len, width, alpha, near, far, seed) {
     fragmentShader: /* glsl */`
       ${GLSL_COMMON}
       uniform vec3 uRainCol, uCam; uniform float uAlpha, uNear, uFar, uRainLight, uRainGlint;
-      varying float vA; varying vec2 vUv; varying vec3 vW;
+      varying float vA; varying vec2 vUv; varying vec3 vW; varying float vFlake;
       void main(){
         float d = length(vW - uCam);
         float fade = smoothstep(uNear * 0.6, uNear, d) * (1.0 - smoothstep(uFar * 0.7, uFar, d));
@@ -65,6 +72,11 @@ function rainLayer(count, box, len, width, alpha, near, far, seed) {
         c = mix(c, raRainbowCol(vW) * 1.4 * uRainLight + uRainCol * 0.2, uRainbow * (0.4 + uRainGlint * 0.6));
         c += uFlash * vec3(0.8, 0.85, 1.0) * 2.0;
         float a = across * along * fade * vA * uAlpha;
+        if (vFlake > 0.5) {
+          float r = length(vUv - 0.5);
+          a = smoothstep(0.5, 0.15, r) * fade * vA * min(1.0, uAlpha * 2.2);
+          c = vec3(0.92, 0.94, 0.98) * (uRainLight * 1.2 + 0.15) + uFlash * vec3(0.8);
+        }
         gl_FragColor = vec4(c * a, 1.0);
       }`,
   });
@@ -192,6 +204,7 @@ export class Rain {
   }
   update(dt, t, s, cam, atm, opts = {}) {
     const intensity = opts.hidden ? 0 : s.rainIntensity;
+    RainU.uSnowP.value = opts.snow || 0;
     RainU.uIntensity.value = intensity;
     RainU.uCam.value.copy(cam.position);
     RainU.uRainCol.value.set(s.rainColor);
@@ -208,13 +221,15 @@ export class Rain {
       this.near.geometry.instanceCount = Math.floor(this.near.userData.max * Math.min(1, heavy * 1.1));
       this.mid.geometry.instanceCount = Math.floor(this.mid.userData.max * heavy);
       this.far.geometry.instanceCount = Math.floor(this.far.userData.max * Math.min(1, heavy * 1.2));
-      this.splash.geometry.instanceCount = Math.floor(this.splash.userData.max * heavy);
-      this.group.visible = intensity > 0.001;
+      this.splash.geometry.instanceCount = Math.floor(this.splash.userData.max * heavy * (1 - (opts.snow || 0)));
+      this.group.visible = intensity > 0.001 && opts.indoor !== 'full';
+      const part = opts.indoor === 'partial';
+      this.near.visible = !part; this.mid.visible = !part; this.splash.visible = !part;
     }
     // mist banks
     if (this.mist) {
       const mistAmt = s.mist * (0.5 + s.fog * 0.5);
-      this.mist.visible = mistAmt > 0.02 && !opts.hidden;
+      this.mist.visible = mistAmt > 0.02 && !opts.hidden && !opts.indoor;
       this.mistMat.opacity = 0.16 * mistAmt;
       this.mistMat.color.copy(atm.fogCol).multiplyScalar(1.4).addScalar(0.04);
       for (const sp of this.mistSprites) {

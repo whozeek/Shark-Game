@@ -4,9 +4,10 @@ import * as THREE from 'three';
 import { buildGrid } from '../world/cityBase.js';
 import {
   createMaterials, facadeMaterials, shopMaterial, building, stoop, perimeterLots, streetlight, tree, hydrant,
-  trashCan, bench, planter, newsBox, cafeSet, busShelter, trafficSignal, parkedCar, neonMaterial, neonSign, grassMaterial } from '../world/kit.js';
+  trashCan, bench, planter, newsBox, cafeSet, busShelter, trafficSignal, parkedCar, neonMaterial, neonSign, grassMaterial, cartOnKerb } from '../world/kit.js';
 import { CAR_COLORS, TAXI_YELLOW } from '../world/vehicleGeo.js';
 import { addSkyline } from '../world/skyline.js';
+import { subwayStation } from '../world/interiors.js';
 
 export const nyc = {
   id: 'nyc',
@@ -49,6 +50,10 @@ async function build(cb, step) {
   const q = cb.q;
   const M = createMaterials(cb, q, { asphalt: '#2a2b2f', sidewalk: '#8d8a84' });
   cb.mats = M;
+  // walk-in places: a café (with a rooftop terrace upstairs) and a laundromat
+  cb.walkIns.push({ x: -4, z: 0, kind: 'cafe', name: 'Hudson & Ivy Café', rooftop: true });
+  cb.walkIns.push({ x: -36, z: -5, kind: 'laundry', name: 'Spin Cycle Laundromat' });
+  cb.keepClear = [[-1.8, 46.5, 3.5]];
   const F = facadeMaterials(cb, [
     { wall: 'stone', color: '#6b4636', trim: '#5a3a2c', lintel: '#7d5644', frame: '#e6dccb', windowStyle: 'tall', bays: 3, bayW: 2.3, floorH: 3.3, litRatio: 0.5, seed: 11 },
     { wall: 'brick', color: '#8a3b2a', mortar: '#9b9184', trim: '#ece4d4', windowStyle: 'sash', bays: 4, bayW: 2.5, bands: false, litRatio: 0.45, seed: 23, flowerBoxes: true },
@@ -161,8 +166,11 @@ async function build(cb, step) {
   }
 
   // ---- street furniture along every sidewalk inside the bounds
-  cb.keepClear = [[-10.6, 18, 5.5]];
+  cb.keepClear.push([-10.6, 18, 5.5]);
   furnishStreets(cb, layout, grid);
+  cartOnKerb(cb, -11.0, -6, -Math.PI / 2, 'hotdog');
+  subwayStation(cb, [-1.8, 46.5], { name: 'Perry St' });
+  cartOnKerb(cb, 142, 60, -Math.PI / 2, 'coffee');
   await step(0.72, 'Planting trees and lamps');
 
   // ---- distant Manhattan skyline to the north and east

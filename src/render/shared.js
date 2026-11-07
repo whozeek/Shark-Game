@@ -39,6 +39,10 @@ export const U = {
   uPoolC: { value: Array.from({ length: 40 }, () => new THREE.Vector3()) },
   uPoolGain: { value: 1 },
   uHour: { value: 20 },
+  uSeason: { value: new THREE.Vector4(0, 0, 1, 0) },
+  uSeasonLeaf: { value: 1 },
+  uSnowCover: { value: 0 },
+  uSnow: { value: 0 },
   uWinFrac: { value: 1 },
 };
 export const POOL_COUNT = 40;
@@ -50,6 +54,8 @@ uniform vec2 uRbDir;
 uniform vec3 uPal0, uPal1, uPal2, uPal3;
 uniform vec3 uSkyTop, uSkyHorizon, uCityGlow;
 uniform float uNight;
+uniform vec4 uSeason;
+uniform float uSnowCover, uSnow, uSeasonLeaf;
 float raHash12(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * .1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
 vec3 raHash32(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973)); p3 += dot(p3, p3.yxz+33.33); return fract((p3.xxy+p3.yzz)*p3.zyx); }
 float raNoise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); f = f*f*(3.0-2.0*f);
@@ -67,6 +73,13 @@ vec3 raRainbowCol(vec3 wp){
   }
   float l = dot(c, vec3(0.299, 0.587, 0.114));
   return mix(vec3(l), c, uRbSat);
+}
+// Snow settles on upward-facing surfaces (roofs, ledges, car roofs, sidewalks).
+vec3 raSnowOn(vec3 col, vec3 n, vec3 wp, float amt){
+  if (amt <= 0.001) return col;
+  float up = smoothstep(0.5, 0.9, n.y);
+  float nz = 0.55 + 0.45 * raNoise(wp.xz * 1.7 + wp.y);
+  return mix(col, vec3(0.82, 0.85, 0.9), clamp(up * amt * nz * 1.3, 0.0, 1.0));
 }
 // A cheap "city environment" for vertical glass: sky above, smeared lights below the horizon.
 vec3 raEnv(vec3 R, vec3 wp){
@@ -165,6 +178,18 @@ export function patchGround(mat, { puddleScale = 1, taps = 5 } = {}) {
         float raPud = smoothstep(raThr, raThr + 0.06, raPn) * uWetness;
         float raWet = uWetness;
         diffuseColor.rgb *= mix(1.0, 0.55, raWet * 0.8) * mix(1.0, 0.45, raPud);
+        {
+          // fallen leaves on paths in autumn
+          float lfN = raNoise(vRaWPos.xz * 9.0 + 3.1) * (0.35 + 0.65 * raNoise(vRaWPos.xz * 0.4 + 7.0));
+          float lf = smoothstep(0.5, 0.56, lfN) * uSeason.z * uSeasonLeaf * (uPuddleScale < 1.0 ? 1.0 : 0.35) * (1.0 - raPud);
+          vec3 lfc = mix(vec3(0.42, 0.18, 0.05), vec3(0.6, 0.38, 0.1), raHash12(floor(vRaWPos.xz * 9.0)));
+          diffuseColor.rgb = mix(diffuseColor.rgb, lfc * 0.55, lf * 0.85);
+          // snow: roads stay patchier where traffic runs
+          float cover = uSnowCover * (uPuddleScale < 1.0 ? 1.0 : 0.55) * (uPuddleScale > 2.0 ? 0.0 : 1.0);
+          float sn = smoothstep(0.25, 0.75, raNoise(vRaWPos.xz * 0.8) * 0.6 + 0.4 * raNoise(vRaWPos.xz * 4.0) + cover * 0.6 - 0.2) * cover;
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.8, 0.83, 0.88), sn);
+          raPud *= 1.0 - sn; raWet *= 1.0 - sn * 0.85;
+        }
       `)
       .replace('#include <roughnessmap_fragment>', /* glsl */`
         #include <roughnessmap_fragment>
@@ -274,6 +299,7 @@ export function patchFacade(mat, { parallax = 0.045, shop = false } = {}) {
           vec3 raR = reflect(-raV, raN);
           float raF = pow(1.0 - clamp(dot(raN, raV), 0.0, 1.0), 3.0);
           gl_FragColor.rgb += raEnv(raR, vRaWPos) * raGlass * uReflWindow * (0.12 + 0.88 * raF) * 0.6;
+          gl_FragColor.rgb += raGlass * uSeason.w * vec3(0.05, 0.06, 0.075) * (0.5 + raNoise(vMapUv * 90.0));
           gl_FragColor.rgb += raRainbowCol(vRaWPos) * uRainbow * (0.035 + 0.25 * raGlass * raF) * (0.4 + uNight * 0.6);
         }
       `);
@@ -289,6 +315,7 @@ export function patchGlossy(mat, { strengthUniform = 'uReflCar', base = 0.35, ra
     injectVertex(shader);
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', '#include <common>\n' + VERT_PARS + GLSL_COMMON + `uniform float ${strengthUniform};\n`)
+      .replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.rgb = raSnowOn(diffuseColor.rgb, normalize(vRaWNrm), vRaWPos, uSnowCover);')
       .replace('#include <opaque_fragment>', /* glsl */`
         #include <opaque_fragment>
         {
@@ -306,14 +333,29 @@ export function patchGlossy(mat, { strengthUniform = 'uReflCar', base = 0.35, ra
 }
 
 /** Plain walls/props: just a gentle rainbow wash and wet darkening. */
-export function patchWash(mat, amt = 0.03) {
+export function patchWash(mat, amt = 0.03, { leaf = false } = {}) {
   mat.onBeforeCompile = (shader) => {
     addUniforms(shader);
     injectVertex(shader);
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', '#include <common>\n' + VERT_PARS + GLSL_COMMON)
-      .replace('#include <opaque_fragment>', `#include <opaque_fragment>\n gl_FragColor.rgb += raRainbowCol(vRaWPos) * uRainbow * ${amt.toFixed(3)} * (0.4 + uNight * 0.6);`);
+      .replace('#include <color_fragment>', `#include <color_fragment>
+        ${leaf ? `
+        {
+          float h = raHash12(floor(vRaWPos.xz * 1.6) + floor(vRaWPos.y * 1.6) * 7.13);
+          float lum = dot(diffuseColor.rgb, vec3(0.3, 0.55, 0.15));
+          vec3 autumn = mix(mix(vec3(0.85, 0.32, 0.06), vec3(0.95, 0.66, 0.14), h), vec3(0.62, 0.12, 0.06), step(0.78, h)) * lum * 2.3;
+          vec3 spring = mix(vec3(0.5, 0.78, 0.32) * lum * 2.0, vec3(1.0, 0.78, 0.86) * (0.4 + lum), step(0.62, h));
+          vec3 summer = diffuseColor.rgb * vec3(0.9, 1.08, 0.85);
+          vec3 winter = mix(vec3(0.35, 0.3, 0.26), vec3(0.5, 0.45, 0.38), h) * (0.5 + lum);
+          vec3 seasonal = spring * uSeason.x + summer * uSeason.y + autumn * uSeason.z + winter * uSeason.w;
+          diffuseColor.rgb = mix(diffuseColor.rgb, seasonal, uSeasonLeaf);
+          // bare branches in winter: most foliage drops away
+          if (uSeasonLeaf > 0.5 && raHash12(floor(vRaWPos.xz * 3.1) + floor(vRaWPos.y * 3.1) * 3.7) < uSeason.w * 0.8) discard;
+        }` : ''}
+        diffuseColor.rgb = raSnowOn(diffuseColor.rgb, normalize(vRaWNrm), vRaWPos, uSnowCover);`)
+      .replace('#include <opaque_fragment>', `#include <opaque_fragment>\n gl_FragColor.rgb += raRainbowCol(vRaWPos) * uRainbow * ${amt.toFixed(3)} * (0.4 + uNight * 0.6);${leaf ? '\n gl_FragColor.rgb += diffuseColor.rgb * (0.05 + 0.1 * (1.0 - uNight));' : ''}`);
   };
-  mat.customProgramCacheKey = () => `ra-wash-${amt}`;
+  mat.customProgramCacheKey = () => `ra-wash-${amt}-${leaf}`;
   return mat;
 }

@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { buildGrid } from '../world/cityBase.js';
 import {
   createMaterials, facadeMaterials, shopMaterial, building, perimeterLots, streetlight, tree,
-  trashCan, bench, trafficSignal, parkedCar, neonMaterial, neonSign, cafeSet, SIDES, grassMaterial } from '../world/kit.js';
+  trashCan, bench, trafficSignal, parkedCar, neonMaterial, neonSign, cafeSet, SIDES, grassMaterial, cartOnKerb } from '../world/kit.js';
 import { addSkyline } from '../world/skyline.js';
 import { makePaving } from '../render/textures.js';
 import { patchGround } from '../render/shared.js';
@@ -15,6 +15,7 @@ export const miami = {
   seed: 3131, palette: { fog: '#1c2a38', accent: '#ff6fd8' },
   glow: '#6a3a6a', vehicleMix: { car: 0.5, suv: 0.25, van: 0.05, taxi: 0.2 }, busColor: 0x2aa8a0,
   pedStyle: 'miami', bldClear: 1.4,
+  seasonal: false,
   build,
 };
 
@@ -30,6 +31,7 @@ const SHOPS = [
 async function build(cb, step) {
   const M = createMaterials(cb, cb.q, { asphalt: '#2c2c30', sidewalk: '#c8bca8', sidewalkKind: 'tiles', water: 0x0f2a36 });
   cb.mats = M;
+  cb.walkIns.push({ x: -80, z: 0, kind: 'cafe', name: 'Coral Café' });
   const pastel = ['#f4c8d0', '#bfe6dd', '#f6e2b3', '#c9d7f2', '#e9d3f2', '#f9d8c0', '#d8f0c8', '#f2f0e8'];
   const F = facadeMaterials(cb, pastel.map((c, i) => ({ wall: 'stucco', color: c, trim: '#ffffff', windowStyle: i % 3 === 2 ? 'office' : 'deco', bays: 4, bayW: 2.8, floorH: 3.4, litRatio: 0.55, seed: 200 + i * 7 })));
   const shop = shopMaterial(cb, SHOPS, 515);
@@ -85,6 +87,7 @@ async function build(cb, step) {
   cb.keepClear = [[9.2, 10, 3]];
   oceanfront(cb, layout);
   furnish(cb, layout);
+  cartOnKerb(cb, 7.2, -14, -Math.PI / 2, 'juice');
   await step(0.75, 'Rolling in the tide');
   addSkyline(cb, { seed: 77, center: [0, 0], minR: 500, maxR: 900, count: 40, arcFrom: Math.PI * 0.55, arcTo: Math.PI * 1.45, hMin: 40, hMax: 160, color: '#2a3040', lit: 0.45, beacons: true });
   cb.spawn = { x: 9.2, z: 10, yaw: 0.55 };
@@ -108,7 +111,7 @@ function decoDetails(cb, r, side, h, color, rng, hotel, hotelIdx) {
   }
   // central fin rising above the parapet with a vertical neon name
   const fh = h + rng.range(3, 6);
-  cb.batch.box(M.paint, cx + S.nx * 0.4, 0.15 + fh / 2 + 2, cz + S.nz * 0.4, horiz ? 1.2 : 0.8, fh - 4, horiz ? 0.8 : 1.2, 0xffffff);
+  if (!r.walkIn) cb.batch.box(M.paint, cx + S.nx * 0.4, 0.15 + fh / 2 + 2, cz + S.nz * 0.4, horiz ? 1.2 : 0.8, fh - 4, horiz ? 0.8 : 1.2, 0xffffff);
   const neonCol = new THREE.Color(NEON_COLORS[(hotelIdx >= 0 ? hotelIdx : rng.int(0, 5)) % NEON_COLORS.length]);
   // neon outline along the parapet and up the fin
   cb.batch.box(M.bulb, cx + S.nx * 0.08, 0.15 + h + 0.7, cz + S.nz * 0.08, horiz ? len : 0.06, 0.07, horiz ? 0.06 : len, neonCol);

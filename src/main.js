@@ -8,6 +8,7 @@ if (qs.get('quality')) settings.set('quality', qs.get('quality'), true);
 
 const app = new App();
 window.__rainfall = app;
+window.__settings = settings;
 app.init().catch((e) => {
   console.error(e);
 });

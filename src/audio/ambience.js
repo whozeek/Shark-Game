@@ -156,32 +156,33 @@ export class Ambience {
     for (const [r, a] of [[1, 1], [2.76, 0.4], [5.4, 0.2], [0.5, 0.5]]) { const o = ctx.createOscillator(); o.frequency.value = 196 * r; const og = ctx.createGain(); og.gain.value = a; o.connect(og).connect(g); o.start(t); o.stop(t + 7); }
     g.connect(this.a.buses.ambience);
   }
-  trainPass() { // distant elevated train rumble (Chicago)
+  trainPass(level = 1) { // train rumble: distant elevated train, or a subway train pulling in
     const ctx = this.ctx, t = ctx.currentTime;
     const src = ctx.createBufferSource(); src.buffer = this.a.noise.brown; src.loop = true;
     const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 300;
-    const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.35, t + 5); g.gain.linearRampToValueAtTime(0, t + 12);
+    const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.35 * level, t + 5); g.gain.linearRampToValueAtTime(0, t + 12);
     src.connect(lp).connect(g).connect(this.a.buses.ambience); src.start(t); src.stop(t + 12.5);
   }
   update(dt, s, st) {
     const ctx = this.ctx, t = ctx.currentTime, a = this.a;
-    const r = s.rainIntensity * (st.hideRain ? 0 : 1);
-    const under = st.umbrellaOpen && !st.sheltered;
-    const sheltered = !!st.sheltered;
-    const muffle = sheltered || st.indoorish;
+    const ind = st.indoor, under = ind && ind.kind === 'subway', inside = ind && !ind.open;
+    const r = s.rainIntensity * (st.hideRain ? 0 : 1) * (1 - (st.snow || 0) * 0.85) * (under ? 0 : inside ? 0.45 : 1);
+    const underUmb = st.umbrellaOpen && !st.sheltered && !inside;
+    const sheltered = !!st.sheltered || (ind && ind.open);
+    const muffle = sheltered || inside;
     this.rainHiss.gain.setTargetAtTime(Math.pow(r, 0.8) * 0.55 * (1 + s.storm * 0.3), t, 0.4);
     this.rainBody.gain.setTargetAtTime(r * r * 0.5 * (1 + s.storm * 0.5), t, 0.5);
-    this.rainLP.frequency.setTargetAtTime(muffle ? 2200 : under ? 5200 : 8000, t, 0.3);
+    this.rainLP.frequency.setTargetAtTime(inside ? 900 : muffle ? 2200 : underUmb ? 5200 : 8000, t, 0.3);
     this.patLight.out.gain.setTargetAtTime(Math.min(1, r * 2) * 0.5, t, 0.4);
     this.patHeavy.out.gain.setTargetAtTime(Math.max(0, r - 0.35) * 0.9, t, 0.4);
-    this.patUmb.out.gain.setTargetAtTime(under ? Math.min(1, r * 1.5) * 0.55 : 0, t, 0.15);
+    this.patUmb.out.gain.setTargetAtTime(underUmb ? Math.min(1, r * 1.5) * 0.55 : 0, t, 0.15);
     this.patAwn.out.gain.setTargetAtTime(sheltered ? Math.min(1, r * 1.5) * 0.6 : 0, t, 0.2);
     // wind gusts
     const gust = 0.6 + 0.4 * Math.sin(performance.now() / 3100) * Math.sin(performance.now() / 1700);
-    this.windG.gain.setTargetAtTime((s.wind * 0.5 + s.storm * 0.25) * gust, t, 0.5);
+    this.windG.gain.setTargetAtTime((s.wind * 0.5 + s.storm * 0.25) * gust * (inside || under ? 0.1 : 1), t, 0.5);
     this.windBP.frequency.setTargetAtTime(300 + gust * 500 + s.wind * 300, t, 0.6);
     // traffic
-    const traffic = s.citySounds ? 1 : 0;
+    const traffic = (s.citySounds ? 1 : 0) * (under ? 0.15 : inside ? 0.4 : 1);
     this.hum.gain.setTargetAtTime((0.12 + s.traffic * 0.35) * traffic * (this.city === 'kyoto' ? 0.25 : 1), t, 1);
     const near = st.cars || [];
     this.cars.forEach((c, i) => {
@@ -191,7 +192,7 @@ export class Ambience {
       const sp = Math.min(1, v.speed / 10);
       const wet = 0.4 + 0.6 * s.wetness;
       c.g.gain.setTargetAtTime(f * f * sp * 0.55 * wet * (v.type === 'bike' ? 0.15 : 1), t, 0.12);
-      c.eg.gain.setTargetAtTime(f * f * (0.15 + sp * 0.25) * (v.type === 'bus' ? 2.2 : v.type === 'bike' ? 0 : 1), t, 0.15);
+      c.eg.gain.setTargetAtTime(f * f * (0.15 + sp * 0.25) * (v.type === 'bus' || v.type === 'decker' ? 2.2 : v.type === 'bike' ? 0 : 1), t, 0.15);
       c.bp.frequency.setTargetAtTime(700 + sp * 900, t, 0.2);
       if (c.pan.pan) {
         const ang = Math.atan2(v.x - st.cam.x, v.z - st.cam.z);
@@ -200,7 +201,7 @@ export class Ambience {
       }
     });
     // people
-    this.murmur.gain.setTargetAtTime(s.citySounds ? Math.min(1, (st.people || 0) / 10) * 0.25 : 0, t, 0.8);
+    this.murmur.gain.setTargetAtTime(s.citySounds ? (inside && ind.kind === 'cafe' || ind?.kind === 'tea' ? 0.3 : under ? 0.12 : Math.min(1, (st.people || 0) / 10) * 0.25) : 0, t, 0.8);
     // beds
     this.bed.gain.setTargetAtTime((this.bedBase || 0.05) * (s.citySounds ? 1 : 0.4), t, 1);
     this.distant.gain.setTargetAtTime(s.citySounds ? 0.25 : 0.05, t, 1);

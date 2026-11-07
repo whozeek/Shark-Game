@@ -64,7 +64,10 @@ export class Atmosphere {
     this.night = night;
     // city light pollution glows warm on low clouds at night
     const city = new THREE.Color(extra.glow || '#6a4a3a').multiplyScalar(0.55 * night * (0.4 + overcast * 0.8));
-    const fogCol = hor.clone().lerp(new THREE.Color(0.32, 0.34, 0.4).multiplyScalar(0.3 + (1 - night) * 0.7), 0.4).add(city.clone().multiplyScalar(0.35));
+    const fogCol0 = hor.clone().lerp(new THREE.Color(0.32, 0.34, 0.4).multiplyScalar(0.3 + (1 - night) * 0.7), 0.4).add(city.clone().multiplyScalar(0.35));
+    // winter air is cooler and brighter (snow reflects city light), autumn a touch warmer
+    const fogCol = fogCol0.lerp(s.season === 'winter' ? new THREE.Color(0.5, 0.54, 0.62).multiplyScalar(0.45 + (1 - night) * 0.5) : fogCol0, s.season === 'winter' ? 0.35 : 0);
+    if (s.season === 'autumn') fogCol.offsetHSL(0.01, 0.03, 0);
     const fogAmt = s.fog;
     const density = 0.0025 + fogAmt * fogAmt * 0.022 + rain * 0.004 + storm * 0.003;
     this.fog.color.copy(fogCol);
@@ -102,7 +105,7 @@ export class Atmosphere {
     const ambient = k.amb * (1 - overcast * 0.45) * (1 - storm * 0.2) * s.ambient;
     const rig = this.rig;
     rig.hemi.color.copy(top).lerp(new THREE.Color(0.6, 0.65, 0.8), 0.5);
-    rig.hemi.groundColor.copy(new THREE.Color(0.28, 0.24, 0.2)).add(city.clone().multiplyScalar(0.5));
+    rig.hemi.groundColor.copy(new THREE.Color(0.28, 0.24, 0.2)).add(city.clone().multiplyScalar(0.5)).lerp(new THREE.Color(0.55, 0.58, 0.65), Math.min(1, (extra.snowCover || 0) * 0.7));
     rig.hemi.intensity = 0.32 + ambient * 2.2 + night * 0.55 + U.uFlash.value * 4;
     const sunUp = sunDir.y > 0;
     if (sunUp) {

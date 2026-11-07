@@ -14,7 +14,10 @@ import { PhotoMode } from './player/photo.js';
 import { AudioEngine } from './audio/engine.js';
 import { Ambience } from './audio/ambience.js';
 import { LofiMusic } from './audio/music.js';
+import { LocalMusic, MusicRouter } from './audio/localMusic.js';
+import { readSharedMood } from './core/moods.js';
 import { UI } from './ui/ui.js';
+import { SeasonFx } from './render/seasonFx.js';
 import { peopleRhythm, trafficRhythm, windowRhythm } from './core/rhythm.js';
 
 export class App {
@@ -30,6 +33,12 @@ export class App {
   }
 
   async init() {
+    const shared = readSharedMood();
+    if (shared && !shared.error) {
+      settings.setMany(shared.values);
+      this.sharedName = shared.name || 'a shared mood';
+      history.replaceState(null, '', location.pathname + location.search);
+    } else if (shared?.error) this.ui.toast('That mood link looks damaged, so the usual settings are used.', 'error', 6000);
     try {
       this.quality = resolveQuality(settings.get('quality'));
       this.engine = new Engine(document.getElementById('stage'), this.quality);
@@ -42,6 +51,9 @@ export class App {
     this.controls = new Controls(eng.renderer.domElement, this.ui);
     this.player = new Player(eng.camera, this.controls);
     this.stroll = new Stroll(this.player);
+    this.seasonFx = new SeasonFx(eng.scene);
+    this.snowCover = 0;
+    this.seasonW = new THREE.Vector4(0, 0, 1, 0);
     this.umbrella = new Umbrella(eng.camera);
     this.umbrella.setOpen(settings.get('umbrella'), true);
     this.interact = new Interactions();
@@ -114,6 +126,7 @@ export class App {
     if (settings.get('mode') === 'stroll') this.stroll.start();
     if (kind !== 'quiet') await this.enableAudio(true);
     this.engine.renderer.domElement.focus();
+    if (this.sharedName) this.ui.toast(`Opened ${this.sharedName}`, 'info', 4000);
     if (!this.isTouch) this.ui.toast('Drag to look · WASD to walk · M for settings · H hides the interface', 'info', 5000);
     else this.ui.toast('Drag to look · use the left stick to walk', 'info', 4500);
   }
@@ -122,7 +135,11 @@ export class App {
       await this.audio.start();
       if (!this.amb) {
         this.amb = new Ambience(this.audio);
-        this.music = new LofiMusic(this.audio);
+        this.localMusic = new LocalMusic(this.audio);
+        this.localMusic.onError = (m) => this.ui.toast(m, 'error', 6000);
+        this.music = new MusicRouter(new LofiMusic(this.audio), this.localMusic);
+        await this.localMusic.restore();
+        if (settings.get('musicSource') === 'mine' && this.localMusic.tracks.length) this.music.source = 'mine';
         this.music.shuffle = settings.get('shuffle');
         this.music.styleFilter = settings.get('musicStyle');
         if (settings.get('musicStyle') !== 'all') this.music.setStyle(settings.get('musicStyle'));
@@ -169,6 +186,11 @@ export class App {
     if (k.endsWith('Vol')) this.applyVolumes();
     if (k === 'shuffle' && this.music) this.music.shuffle = v;
     if (k === 'musicStyle' && this.music) this.music.setStyle(v);
+    if (k === 'musicSource' && this.music) {
+      if (v === 'mine' && !this.localMusic.tracks.length) this.ui.toast('Add some of your own audio files first (Audio → Add music files).');
+      this.music.setSource(v);
+      this.ui.updateMusic(this.music.current(), this.music.playing);
+    }
     if (k === 'timeOfDay' || k === 'rainIntensity' || k === 'storm') this.ui.updatePlace(this.def);
   }
   async changeQuality(v) {
@@ -184,7 +206,10 @@ export class App {
     this.ui.toast(`Graphics: ${q.label}${q.auto ? ' (auto)' : ''}`);
   }
 
-  toggleMode() { settings.set('mode', settings.get('mode') === 'stroll' ? 'walk' : 'stroll'); }
+  toggleMode() {
+    if (this.player.level && settings.get('mode') !== 'stroll') { this.ui.toast('Head back down to the street to start the scenic stroll'); return; }
+    settings.set('mode', settings.get('mode') === 'stroll' ? 'walk' : 'stroll');
+  }
   toggleUmbrella() { settings.set('umbrella', !settings.get('umbrella')); }
   returnToStart() {
     if (this.stroll.active) settings.set('mode', 'walk');
@@ -200,6 +225,16 @@ export class App {
       if (this.stroll.active) settings.set('mode', 'walk');
       this.player.sit(p.seat); this.ui.toast(`Sitting on the ${p.seat.label}. Move to stand up.`);
     } else if (p.type === 'stand') this.player.stand();
+    else if (p.type === 'portal') {
+      const to = p.portal.to;
+      if (this.stroll.active) settings.set('mode', 'walk');
+      this.ui.fade(() => {
+        this.player.teleport(to);
+        const lv = to.level ? this.cb.levels[to.level] : null;
+        if (lv && !lv.hooked) { lv.hooked = true; lv.onTrain = (ev) => { if (this.audioReady && this.player.level === lv.name) this.amb.trainPass(ev === 'arrive' ? 1.6 : 1.2); }; }
+        this.ui.toast(lv ? lv.label : `Back on ${this.def.name === 'Kyoto' ? 'the lane' : 'the street'}`);
+      });
+    }
     else if (p.type === 'view') {
       const [lx, ly, lz] = p.view.look;
       this.lookTween = { yaw: Math.atan2(-(lx - this.player.x), -(lz - this.player.z)), pitch: Math.atan2(ly - 1.7, Math.hypot(lx - this.player.x, lz - this.player.z)) * 0.6, t: 0 };
@@ -336,11 +371,12 @@ export class App {
     // ---- world simulation
     if (!frozen) cb.signals.update(dt);
     const camPos = eng.camera.position;
-    const atm = eng.atmo.update(frozen ? 0 : dt, s, { glow: this.def.glow });
-    const playerPos = { x: this.player.x, z: this.player.z };
-    const onRoad = cb.groundAt && cb.groundAt(this.player.x, this.player.z) < 0.05;
+    const atm = eng.atmo.update(frozen ? 0 : dt, s, { glow: this.def.glow, snowCover: this.snowCover });
+    const playerPos = this.player.level ? { x: 1e6, z: 1e6 } : { x: this.player.x, z: this.player.z };
+    const onRoad = !this.player.level && cb.groundAt && cb.groundAt(this.player.x, this.player.z) < 0.05;
     const crowd = eng.crowd, traffic = eng.traffic;
-    if (crowd) crowd.update(frozen ? 0 : dt, t, { cam: camPos, player: playerPos, rain: s.rainIntensity, frozen, hidePeople: photo && P.hidePeople, viewDist: eng.quality.viewDist });
+    const beat = this.music?.playing ? (performance.now() / 1000) * ((this.music.source === 'builtin' ? this.music.current().bpm : 90) || 80) / 60 % 1 : undefined;
+    if (crowd) crowd.update(frozen ? 0 : dt, t, { beat, cam: camPos, player: playerPos, rain: s.rainIntensity, frozen, hidePeople: photo && P.hidePeople, viewDist: eng.quality.viewDist });
     if (traffic) traffic.update(frozen ? 0 : dt, t, { settings: s, cam: camPos, obstacles: onRoad && !photo ? [playerPos] : [], peds: crowd ? crowd.crossing() : [], trafficMul: this.rhythm('traffic'), hour: s.timeOfDay, rhythmOn: s.cityRhythm, night: atm.night, haze: Math.min(1, s.fog * 0.6 + s.rainIntensity * 0.6), frozen, hideCars: photo && P.hideCars });
     for (const a of cb.animated) a.update(dt, t);
     // ---- daily rhythm: open hours, bedtime windows and how busy the streets are
@@ -353,18 +389,41 @@ export class App {
     rig.hour = s.cityRhythm ? U.uHour.value : 20;
     rig.scales.street = s.streetlights; rig.scales.shop = s.storefronts; rig.scales.neon = s.neon * (0.5 + 0.5 * s.reflNeon); rig.scales.headlight = s.headlights * (s.headlightsOn ? 1 : 0.1);
     rig.update(dt, camPos, traffic ? traffic.dynPools : []);
-    eng.rain.update(frozen ? 0 : dt, t, s, eng.camera, atm, { hidden: photo && P.hideRain, frozen });
+    // ---- season: blend leaf colours, choose rain/sleet/snow, let snow settle or melt
+    const sIdx = { spring: 0, summer: 1, autumn: 2, winter: 3 }[s.season] ?? 2;
+    const tgt = [0, 0, 0, 0]; tgt[sIdx] = 1;
+    const kS = this.seasonInit ? Math.min(1, dt * 1.5) : 1; this.seasonInit = true;
+    this.seasonW.set(this.seasonW.x + (tgt[0] - this.seasonW.x) * kS, this.seasonW.y + (tgt[1] - this.seasonW.y) * kS, this.seasonW.z + (tgt[2] - this.seasonW.z) * kS, this.seasonW.w + (tgt[3] - this.seasonW.w) * kS);
+    U.uSeason.value.copy(this.seasonW);
+    U.uSeasonLeaf.value = this.def.seasonal === false ? 0 : 1;
+    const snowP = s.precip === 'snow' ? 1 : s.precip === 'sleet' ? 0.5 : s.precip === 'auto' && s.season === 'winter' ? 1 : 0;
+    this.snowP = snowP;
+    const coverTarget = snowP > 0 ? Math.min(1, s.rainIntensity * 1.6) * snowP : 0;
+    if (this.lastSeason !== s.season + s.precip) { this.lastSeason = s.season + s.precip; if (snowP > 0 && this.snowCover < coverTarget * 0.5) this.snowCover = coverTarget * 0.5; }
+    if (!frozen) this.snowCover += (coverTarget - this.snowCover) * Math.min(1, dt * (coverTarget > this.snowCover ? 0.02 : 0.05));
+    U.uSnowCover.value = this.snowCover;
+    U.uSnow.value = snowP;
+    U.uRainAmt.value = s.rainIntensity * (1 - snowP);
+    const ind = this.interact.indoor;
+    const indoorMode = ind ? (ind.kind === 'subway' ? 'full' : ind.open ? null : 'partial') : null;
+    if ((ind?.name || null) !== (this.lastIndoor || null)) {
+      this.lastIndoor = ind?.name || null;
+      if (ind && ind.kind !== 'subway' && this.started) this.ui.toast(ind.kind === 'arcade' ? `Under the roof of the ${ind.name}` : `Inside ${ind.name}`, 'info', 2200);
+      this.ui.updatePlace(this.def, ind?.name);
+    }
+    eng.rain.update(frozen ? 0 : dt, t, s, eng.camera, atm, { hidden: photo && P.hideRain, frozen, snow: snowP, indoor: indoorMode });
+    this.seasonFx.update(eng.camera, s.season, this.def.seasonal !== false, s, atm, photo && P.hideRain);
     eng.sky.update(eng.camera);
     this.applyLook(s, atm, dt, photo);
     // ---- umbrella & interactions
-    this.umbrella.setOpen(s.umbrella);
+    this.umbrella.setOpen(s.umbrella && !(this.interact.indoor && !this.interact.indoor.open));
     this.umbrella.update(dt, t, { hidden: photo || !this.started, speed: this.player.speed, bob: this.player.bob, rain: s.rainIntensity, wind: s.wind, reducedMotion: s.reducedMotion });
     const prompt = this.started && !photo ? this.interact.update(this.player) : null;
     this.ui.setPrompt(prompt);
     // ---- audio
     if (this.audioReady && this.amb) {
       this.amb.update(dt, s, {
-        umbrellaOpen: s.umbrella, sheltered: this.interact.sheltered, hideRain: photo && P.hideRain,
+        snow: this.snowP || 0, indoor: this.interact.indoor, umbrellaOpen: s.umbrella && !this.interact.indoor, sheltered: this.interact.sheltered, hideRain: photo && P.hideRain,
         cars: traffic ? traffic.nearest(camPos, 3) : [], cam: camPos, yawWorld: Math.atan2(-Math.sin(eng.camera.rotation.y), -Math.cos(eng.camera.rotation.y)),
         people: crowd ? crowd.countNear(camPos.x, camPos.z, 12) : 0,
       });
@@ -401,7 +460,7 @@ export class App {
     U.uReflWindow.value = s.reflWindow * R; U.uReflCar.value = s.reflCar * R;
     U.uReflBlur.value = s.reflBlur; U.uReflLen.value = s.reflLength; U.uReflColor.value = s.reflColor; U.uReflMotion.value = s.reflMotion;
     U.uWetness.value = s.wetness * Math.min(1, 0.55 + s.rainIntensity);
-    U.uPuddles.value = s.puddles; U.uRainAmt.value = s.rainIntensity;
+    U.uPuddles.value = s.puddles; U.uRainAmt.value = s.rainIntensity * (1 - (this.snowP || 0));
     // emissive levels
     const night = atm.night;
     for (const m of cb.windowMats) m.emissiveIntensity = s.windowGlow * (0.12 + 0.95 * night) * 1.25;

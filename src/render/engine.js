@@ -154,6 +154,7 @@ export class Engine {
     if (!this.crowd) this.crowd = new Crowd(this.scene, this.quality.peds);
     if (!this.traffic) this.traffic = new Traffic(this.scene, this.quality.cars);
     this.crowd.bldClear = def.bldClear ?? 1.6;
+    this.crowd.col = cb.col;
     this.crowd.setGraph(cb.graph, cb.signals, def.pedStyle || 'city');
     this.traffic.setCity(cb, def);
     await step(0.95, 'Warming up shaders');
@@ -172,6 +173,7 @@ export class Engine {
     if (this.city) {
       this.crowd = new Crowd(this.scene, this.quality.peds);
       this.crowd.bldClear = this.city.def.bldClear ?? 1.6;
+      this.crowd.col = this.city.col;
       this.crowd.setGraph(this.city.graph, this.city.signals, this.city.def.pedStyle || 'city');
       this.traffic = new Traffic(this.scene, this.quality.cars);
       this.traffic.setCity(this.city, this.city.def);

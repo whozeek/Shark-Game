@@ -3,6 +3,7 @@
 import { settings, PRESETS, STYLES, PALETTES, TIME_PRESETS, DEFAULTS } from '../core/settings.js';
 import { STYLES as MUSIC_STYLES, TRACKS } from '../audio/music.js';
 import { Minimap } from './minimap.js';
+import { listMoods, saveMood, deleteMood, shareLink, copyText } from '../core/moods.js';
 
 const I = {
   menu: '<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
@@ -199,7 +200,7 @@ export class UI {
   updateMusic(track, playing) {
     if (!track) return;
     this.np.querySelector('.title b').textContent = track.title;
-    this.np.querySelector('.title span').textContent = (MUSIC_STYLES[track.style]?.label || '') + (playing ? '' : ' · paused');
+    this.np.querySelector('.title span').textContent = (track.style === 'mine' ? 'Your music' : MUSIC_STYLES[track.style]?.label || '') + (playing ? '' : ' · paused');
     this.np.classList.toggle('paused', !playing);
     this.npPlay.innerHTML = playing ? I.pause : I.play;
     this.npPlay.setAttribute('aria-label', playing ? 'Pause music' : 'Play music');
@@ -232,6 +233,11 @@ export class UI {
     this.toasts.appendChild(t);
     while (this.toasts.children.length > 3) this.toasts.firstChild.remove();
     setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .5s'; setTimeout(() => t.remove(), 600); }, ms);
+  }
+  /** Brief fade to black around a change of place (stairs, doors). */
+  fade(mid) {
+    const f = el('div', { class: 'flash', style: 'background:#000' }); this.root.appendChild(f);
+    requestAnimationFrame(() => { f.style.opacity = '1'; setTimeout(() => { mid(); f.style.opacity = '0'; setTimeout(() => f.remove(), 600); }, 450); });
   }
   flash() { const f = el('div', { class: 'flash' }); this.root.appendChild(f); requestAnimationFrame(() => { f.style.opacity = '0.7'; setTimeout(() => { f.style.opacity = '0'; setTimeout(() => f.remove(), 600); }, 80); }); }
 
@@ -385,6 +391,33 @@ export class UI {
           for (const p of PRESETS) g.appendChild(el('button', { class: 'preset', onclick: () => { settings.applyPreset(p.id); this.toast(p.name); } }, `<b>${p.name}</b><span>${p.desc}</span>`));
           d.appendChild(g);
         } },
+        { type: 'h', label: 'Your moods' },
+        { type: 'custom', render: (d) => {
+          const list = listMoods();
+          if (!list.length) d.appendChild(el('p', { class: 'note' }, 'Save the current scene — city, time, weather and look — to come back to it later or share it as a link.'));
+          const g = el('div', { class: 'presets' });
+          for (const m of list) {
+            const wrap = el('div', { style: 'position:relative' });
+            wrap.appendChild(el('button', { class: 'preset', style: 'width:100%', onclick: () => { settings.setMany(m.values); this.toast(m.name); } }, `<b>${escapeHtml(m.name)}</b><span>${new Date(m.at).toLocaleDateString()}</span>`));
+            wrap.appendChild(el('button', { class: 'np-btn', style: 'position:absolute;top:4px;right:4px;width:32px;height:32px', 'aria-label': `Delete mood ${m.name}`, onclick: () => { deleteMood(m.name); this.renderTab(); } }, '✕'));
+            g.appendChild(wrap);
+          }
+          d.appendChild(g);
+          const row = el('div', { class: 'btn-row' });
+          row.appendChild(el('button', { class: 'btn primary', onclick: () => {
+            const name = prompt('Name this mood', `${this.app.def?.name || 'City'} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
+            if (!name) return;
+            this.toast(saveMood(name.trim()) ? `Saved “${name.trim()}”` : 'Could not save — browser storage is unavailable', 'info');
+            this.renderTab();
+          } }, 'Save current mood'));
+          row.appendChild(el('button', { class: 'btn', onclick: async () => {
+            const link = shareLink();
+            if (await copyText(link)) this.toast('Link copied — anyone opening it gets this scene');
+            else prompt('Copy this link to share the scene:', link);
+          } }, 'Copy share link'));
+          d.appendChild(row);
+        } },
+        { type: 'h', label: 'More' },
         { type: 'buttons', items: [
           { label: '✦ Surprise me', primary: true, action: () => { settings.surprise(); this.toast('A new mood'); } },
           { label: 'Reset everything', action: () => { if (confirm('Reset all settings to their defaults?')) { settings.reset(); this.toast('Settings reset'); this.renderTab(); } } },
@@ -414,8 +447,12 @@ export class UI {
       ],
       weather: [
         { type: 'note', text: 'Simulated weather — it does not follow a live forecast.' },
+        { type: 'h', label: 'Season' },
+        { type: 'seg', key: 'season', label: 'Season', options: [['spring', 'Spring'], ['summer', 'Summer'], ['autumn', 'Autumn'], ['winter', 'Winter']] },
+        { type: 'seg', key: 'precip', label: 'Falling', options: [['auto', 'Auto'], ['rain', 'Rain'], ['sleet', 'Sleet'], ['snow', 'Snow']] },
+        { type: 'note', text: 'Auto brings snow in winter and rain the rest of the year. Snow slowly settles on roofs, ledges, cars and sidewalks.' },
         { type: 'h', label: 'Rain' },
-        { type: 'slider', key: 'rainIntensity', label: 'Rain intensity', fmt: (v) => `${fmtPct(v)} · ${rainLabel({ ...settings.values, rainIntensity: v })}` },
+        { type: 'slider', key: 'rainIntensity', label: 'Rain / snow intensity', fmt: (v) => `${fmtPct(v)} · ${rainLabel({ ...settings.values, rainIntensity: v })}` },
         { type: 'slider', key: 'rainSpeed', label: 'Rain speed', min: 0.4, max: 2, step: 0.05, fmt: fmtX },
         { type: 'slider', key: 'dropSize', label: 'Drop size', min: 0.4, max: 2, step: 0.05, fmt: fmtX },
         { type: 'color', key: 'rainColor', label: 'Rain colour' },
@@ -514,7 +551,34 @@ export class UI {
           }
           d.appendChild(row);
         } },
-        { type: 'select', key: 'musicStyle', label: 'Music style', options: [['all', 'All styles'], ...Object.entries(MUSIC_STYLES).map(([k, v]) => [k, v.label])] },
+        { type: 'seg', key: 'musicSource', label: 'Play', options: [['builtin', 'Built-in lo-fi'], ['mine', 'My music']] },
+        { type: 'custom', render: (d) => {
+          const lm = app.localMusic;
+          const row = el('div', { class: 'btn-row' });
+          const input = el('input', { type: 'file', accept: 'audio/*', multiple: true, hidden: true, 'aria-label': 'Choose audio files' });
+          input.addEventListener('change', async () => {
+            if (!app.audioReady) await app.enableAudio(false);
+            const r = await app.localMusic.add([...input.files]);
+            this.toast(`Added ${r.added} track${r.added === 1 ? '' : 's'}${r.skipped ? ` (${r.skipped} skipped — not audio)` : ''}`);
+            if (r.added && settings.get('musicSource') !== 'mine') settings.set('musicSource', 'mine');
+            this.renderTab();
+          });
+          row.append(input, el('button', { class: 'btn', onclick: () => input.click() }, '＋ Add music files'));
+          if (lm?.tracks.length) row.appendChild(el('button', { class: 'btn', onclick: async () => { if (confirm('Remove all of your music from this app? (Your original files are not touched.)')) { await lm.clear(); this.renderTab(); } } }, 'Remove all'));
+          d.appendChild(row);
+          if (lm?.tracks.length) {
+            const ul = el('div', { class: 'cards' });
+            lm.tracks.forEach((t, i) => {
+              const r2 = el('div', { class: 'row', style: 'padding:4px 0' });
+              r2.append(el('button', { class: 'linkish', style: 'text-align:left;min-height:36px;padding:4px 0', onclick: () => { lm.index = i; if (settings.get('musicSource') !== 'mine') settings.set('musicSource', 'mine'); lm.playing = true; lm.start(); } }, escapeHtml(t.title)),
+                el('button', { class: 'np-btn', 'aria-label': `Remove ${t.title}`, onclick: async () => { await lm.remove(t.id); this.renderTab(); } }, '✕'));
+              ul.appendChild(r2);
+            });
+            d.appendChild(ul);
+          }
+          d.appendChild(el('p', { class: 'note' }, 'Your files stay on this device and are never uploaded. Formats depend on your browser (MP3, AAC and WAV work almost everywhere).'));
+        } },
+        { type: 'select', key: 'musicStyle', label: 'Built-in music style', options: [['all', 'All styles'], ...Object.entries(MUSIC_STYLES).map(([k, v]) => [k, v.label])] },
         { type: 'toggle', key: 'shuffle', label: 'Shuffle' },
         { type: 'slider', key: 'musicVol', label: 'Music volume' },
         { type: 'note', text: 'All music is composed live in your browser — original, royalty-free, and different every track.' },
@@ -586,3 +650,4 @@ export class UI {
   }
 }
 export { fmtTime, DEFAULTS };
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
