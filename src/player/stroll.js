@@ -120,7 +120,7 @@ export class Stroll {
       const A = ahead.a, B = ahead.b;
       const ok = this.cb.signals.canWalk(eNext.axis, eNext.len / 1.1 + 2);
       const x0 = Math.min(A.x, B.x) - 1.5, x1 = Math.max(A.x, B.x) + 1.5, z0 = Math.min(A.z, B.z) - 1.5, z1 = Math.max(A.z, B.z) + 1.5;
-      const busy = this.traffic && this.traffic.occupied(x0, z0, x1, z1, 3);
+      const busy = this.traffic && this.traffic.occupied(x0, z0, x1, z1, 3, eNext.axis);
       if (!ok || busy) { want = 0; this.status = ok ? 'Waiting for traffic' : 'Waiting to cross'; this.waitLook = eNext; }
       else this.waitLook = null;
     } else this.waitLook = null;

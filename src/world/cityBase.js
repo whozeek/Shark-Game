@@ -292,7 +292,7 @@ export function buildGrid(cb, layout, hooks = {}) {
       for (let k = 0; k < ids.length - 1; k++) {
         const a = g.nodes[ids[k]], b = g.nodes[ids[k + 1]];
         const mid = (a.z + b.z) / 2;
-        const road = zs.find((C) => Math.abs(mid - C.z) < C.road / 2);
+        const road = x < openFrom ? zs.find((C) => Math.abs(mid - C.z) < C.road / 2) : null;
         if (road) {
           if (road.crossings === false || A.crossings === false) continue;
           g.edge(ids[k], ids[k + 1], { kind: 'cross', axis: 'z', width: 2.6, y: 0 });
