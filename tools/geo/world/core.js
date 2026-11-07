@@ -93,13 +93,39 @@ export function ensureGraph() {
     for (const w of t.ways) {
       const ids = []; for (const p of w.pts) { const n = node(p[0], p[1]); if (ids[ids.length - 1] !== n.id) ids.push(n.id) }
       if (ids.length < 2) continue;
-      const way = { id: ways.length, cls: w.cls, name: w.name, oneway: w.oneway, bridge: w.bridge, tunnel: w.tunnel, ramp: w.ramp, lanes: w.lanes, width: w.width, nodes: ids, pts: [] };
+      const way = { id: ways.length, cls: w.cls, name: w.name, oneway: w.oneway, bridge: w.bridge, tunnel: w.tunnel, ramp: w.ramp, lanes: w.lanes, width: w.width, drivable: w.drivable, walkable: w.walkable, nodes: ids, pts: [] };
       ways.push(way);
       for (let i = 0; i + 1 < ids.length; i++) {
         const A = nodes[ids[i]], B = nodes[ids[i + 1]];
         const e = { id: edges.length, a: A.id, b: B.id, len: Math.hypot(A.x - B.x, A.y - B.y), cls: w.cls, name: w.name, oneway: w.oneway, bridge: w.bridge, tunnel: w.tunnel, lanes: w.lanes, width: w.width, way: way.id, drivable: w.drivable, walkable: w.walkable };
         edges.push(e); A.adj.push(e.id); B.adj.push(e.id);
       }
+    }
+  }
+  // a road that ends on the side of another road (the tile geometry has no shared vertex there) becomes a junction: split the side road, join the end to it
+  {
+    const G = 25, grid = new Map(), TOL = 3.2;
+    const reg = e => { const A = nodes[e.a], B = nodes[e.b]; for (let cx = Math.floor((Math.min(A.x, B.x) - TOL) / G); cx <= Math.floor((Math.max(A.x, B.x) + TOL) / G); cx++)for (let cy = Math.floor((Math.min(A.y, B.y) - TOL) / G); cy <= Math.floor((Math.max(A.y, B.y) + TOL) / G); cy++) { const k = cx + ',' + cy; (grid.get(k) || grid.set(k, []).get(k)).push(e.id) } };
+    edges.forEach(reg);
+    const ends = nodes.filter(n => n.adj.length === 1);
+    for (const n of ends) {
+      const own = edges[n.adj[0]]; let best = null;
+      for (const id of grid.get(Math.floor(n.x / G) + ',' + Math.floor(n.y / G)) || []) {
+        const e = edges[id]; if (e.a === n.id || e.b === n.id || e.way === own.way || e.tunnel !== own.tunnel) continue;
+        if (!(own.drivable ? e.drivable : e.walkable)) continue;
+        const A = nodes[e.a], B = nodes[e.b], h = segPoint(n.x, n.y, A.x, A.y, B.x, B.y); if (h.d <= TOL && (!best || h.d < best.d)) best = { e, h, d: h.d }
+      }
+      if (!best) continue;
+      const e = best.e, A = nodes[e.a], B = nodes[e.b], len = e.len;
+      let target;
+      if (best.h.t * len < 2 && Math.hypot(A.x - n.x, A.y - n.y) <= TOL * 1.5) target = A; else if ((1 - best.h.t) * len < 2 && Math.hypot(B.x - n.x, B.y - n.y) <= TOL * 1.5) target = B;
+      else {
+        const m = { id: nodes.length, x: best.h.x, y: best.h.y, z: 0, adj: [] }; nodes.push(m);
+        const e2 = Object.assign({}, e, { id: edges.length, a: m.id, b: B.id, len: len * (1 - best.h.t) }); e.b = m.id; e.len = len * best.h.t; edges.push(e2);
+        B.adj[B.adj.indexOf(e.id)] = e2.id; m.adj.push(e.id, e2.id); target = m;
+      }
+      const d = Math.hypot(target.x - n.x, target.y - n.y);
+      if (target !== n && d > .05) { const c = Object.assign({}, own, { id: edges.length, a: n.id, b: target.id, len: d }); edges.push(c); n.adj.push(c.id); target.adj.push(c.id) }
     }
   }
   // heights: terrain under each node; a bridge or tunnel node takes the mean of its two ends' terrain so decks stay level over valleys

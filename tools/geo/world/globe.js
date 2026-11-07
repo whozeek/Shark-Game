@@ -139,7 +139,7 @@ export function createGlobe(env) {
       const dx = (keys.right ? 1 : 0) - (keys.left ? 1 : 0), dy = (keys.up ? 1 : 0) - (keys.down ? 1 : 0);
       view.lon += dx * sc * dt * 4 / Math.max(.25, Math.cos(view.lat * D2R)); view.lat += dy * sc * dt * 4;
       if (keys.zin) view.d = 1 + (view.d - 1) * Math.exp(-dt * 1.6); if (keys.zout) view.d = 1 + (view.d - 1) * Math.exp(dt * 1.6);
-      if (!env.rm()) { view.lon += vel.lon * dt * 60; view.lat += vel.lat * dt * 60; const f = Math.pow(.92, dt * 60); vel.lon *= f; vel.lat *= f; if (Math.abs(vel.lon) < .0005) vel.lon = 0; if (Math.abs(vel.lat) < .0005) vel.lat = 0 } else vel.lon = vel.lat = 0;
+      if (!env.rm()) { view.lon += vel.lon * dt; view.lat += vel.lat * dt; const f = Math.exp(-dt / .2); vel.lon *= f; vel.lat *= f; if (Math.abs(vel.lon) < .02) vel.lon = 0; if (Math.abs(vel.lat) < .02) vel.lat = 0 } else vel.lon = vel.lat = 0;
     }
     place();
     if (sel) { pinRing.scale.setScalar(1 + .15 * Math.sin(now / 300) * (env.rm() ? 0 : 1)); const s = Math.max(.35, (view.d - 1) * .9); pin.scale.setScalar(s); pinRing.scale.multiplyScalar(s) }

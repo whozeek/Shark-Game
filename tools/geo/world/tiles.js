@@ -9,7 +9,7 @@ export const NET = {
   tilejson: 'https://tiles.openfreemap.org/planet', elevBase: 'https://elevation-tiles-prod.s3.amazonaws.com/terrarium',
   maxConcurrent: 6, template: null, mode: 'network', sample: null, requests: 0, retries: 0, bytesVector: 0, bytesElev: 0, nVector: 0, nElev: 0, errors: [], pauseUntil: 0,
 };
-const RING = 1, KEEP_RING = 2;
+const RING = 1, KEEP_RING = 1;     // 3x3 tiles resident, never more
 let epoch = 0, active = 0; const queue = [], ctls = new Set();
 const rawCache = new Map(), RAW_MAX = 30;       // LRU of tile bytes
 const sleep = (ms, sig) => new Promise((res, rej) => { const t = setTimeout(res, ms); if (sig) sig.addEventListener('abort', () => { clearTimeout(t); rej({ aborted: true }) }, { once: true }) });
@@ -136,7 +136,7 @@ function refreshStatus() {
   s.source = NET.mode;
   if (c.failed && !c.loaded) { s.level = 'error'; s.text = 'Could not load map tiles (offline, or this page is not allowed to reach tiles.openfreemap.org). ' + (NET.lastError || '') }
   else if (c.pending) { s.level = 'ok'; s.text = 'Loading map tiles ' + c.loaded + '/' + (c.loaded + c.pending + c.failed) + ' (' + src + ')' }
-  else { ensureGraph(); s.level = c.failed ? 'warn' : 'ok'; s.text = (NET.mode === 'sample' ? 'BUNDLED SAMPLE: Bridgeport (limited area, no network used)' : 'Map data loaded') + ' · ' + GW.buildings.length + ' buildings (' + GW.buildings.filter(b => b.approx).length + ' generated, approximate) · ' + GW.roads.ways.length + ' road segments' + (s.elevFailed ? ' · terrain unavailable, flat ground' : '') + (c.failed ? ' · ' + c.failed + ' tile(s) failed' : '') }
+  else { ensureGraph(); s.level = c.failed ? 'warn' : 'ok'; s.text = (NET.mode === 'sample' ? 'BUNDLED SAMPLE: Bridgeport (limited area, no network used)' : 'Map data loaded') + ' · ' + GW.buildings.length + ' buildings (' + GW.buildings.filter(b => b.approx).length + ' generated, approximate) · ' + GW.roads.ways.length + ' road segments' + (s.elevFailed ? ' · terrain unavailable, flat ground' : '') + (GW.omitted ? ' · ' + GW.omitted + ' small buildings left out of dense tiles' : '') + (c.failed ? ' · ' + c.failed + ' tile(s) failed' : '') }
   emit();
 }
 
@@ -160,7 +160,7 @@ async function loadRec(r) {
         jobs.unshift(() => {
           if (r.dead) return res();
           r.group = buildTileGroup(T, norm, r.tx, r.ty, player.x, player.y); r.bubble = T.bubble; if (GW.root) GW.root.add(r.group);
-          GW.tiles.set(r.key, r); GW.buildings = [...GW.tiles.values()].flatMap(t => t.buildings); GW.places = [...GW.tiles.values()].flatMap(t => t.places); GW.peaks = [...GW.tiles.values()].flatMap(t => t.peaks);
+          GW.tiles.set(r.key, r); GW.omitted = [...GW.tiles.values()].reduce((a, t) => a + (t.omitted || 0), 0); GW.buildings = [...GW.tiles.values()].flatMap(t => t.buildings); GW.places = [...GW.tiles.values()].flatMap(t => t.places); GW.peaks = [...GW.tiles.values()].flatMap(t => t.peaks);
           r.state = 'ready'; GW._v++; res();
         });
       });
@@ -173,7 +173,7 @@ async function loadRec(r) {
 function unloadRec(r) {
   r.dead = true; recs.delete(r.key);
   if (r.group) { if (GW.root) GW.root.remove(r.group); disposeGroup(r.group); r.group = null }
-  if (GW.tiles.delete(r.key)) { GW.buildings = [...GW.tiles.values()].flatMap(t => t.buildings); GW.places = [...GW.tiles.values()].flatMap(t => t.places); GW.peaks = [...GW.tiles.values()].flatMap(t => t.peaks); GW._v++ }
+  if (GW.tiles.delete(r.key)) { GW.omitted = [...GW.tiles.values()].reduce((a, t) => a + (t.omitted || 0), 0); GW.buildings = [...GW.tiles.values()].flatMap(t => t.buildings); GW.places = [...GW.tiles.values()].flatMap(t => t.places); GW.peaks = [...GW.tiles.values()].flatMap(t => t.peaks); GW._v++ }
 }
 function pruneElev() {
   const need = new Set(); for (const r of recs.values()) for (const [x, y] of elevKeysFor(r.tx, r.ty)) need.add(x + ',' + y);

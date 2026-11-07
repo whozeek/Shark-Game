@@ -137,7 +137,10 @@ export function extractTile(norm, tx, ty) {
       real.push({ id, tile: tx + ',' + ty, fp: outer, holes, height: Math.max(h, rmin + 1), minHeight: rmin, source: 'osm', approx: false, heightSource: known ? 'osm' : 'estimated', colour: colourOf(f.p.colour), bbox: [x0, y0, x1, y1], cx, cy, area });
     }
   }
-  T.buildings = real;
+  // memory guard: a very dense tile (Kathmandu has about 14,000 footprints) keeps its largest footprints only; the count of omitted ones is reported in the status line
+  const CAPB = GW.opts.quality === 'saver' ? 3000 : 7000; let omitted = 0;
+  if (real.length > CAPB) { real.sort((a, b) => b.area - a.area); omitted = real.length - CAPB; real.length = CAPB }
+  T.buildings = real; T.omitted = omitted;
   const nReal = real.length;
 
   // --- procedural buildings: only inside urban landuse polygons, along streets, never over a real footprint, a road, water or a park.

@@ -15,7 +15,7 @@ const CSS = `
 #geo canvas#geocv:focus-visible{box-shadow:inset 0 0 0 3px #7fc0ff}
 #geoLabels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 #geoLabels .gl{position:absolute;left:0;top:0;border:0;background:none;color:#fff;font:600 12px/16px var(--font-body,system-ui,sans-serif);padding:0 0 0 12px;margin:-8px 0 0 -6px;white-space:nowrap;text-shadow:0 0 3px #000,0 0 6px #000,0 1px 2px #000;pointer-events:none;will-change:transform}
-#geoLabels .gl-city{pointer-events:auto;cursor:pointer;min-height:24px;min-width:24px}
+#geoLabels .gl-city{min-height:24px;min-width:24px}
 #geoLabels .gl-city::before{content:"";position:absolute;left:1px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:#ffd24a;box-shadow:0 0 0 1px #000}
 #geoLabels .gl-city.cap::before{background:#fff;border-radius:1px;transform:rotate(45deg)}
 #geoLabels .gl-ocean{color:#a9d3ff;font-style:italic;font-weight:500;letter-spacing:.1em;opacity:.8}
@@ -106,10 +106,10 @@ function build() {
  <div class="geo-panel" id="geoSel"><b>Pick a place.</b> Drag the globe, then click, tap or press Enter on the crosshair.</div>
 </div>
 <div id="geoWorldUI" hidden>
- <div class="geo-panel" id="geoHud"><div id="geoHudT"><b>Exploring</b></div>
+ <div class="geo-panel" id="geoHud"><div id="geoHudT"><b>Exploring</b></div><button class="geo-btn" data-geo="hudtoggle" id="geoHudTog" aria-expanded="true" style="min-height:34px;font-size:12px;margin-top:6px">Hide controls</button><div id="geoHudBody">
   <div class="row" role="group" aria-label="Move as"><button class="geo-btn" data-geo="mode" data-m="walk" aria-pressed="true">Walk</button><button class="geo-btn" data-geo="mode" data-m="drive" aria-pressed="false">Drive</button><button class="geo-btn" data-geo="mode" data-m="fly" aria-pressed="false">Fly</button></div>
   <div class="row"><button class="geo-btn" data-geo="toroad">Put me on a road</button><button class="geo-btn" data-geo="proc" aria-pressed="true">Approximate buildings: on</button></div>
-  <div class="row"><button class="geo-btn pri" data-geo="bus">Start a bus game here</button></div><div id="geoKeys" style="font-size:11.5px;opacity:.8;margin-top:8px">WASD / arrows move, Shift faster, Q E sidestep, drag to look, wheel zoom, 1 2 3 Walk Drive Fly (R F height), B bus game, Esc back</div></div>
+  <div class="row"><button class="geo-btn pri" data-geo="bus">Start a bus game here</button></div><div id="geoKeys" style="font-size:11.5px;opacity:.8;margin-top:8px">WASD / arrows move, Shift faster, Q E sidestep, drag to look, wheel zoom, 1 2 3 Walk Drive Fly (R F height), B bus game, Esc back</div></div></div>
  <canvas id="geoMini" width="150" height="150" role="img" aria-label="Minimap, north up"></canvas>
  <div id="geoJoy" aria-label="Move stick"><i></i></div>
 </div>
@@ -189,6 +189,7 @@ async function dive(lat, lon, name, sample) {
   if (state.busy) return; state.busy = true;
   const go = async () => {
     state.mode = 'world'; root.querySelector('#geoSide').hidden = true; $('#geoCross').style.display = 'none'; $('#geoWorldUI').hidden = false; $('#geoLabels').style.display = 'none';
+    if (root.getBoundingClientRect().width < 620) { $('#geoHudBody').hidden = true; $('#geoHudTog').textContent = 'Show controls'; $('#geoHudTog').setAttribute('aria-expanded', 'false') } else { $('#geoHudBody').hidden = false; $('#geoHudTog').textContent = 'Hide controls' }
     root.setAttribute('aria-label', 'World explorer'); cv.setAttribute('aria-label', 'World view. W A S D or arrow keys move, Shift is faster, 1 2 3 switch walk drive fly, Escape returns to the globe.');
     showStatus(); say('Loading ' + (name || fmtLL(lat, lon)) + '. This is a generated approximation of the area.');
     const r = await world.enter(lat, lon, { name, sample });
@@ -244,6 +245,7 @@ function wire() {
       else if (a === 'explore' && selInfo) dive(selInfo.lat, selInfo.lon, selInfo.name || (selInfo.near && selInfo.km < 25 ? selInfo.near.name : null));
       else if (a === 'clear') { selInfo = null; globe.setSel(null); renderSel() }
       else if (a === 'mode') world.setMode(b.dataset.m);
+      else if (a === 'hudtoggle') { const body = $('#geoHudBody'), h = !body.hidden; body.hidden = h; b.textContent = h ? 'Show controls' : 'Hide controls'; b.setAttribute('aria-expanded', String(!h)) }
       else if (a === 'toroad') { world.toRoad() }
       else if (a === 'proc') { GW.opts.proceduralFill = !GW.opts.proceduralFill; b.setAttribute('aria-pressed', String(GW.opts.proceduralFill)); b.textContent = 'Approximate buildings: ' + (GW.opts.proceduralFill ? 'on' : 'off'); reloadAll() }
       else if (a === 'bus') startBus();
@@ -270,10 +272,10 @@ function wire() {
     if (pointers.size >= 2) { const d = pinchDist(); if (drag && drag.d0 && d) { const f = drag.d0 / d; state.mode === 'globe' ? globe.view.d = 1 + (globe.view.d - 1) * f : world.zoom(f); drag.d0 = d } return }
     if (state.mode === 'globe') {
       if (globe.isFlying()) return; const k = globe.pxToDeg(), lc = Math.max(.2, Math.cos(globe.view.lat * Math.PI / 180));
-      globe.view.lon -= dx * k / lc; globe.view.lat += dy * k; globe.vel.lon = -dx * k / lc * .5; globe.vel.lat = dy * k * .5; globe.place();
+      const now = performance.now(), dtm = Math.max(8, now - (drag.lt || now - 16)); drag.lt = now; globe.view.lon -= dx * k / lc; globe.view.lat += dy * k; const cap = v => Math.max(-120, Math.min(120, v)); globe.vel.lon = cap(globe.vel.lon * .4 + (-dx * k / lc / (dtm / 1000)) * .6); globe.vel.lat = cap(globe.vel.lat * .4 + (dy * k / (dtm / 1000)) * .6); drag.lastMove = now; globe.place();
     } else world.look(dx, dy);
   });
-  const up = e => { const was = pointers.size === 1 && drag; pointers.delete(e.pointerId); if (was && drag.moved < 6 && performance.now() - drag.t < 600 && state.mode === 'globe' && e.type === 'pointerup') { const r = cv.getBoundingClientRect(); pickAt(e.clientX - r.left, e.clientY - r.top) } if (!pointers.size) drag = null };
+  const up = e => { const was = pointers.size === 1 && drag; if (drag && performance.now() - (drag.lastMove || 0) > 90 && globe) { globe.vel.lon = globe.vel.lat = 0 } pointers.delete(e.pointerId); if (was && drag.moved < 6 && performance.now() - drag.t < 600 && state.mode === 'globe' && e.type === 'pointerup') { const r = cv.getBoundingClientRect(); pickAt(e.clientX - r.left, e.clientY - r.top) } if (!pointers.size) drag = null };
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
   cv.addEventListener('dblclick', e => { if (state.mode === 'globe' && selInfo) dive(selInfo.lat, selInfo.lon, selInfo.name) });
   cv.addEventListener('wheel', e => { e.preventDefault(); const f = Math.exp(Math.max(-60, Math.min(60, e.deltaY)) * .0016); if (state.mode === 'globe') { globe.view.d = 1 + (globe.view.d - 1) * f; globe.place() } else world.zoom(f) }, { passive: false });
@@ -282,7 +284,10 @@ function wire() {
   const jm = e => { const r = joy.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2; let x = (e.clientX - cx) / (r.width / 2), y = (e.clientY - cy) / (r.height / 2); const l = Math.hypot(x, y); if (l > 1) { x /= l; y /= l } world.joy.x = Math.abs(x) < .12 ? 0 : x; world.joy.y = Math.abs(y) < .12 ? 0 : y; knob.style.transform = 'translate(' + x * 36 + 'px,' + y * 36 + 'px)' };
   joy.addEventListener('pointerdown', e => { joy.setPointerCapture(e.pointerId); jm(e); e.preventDefault() }); joy.addEventListener('pointermove', e => { if (joy.hasPointerCapture(e.pointerId)) jm(e) });
   const jend = e => { world.joy.x = world.joy.y = 0; knob.style.transform = '' }; joy.addEventListener('pointerup', jend); joy.addEventListener('pointercancel', jend);
-  window.addEventListener('keydown', onKey, true); window.addEventListener('keyup', onKeyUp, true);
+  // keys typed inside the overlay never reach the game's own shortcuts (its Tab trap and Escape handler would otherwise hijack them)
+  root.addEventListener('keydown', e => { onKey(e); e.stopPropagation() }); root.addEventListener('keyup', e => { onKeyUp(e); e.stopPropagation() });
+  window.addEventListener('keydown', e => { if (state.open && (e.target === document.body || e.target === document.documentElement)) { onKey(e); e.stopPropagation() } }, true);
+  window.addEventListener('keyup', e => { if (state.open && (e.target === document.body || e.target === document.documentElement)) { onKeyUp(e); e.stopPropagation() } }, true);
   window.addEventListener('resize', () => { if (state.open) size() });
   window.addEventListener('blur', () => { gkeys = {}; if (world) { for (const k in world.keys) world.keys[k] = false } });
 }
@@ -291,8 +296,8 @@ const KMAP = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown:
 function onKey(e) {
   if (!state.open) return;
   const tgt = e.target, typing = tgt && (tgt.tagName === 'INPUT' || tgt.tagName === 'TEXTAREA');
-  if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); if (modalOpen) closeModal(); else if (state.mode === 'world') toGlobe(); else close(); return }
-  if (typing || modalOpen) { e.stopPropagation(); return }
+  if (e.key === 'Escape') { e.preventDefault(); if (modalOpen) closeModal(); else if (state.mode === 'world') toGlobe(); else close(); return }
+  if (typing || modalOpen) return
   if (!root.contains(tgt) && tgt !== document.body) return;
   const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
   if (state.mode === 'globe') {

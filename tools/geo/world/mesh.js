@@ -42,9 +42,11 @@ function terrain(tx, ty, N, tex) {
   const base = pos.length / 3;
   for (const r of ring) { pos.push(pos[r * 3], pos[r * 3 + 1] - 14, pos[r * 3 + 2]); nor.push(0, 1, 0); uv.push(uv[r * 2], uv[r * 2 + 1]) }
   for (let k = 0; k < ring.length; k++) { const a = ring[k], b = ring[(k + 1) % ring.length], sa = base + k, sb = base + (k + 1) % ring.length; idx.push(a, b, sb, a, sb, sa, a, sb, b, a, sa, sb) }
+  // steep slopes show bare rock: darken and warm the ground colour with the slope (vertex colours multiply the ground texture)
+  const col = new Array(pos.length); for (let i = 0; i < pos.length / 3; i++) { const sl = Math.sqrt(Math.max(0, 1 / Math.max(.2, nor[i * 3 + 1]) ** 2 - 1)), t = Math.min(1, Math.max(0, (sl - .35) / .6)); col[i * 3] = 1 - .26 * t; col[i * 3 + 1] = 1 - .33 * t; col[i * 3 + 2] = 1 - .40 * t }
   const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx);
-  return { geo: g, mat: new THREE.MeshLambertMaterial({ map: tex }), tris: idx.length / 3 };
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setIndex(idx);
+  return { geo: g, mat: new THREE.MeshLambertMaterial({ map: tex, vertexColors: true }), tris: idx.length / 3 };
 }
 
 function ribbons(T) {
