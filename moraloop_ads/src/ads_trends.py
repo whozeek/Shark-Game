@@ -373,4 +373,20 @@ ADS = [
         S("They want you back to fix it. The pay is great, but they let you go.", ["you"], "think",
           ["💵", "🤔", "🚪"], "worried", set="home"),
     ], close="Do you go back to help, or say no?"),
+
+    # Trend: Reddit story about an employee whose honest survey answers upset management (TwistedSifter, Nov 7 2026)
+    dict(id="t047_the_honest_survey", title="The Honest Survey", made_on="2026-11-07", beats=[
+        S("Your company sends an anonymous survey. They say they want honest answers.", ["you"], "see",
+          ["📱", "📋", "🤫"], "worried", set="office"),
+        S("You have real complaints. But you wonder how anonymous it really is.", ["you"], "think",
+          ["📝", "👀", "🤔"], "worried", set="office"),
+    ], close="Do you write what you really think, or play it safe?"),
+
+    # Trend: story about handmade holiday gifts causing family tension (Daily Dot, Nov 6 2026)
+    dict(id="t048_the_handmade_gifts", title="The Handmade Gifts", made_on="2026-11-07", beats=[
+        S("Every year you make handmade gifts for your family. It takes you weeks.", ["you"], "react",
+          ["🧶", "🎁", "❤️"], "happy", set="home"),
+        S("This year you overhear them saying they’d prefer something from a store.", ["elder", "partner", "you"],
+          "tell", ["🛍️", "🎁", "😬"], "shock", others="neutral", set="home"),
+    ], close="Do you keep making them, or buy store gifts?"),
 ]

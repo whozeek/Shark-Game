@@ -121,6 +121,8 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 114 | 2026-12-06 | 12:00 PM | short | The Translator | `moraloop_ads/trends/t044_the_translator.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t044_the_translator.mp4) |
 | 115 | 2026-12-07 | 12:00 PM | short | The Store Brand | `moraloop_ads/trends/t045_the_store_brand.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t045_the_store_brand.mp4) |
 | 116 | 2026-12-08 | 12:00 PM | short | The Callback | `moraloop_ads/trends/t046_the_callback.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t046_the_callback.mp4) |
+| 117 | 2026-12-09 | 12:00 PM | short | The Honest Survey | `moraloop_ads/trends/t047_the_honest_survey.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t047_the_honest_survey.mp4) |
+| 118 | 2026-12-10 | 12:00 PM | short | The Handmade Gifts | `moraloop_ads/trends/t048_the_handmade_gifts.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t048_the_handmade_gifts.mp4) |
 
 ## Captions
 
@@ -1166,5 +1168,23 @@ Video: `moraloop_ads/trends/t046_the_callback.mp4`
 The boss who let you go wants you back to save a failing project. The pay is great. Do you go back, or say no? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #work #career #worklife
+```
+
+### 117. 2026-12-09 12:00 PM: The Honest Survey (short)
+Video: `moraloop_ads/trends/t047_the_honest_survey.mp4`
+
+```
+Your company’s “anonymous” survey asks for honest answers. You have real complaints. Write what you think, or play it safe? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #work #worklife #office
+```
+
+### 118. 2026-12-10 12:00 PM: The Handmade Gifts (short)
+Video: `moraloop_ads/trends/t048_the_handmade_gifts.mp4`
+
+```
+You spend weeks making handmade gifts, then overhear your family would prefer store-bought. Keep making them, or buy? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #gifts #holidays
 ```
 
