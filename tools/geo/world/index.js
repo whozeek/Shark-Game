@@ -81,7 +81,7 @@ const CREDITS_HTML = `
 const state = { open: false, mode: 'globe', raf: 0 };
 let root, cv, renderer, globe, world, gkeys = {}, last = 0, lastR = 0, selInfo = null, liveEl, pointers = new Map(), drag = null, modalOpen = false;
 const rhr = () => window.__rhr || {};
-const prof = () => { try { return rhr().P && rhr().P() || {} } catch (e) { return {} } };
+const prof = () => { try { return rhr().meta && rhr().meta.P && rhr().meta.P() || {} } catch (e) { return {} } };
 const saver = () => { const g = prof().gfx; return g === 'saver' || g === 'light' || !!(navigator.connection && navigator.connection.saveData) };
 const rm = () => { try { return !!(rhr().ui && rhr().ui.rm) || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) } catch (e) { return false } };
 const $ = s => root.querySelector(s);
