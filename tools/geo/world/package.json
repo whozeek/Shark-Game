@@ -1,0 +1,14 @@
+{
+  "name": "rhr-geoworld",
+  "private": true,
+  "type": "module",
+  "description": "Build tooling for the Rush Hour Routes globe + streamed world explorer (bundled into rush-hour-routes.html by build.mjs)",
+  "dependencies": {
+    "@mapbox/vector-tile": "2.0.3",
+    "esbuild": "0.25.0",
+    "pbf": "4.0.1",
+    "topojson-client": "3.1.0",
+    "topojson-simplify": "3.0.3",
+    "world-atlas": "2.0.2"
+  }
+}

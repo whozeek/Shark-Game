@@ -1,0 +1,1251 @@
+Tokyo|35.69|139.75|35676|JP|1
+New York|40.75|-73.98|19040|US|0
+Mexico City|19.44|-99.13|19028|MX|1
+Mumbai|19.02|72.86|18978|IN|0
+São Paulo|-23.56|-46.63|18845|BR|0
+Delhi|28.67|77.23|15926|IN|0
+Shanghai|31.22|121.43|14987|CN|0
+Kolkata|22.50|88.32|14787|IN|0
+Dhaka|23.73|90.41|12797|BD|1
+Buenos Aires|-34.60|-58.40|12795|AR|1
+Los Angeles|33.99|-118.18|12500|US|0
+Karachi|24.87|66.99|12130|PK|0
+Cairo|30.05|31.25|11893|EG|1
+Rio de Janeiro|-22.92|-43.23|11748|BR|0
+Ōsaka|34.75|135.46|11294|JP|0
+Beijing|39.93|116.39|11106|CN|1
+Manila|14.61|120.98|11100|PH|1
+Moscow|55.75|37.61|10452|RU|1
+Istanbul|41.11|29.01|10061|TR|0
+Paris|48.87|2.33|9904|FR|1
+Seoul|37.57|127.00|9796|KR|1
+Lagos|6.45|3.39|9466|NG|0
+Jakarta|-6.17|106.83|9125|ID|1
+Chicago|41.83|-87.75|8990|US|0
+Guangzhou|23.15|113.32|8829|CN|0
+London|51.50|-0.12|8567|GB|1
+Lima|-12.05|-77.05|8012|PE|1
+Tehran|35.67|51.42|7873|IR|1
+Kinshasa|-4.33|15.31|7843|CD|1
+Bogota|4.60|-74.09|7772|CO|1
+Shenzhen|22.55|114.12|7581|CN|0
+Wuhan|30.58|114.27|7243|CN|0
+Hong Kong|22.31|114.18|7206|HK|0
+Tianjin|39.13|117.20|7180|CN|0
+Chennai|13.09|80.28|7163|IN|0
+Taipei|25.04|121.57|6900|TW|1
+Bengaluru|12.97|77.56|6787|IN|0
+Bangkok|13.75|100.51|6704|TH|1
+Lahore|31.56|74.35|6577|PK|0
+Chongqing|29.57|106.59|6461|CN|0
+Hyderabad|17.40|78.48|6376|IN|0
+Amaravati|16.53|80.52|5800|IN|0
+Santiago|-33.45|-70.67|5720|CL|1
+Miami|25.79|-80.23|5585|US|0
+Belo Horizonte|-19.91|-43.92|5575|BR|0
+Madrid|40.40|-3.69|5567|ES|1
+Philadelphia|40.00|-75.17|5492|US|0
+Ahmedabad|23.03|72.58|5375|IN|0
+Ho Chi Minh City|10.78|106.69|5314|VN|0
+Toronto|43.70|-79.42|5213|CA|0
+Singapore|1.29|103.85|5184|SG|1
+Luanda|-8.84|13.23|5173|AO|1
+Baghdad|33.34|44.39|5054|IQ|1
+Barcelona|41.39|2.18|4920|ES|0
+Dallas|32.82|-96.84|4798|US|0
+Shenyeng|41.81|123.45|4787|CN|0
+Khartoum|15.59|32.53|4754|SD|1
+Pune|18.53|73.85|4672|IN|0
+Sydney|-33.92|151.18|4630|AU|0
+St.  Petersburg|59.94|30.31|4553|RU|0
+Chattogram|22.33|91.80|4529|BD|0
+Dongguan|23.05|113.74|4528|CN|0
+Atlanta|33.83|-84.40|4506|US|0
+Boston|42.33|-71.07|4467|US|0
+Riyadh|24.64|46.77|4465|SA|1
+Houston|29.82|-95.34|4459|US|0
+Hanoi|21.04|105.85|4378|VN|1
+Washington,  D.C.|38.90|-77.01|4338|US|1
+Guadalajara|20.67|-103.33|4198|MX|0
+Melbourne|-37.82|144.97|4170|AU|0
+Alexandria|31.20|29.95|4165|EG|0
+Chengdu|30.67|104.07|4123|CN|0
+Detroit|42.33|-83.08|4101|US|0
+Yangon|16.79|96.16|4088|MM|0
+Xian|34.28|108.89|4009|CN|0
+Porto Alegre|-30.05|-51.20|3917|BR|0
+Surat|21.20|72.84|3842|IN|0
+Abidjan|5.32|-4.04|3802|CI|1
+Brasília|-15.78|-47.92|3717|BR|1
+Ankara|39.93|32.86|3716|TR|1
+Monterrey|25.67|-100.33|3712|MX|0
+Nanjing|32.05|118.78|3679|CN|0
+Montréal|45.50|-73.59|3678|CA|0
+Guiyang|26.58|106.72|3662|CN|0
+Recife|-8.07|-34.92|3651|BR|0
+Harbin|45.75|126.65|3621|CN|0
+Fortaleza|-3.75|-38.58|3602|BR|0
+Ürümqi|43.81|87.57|3575|CN|0
+Phoenix|33.54|-112.07|3551|US|0
+Salvador|-12.97|-38.48|3484|BR|0
+Busan|35.10|129.01|3480|KR|0
+San Francisco|37.77|-122.42|3450|US|0
+Johannesburg|-26.17|28.03|3435|ZA|0
+Berlin|52.52|13.40|3406|DE|1
+Algiers|36.77|3.05|3354|DZ|1
+Rome|41.90|12.48|3339|IT|1
+Pyongyang|39.02|125.75|3300|KP|1
+Medellín|6.28|-75.58|3297|CO|0
+Kabul|34.52|69.18|3277|AF|1
+Athens|37.99|23.73|3242|GR|1
+Nagoya|35.16|136.91|3230|JP|0
+Cape Town|-33.92|18.43|3215|ZA|1
+Changchun|43.87|125.34|3183|CN|0
+Casablanca|33.60|-7.62|3181|MA|0
+Dalian|38.92|121.63|3167|CN|0
+Kanpur|26.46|80.32|3162|IN|0
+Kano|12.00|8.52|3140|NG|0
+Tel Aviv|32.08|34.77|3112|IL|0
+Addis Ababa|9.04|38.70|3100|ET|1
+Curitiba|-25.42|-49.32|3084|BR|0
+Seattle|47.57|-122.34|3074|US|0
+Zibo|36.80|118.05|3061|CN|0
+Jeddah|21.52|39.22|3012|SA|0
+Nairobi|-1.28|36.81|3010|KE|1
+Hangzhou|30.25|120.17|3007|CN|0
+Caracas|10.50|-66.92|2985|VE|1
+Milan|45.47|9.20|2945|IT|0
+Kunming|25.07|102.68|2931|CN|0
+Dar es Salaam|-6.80|39.27|2930|TZ|1
+Jaipur|26.92|75.81|2917|IN|0
+San Diego|32.82|-117.18|2916|US|0
+Taiyuan|37.88|112.54|2913|CN|0
+Frankfurt|50.10|8.68|2895|DE|0
+Qingdao|36.09|120.33|2866|CN|0
+Surabaya|-7.25|112.75|2845|ID|0
+Lisbon|38.72|-9.15|2812|PT|1
+Jinan|36.68|116.99|2798|CN|0
+Fukuoka|33.60|130.41|2792|JP|0
+Campinas|-22.90|-47.10|2791|BR|0
+Kaohsiung|22.63|120.27|2769|TW|0
+Aleppo|36.23|37.17|2738|SY|0
+Durban|-29.86|30.98|2729|ZA|0
+Kyiv|50.44|30.51|2709|UA|1
+Lucknow|26.86|80.91|2695|IN|0
+Zhengzhou|34.76|113.66|2636|CN|0
+Taichung|24.15|120.68|2629|TW|0
+Ibadan|7.38|3.93|2628|NG|0
+Minneapolis|44.98|-93.25|2616|US|0
+Fuzhou|26.08|119.30|2606|CN|0
+Changsha|28.20|112.97|2604|CN|0
+Dakar|14.72|-17.48|2604|SN|1
+İzmir|38.44|27.15|2587|TR|0
+Lanzhou|36.06|103.79|2561|CN|0
+Incheon|37.48|126.64|2550|KR|0
+Sapporo|43.08|141.34|2544|JP|0
+Xiamen|24.45|118.08|2519|CN|0
+Guayaquil|-2.22|-79.92|2514|EC|0
+George Town|5.41|100.33|2500|MY|0
+San Juan|18.44|-66.13|2479|PR|0
+Mashhad|36.27|59.57|2469|IR|0
+Damascus|33.50|36.30|2466|SY|1
+Nagpur|21.17|79.09|2454|IN|0
+Jinxi|40.75|120.83|2426|CN|0
+Shijiazhuang|38.05|114.48|2417|CN|0
+Tunis|36.80|10.18|2413|TN|1
+Vienna|48.20|16.36|2400|AT|1
+Jilin|43.85|126.55|2396|CN|0
+Omdurman|15.62|32.48|2395|SD|0
+Bandung|-6.95|107.57|2394|ID|0
+Wenzhou|28.02|120.65|2350|CN|0
+Nanchang|28.68|115.88|2350|CN|0
+Tampa|27.95|-82.46|2314|US|0
+Vancouver|49.28|-123.12|2313|CA|0
+Denver|39.74|-104.99|2313|US|0
+Birmingham|52.48|-1.92|2285|GB|0
+Baltimore|39.30|-76.62|2255|US|0
+Cali|3.40|-76.50|2254|CO|0
+Sendai|38.29|141.02|2250|JP|0
+Naples|40.84|14.24|2250|IT|0
+Manchester|53.50|-2.25|2230|GB|0
+St. Louis|38.64|-90.24|2199|US|0
+Puebla|19.05|-98.20|2195|MX|0
+Tripoli|32.89|13.18|2189|LY|1
+Tashkent|41.31|69.29|2184|UZ|1
+Nanchong|30.78|106.13|2174|CN|0
+Havana|23.13|-82.37|2174|CU|1
+Nanning|22.82|108.32|2167|CN|0
+Belém|-1.45|-48.48|2167|BR|0
+Patna|25.63|85.13|2158|IN|0
+Santo Domingo|18.47|-69.90|2154|DO|1
+Zaozhuang|34.88|117.57|2145|CN|0
+Baku|40.40|49.86|2122|AZ|1
+Accra|5.55|-0.22|2121|GH|1
+Yantai|37.53|121.40|2116|CN|0
+Medan|3.58|98.65|2115|ID|0
+Santa Cruz|-17.75|-63.23|2103|BO|0
+Xuzhou|34.28|117.18|2091|CN|0
+Linyi|35.08|118.33|2082|CN|0
+Maracaibo|10.73|-71.66|2072|VE|0
+Kuwait City|29.37|47.98|2063|KW|1
+Hiroshima|34.39|132.44|2045|JP|0
+Baotou|40.65|109.82|2036|CN|0
+Hefei|31.85|117.28|2035|CN|0
+Indore|22.72|75.86|2026|IN|0
+Goiânia|-16.72|-49.30|2022|BR|0
+Sanaa|15.36|44.20|2008|YE|1
+Port-au-Prince|18.54|-72.34|1998|HT|1
+Haiphong|20.83|106.68|1969|VN|0
+Suzhou|33.64|116.98|1964|CN|0
+Nanyang|33.00|112.53|1944|CN|0
+Bucharest|44.44|26.10|1942|RO|1
+Ningbo|29.88|121.55|1923|CN|0
+Douala|4.06|9.71|1906|CM|0
+Cleveland|41.47|-81.70|1890|US|0
+Portland|45.52|-122.68|1875|US|0
+Asunción|-25.29|-57.64|1870|PY|1
+Brisbane|-27.45|153.03|1860|AU|0
+Beirut|33.87|35.51|1846|LB|1
+Pittsburgh|40.43|-80.00|1838|US|0
+Las Vegas|36.21|-115.22|1823|US|0
+Kyoto|35.03|135.75|1805|JP|0
+Minsk|53.90|27.56|1805|BY|1
+Barranquilla|10.96|-74.80|1798|CO|0
+Valencia|10.23|-67.98|1770|VE|0
+Hamburg|53.55|10.00|1757|DE|0
+Vadodara|22.31|73.18|1756|IN|0
+Manaus|-3.10|-60.00|1753|BR|0
+Wuxi|31.58|120.30|1749|CN|0
+Palembang|-2.98|104.75|1749|ID|0
+San Bernardino|34.12|-117.30|1745|US|0
+Brussels|50.84|4.33|1743|BE|1
+Bhopal|23.25|77.41|1727|IN|0
+Hohhot|40.82|111.66|1726|CN|0
+Warsaw|52.25|21.00|1707|PL|1
+Rabat|34.03|-6.84|1705|MA|1
+Quito|-0.21|-78.50|1701|EC|1
+Antananarivo|-18.91|47.51|1697|MG|1
+Coimbatore|11.00|76.95|1696|IN|0
+Daqing|46.58|125.00|1693|CN|0
+Budapest|47.50|19.08|1679|HU|1
+San Jose|37.30|-121.85|1668|US|0
+Turin|45.07|7.67|1652|IT|0
+Suzhou|31.30|120.62|1650|CN|0
+Ludhiana|30.93|75.87|1649|IN|0
+Qiqihar|47.35|123.99|1641|CN|0
+Anshan|41.12|122.94|1639|CN|0
+Cincinnati|39.16|-84.46|1636|US|0
+Handan|36.58|114.48|1631|CN|0
+Isfahan|32.70|51.70|1628|IR|0
+Yaoundé|3.87|11.51|1611|CM|1
+Sacramento|38.58|-121.47|1604|US|0
+Shantou|23.37|116.67|1601|CN|0
+Agra|27.17|78.01|1592|IN|0
+Zhanjiang|21.20|110.38|1590|CN|0
+La Paz|-16.50|-68.15|1590|BO|1
+Abuja|9.09|7.53|1576|NG|1
+Harare|-17.82|31.04|1572|ZW|1
+Khulna|22.84|89.56|1553|BD|0
+Tijuana|32.50|-117.08|1553|MX|0
+Santiago|19.50|-70.67|1551|DO|0
+Perth|-31.95|115.84|1532|AU|0
+Vishakhapatnam|17.73|83.30|1529|IN|0
+Multan|30.20|71.45|1522|PK|0
+Kochi|10.02|76.22|1519|IN|0
+Gujranwala|32.16|74.18|1513|PK|0
+Montevideo|-34.86|-56.17|1513|UY|1
+Florence|43.78|11.25|1500|IT|0
+Bamako|12.65|-8.00|1494|ML|1
+Conakry|9.53|-13.68|1494|GN|1
+Bursa|40.20|29.07|1492|TR|0
+León|21.15|-101.70|1488|MX|0
+Nasik|20.00|73.78|1473|IN|0
+San Antonio|29.49|-98.51|1473|US|0
+Kansas City|39.11|-94.61|1469|US|0
+Daejeon|36.34|127.42|1468|KR|0
+Neijiang|29.58|105.05|1466|CN|0
+Phnom Penh|11.55|104.91|1466|KH|1
+Quanzhou|24.90|118.58|1463|CN|0
+Kharkiv|50.00|36.25|1461|UA|0
+Hyderabad|25.38|68.37|1459|PK|0
+Lomé|6.13|1.22|1452|TG|1
+Córdoba|-31.40|-64.18|1452|AR|0
+Huainan|32.63|116.98|1451|CN|0
+Doha|25.29|51.53|1450|QA|1
+Kuala Lumpur|3.17|101.70|1448|MY|1
+Maputo|-25.95|32.59|1446|MZ|1
+Kaduna|10.52|7.44|1442|NG|0
+Ft.  Worth|32.74|-97.34|1440|US|0
+Gwangju|35.17|126.91|1440|KR|0
+Indianapolis|39.75|-86.17|1436|US|0
+San Salvador|13.71|-89.20|1433|SV|1
+Lyon|45.77|4.83|1423|FR|0
+Kampala|0.32|32.58|1420|UG|1
+Tabriz|38.09|46.30|1413|IR|0
+The Hague|52.08|4.27|1406|NL|0
+Davao|7.11|125.63|1402|PH|0
+Marseille|43.29|5.37|1400|FR|0
+Meerut|29.00|77.70|1398|IN|0
+Mianyang|31.47|104.77|1396|CN|0
+Semarang|-6.96|110.42|1396|ID|0
+Faridabad|28.44|77.31|1394|IN|0
+Novosibirsk|55.03|82.96|1389|RU|0
+Milwaukee|43.05|-87.92|1388|US|0
+Makkah|21.43|39.82|1385|SA|0
+Dubai|25.23|55.28|1379|AE|0
+Auckland|-36.85|174.76|1377|NZ|0
+Brazzaville|-4.26|15.28|1355|CG|1
+Lubumbashi|-11.68|27.48|1352|CD|0
+Varanasi|25.33|83.00|1352|IN|0
+Orlando|28.51|-81.38|1350|US|0
+Ghaziabad|28.66|77.41|1341|IN|0
+Pretoria|-25.70|28.23|1338|ZA|1
+Lusaka|-15.41|28.28|1328|ZM|1
+Asansol|23.69|86.98|1328|IN|0
+Mosul|36.35|43.14|1316|IQ|0
+Yekaterinburg|56.85|60.60|1313|RU|0
+Peshawar|34.01|71.53|1303|PK|0
+Mandalay|21.97|96.08|1300|MM|0
+Jamshedpur|22.79|86.20|1300|IN|0
+Mbuji-Mayi|-6.15|23.60|1295|CD|0
+Madurai|9.92|78.12|1294|IN|0
+Adana|37.00|35.32|1293|TR|0
+Jabalpur|23.18|79.95|1285|IN|0
+San José|9.94|-84.09|1284|CR|1
+Panama City|8.97|-79.53|1281|PA|1
+Nizhny Novgorod|56.33|44.00|1278|RU|0
+Chifeng|42.27|118.95|1277|CN|0
+Munich|48.13|11.57|1275|DE|0
+Huaiyin|33.58|119.03|1264|CN|0
+Stockholm|59.35|18.10|1264|SE|1
+Makassar|-5.14|119.43|1262|ID|0
+Rajkot|22.31|70.80|1260|IN|0
+Dhanbad|23.80|86.42|1246|IN|0
+Shiraz|29.63|52.57|1240|IR|0
+Geneva|46.21|6.14|1240|CH|0
+Tianshui|34.60|105.92|1225|CN|0
+Liupanshui|26.60|104.83|1221|CN|0
+Seville|37.41|-5.98|1212|ES|0
+Amritsar|31.64|74.87|1212|IN|0
+Vila Velha|-20.37|-40.32|1209|BR|0
+Almaty|43.33|76.91|1209|KZ|0
+Rosario|-32.95|-60.67|1203|AR|0
+Allahabad|25.46|81.84|1201|IN|0
+Benin City|6.34|5.62|1190|NG|0
+Maceió|-9.62|-35.73|1186|BR|0
+Sofia|42.69|23.31|1185|BG|1
+Banghazi|32.12|20.06|1180|LY|0
+Raleigh|35.82|-78.64|1164|US|0
+Prague|50.09|14.46|1162|CZ|1
+Austin|30.27|-97.74|1161|US|0
+Glasgow|55.88|-4.25|1160|GB|0
+Ouagadougou|12.37|-1.53|1149|BF|1
+Ottawa|45.42|-75.70|1145|CA|1
+Adelaide|-34.93|138.60|1145|AU|0
+Torreón|25.57|-103.42|1144|MX|0
+Srinagar|34.10|74.81|1140|IN|0
+Vijayawada|16.52|80.63|1137|IN|0
+Samara|53.20|50.15|1137|RU|0
+Omsk|54.99|73.40|1135|RU|0
+Yulin|22.63|110.15|1127|CN|0
+Kazan|55.75|49.12|1115|RU|0
+Helsinki|60.18|24.93|1115|FI|1
+Aurangabad|19.90|75.32|1113|IN|0
+Calgary|51.08|-114.08|1110|CA|0
+Zürich|47.38|8.55|1108|CH|0
+Yerevan|40.18|44.51|1102|AM|1
+Ankang|32.68|109.02|1100|CN|0
+Mogadishu|2.07|45.36|1100|SO|1
+Tbilisi|41.73|44.79|1100|GE|1
+Huambo|-12.75|15.76|1100|AO|0
+Belgrade|44.82|20.47|1099|RS|1
+Bhilai|21.22|81.43|1097|IN|0
+Chelyabinsk|55.16|61.44|1091|RU|0
+Natal|-5.78|-35.24|1088|BR|0
+Dushanbe|38.56|68.77|1086|TJ|1
+København|55.68|12.56|1085|DK|1
+Memphis|35.12|-90.00|1081|US|0
+Amman|31.95|35.93|1060|JO|1
+Dublin|53.34|-6.25|1059|IE|1
+Edmonton|53.55|-113.50|1058|CA|0
+Sholapur|17.67|75.90|1057|IN|0
+Rostov|47.24|39.71|1052|RU|0
+Dnipro|48.48|35.00|1050|UA|0
+Xining|36.62|101.77|1048|CN|0
+Norfolk|36.85|-76.28|1048|US|0
+Lille|50.65|3.08|1044|FR|0
+Ranchi|23.37|85.33|1044|IN|0
+Monrovia|6.31|-10.80|1041|LR|1
+São Luís|-2.51|-44.27|1038|BR|0
+Amsterdam|52.35|4.91|1031|NL|1
+Jerusalem|31.78|35.21|1029|IL|1
+Guatemala City|14.62|-90.53|1024|GT|1
+Florianópolis|-27.58|-48.52|1023|BR|0
+Port Elizabeth|-33.97|25.60|1021|ZA|0
+Port Harcourt|4.81|7.01|1020|NG|0
+Jiamusi|46.83|130.35|1020|CN|0
+Bridgeport|41.18|-73.20|1018|US|0
+Ufa|54.79|56.04|1018|RU|0
+Hengyang|26.88|112.59|1016|CN|0
+Buffalo|42.88|-78.88|1016|US|0
+Medina|24.50|39.58|1010|SA|0
+Fez|34.06|-5.00|1002|MA|0
+Da Nang|16.06|108.25|1000|VN|0
+Baoshan|25.12|99.15|1000|CN|0
+Aden|12.78|45.01|1000|YE|0
+Perm|58.00|56.25|997|RU|0
+Ahvaz|31.28|48.72|996|IR|0
+Jodhpur|26.29|73.01|995|IN|0
+San Luis Potosí|22.17|-101.00|992|MX|0
+Odessa|46.49|30.71|991|UA|0
+Yinchuan|38.47|106.27|991|CN|0
+N'Djamena|12.12|15.05|989|TD|1
+Jacksonville|30.33|-81.67|988|US|0
+Donetsk|48.00|37.83|988|UA|0
+Guilin|25.28|110.28|987|CN|0
+Volgograd|48.71|44.50|984|RU|0
+Guwahati|26.16|91.77|983|IN|0
+Chandigarh|30.72|76.78|979|IN|0
+Gwalior|26.23|78.18|978|IN|0
+Salt Lake City|40.78|-111.93|966|US|0
+Jixi|45.30|130.97|965|CN|0
+Mérida|20.97|-89.62|965|MX|0
+Pingxiang|27.62|113.85|961|CN|0
+Thiruvananthapuram|8.50|76.95|954|IN|0
+Kozhikode|11.25|75.77|953|IN|0
+Ogbomosho|8.13|4.24|951|NG|0
+Tiruchirappalli|10.81|78.69|951|IN|0
+General Santos|6.11|125.17|951|PH|0
+Tulsa|36.12|-95.93|947|US|0
+Tegucigalpa|14.10|-87.22|946|HN|1
+Kingston|17.98|-76.77|938|JM|1
+Naypyidaw|19.77|96.12|930|MM|1
+Krasnoyarsk|56.02|92.86|925|RU|0
+Djibouti|11.60|43.15|923|DJ|1
+Managua|12.15|-86.27|920|NI|1
+Konya|37.88|32.47|919|TR|0
+Niamey|13.52|2.11|915|NE|1
+Richmond|37.55|-77.45|912|US|0
+Teresina|-5.09|-42.78|907|BR|0
+Naha|26.21|127.67|905|JP|0
+Albuquerque|35.10|-106.64|899|US|0
+Maiduguri|11.85|13.16|896|NG|0
+Tirana|41.33|19.82|895|AL|1
+Kathmandu|27.72|85.31|895|NP|1
+Mendoza|-32.88|-68.82|893|AR|0
+Hubballi|15.36|75.12|890|IN|0
+Concepción|-36.83|-73.05|890|CL|0
+Mysuru|12.31|76.66|887|IN|0
+Cartagena|10.40|-75.52|887|CO|0
+Mexicali|32.65|-115.48|885|MX|0
+Ulaanbaatar|47.92|106.91|885|MN|1
+Tongliao|43.62|122.27|884|CN|0
+Mombasa|-4.04|39.69|882|KE|0
+Omaha|41.24|-96.01|877|US|0
+Nashville|36.17|-86.78|877|US|0
+Bilbao|43.25|-2.93|876|ES|0
+Raipur|21.24|81.63|875|IN|0
+Salem|11.67|78.18|873|IN|0
+Marrakesh|31.63|-8.00|872|MA|0
+Basra|30.52|47.81|870|IQ|0
+Bandar Lampung|-5.43|105.27|865|ID|0
+Palermo|38.13|13.35|863|IT|0
+Cardiff|51.50|-3.23|861|GB|0
+Kigali|-1.95|30.06|860|RW|1
+Tampico|22.30|-97.87|859|MX|0
+Jullundur|31.34|75.57|855|IN|0
+Padang|-0.96|100.36|855|ID|0
+Valparaíso|-33.05|-71.62|854|CL|0
+Shache|38.43|77.25|851|CN|0
+Toulouse|43.62|1.45|847|FR|0
+Voronezh|51.73|39.27|844|RU|0
+Bhubaneswar|20.27|85.83|844|IN|0
+Saratov|51.58|46.03|843|RU|0
+Bishkek|42.88|74.58|837|KG|1
+Oslo|59.92|10.75|835|NO|1
+Bangui|4.37|18.56|832|CF|1
+Warri|5.52|5.76|830|NG|0
+Tucumán|-26.81|-65.22|830|AR|0
+Thessaloniki|40.70|22.88|828|GR|0
+Kota|25.18|75.83|827|IN|0
+Freetown|8.47|-13.24|827|SL|1
+Yueyang|29.38|113.10|826|CN|0
+Tucson|32.21|-110.89|823|US|0
+Arequipa|-16.42|-71.53|815|PE|0
+Cebu|10.32|123.90|815|PH|0
+Rajshahi|24.38|88.60|810|BD|0
+Culiacán|24.83|-107.38|809|MX|0
+Valencia|39.49|-0.40|808|ES|0
+Cuiabá|-15.57|-56.09|806|BR|0
+Aligarh|27.89|78.06|805|IN|0
+Malang|-7.98|112.61|805|ID|0
+Lviv|49.83|24.03|804|UA|0
+Bordeaux|44.85|-0.60|803|FR|0
+Oran|35.71|-0.62|798|DZ|0
+Chihuahua|28.65|-106.09|793|MX|0
+Jammu|32.71|74.84|791|IN|0
+Oklahoma City|35.47|-97.52|788|US|0
+Moradabad|28.84|78.75|787|IN|0
+Honolulu|21.31|-157.86|786|US|0
+New Orleans|30.00|-90.04|785|US|0
+Islamabad|33.70|73.16|780|PK|1
+Campo Grande|-20.45|-54.62|778|BR|0
+Mangaluru|12.90|74.85|777|IN|0
+Zamboanga|6.92|122.08|773|PH|0
+Quetta|30.22|67.02|768|PK|0
+Trujillo|-8.12|-79.02|765|PE|0
+Kananga|-5.89|22.40|765|CD|0
+Cotonou|6.40|2.52|762|BJ|1
+Kraków|50.06|19.96|756|PL|0
+Rochester|43.17|-77.62|755|US|0
+Vientiane|17.97|102.60|754|LA|1
+El Paso|31.78|-106.51|753|US|0
+Taizz|13.61|44.04|751|YE|0
+Kolhapur|16.70|74.22|750|IN|0
+Ciudad Guayana|8.37|-62.62|747|VE|0
+Riga|56.95|24.10|743|LV|1
+Nouakchott|18.09|-15.98|742|MR|1
+Gdańsk|54.36|18.64|740|PL|0
+St.  Paul|44.94|-93.08|735|US|0
+Muscat|23.61|58.59|735|OM|1
+Sokoto|13.06|5.24|732|NG|0
+Ashgabat|37.95|58.38|728|TM|1
+Zagreb|45.80|16.00|723|HR|1
+Shaoguan|24.80|113.58|720|CN|0
+Acapulco|16.85|-99.92|716|MX|0
+Kandahar|31.61|65.69|716|AF|0
+Samarkand|39.67|66.94|708|UZ|0
+Bulawayo|-20.17|28.58|699|ZW|0
+Sarajevo|43.85|18.38|697|BA|1
+Enugu|6.45|7.50|689|NG|0
+Chișinău|47.01|28.86|688|MD|1
+Catania|37.50|15.08|675|IT|0
+Najaf|32.00|44.34|666|IQ|0
+Syracuse|43.05|-76.15|663|US|0
+Pointe-Noire|-4.77|11.88|659|CG|0
+Knoxville|35.97|-83.92|655|US|0
+Andijan|40.79|72.34|650|UZ|0
+Krasnodar|45.02|39.00|650|RU|0
+Genoa|44.41|8.93|647|IT|0
+Lilongwe|-13.98|33.78|647|MW|1
+Ulyanovsk|54.33|48.41|641|RU|0
+Kikwit|-5.03|18.85|638|CD|0
+Winnipeg|49.88|-97.17|632|CA|0
+Québec|46.84|-71.25|624|CA|0
+Bur Said|31.26|32.29|624|EG|0
+Nanded|19.17|77.30|624|IN|0
+Asmara|15.33|38.93|621|ER|1
+Dresden|51.05|13.75|618|DE|0
+Fresno|36.75|-119.77|616|US|0
+Samsun|41.28|36.34|609|TR|0
+Luxor|25.70|32.65|609|EG|0
+Yaroslavl|57.62|39.87|607|RU|0
+Constantine|36.36|6.60|605|DZ|0
+Bandjarmasin|-3.33|114.58|604|ID|0
+Abu Dhabi|24.47|54.37|603|AE|1
+Kirkuk|35.47|44.39|601|IQ|0
+Barnaul|53.35|83.75|600|RU|0
+Hermosillo|29.10|-110.95|596|MX|0
+Port Louis|-20.17|57.50|595|MU|1
+Nagano|36.65|138.17|594|JP|0
+Vladivostok|43.13|131.91|587|RU|0
+Irkutsk|52.32|104.25|587|RU|0
+Blantyre|-15.79|34.99|585|MW|0
+Cuttack|20.47|85.89|580|IN|0
+Hami|42.83|93.52|580|CN|0
+Khabarovsk|48.45|135.12|579|RU|0
+Veracruz|19.18|-96.16|579|MX|0
+Kisangani|0.52|25.22|578|CD|0
+Libreville|0.39|9.46|578|GA|1
+Quetzaltenango|14.83|-91.52|575|GT|0
+Kuching|1.53|110.33|570|MY|0
+Macau|22.20|113.55|569|MO|0
+Bouaké|7.69|-5.03|567|CI|0
+Manama|26.24|50.58|564|BH|1
+Uberlândia|-18.90|-48.28|564|BR|0
+Sorocaba|-23.49|-47.47|563|BR|0
+Mar del Plata|-38.00|-57.58|556|AR|0
+Santiago de Cuba|20.03|-75.82|556|CU|0
+Surakarta|-7.56|110.83|555|ID|0
+Ribeirão Preto|-21.17|-47.83|551|BR|0
+Orenburg|51.78|55.11|550|RU|0
+Tabuk|28.38|36.55|548|SA|0
+Yining|43.90|81.35|543|CN|0
+Vilnius|54.68|25.32|542|LT|1
+Cancún|21.17|-86.83|542|MX|0
+Newcastle|-32.85|151.82|541|AU|0
+Novokuznetsk|53.75|87.11|540|RU|0
+Matamoros|25.88|-97.50|539|MX|0
+Tomsk|56.49|84.98|535|RU|0
+Matsuyama|33.85|132.77|534|JP|0
+Rouen|49.43|1.08|533|FR|0
+Oaxaca|17.08|-96.67|531|MX|0
+Beira|-19.82|34.87|531|MZ|0
+Hamadan|34.80|48.52|528|IR|0
+Gold Coast|-28.08|153.45|528|AU|0
+Vancouver|45.63|-122.64|526|US|0
+Ryazan|54.62|39.72|520|RU|0
+Tyumen|57.14|65.53|519|RU|0
+Banda Aceh|5.55|95.32|514|ID|0
+Salta|-24.78|-65.42|513|AR|0
+Penza|53.18|45.00|513|RU|0
+Suez|30.00|32.55|508|EG|0
+Kashgar|39.48|75.97|507|CN|0
+Gaza City|31.53|34.45|506|PS|0
+Edinburgh|55.95|-3.22|505|GB|0
+Annaba|36.92|7.76|504|DZ|0
+Akola|20.71|77.01|504|IN|0
+Astrakhan|46.35|48.05|503|RU|0
+Bari|41.11|16.87|501|IT|0
+Macapá|0.03|-51.05|499|BR|0
+Skopje|42.00|21.43|494|MK|1
+Mwanza|-2.52|32.93|494|TZ|0
+Colorado Springs|38.86|-104.79|494|US|0
+Wuwei|37.93|102.64|493|CN|0
+Port Sudan|19.62|37.22|490|SD|0
+Santa Fe|-31.62|-60.69|490|AR|0
+Bologna|44.50|11.34|488|IT|0
+Saharanpur|29.97|77.55|485|IN|0
+Kalaburagi|17.35|76.82|484|IN|0
+Feira de Santana|-12.25|-38.97|482|BR|0
+Tuxtla Gutiérrez|16.75|-93.15|481|MX|0
+Herat|34.33|62.17|481|AF|0
+Yazd|31.92|54.37|478|IR|0
+Hargeisa|9.56|44.07|478|-99|1
+Kemerovo|55.34|86.09|477|RU|0
+Shymkent|42.32|69.60|465|KZ|0
+Pristina|42.67|21.17|465|-99|1
+Bloemfontein|-29.12|26.23|463|ZA|1
+Bandar-e-Abbas|27.20|56.27|461|IR|0
+Iquitos|-3.75|-73.25|459|PE|0
+Mazar-i-Sharif|36.70|67.10|458|AF|0
+Kirov|58.59|49.67|457|RU|0
+Qaraghandy|49.88|73.12|452|KZ|0
+Belfast|54.60|-5.96|450|GB|0
+Baguio|16.43|120.57|448|PH|0
+San Juan|-31.55|-68.52|447|AR|0
+Balikpapan|-1.25|116.83|446|ID|0
+Bamenda|5.96|10.15|445|CM|0
+Wuzhou|23.48|111.32|442|CN|0
+Strasbourg|48.58|7.75|440|FR|0
+San Cristóbal|7.77|-72.25|439|VE|0
+Nantes|47.21|-1.59|439|FR|0
+Garoua|9.30|13.39|437|CM|0
+Nagasaki|32.76|129.89|435|JP|0
+Kaliningrad|54.70|20.50|435|RU|0
+Laredo|27.51|-99.51|435|US|0
+Welkom|-27.97|26.73|432|ZA|0
+Bryansk|53.26|34.43|427|RU|0
+Bratislava|48.15|17.12|424|SK|1
+Baton Rouge|30.46|-91.14|422|US|0
+Asyut|27.19|31.18|421|EG|0
+Kolwezi|-10.72|25.47|418|CD|0
+Magnitogorsk|53.42|58.98|413|RU|0
+Gifu|35.42|136.76|413|JP|0
+Huancayo|-12.08|-75.20|413|PE|0
+Oujda|34.69|-1.91|409|MA|0
+Hotan|37.10|79.93|409|CN|0
+Kitwe|-12.81|28.22|405|ZM|0
+Zanzibar|-6.16|39.20|404|TZ|0
+Bissau|11.87|-15.60|403|GW|1
+Mbale|1.09|34.17|402|UG|0
+Kassala|15.46|36.39|401|SD|0
+Tver|56.86|35.89|400|RU|0
+Surgut|61.26|73.43|400|RU|0
+Columbia|34.04|-80.90|398|US|0
+Chiang Mai|18.80|98.98|397|TH|0
+Piura|-5.21|-80.63|397|PE|0
+Tallinn|59.43|24.73|394|EE|1
+Wellington|-41.30|174.78|393|NZ|1
+Al-Ubayyid|13.18|30.22|393|SD|0
+Nyala|12.06|24.89|392|SD|0
+Nampula|-15.14|39.29|389|MZ|0
+Iloilo|10.71|122.55|388|PH|0
+Misrata|32.38|15.10|386|LY|0
+Pasto|1.21|-77.28|382|CO|0
+Caxias do Sul|-29.18|-51.17|381|BR|0
+Nizhny Tagil|57.92|59.97|381|RU|0
+Des Moines|41.58|-93.62|381|US|0
+Xichang|27.88|102.30|380|CN|0
+Sevastopol|44.60|33.46|379|RU|0
+Vigo|42.22|-8.73|379|ES|0
+Las Palmas|28.10|-15.43|378|ES|0
+Manizales|5.06|-75.52|376|CO|0
+Manukau|-37.00|174.88|376|NZ|0
+Valletta|35.90|14.51|368|MT|1
+Mazatlán|23.22|-106.42|368|MX|0
+Gorontalo|0.55|123.07|365|ID|0
+Larkana|27.56|68.21|364|PK|0
+Christchurch|-43.54|172.63|363|NZ|0
+Stavropol|45.05|41.98|363|RU|0
+Bhagalpur|25.23|86.98|362|IN|0
+Maseru|-29.32|27.48|361|LS|1
+Cusco|-13.53|-71.97|361|PE|0
+Ulan-Ude|51.82|107.62|360|RU|0
+Bobo Dioulasso|11.18|-4.29|360|BF|0
+Halifax|44.65|-63.60|359|CA|0
+Taraz|42.90|71.36|358|KZ|0
+Posadas|-27.36|-55.89|357|AR|0
+Archangel|64.57|40.55|356|RU|0
+Ambon|-3.72|128.20|356|ID|0
+Safi|32.32|-9.24|353|MA|0
+Eldoret|0.52|35.27|353|KE|0
+Chimbote|-9.07|-78.57|350|PE|0
+Nuevo Laredo|27.50|-99.55|350|MX|0
+Spokane|47.67|-117.42|348|US|0
+Nur-Sultan|51.18|71.43|346|KZ|1
+Mérida|8.40|-71.13|345|VE|0
+Arusha|-3.36|36.67|341|TZ|0
+Chitungwiza|-18.00|31.10|340|ZW|0
+East London|-32.97|27.87|339|ZA|0
+Boise|43.61|-116.23|338|US|0
+Kōchi|33.56|133.54|336|JP|0
+Nakhon Ratchasima|15.00|102.10|335|TH|0
+Montes Claros|-16.72|-43.86|332|BR|0
+Bujumbura|-3.38|29.36|332|BI|1
+Wonsan|39.16|127.43|329|KP|0
+Pavlodar|52.30|76.95|329|KZ|0
+Reno|39.53|-119.82|329|US|0
+Canberra|-35.28|149.13|328|AU|1
+Sochi|43.59|39.73|328|RU|0
+Montpellier|43.61|3.87|327|FR|0
+Sousse|35.83|10.63|327|TN|0
+Iași|47.17|27.57|326|RO|0
+Miyazaki|31.92|131.42|324|JP|0
+Córdoba|37.88|-4.77|321|ES|0
+Smolensk|54.78|32.05|321|RU|0
+Ciudad del Este|-25.52|-54.62|321|PY|0
+Pelotas|-31.75|-52.33|321|BR|0
+Maroua|10.60|14.32|320|CM|0
+Bukhara|39.78|64.43|319|UZ|0
+Murmansk|68.97|33.10|319|RU|0
+Oskemen|49.99|82.61|319|KZ|0
+New Delhi|28.60|77.20|318|IN|1
+El Faiyum|29.31|30.84|317|EG|0
+Ljubljana|46.06|14.51|315|SI|1
+Aswan|24.09|32.90|313|EG|0
+Semey|50.43|80.28|311|KZ|0
+Pucallpa|-8.37|-74.53|311|PE|0
+Antofagasta|-23.65|-70.40|310|CL|0
+Chita|52.06|113.47|309|RU|0
+Vitória da Conquista|-14.85|-40.84|308|BR|0
+Nalchik|43.50|43.62|308|RU|0
+Porto Velho|-8.75|-63.90|306|BR|0
+Constanța|44.20|28.61|303|RO|0
+Hakodate|41.79|140.74|303|JP|0
+Jinja|0.44|33.20|302|UG|0
+Brest|52.10|23.70|301|BY|0
+Qyzylorda|44.80|65.46|300|KZ|0
+Porto-Novo|6.48|2.62|300|BJ|0
+Bandar Seri Begawan|4.88|114.93|297|BN|1
+Port-of-Spain|10.65|-61.52|295|TT|1
+Vologda|59.21|39.92|295|RU|0
+Makurdi|7.73|8.53|293|NG|0
+Ponta Grossa|-25.09|-50.16|292|BR|0
+Mbeya|-8.89|33.43|292|TZ|0
+Cagliari|39.22|9.10|292|IT|0
+Victoria|48.43|-123.35|290|CA|0
+Sinuiju|40.09|124.42|288|KP|0
+Cuenca|-2.90|-79.00|287|EC|0
+Butembo|0.13|29.28|286|CD|0
+Port Moresby|-9.46|147.19|284|PG|1
+Kupang|-10.18|123.58|282|ID|0
+Zhytomyr|50.25|28.66|282|UA|0
+Bahía Blanca|-38.74|-62.27|282|AR|0
+Tacna|-18.00|-70.25|280|PE|0
+Ica|-14.07|-75.73|279|PE|0
+Kaolack|14.15|-16.10|278|SN|0
+Corpus Christi|27.74|-97.40|277|US|0
+Bern|46.92|7.47|275|CH|1
+Mbandaka|0.04|18.26|275|CD|0
+Venice|45.44|12.33|271|IT|0
+Malmö|55.58|13.03|269|SE|0
+Nancy|48.68|6.20|269|FR|0
+Windhoek|-22.57|17.08|268|NA|1
+Petrozavodsk|61.85|34.28|265|RU|0
+Georgetown|6.80|-58.17|264|GY|1
+Aqtobe|50.28|57.17|262|KZ|0
+Petrolina|-9.38|-40.51|261|BR|0
+Anchorage|61.22|-149.90|260|US|0
+Tampere|61.50|23.75|259|FI|0
+Rio Branco|-9.97|-67.80|258|BR|0
+Paramaribo|5.84|-55.17|254|SR|1
+Fort-de-France|14.61|-61.08|254|MQ|0
+El Fasher|13.63|25.35|253|SD|0
+Dire Dawa|9.59|41.86|252|ET|0
+Morogoro|-6.82|37.66|251|TZ|0
+Jackson|32.30|-90.18|251|US|0
+Arua|3.02|30.90|250|UG|0
+Shreveport|32.50|-93.77|248|US|0
+Bratsk|56.16|101.62|246|RU|0
+Matadi|-5.82|13.45|246|CD|0
+Angarsk|52.56|103.92|243|RU|0
+Berbera|10.44|45.02|242|-99|0
+Le Havre|49.50|0.10|242|FR|0
+Neuquén|-38.95|-68.06|242|AR|0
+Ulan Hot|46.08|122.08|242|CN|0
+Yakutsk|62.03|129.74|236|RU|0
+Boa Vista|2.82|-60.67|235|BR|0
+Türkmenabat|39.11|63.58|235|TM|0
+Dili|-8.56|125.58|234|TL|1
+Clermont-Ferrand|45.78|3.08|233|FR|0
+Niamey|13.49|7.10|233|NE|0
+Hailar|49.20|119.70|231|CN|0
+Zhangye|38.93|100.45|231|CN|0
+Santarém|-2.43|-54.70|230|BR|0
+Zinder|13.80|8.98|230|NE|0
+Nukus|42.47|59.62|230|UZ|0
+Salem|44.93|-123.02|229|US|0
+Nassau|25.08|-77.35|228|BS|1
+Iquique|-20.25|-70.13|227|CL|0
+Puducherry|11.93|79.83|227|IN|0
+Grozny|43.32|45.70|226|RU|0
+Novi Sad|45.25|19.85|225|RS|0
+Sucre|-19.04|-65.26|225|BO|1
+Nacala|-14.52|40.72|225|MZ|0
+Nicosia|35.17|33.37|224|CY|1
+Colima|19.23|-103.72|223|MX|0
+Banja Luka|44.78|17.18|222|BA|0
+Formosa|-26.17|-58.18|221|AR|0
+Blagoveshchensk|50.27|127.53|221|RU|0
+Tallahassee|30.45|-84.28|221|US|0
+Lhasa|29.65|91.10|220|CN|0
+Dodoma|-6.18|35.75|218|TZ|0
+Orléans|47.90|1.90|217|FR|0
+Colombo|6.93|79.86|217|LK|1
+Trieste|45.65|13.80|216|IT|0
+Bergen|60.39|5.32|214|NO|0
+Rennes|48.10|-1.67|209|FR|0
+Gaborone|-24.65|25.91|208|BW|1
+Laoag|18.20|120.59|207|PH|0
+Bahir Dar|11.60|37.38|207|ET|0
+Yamoussoukro|6.82|-5.28|206|CI|1
+Kalemie|-5.93|29.20|206|CD|0
+Campeche|19.83|-90.50|205|MX|0
+Funchal|32.65|-16.88|205|PT|0
+Pskov|57.83|28.33|202|RU|0
+Saskatoon|52.17|-106.67|199|CA|0
+Kushiro|42.97|144.37|199|JP|0
+Montgomery|32.36|-86.28|198|US|0
+Reims|49.25|4.03|197|FR|0
+Tarakan|3.30|117.63|193|ID|0
+Bridgetown|13.10|-59.62|191|BB|1
+Caen|49.18|-0.35|190|FR|0
+St.-Denis|-20.88|55.45|190|RE|0
+La Paz|24.14|-110.32|190|MX|0
+Kabwe|-14.44|28.45|189|ZM|0
+Quelimane|-17.88|36.89|189|MZ|0
+Parakou|9.34|2.62|189|BJ|0
+Laayoune|27.15|-13.20|188|MA|0
+Ternate|0.79|127.36|188|ID|0
+Petropavlovsk-Kamchatsky|53.06|158.62|187|RU|0
+Gibraltar|36.13|-5.38|187|GI|0
+Arica|-18.50|-70.29|186|CL|0
+Fianarantsoa|-21.43|47.08|184|MG|0
+Atyrau|47.11|51.92|183|KZ|0
+Amarillo|35.23|-101.83|182|US|0
+Santa Barbara|34.43|-119.72|182|US|0
+Zuwara|32.93|12.08|180|LY|0
+Savannah|32.02|-81.11|180|US|0
+Sittwe|20.14|92.88|179|MM|0
+Mary|37.60|61.83|179|TM|0
+Nogales|31.30|-110.94|178|MX|0
+Yuzhno Sakhalinsk|46.96|142.74|176|RU|0
+Regina|50.45|-104.62|176|CA|0
+Suva|-18.13|178.44|175|FJ|1
+Bose|23.90|106.61|175|CN|0
+Puerto Montt|-41.47|-72.93|175|CL|0
+George|-33.95|22.45|175|ZA|0
+Dijon|47.33|5.03|170|FR|0
+Jayapura|-2.53|140.70|169|ID|0
+Nzérékoré|7.76|-8.83|168|GN|0
+Abakan|53.70|91.45|167|RU|0
+Reykjavík|64.15|-21.95|166|IS|1
+Marabá|-5.35|-49.12|166|BR|0
+Norilsk|69.34|88.22|166|RU|0
+Livingstone|-17.86|25.86|165|ZM|0
+Geneina|13.45|22.44|163|SD|0
+Fargo|46.88|-96.79|163|US|0
+Wilmington|34.23|-77.95|162|US|0
+Malakal|9.54|31.66|161|SS|0
+Bumba|2.19|22.46|161|CD|0
+Valdivia|-39.80|-73.25|160|CL|0
+Tarija|-21.52|-64.75|159|BO|0
+Abéché|13.84|20.83|158|TD|0
+Barreiras|-12.14|-45.00|158|BR|0
+Surat Thani|9.15|99.34|158|TH|0
+Olympia|47.04|-122.90|157|US|0
+Moundou|8.55|16.09|157|TD|0
+Gondar|12.61|37.46|156|ET|0
+Malabo|3.75|8.78|156|GQ|1
+Yulin|38.28|109.73|156|CN|0
+Sioux Falls|43.55|-96.73|156|US|0
+Batumi|41.60|41.63|156|GE|0
+Bei'an|48.24|126.48|155|CN|0
+Battambang|13.10|103.20|155|KH|0
+Mahajanga|-15.67|46.35|155|MG|0
+La Serena|-29.90|-71.25|155|CL|0
+Cairns|-16.89|145.76|154|AU|0
+Mufulira|-12.55|28.26|154|ZM|0
+Limoges|45.83|1.25|152|FR|0
+Benguela|-12.58|13.41|151|AO|0
+Perugia|43.11|12.39|149|IT|0
+Gejiu|23.38|103.15|149|CN|0
+Jiayuguan|39.82|98.30|148|CN|0
+Hamilton|-37.78|175.29|148|NZ|0
+Trondheim|63.42|10.42|147|NO|0
+Gulu|2.78|32.28|147|UG|0
+Willemstad|12.20|-69.02|147|CW|0
+Podgorica|42.47|19.27|146|ME|1
+Los Angeles|-37.46|-72.36|145|CL|0
+Goma|-1.68|29.22|144|CD|0
+Amiens|49.90|2.30|143|FR|0
+Altay|47.87|88.12|142|CN|0
+Comodoro Rivadavia|-45.87|-67.50|141|AR|0
+Dunhuang|40.14|94.66|140|CN|0
+Townsville|-19.25|146.77|139|AU|0
+Shizuishan|39.23|106.77|137|CN|0
+Caxias|-4.83|-43.35|135|BR|0
+Moçâmedes|-15.19|12.16|133|AO|0
+Topeka|39.05|-95.67|132|US|0
+Papeete|-17.53|-149.57|132|PF|0
+St. John's|47.58|-52.68|131|CA|0
+Lae|-6.73|146.99|131|PG|0
+Tete|-16.17|33.58|129|MZ|0
+Copiapó|-27.36|-70.34|129|CL|0
+Xai-Xai|-25.04|33.64|129|MZ|0
+Moroni|-11.70|43.24|129|KM|1
+Besançon|47.23|6.03|128|FR|0
+Ekibastuz|51.73|75.32|128|KZ|0
+Worcester|-33.64|19.44|128|ZA|0
+Wau|7.70|27.99|127|SS|0
+Malanje|-9.54|16.34|126|AO|0
+Lubango|-14.91|13.49|126|AO|0
+Ghardaia|32.49|3.67|125|DZ|0
+Rudniy|52.95|63.13|124|KZ|0
+Charleston|38.35|-81.63|124|US|0
+Ségou|13.44|-6.26|123|ML|0
+Agana|13.47|144.75|122|GU|0
+Bandundu|-3.31|17.38|118|CD|0
+Agadez|17.00|7.98|118|NE|0
+Dunedin|-45.89|170.49|118|NZ|0
+Punta Arenas|-53.16|-70.94|117|CL|0
+Gao|16.27|-0.05|117|ML|0
+Port-Gentil|-0.72|8.78|117|GA|0
+Tahoua|14.90|5.26|116|NE|0
+Sri Jayawardenepura Kotte|6.90|79.95|116|LK|0
+Toliara|-23.36|43.69|115|MG|0
+Kankan|10.39|-9.31|114|GN|0
+Praia|14.92|-23.52|113|CV|1
+Malé|4.17|73.50|113|MV|1
+Juba|4.83|31.58|112|SS|0
+Kandy|7.28|80.67|112|LK|0
+Santa Rosa|-36.62|-64.30|111|AR|0
+Pemba|-12.98|40.53|111|MZ|0
+Mzuzu|-11.46|34.02|110|MW|0
+David|8.43|-82.43|110|PA|0
+Siem Reap|13.37|103.85|109|KH|0
+Kyzyl|51.71|94.38|108|RU|0
+Trento|46.08|11.12|108|IT|0
+Luxembourg|49.61|6.13|107|LU|1
+Golmud|36.42|94.88|107|CN|0
+Raba|-8.45|118.77|106|ID|0
+Assab|13.01|42.73|105|ER|0
+Billings|45.79|-108.54|105|US|0
+Guaymas|27.93|-110.89|103|MX|0
+Houma|35.62|111.21|102|CN|0
+Ancona|43.60|13.50|101|IT|0
+Sakata|38.92|139.85|100|JP|0
+Ust-Ilimsk|57.99|102.63|100|RU|0
+Sabha|27.03|14.43|100|LY|0
+Thunder Bay|48.45|-89.27|99|CA|0
+Thimphu|27.47|89.64|99|BT|1
+Corumbá|-19.02|-57.65|97|BR|0
+Mekele|13.50|39.47|96|ET|0
+Bariloche|-41.15|-71.30|95|AR|0
+Magadan|59.57|150.81|95|RU|0
+Catanzaro|38.90|16.60|95|IT|0
+Burlington|44.48|-73.21|94|US|0
+Darwin|-12.43|130.85|93|AU|0
+Nouméa|-22.26|166.44|93|NC|0
+Santa Fe|35.69|-105.94|93|US|0
+Mbabane|-26.32|31.13|90|SZ|1
+Francistown|-21.17|27.50|90|BW|0
+São Tomé|0.33|6.73|88|ST|1
+Ebolowa|2.90|11.15|88|CM|0
+Parepare|-4.02|119.63|88|ID|0
+Nouadhibou|20.90|-17.06|87|MR|0
+Chipata|-13.63|32.64|86|ZM|0
+Poitier|46.58|0.33|86|FR|0
+Río Gallegos|-51.63|-69.22|86|AR|0
+Limón|10.00|-83.03|85|CR|0
+Trinidad|-14.83|-64.90|84|BO|0
+Sault Ste. Marie|46.50|-84.35|84|US|0
+Mbarara|-0.60|30.65|84|UG|0
+Antsiranana|-12.28|49.31|83|MG|0
+Bendigo|-36.76|144.28|82|AU|0
+Sukhumi|43.02|41.02|82|GE|0
+Hobart|-42.85|147.30|81|AU|0
+Atakpamé|7.53|1.12|81|TG|0
+Vorkuta|67.50|64.01|80|RU|0
+Xigaze|29.25|88.88|80|CN|0
+Erdenet|49.05|104.12|80|MN|0
+Kayes|14.45|-11.44|77|ML|0
+Honiara|-9.44|159.95|76|SB|1
+Tamanrasset|22.79|5.52|76|DZ|0
+Bombo|0.58|32.53|75|UG|0
+Riberalta|-10.98|-66.10|74|BO|0
+Sundsvall|62.40|17.32|73|SE|0
+Mandurah|-32.52|115.75|73|AU|0
+Cheyenne|41.14|-104.82|73|US|0
+Missoula|46.87|-113.99|73|US|0
+Upington|-28.46|21.23|71|ZA|0
+Potenza|40.64|15.80|69|IT|0
+Timbuktu|16.77|-3.02|69|ML|0
+Oranjestad|12.53|-70.03|69|AW|0
+L'Aquila|42.35|13.39|69|IT|0
+Türkmenbaşy|40.02|52.97|68|TM|0
+Putrajaya|2.91|101.70|68|MY|0
+Great Falls|47.50|-111.30|67|US|0
+Rockhampton|-23.36|150.52|66|AU|0
+Masaka|-0.33|31.73|65|UG|0
+Ji-Paraná|-10.83|-61.97|65|BR|0
+Flagstaff|35.20|-111.65|64|US|0
+Bismarck|46.81|-100.78|64|US|0
+Kristiansand|58.17|8.00|64|NO|0
+Vilhena|-12.72|-60.12|63|BR|0
+Kasongo|-4.45|26.66|63|CD|0
+Kayes|-4.18|13.28|63|CG|0
+Tanjung Pandan|-2.75|107.65|62|ID|0
+Bambari|5.76|20.67|62|CF|0
+Apia|-13.84|-171.74|62|WS|1
+Cayenne|4.93|-52.33|62|GF|0
+Ponta Delgada|37.75|-25.67|62|PT|0
+Casper|42.87|-106.31|61|US|0
+Leticia|-4.20|-69.96|60|CO|0
+Mt.  Hagen|-5.86|144.22|59|PG|0
+Napier|-39.49|176.93|58|NZ|0
+Vaasa|63.10|21.60|57|FI|0
+Fairbanks|64.84|-147.71|57|US|0
+Cruzeiro do Sul|-7.63|-72.67|57|BR|0
+Ajaccio|41.93|8.73|54|FR|0
+Andorra|42.50|1.52|54|AD|1
+Puerto Ayacucho|5.66|-67.62|53|VE|0
+Tromsø|69.64|18.99|52|NO|0
+Hilo|19.70|-155.09|52|US|0
+Hamilton|32.29|-64.78|52|BM|1
+Walvis Bay|-22.96|14.51|52|NA|0
+Campobasso|41.56|14.66|51|IT|0
+Mahalapye|-23.10|26.82|51|BW|0
+North Bay|46.30|-79.45|50|CA|0
+Kingstown|13.15|-61.21|49|VC|1
+Luleå|65.60|22.16|49|SE|0
+Serowe|-22.39|26.71|49|BW|0
+Meru|0.06|37.64|47|KE|0
+Coihaique|-45.57|-72.07|46|CL|0
+Atar|20.52|-13.05|44|MR|0
+Port Vila|-17.73|168.32|44|VU|1
+Banjul|13.45|-16.59|43|GM|1
+Franceville|-1.63|13.58|43|GA|0
+Fort Portal|0.67|30.28|43|UG|0
+Nuku'alofa|-21.14|-175.22|43|TO|1
+Charlottetown|46.25|-63.13|42|CA|0
+Eureka|40.80|-124.15|42|US|0
+Alta Floresta|-9.90|-55.91|40|BR|0
+Mirny|62.54|113.96|40|RU|0
+Goroka|-6.08|145.39|40|PG|0
+Minot|48.23|-101.30|39|US|0
+Orange|-33.28|149.10|39|AU|0
+Helena|46.59|-112.04|39|US|0
+Castries|14.00|-61.00|38|LC|1
+Sydney|46.07|-60.18|38|CA|0
+Kalgoorlie|-30.74|121.46|37|AU|0
+Monaco|43.74|7.41|36|MC|1
+Vaduz|47.13|9.52|36|LI|1
+Douglas|54.15|-4.48|36|IM|0
+Saint John's|17.12|-61.85|35|AG|1
+Timmins|48.47|-81.33|35|CA|0
+Rovaniemi|66.50|25.72|35|FI|0
+Aosta|45.74|7.32|34|IT|0
+Durazno|-33.41|-56.51|34|UY|0
+Saint George's|12.05|-61.74|34|GD|1
+Victoria|-4.62|55.45|34|SC|1
+Choibalsan|48.07|114.51|33|MN|0
+Mount Isa|-20.72|139.49|33|AU|0
+Djenné|13.90|-4.55|33|ML|0
+Dubbo|-32.26|148.60|32|AU|0
+Leh|34.16|77.57|31|IN|0
+Juneau|58.31|-134.42|31|US|0
+Dund-Us|48.02|91.63|31|MN|0
+Blenheim|-41.51|173.95|30|NZ|0
+San Marino|43.94|12.44|30|SM|1
+Swakopmund|-22.67|14.54|29|NA|0
+Cottica|3.85|-54.23|29|SR|0
+Tarawa|1.34|173.02|29|KI|1
+Brandon|49.83|-99.95|28|CA|0
+Alice Springs|-23.70|133.88|28|AU|0
+Geraldton|-28.77|114.60|27|AU|0
+Colíder|-10.82|-55.45|27|BR|0
+Okha|53.57|142.95|27|RU|0
+Albany|-35.02|117.89|26|AU|0
+Dongola|19.17|30.48|26|SD|0
+Rawson|-43.30|-65.10|26|AR|0
+Lensk|60.73|114.95|26|RU|0
+Majuro|7.10|171.38|25|MH|1
+Freeport|26.53|-78.70|25|BS|0
+Otjiwarongo|-20.46|16.64|25|NA|0
+Ramallah|31.90|35.21|25|PS|0
+Aldan|58.60|125.39|24|RU|0
+Saint-Laurent-du-Maroni|5.50|-54.03|24|GF|0
+Al Jawf|24.20|23.29|24|LY|0
+Grootfontein|-19.57|18.12|24|NA|0
+Augusta|44.31|-69.78|24|US|0
+Roseau|15.30|-61.39|23|DM|1
+Whitehorse|60.72|-135.05|23|CA|0
+Armidale|-30.51|151.67|23|AU|0
+Whyalla|-33.03|137.56|23|AU|0
+Basseterre|17.30|-62.72|22|KN|1
+Fort McMurray|56.73|-111.38|22|CA|0
+Kaédi|16.15|-13.50|22|SN|0
+Devonport|-41.19|146.33|19|AU|0
+Elko|40.83|-115.76|19|US|0
+Yellowknife|62.44|-114.40|19|CA|0
+Fort St. John|56.25|-120.83|19|CA|0
+Middelburg|-31.50|25.01|18|ZA|0
+Keetmanshoop|-26.57|18.13|18|NA|0
+Broken Hill|-31.95|141.43|17|AU|0
+Karratha|-20.73|116.87|17|AU|0
+Dispur|26.14|91.77|16|IN|0
+Griffith|-34.29|146.04|15|AU|0
+International Falls|48.60|-93.41|15|US|0
+Belmopan|17.25|-88.77|15|BZ|1
+Lüderitz|-26.65|15.16|15|NA|0
+Dalandzadgad|43.58|104.44|15|MN|0
+Nuuk|64.20|-51.73|15|GL|0
+Prince Rupert|54.32|-130.33|15|CA|0
+Port Hedland|-20.31|118.61|14|AU|0
+Wangaratta|-36.36|146.30|14|AU|0
+Pierre|44.37|-100.35|14|US|0
+Thompson|55.75|-97.87|14|CA|0
+Port Lincoln|-34.73|135.87|14|AU|0
+Broome|-17.96|122.23|13|AU|0
+Menongue|-14.67|17.70|13|AO|0
+Obo|5.40|26.50|13|CF|0
+Pago Pago|-14.28|-170.71|13|AS|0
+Portland|-38.34|141.59|12|AU|0
+N'Délé|8.41|20.65|12|CF|0
+Santa Cruz|-0.53|-90.35|11|EC|0
+Mariehamn|60.10|19.95|11|AX|0
+Springbok|-29.67|17.88|10|ZA|0
+Anadyr|64.74|177.47|10|RU|0
+Labrador City|52.94|-66.92|10|CA|0
+Alvorada|-12.47|-49.08|10|BR|0
+Busselton|-33.66|115.35|10|AU|0
+Katherine|-14.47|132.27|10|AU|0
+Hammerfest|70.66|23.69|10|NO|0
+Lobamba|-26.47|31.20|10|SZ|0
+Kodiak|57.79|-152.41|9|US|0
+Ust-Nera|64.57|143.20|9|RU|0
+Sitka|57.06|-135.33|9|US|0
+Dalnegorsk|44.54|135.52|8|RU|0
+Rabaul|-4.21|152.14|8|PG|0
+El Calafate|-50.33|-72.30|8|AR|0
+Melekeok|7.49|134.63|7|PW|1
+Bethel|60.79|-161.76|6|US|0
+Iqaluit|63.75|-68.50|6|CA|0
+Mitú|1.20|-70.17|6|CO|0
+Grand Turk|21.47|-71.14|6|TC|0
+Tiksi|71.63|128.83|6|RU|0
+Okhotsk|59.38|143.22|6|RU|0
+Peace River|56.23|-117.28|5|CA|0
+Sisimiut|66.95|-53.67|5|GL|0
+Funafuti|-8.52|179.22|5|TV|1
+Palikir|6.92|158.15|5|FM|1
+Utqiaġvik|71.29|-156.79|4|US|0
+George Town|19.28|-81.33|4|KY|0
+Batagay|67.66|134.64|4|RU|0
+Valdez|61.14|-146.35|4|US|0
+Palana|59.08|159.95|4|RU|0
+Nome|64.51|-165.41|3|US|0
+Bukachacha|52.98|116.92|3|RU|0
+Ugolnye Kopi|64.73|177.70|3|RU|0
+Puerto Deseado|-47.75|-65.90|3|AR|0
+Zhigansk|66.77|123.37|3|RU|0
+Khatanga|72.04|102.47|3|RU|0
+Chokurdakh|70.62|147.89|3|RU|0
+Prudhoe Bay|70.29|-148.67|3|US|0
+Stanley|-51.70|-57.85|2|FK|0
+Arviat|61.11|-94.06|2|CA|0
+Igloolik|69.26|-81.79|2|CA|0
+Cambridge Bay|69.12|-105.03|1|CA|0
+Ayoun el Atrous|16.67|-9.62|1|MR|0
+Dawson City|64.07|-139.42|1|CA|0
+Kugluktuk|67.80|-115.13|1|CA|0
+Kuujjuaq|58.10|-68.40|1|CA|0
+Kuujjuarapik|55.28|-77.77|1|CA|0
+Longyearbyen|78.22|15.55|1|SJ|0
+Nain|56.55|-61.69|1|CA|0
+Upernavik|72.71|-56.14|1|GL|0
+Dikson|73.51|80.55|1|RU|0
+McMurdo Station|-77.73|166.87|1|AQ|0
+Churchill|58.77|-94.17|1|CA|0
+Naujaat|66.53|-86.28|1|CA|0
+Vatican City|41.90|12.45|1|VA|1
+Taloyoak|69.53|-93.53|1|CA|0
+Qaanaaq|77.48|-69.33|1|GL|0
+Arctic Bay|73.03|-85.17|1|CA|0
+Fort Good Hope|66.27|-128.63|1|CA|0
+Fort Smith|60.00|-111.88|1|CA|0
+Bir Lehlou|26.12|-9.65|1|EH|0
+Tmassa|26.37|15.80|1|LY|0
+Point Hope|68.35|-166.81|0|US|0
+Nizhneyansk|71.43|136.07|0|RU|0
+Chesterfield Inlet|63.34|-90.70|0|CA|0
+Moroto|2.54|34.64|0|UG|0
+Basse-terre|16.01|-61.71|0|GP|0
+Esperanza Base|-63.38|-57.03|0|AQ|0
+Resolute|74.68|-94.90|0|CA|0
+Casey Station|-66.29|110.54|0|AQ|0
+Amundsen–Scott South Pole Station|-90.00|176.99|0|AQ|0
+Cold Bay|55.20|-162.72|0|US|0
+Mirny Station|-66.58|93.01|0|AQ|0
+Windorah|-25.43|142.65|0|AU|0
+Marambio Base|-64.23|-56.65|0|AQ|0
+Base Presidente Montalva|-62.18|-58.91|0|AQ|0
+Narsarsuaq|61.17|-45.42|0|GL|0
+Rothera Station|-67.56|-68.12|0|AQ|0
+Fort Severn|55.98|-87.65|0|CA|0
+Dumont d'Urville Station|-66.78|139.96|0|AQ|0
+Belgrano II Base|-77.87|-34.62|0|AQ|0
+Dulan|36.17|98.27|0|CN|0
+King Sejong Station|-62.22|-58.77|0|AQ|0
+Scott Base|-77.85|166.75|0|AQ|0
+Zucchelli Station|-74.62|164.22|0|AQ|0
+Davis Station|-68.78|78.14|0|AQ|0
+Novolazarevskaya Station|-71.30|-11.85|0|AQ|0
+Halley Station|-76.09|-26.47|0|AQ|0
+Maitri Station|-70.78|11.73|0|AQ|0
+Artigas Base|-62.17|-58.86|0|AQ|0
+Carlini Base|-62.22|-58.65|0|AQ|0
+Zhongshan Station|-69.43|76.34|0|AQ|0
+Mawson Station|-67.61|62.88|0|AQ|0
+Showa Station|-69.03|39.75|0|AQ|0
+Palmer Station|-64.76|-64.05|0|AQ|0
+Orcadas Station|-60.73|-44.73|0|AQ|0
+Troll Station|-72.02|2.53|0|AQ|0
+Gen. O'Higgins Base|-63.33|-57.89|0|AQ|0
+Capitan Arturo Prat Station|-62.50|-59.68|0|AQ|0
+Great Wall Station|-62.22|-58.97|0|AQ|0
+Neumayer Station III|-70.89|-7.84|0|AQ|0
+Sobral Base|-81.18|-40.50|0|AQ|0
+Concordia Research Station|-74.67|124.17|0|AQ|0
+Vostok Station|-78.47|106.80|0|AQ|0
+Escudero Base|-62.19|-58.95|0|AQ|0
+San Martín Base|-68.12|-67.10|0|AQ|0
+Aboa Station|-75.05|-13.42|0|AQ|0
+Wasa Station|-73.05|-13.42|0|AQ|0
+Svea Station|-74.58|-11.22|0|AQ|0
+Signy Research Station|-60.63|-45.60|0|AQ|0
+Elephant Island|-62.00|-58.00|0|AQ|0
+Peter I Island|-68.80|-90.58|0|AQ|0
+Ambarchik|69.65|162.33|0|RU|0
