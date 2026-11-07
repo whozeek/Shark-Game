@@ -140,7 +140,14 @@ export class Stroll {
       // wedged between obstacles? squeeze through with a slimmer footprint for a moment
       const moved = Math.hypot(p.x - bx, p.z - bz);
       this.stuckT = moved < step * 0.25 ? (this.stuckT || 0) + dt : 0;
-      if (this.stuckT > 0.8) { this.slimT = 2.5; this.stuckT = 0; }
+      if (this.stuckT > 0.8) { this.slimT = 2.5; this.stuckT = 0; this.stuckCount = (this.stuckCount || 0) + 1; }
+      else if (moved > step * 0.6) this.stuckCount = 0;
+      // still wedged after squeezing: hop back onto the route's centre line
+      if (this.stuckCount >= 3) {
+        const c2 = this.at(this.s + 0.5);
+        if (!p.cb.col.blocked(c2.x, c2.z, 0.2)) { p.x = c2.x; p.z = c2.z; }
+        this.stuckCount = 0;
+      }
     } else p.moveTo(p.x, p.z);
     this.slimT = Math.max(0, (this.slimT || 0) - dt);
     if (d > 6) { // drifted (e.g. after a collision) — gently re-sync

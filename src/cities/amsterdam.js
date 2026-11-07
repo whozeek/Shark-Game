@@ -161,12 +161,12 @@ function gable(cb, lot, h, f, rng, simple) {
 function stoopStep(cb, lot) {
   const M = cb.mats; const Fr = frontOf(lot);
   const u = (cb.rng.f() - 0.5) * (Fr.len - 2);
-  const [x, z] = Fr.at(u, 0.4);
-  cb.batch.box(M.paint, x, 0.3, z, Fr.horiz ? 1.4 : 0.8, 0.3, Fr.horiz ? 0.8 : 1.4, 0x6a6a64);
+  const [x, z] = Fr.at(u, 0.25);
+  cb.batch.box(M.paint, x, 0.3, z, Fr.horiz ? 1.4 : 0.5, 0.3, Fr.horiz ? 0.5 : 1.4, 0x6a6a64);
   const [dx, dz] = Fr.at(u, 0.03);
   cb.batch.box(M.paint, dx, 1.6, dz, Fr.horiz ? 1.0 : 0.08, 2.3, Fr.horiz ? 0.08 : 1.0, cb.rng.pick([0x1e3a2a, 0x1a1a1e, 0x5a1a1e, 0x2a3a5a]));
   cb.batch.box(M.bulbSoft, dx + Fr.S.nx * 0.03, 2.95, dz + Fr.S.nz * 0.03, Fr.horiz ? 0.9 : 0.05, 0.35, Fr.horiz ? 0.05 : 0.9, 0xffcf8a);
-  cb.col.addBox(x, z, Fr.horiz ? 0.7 : 0.4, Fr.horiz ? 0.4 : 0.7);
+  cb.col.addBox(x, z, Fr.horiz ? 0.7 : 0.25, Fr.horiz ? 0.25 : 0.7);
   if (cb.rng.chance(0.2)) { const [px, pz] = Fr.at(u + 0.3, 0.45); staticPerson(cb, px, pz, Fr.yawOut, { pose: 'sit', seatH: 0.45 }); }
 }
 
