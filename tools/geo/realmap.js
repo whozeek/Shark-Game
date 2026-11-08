@@ -45,14 +45,18 @@ function rmData(){
   D.sectors=J.sectors.map(s=>({w:s.w.map(abs),p:s.p.map(abs),z:s.z.map(abs),b:s.b,l:s.l}));
   return RMD=D;
 }
-const rmStart=()=>{const D=rmData(),o=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)o.push((D.st[1]+dr)*D.nx+D.st[0]+dc);return o};
-const rmUnit=(D,s)=>D.sec*RM_SC;   // sector width in game units
-function rmSecRect(D,s){const w=D.sec*RM_SC,c=s%D.nx,r=(s/D.nx)|0;return{x0:MARGIN+c*w,y0:MARGIN+r*w,x1:MARGIN+(c+1)*w,y1:MARGIN+(r+1)*w}}
-function rmFFNew(extra){return{real:1,src:'osm',m:[3500,3500],sc:RM_SC,rm:{steps:[rmStart()].concat((extra||[]).map(s=>[s]))},poi:[]}}
+/* a level plays inside a 7 x 7 window of the baked frame (so the ground picture keeps its resolution); win = {c0,r0} is its north-west sector, key names the start square */
+const RM_WN=7;
+function rmStartInfo(D,key){return D.st.find(t=>t[0]===key)||D.st[0]}
+function rmWinFor(D,key){const t=rmStartInfo(D,key);return{c0:Math.max(0,Math.min(D.nx-RM_WN,t[1]-3)),r0:Math.max(0,Math.min(D.ny-RM_WN,t[2]-3))}}
+const rmStart=key=>{const D=rmData(),t=rmStartInfo(D,key),o=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)o.push((t[2]+dr)*D.nx+t[1]+dc);return o};
+function rmSecRect(D,s,win){const w=D.sec*RM_SC,c=s%D.nx-win.c0,r=((s/D.nx)|0)-win.r0;return{x0:MARGIN+c*w,y0:MARGIN+r*w,x1:MARGIN+(c+1)*w,y1:MARGIN+(r+1)*w}}
+const rmInWin=(D,s,win)=>{const c=s%D.nx-win.c0,r=((s/D.nx)|0)-win.r0;return c>=0&&r>=0&&c<RM_WN&&r<RM_WN};
+function rmFFNew(extra,key){const D=rmData(),k=key||D.st[0][0];return{real:1,src:'osm',key:k,win:rmWinFor(D,k),m:[RM_WN*500,RM_WN*500],sc:RM_SC,rm:{steps:[rmStart(k)].concat((extra||[]).map(s=>[s]))},poi:[]}}
 /* the replay: nodes, edges and ways of the opened sectors, in a fixed order so ids are stable */
 function rmGraph(ff){
-  const D=rmData(),sc=ff.sc,nx=D.nx,U=(x,y)=>[MARGIN+x*sc,MARGIN+y*sc];
-  const cols=Math.ceil(D.nx*D.sec*sc/S-1e-6),rows=Math.ceil(D.ny*D.sec*sc/S-1e-6);
+  const D=rmData(),sc=ff.sc,win=ff.win,ox=win.c0*D.sec,oy=win.r0*D.sec,U=(x,y)=>[MARGIN+(x-ox)*sc,MARGIN+(y-oy)*sc];
+  const cols=Math.ceil(RM_WN*D.sec*sc/S-1e-6),rows=cols;
   const nodes=[],edges=[],ways=[],bnode=new Map(),present=new Set(),exp=new Set(),order=[];
   const nn=(x,y)=>{const p=U(x,y);nodes.push({id:nodes.length,x:p[0],y:p[1],adj:[]});return nodes.length-1};
   const bn=k=>{let v=bnode.get(k);if(v===undefined){v=nn(D.nodes[k][0],D.nodes[k][1]);bnode.set(k,v)}return v};
@@ -79,14 +83,14 @@ function rmGraph(ff){
   // polygons of the opened sectors (clipped to their sectors at bake time)
   const poly=(l,t)=>l.map(p=>{const q=p.map(a=>U(a[0],a[1]));let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const a of q){x0=Math.min(x0,a[0]);x1=Math.max(x1,a[0]);y0=Math.min(y0,a[1]);y1=Math.max(y1,a[1])}const o={p:q,x0,y0,x1,y1};if(t)o.t=t;return o});
   const water=[],parks=[],zones=[],pois=[];let vx0=1e9,vy0=1e9,vx1=-1e9,vy1=-1e9;
-  for(const s of exp){const sd=D.sectors[s],R=rmSecRect(D,s);
+  for(const s of exp){const sd=D.sectors[s],R=rmSecRect(D,s,win);
     water.push(...poly(sd.w));parks.push(...poly(sd.p));zones.push(...poly(sd.z,'.'));
     for(const l of sd.l){const q=U(l[1],l[2]);pois.push({t:l[0],x:q[0],y:q[1],name:l[3]||''})}
     vx0=Math.min(vx0,R.x0);vy0=Math.min(vy0,R.y0);vx1=Math.max(vx1,R.x1);vy1=Math.max(vy1,R.y1)}
   const IB=64,idx=new Map();
   edges.forEach((e,i)=>{const A=nodes[e.a],B=nodes[e.b];for(let cx=Math.floor((Math.min(A.x,B.x)-40)/IB);cx<=Math.floor((Math.max(A.x,B.x)+40)/IB);cx++)for(let cy=Math.floor((Math.min(A.y,B.y)-40)/IB);cy<=Math.floor((Math.max(A.y,B.y)+40)/IB);cy++){const k=cx+','+cy;if(!idx.has(k))idx.set(k,[]);idx.get(k).push(i)}});
   const g={sc,cols,rows,nodes,edges,ways,water,parks,zones,pois,idx,IB,w:MARGIN*2+cols*S,h:MARGIN*2+rows*S,
-    rm:{D,exp,bnode,order,rect:{x0:vx0,y0:vy0,x1:vx1,y1:vy1},nexp:exp.size}};
+    rm:{D,win,exp,bnode,order,rect:{x0:vx0,y0:vy0,x1:vx1,y1:vy1},nexp:exp.size}};
   g.rm.blds=rmBuildings(g,D);
   return g;
 }
@@ -94,8 +98,9 @@ function rmGraph(ff){
 function rmBuildings(g,D){
   const out=[],hs=new Map(),HG=50,sc=g.sc;
   const near=(x,y,r)=>{for(let a=Math.floor((x-r-30)/HG);a<=Math.floor((x+r+30)/HG);a++)for(let b=Math.floor((y-r-30)/HG);b<=Math.floor((y+r+30)/HG);b++){const l=hs.get(a+','+b);if(l)for(const o of l)if(Math.hypot(o.x-x,o.y-y)<r+o.r)return true}return false};
+  const win=g.rm.win,ox=win.c0*D.sec,oy=win.r0*D.sec;
   for(const s of g.rm.exp)for(const q of D.sectors[s].b){
-    const x=MARGIN+q[0]*sc,y=MARGIN+q[1]*sc,W0=q[2]*sc,D0=q[3]*sc,t=q[6],hm=q[5],ang=q[4]*3*Math.PI/180;
+    const x=MARGIN+(q[0]-ox)*sc,y=MARGIN+(q[1]-oy)*sc,W0=q[2]*sc,D0=q[3]*sc,t=q[6],hm=q[5],ang=q[4]*3*Math.PI/180;
     if(ffIn(g.water,x,y))continue;
     let b;
     if(q[7]){   // a real footprint polygon, a little enlarged (the game's roads are wide)
@@ -128,7 +133,7 @@ function rmDeriveMap(g){
   for(let r=0;r<rows;r++){let s='';
     for(let c=0;c<cols;c++){
       const sx=Math.floor(c/secW),sy=Math.floor(r/secW);let ch='.';
-      if(g.rm.exp.has(sy*D.nx+sx)){
+      if(g.rm.exp.has((sy+g.rm.win.r0)*D.nx+sx+g.rm.win.c0)){
         const bx=MARGIN+c*S,by=MARGIN+r*S;let w=0,pk=0;
         for(let i=0;i<3;i++)for(let j=0;j<3;j++){const x=bx+17+33*i,y=by+17+33*j;if(ffIn(g.water,x,y))w++;else if(ffIn(g.parks,x,y))pk++}
         const o=cnt.get(c+','+r);
@@ -154,7 +159,7 @@ function rmFrontier(ff){
   for(const s of ex){ax+=s%D.nx;ay+=(s/D.nx)|0}ax/=ex.size;ay/=ex.size;
   for(const s of ex){const c=s%D.nx,r=(s/D.nx)|0;
     for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
-      if(!dc&&!dr)continue;const c2=c+dc,r2=r+dr;if(c2<0||r2<0||c2>=D.nx||r2>=D.ny)continue;const s2=r2*D.nx+c2;if(ex.has(s2)||seen.has(s2))continue;seen.add(s2);
+      if(!dc&&!dr)continue;const c2=c+dc,r2=r+dr;if(c2<0||r2<0||c2>=D.nx||r2>=D.ny)continue;const s2=r2*D.nx+c2;if(!rmInWin(D,s2,ff.win)||ex.has(s2)||seen.has(s2))continue;seen.add(s2);
       let touch=0;for(const bi of D.bySec[s2]){const e=D.edges[bi];if(g.rm.bnode.has(e.a)||g.rm.bnode.has(e.b))touch++}
       if(!touch)continue;
       const ang=Math.atan2(r2-ay,c2-ax),dirI=((Math.round(ang/(Math.PI/4))%8)+8)%8;
@@ -178,7 +183,7 @@ function rmGrowChoices(){
 function rmReach(nid){
   const L=G.L;if(!L||!L.ff||!L.ff.real||!G.city||G.over)return;const n=G.city.nodes[nid];if(!n)return;
   const D=rmData();let best=null;
-  for(const f of rmFrontier(L.ff)){const R=rmSecRect(D,f.sec),d=Math.hypot(Math.max(R.x0-n.x,0,n.x-R.x1),Math.max(R.y0-n.y,0,n.y-R.y1));if(d<=RM_REACH&&(!best||d<best.d))best={f,d}}
+  for(const f of rmFrontier(L.ff)){const R=rmSecRect(D,f.sec,L.ff.win),d=Math.hypot(Math.max(R.x0-n.x,0,n.x-R.x1),Math.max(R.y0-n.y,0,n.y-R.y1));if(d<=RM_REACH&&(!best||d<best.d))best={f,d}}
   if(!best)return;
   if(rmNodeCount(L.ff)+D.bySec[best.f.sec].reduce((a,bi)=>a+D.edges[bi].pts.length+1,0)>RM_MAXN){if(!G.rmFullNote){G.rmFullNote=1;toast('The mapped city is as large as this game version builds.',3200)}return}
   if(G.paused&&G.t===0&&!G.modal&&!ui.growOpts&&!ui.rmRev&&!ui.expAnim){setTimeout(()=>{if(G.city&&G.L===L&&G.paused&&!G.modal&&!ui.rmRev&&!ui.growOpts&&L.ff.real&&!L.ff.rm.steps.some(b=>b.indexOf(best.f.sec)>=0))rmGrow(best.f.sec,{why:'reach',name:rmSecName(D,best.f.sec),dir:best.f.dir})},90);return}
@@ -192,7 +197,7 @@ function rmGrow(sec,o){
   const g0=ffGraph(old),nf=Object.assign({},old,{_g:null,rm:{steps:old.rm.steps.map(b=>b.slice()).concat([[sec]])}}),g1=ffGraph(nf);
   for(let i=0;i<g0.nodes.length;i++){const a=g0.nodes[i],b=g1.nodes[i];if(!b||a.x!==b.x||a.y!==b.y){console.warn('real map: growth would renumber nodes');return false}}
   for(let i=0;i<g0.edges.length;i++){const a=g0.edges[i],b=g1.edges[i];if(!b||a.a!==b.a||a.b!==b.b){console.warn('real map: growth would renumber edges');return false}}
-  const camBefore={x:cam.x,y:cam.y,zoom:cam.zoom,yaw:cam.yaw,pitch:cam.pitch},D=g1.rm.D,R=rmSecRect(D,sec);
+  const camBefore={x:cam.x,y:cam.y,zoom:cam.zoom,yaw:cam.yaw,pitch:cam.pitch},D=g1.rm.D,R=rmSecRect(D,sec,nf.win);
   L.ff=nf;L.map=rmDeriveMap(g1);G.rmN=nf.rm.steps.length-1;rmScale(L,G.rmN);
   G.city=buildCity(L);
   if(T.ok){build3D(G.city);resetDyn()}
@@ -238,20 +243,21 @@ function rmRevealEnd(){
 }
 /* unopened ground: pale paper with the real water and green areas faintly drawn, and a survey line along the edge of the opened map */
 function rmPaintFog(g,city,P){
-  const gg=city.ff,D=gg.rm.D,exp=gg.rm.exp,sc=gg.sc,w=D.sec*sc;
-  const pg=(l)=>{for(const p of l){g.beginPath();p.forEach((q,i)=>{const X=MARGIN+q[0]*sc,Y=MARGIN+q[1]*sc;i?g.lineTo(X,Y):g.moveTo(X,Y)});g.closePath();g.fill()}};
-  for(let s=0;s<D.nx*D.ny;s++){
-    if(exp.has(s))continue;const R=rmSecRect(D,s),sd=D.sectors[s];
+  const gg=city.ff,D=gg.rm.D,exp=gg.rm.exp,sc=gg.sc,w=D.sec*sc,win=gg.rm.win,ox=win.c0*D.sec,oy=win.r0*D.sec,wsec=[];
+  for(let r=0;r<RM_WN;r++)for(let c=0;c<RM_WN;c++)wsec.push((r+win.r0)*D.nx+c+win.c0);
+  const pg=(l)=>{for(const p of l){g.beginPath();p.forEach((q,i)=>{const X=MARGIN+(q[0]-ox)*sc,Y=MARGIN+(q[1]-oy)*sc;i?g.lineTo(X,Y):g.moveTo(X,Y)});g.closePath();g.fill()}};
+  for(const s of wsec){
+    if(exp.has(s))continue;const R=rmSecRect(D,s,win),sd=D.sectors[s];
     g.fillStyle='#d9dedb';g.fillRect(R.x0,R.y0,w,w);
     g.fillStyle='#bfd0d6';pg(sd.w.map(rel=>rel));g.fillStyle='#cfdac8';pg(sd.p);g.fillStyle='#c5d3bf';pg(sd.z);
   }
   g.save();g.strokeStyle='rgba(60,70,66,.20)';g.lineWidth=.7;g.setLineDash([5,5]);
-  for(let s=0;s<D.nx*D.ny;s++){if(exp.has(s))continue;const R=rmSecRect(D,s);g.strokeRect(R.x0+.5,R.y0+.5,w-1,w-1)}
+  for(const s of wsec){if(exp.has(s))continue;const R=rmSecRect(D,s,win);g.strokeRect(R.x0+.5,R.y0+.5,w-1,w-1)}
   g.restore();
   // survey edge: a darker dashed line where the opened map ends
   g.save();g.strokeStyle='rgba(40,50,46,.55)';g.lineWidth=1.6;g.setLineDash([9,6]);
-  for(const s of exp){const c=s%D.nx,r=(s/D.nx)|0,R=rmSecRect(D,s);
-    const open=(dc,dr)=>{const c2=c+dc,r2=r+dr;return c2>=0&&r2>=0&&c2<D.nx&&r2<D.ny&&!exp.has(r2*D.nx+c2)};
+  for(const s of exp){const c=s%D.nx,r=(s/D.nx)|0,R=rmSecRect(D,s,win);
+    const open=(dc,dr)=>{const c2=c+dc,r2=r+dr;return c2>=0&&r2>=0&&c2<D.nx&&r2<D.ny&&rmInWin(D,r2*D.nx+c2,win)&&!exp.has(r2*D.nx+c2)};
     g.beginPath();if(open(0,-1)){g.moveTo(R.x0,R.y0);g.lineTo(R.x1,R.y0)}if(open(0,1)){g.moveTo(R.x0,R.y1);g.lineTo(R.x1,R.y1)}if(open(-1,0)){g.moveTo(R.x0,R.y0);g.lineTo(R.x0,R.y1)}if(open(1,0)){g.moveTo(R.x1,R.y0);g.lineTo(R.x1,R.y1)}g.stroke()}
   g.restore();
 }
@@ -277,17 +283,24 @@ function rmPolyBuilding(g,b,roofMat){
     const r=new THREE.Mesh(rg,roofMat);r.castShadow=r.receiveShadow=true;g.add(r);
   }
 }
-/* the level: Bridgeport downtown on the real map. Registered after the Connecticut districts, so it gets the next free index and every old index stays valid */
-const RM_NAME='Downtown (real map)';
-function rmLevel(){
-  const d={id:'br-real',town:'bridgeport',name:RM_NAME,ll:[41.1771,-73.1924],region:'maple',theme:'urban',approx:false,ff:null,chips:['Real streets','Grows with your routes','OpenStreetMap'],rows:[],cols:[],map:['.'],
-    blurb:'Start on real streets in downtown Bridgeport: Lafayette Boulevard, State Street and Fairfield Avenue, I-95 curving past the river and the harbour. The map starts small and grows block by block as your routes reach its edge.',
-    intro:'This is downtown Bridgeport on its real streets: Lafayette Boulevard, State Street and the diagonal of Fairfield Avenue, with the Pequonnock River, the harbour and I-95 on the edge of town. We only have a small piece of the map open. Run buses between the homes and the offices, and when your routes reach the edge of the map, the city grows outward along real streets.',
-    outro:'Downtown is moving, and the map has grown with it. On to the rest of Bridgeport.'};
-  const L=ctLevel(d,{id:'bridgeport',name:'Bridgeport'},0,0,1,0);
-  L.real=true;L.osm=true;L.ctDist='br-real';L.cash=7200;
-  Object.defineProperty(L,'lmNames',{configurable:true,enumerable:true,get(){if(!this._ln){const D=rmData(),ln={};for(const sd of D.sectors)for(const l of sd.l)if(l[3])ln[l[0]]=l[3];this._ln=ln}return this._ln},set(v){this._ln=v}});
-  Object.defineProperty(L,'ff',{configurable:true,enumerable:true,get(){return this._ff||(this._ff=rmFFNew())},set(v){this._ff=v}});
+/* the real-map levels. Registered after the Connecticut districts, so they get the next free indices and every old index stays valid.
+   br-real: Black Rock village on Fairfield Avenue (the easy start); br-real2: downtown Bridgeport (dense, I-95 and the river: the harder one, later in the campaign) */
+const RM_DEFS={
+ 'br-real':{key:'br',name:'Black Rock (real map)',ll:[41.1690,-73.2155],f:0,theme:'urban',chips:['Real streets','Easy start','Grows with your routes'],
+  blurb:'An easy start on real streets in Black Rock, Bridgeport: Fairfield Avenue runs through the village, homes on both sides, boatyards and shops by the harbour. A small piece of the map is open; it grows block by block as your routes reach its edge.',
+  intro:'Welcome to Black Rock on its real streets. Fairfield Avenue is the spine: homes along it and on the side streets, and the harbour, the boatyards and the shops at the water end. We only have a small piece of the map open. Link the homes to the harbour end, and when your routes reach the edge of the map the city grows outward along real streets.',
+  outro:'Black Rock is moving and the map has grown with it. On to the rest of Bridgeport.',tune:{perDay:105,patience:72,cash:9000,gave:40,profit:1200}},
+ 'br-real2':{key:'dt',name:'Downtown (real map)',ll:[41.1771,-73.1924],f:.34,theme:'urban',chips:['Real streets','Dense downtown','I-95 and the river'],
+  blurb:'Real downtown Bridgeport: Lafayette Boulevard, State Street and the diagonal of Fairfield Avenue, I-95 curving past the river and the harbour. Denser and busier than the Black Rock start; the map grows as your routes reach its edge.',
+  intro:'This is downtown Bridgeport on its real streets: Lafayette Boulevard, State Street and the diagonal of Fairfield Avenue, with the Pequonnock River, the harbour and I-95 on the edge of town. Offices and homes are packed together here. Run buses between them, and as your routes reach the edge of the map, the city grows outward.',
+  outro:'Downtown is moving, and the map has grown with it. On to Norwalk.'}};
+function rmLevel(id){
+  const e=RM_DEFS[id],d={id,town:'bridgeport',name:e.name,ll:e.ll,region:'maple',theme:e.theme,approx:false,ff:null,chips:e.chips,rows:[],cols:[],map:['.'],blurb:e.blurb,intro:e.intro,outro:e.outro};
+  const L=ctLevel(d,{id:'bridgeport',name:'Bridgeport'},e.f,0,1,e.f?9:0);
+  L.real=true;L.osm=true;L.rmKey=e.key;
+  if(e.tune){L.perDay=e.tune.perDay;L.patience=e.tune.patience;L.cash=e.tune.cash;L.goals=Object.assign({},L.goals,{gave:e.tune.gave,profit:e.tune.profit})}
+  Object.defineProperty(L,'lmNames',{configurable:true,enumerable:true,get(){if(!this._ln){const D=rmData(),t=rmStartInfo(D,this.rmKey),ln={};D.sectors.forEach((sd,s)=>{if(Math.max(Math.abs(s%D.nx-t[1]),Math.abs(((s/D.nx)|0)-t[2]))<=4)for(const l of sd.l)if(l[3])ln[l[0]]=l[3]});this._ln=ln}return this._ln},set(v){this._ln=v}});
+  Object.defineProperty(L,'ff',{configurable:true,enumerable:true,get(){return this._ff||(this._ff=rmFFNew(null,this.rmKey))},set(v){this._ff=v}});
   Object.defineProperty(L,'map',{configurable:true,enumerable:true,get(){return this._map||(this._map=rmDeriveMap(ffGraph(this.ff)))},set(v){this._map=v}});
   return{L,d};
 }
@@ -302,3 +315,6 @@ function rmRotate(g,b,n0){
   for(const c of g.children.slice(n0)){g.remove(c);c.position.x-=b.x;c.position.z-=b.y;rg.add(c)}
   g.add(rg);
 }
+
+/* the opening 3 x 3 sectors of a real-map level as a little land-use map for the campaign screen */
+function rmInsetMap(idx){const L=LEVELS[idx],D=rmData(),t=rmStartInfo(D,L.rmKey),w=rmWinFor(D,L.rmKey),c0=(t[1]-1-w.c0)*3,r0=(t[2]-1-w.r0)*3;return L.map.slice(r0,r0+9).map(l=>l.slice(c0,c0+9))}

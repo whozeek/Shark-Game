@@ -11,8 +11,8 @@ import { GW, setOrigin, tileOrigin, tileSize, EXT, toLonLat } from './core.js';
 const here = path.dirname(fileURLToPath(import.meta.url)), outDir = path.resolve(here, '..');
 const dir = process.argv[2];
 const LAT0 = 41.1771, LON0 = -73.1924;            // the start point (local origin): between Lafayette Boulevard, State Street and Fairfield Avenue in downtown Bridgeport
-const SEC = 500, NX = 7, NY = 7, X0 = -1750, Y1 = 2250;   // frame: 3.5 km square, 1750 m west of the start, 2250 m north of it (1250 m south: the harbour)
-const START = { c: 3, r: 4 };                      // the start sector; the first level opens this sector and its 8 neighbours
+const SEC = 500, NX = 12, NY = 10, X0 = -3700, Y1 = 2250;   // frame: 3.5 km square, 1750 m west of the start, 2250 m north of it (1250 m south: the harbour)
+const STARTS = JSON.parse(process.env.STARTS || '[{"key":"br","c":3,"r":8,"bud":[24,16,10],"cap":[50,40,30]},{"key":"dt","c":7,"r":4,"bud":[50,22,12],"cap":[100,70,50]}]');   // start sectors (centres of the 3x3 opening squares); budgets are generous near any of them                      // the start sector; the first level opens this sector and its 8 neighbours
 const FW = NX * SEC, FH = NY * SEC;
 setOrigin(LAT0, LON0); GW.opts.proceduralFill = false; GW.opts.quality = 'standard';
 const fr = (x, y) => [x - X0, Y1 - y];             // local metres (y north) -> frame metres (y south)
@@ -85,7 +85,10 @@ function clipPoly(poly, x0, y0, x1, y1) {   // Sutherland-Hodgman against an axi
   return p;
 }
 const secOf = (x, y) => { const c = Math.max(0, Math.min(NX - 1, Math.floor(x / SEC))), r = Math.max(0, Math.min(NY - 1, Math.floor(y / SEC))); return r * NX + c };
-const secDist = s => Math.max(Math.abs((s % NX) - START.c), Math.abs(Math.floor(s / NX) - START.r));
+const secNear = s => { let best = null; for (const t of STARTS) { const d = Math.max(Math.abs((s % NX) - t.c), Math.abs(Math.floor(s / NX) - t.r)); if (!best || d < best.d) best = { d, t } } return best };
+const BUDs = s => { const n = secNear(s); return n.t.bud[Math.min(2, Math.max(0, n.d - 0 > 1 ? n.d - 1 : 0))] };
+const CAPs = s => { const n = secNear(s); return n.t.cap[Math.min(2, Math.max(0, n.d > 1 ? n.d - 1 : 0))] };
+const secDist = s => Math.min(...STARTS.map(t => Math.max(Math.abs((s % NX) - t.c), Math.abs(Math.floor(s / NX) - t.r))));
 const hash = (a, b) => { let h = (Math.round(a) * 374761393 + Math.round(b) * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967296 };
 
 // ---------------------------------------------------------------- roads -> planar graph
@@ -192,10 +195,9 @@ function simplifyAll() {
 }
 // drop duplicates (same end nodes) keeping the better class
 { const m = new Map(); for (const e of E2) { const k = e.a < e.b ? e.a + '|' + e.b : e.b + '|' + e.a; const o = m.get(k); if (!o || RANK[e.cls] < RANK[o.cls] || (RANK[e.cls] === RANK[o.cls] && e.raw.length > o.raw.length)) m.set(k, e) } E2 = [...m.values()] }
-const BUD = d => d <= 1 ? 50 : d === 2 ? 22 : 12;
 const costOf = () => { const c = new Array(NX * NY).fill(0); for (const e of E2) c[e.sec] += e.inner.length + 1; return c };
 simplifyAll();
-for (let it = 0; it < 6; it++) { const c = costOf(); let ch = false; for (let s = 0; s < NX * NY; s++) if (c[s] > BUD(secDist(s)) * 1.15 && tolS[s] < 3.2) { tolS[s] *= 1.45; ch = true } if (!ch) break; simplifyAll() }
+for (let it = 0; it < 6; it++) { const c = costOf(); let ch = false; for (let s = 0; s < NX * NY; s++) if (c[s] > BUDs(s) * 1.15 && tolS[s] < 3.2) { tolS[s] *= 1.45; ch = true } if (!ch) break; simplifyAll() }
 const eLen = e => { const pts = [nodeOf.get(e.a), ...e.inner.map(p => ({ x: p[0], y: p[1] })), nodeOf.get(e.b)]; let l = 0; for (let i = 1; i < pts.length; i++)l += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y); return l };
 E2.forEach(e => e.len = eLen(e));
 
@@ -213,9 +215,9 @@ const bridges = () => { // edges whose removal splits the graph (Tarjan on the m
     const cost = costOf(), deg = new Map(); for (const e of E2) { deg.set(e.a, (deg.get(e.a) || 0) + 1); deg.set(e.b, (deg.get(e.b) || 0) + 1) }
     const br = bridges(), bset = new Set([...br].map(i => E2[i])), drop = new Set();
     for (let s = 0; s < NX * NY; s++) {
-      if (cost[s] <= BUD(secDist(s))) continue;
+      if (cost[s] <= BUDs(s)) continue;
       // streets first (dead ends, then short ones); arterial spurs (dead ends only) when nothing else is left; an edge that holds the graph together stays
-      const cand = E2.filter(e => e.sec === s && ((e.cls === 's') || (e.cls === 'a' && ((deg.get(e.a) === 1 || deg.get(e.b) === 1) && e.len < 220 || (cost[s] > BUD(secDist(s)) * 1.2 && !bset.has(e)))))).map(e => ({ e, leaf: (deg.get(e.a) === 1 || deg.get(e.b) === 1) ? 0 : 1 }))
+      const cand = E2.filter(e => e.sec === s && ((e.cls === 's') || (e.cls === 'a' && ((deg.get(e.a) === 1 || deg.get(e.b) === 1) && e.len < 220 || (cost[s] > BUDs(s) * 1.2 && !bset.has(e)))))).map(e => ({ e, leaf: (deg.get(e.a) === 1 || deg.get(e.b) === 1) ? 0 : 1 }))
         .filter(c => !(bset.has(c.e) && c.leaf)).sort((p, q) => (p.e.cls === q.e.cls ? 0 : p.e.cls === 's' ? -1 : 1) || p.leaf - q.leaf || p.e.len - q.e.len);
       if (cand.length) drop.add(cand[0].e);
     }
@@ -278,7 +280,7 @@ for (const b of bRaw) {
   bySec[secOf(cx, cy)].push({ fp: b.fp, a, cx, cy, w, d, ang, h: b.h, known: b.known });
 }
 const bOut = bySec.map((list, s) => {
-  const dist = secDist(s), cap = dist <= 1 ? 100 : dist === 2 ? 70 : 50;
+  const cap = CAPs(s);
   // jobs: big or tall footprints; apartments: mid-size; houses: the rest, thinned evenly by a hash so the whole sector is covered
   list.forEach(b => { b.t = (b.a >= 700 || (b.known && b.h >= 16)) ? 2 : (b.a >= 260 || (b.known && b.h >= 10)) ? 1 : 0; b.r = hash(b.cx, b.cy) });
   const big = list.filter(b => b.t === 2).sort((p, q) => q.a - p.a).slice(0, Math.round(cap * .38));
@@ -296,13 +298,13 @@ console.log('buildings kept', bOut.reduce((a, l) => a + l.length, 0), 'of', bRaw
 const poiOut = Array.from({ length: NX * NY }, () => []);
 {
   // one landmark per kind (the game keeps one of each), the real one nearest to the start; hospital = the nearest hospital-class POI (a clinic here)
-  const want = { hospital: 'O', college: 'U', stadium: 'C', school: 'K' }, sx = -X0, sy = Y1, best = {};
+  const want = { hospital: 'O', college: 'U', stadium: 'C', school: 'K' }, best = {};
   for (const p of pois) {
     const L = want[p.cls]; if (!L || !inFrame(p.x, p.y)) continue;
     if (L === 'C' && !/arena|stadium/i.test(p.name)) continue; if (L === 'K' && /nutrition|child|early|kinder/i.test(p.name)) continue;
-    const d = Math.hypot(p.x - sx, p.y - sy); if (!best[L] || d < best[L].d) best[L] = { d, p };
+    for (const t of STARTS) { const sx = (t.c + .5) * SEC, sy = (t.r + .5) * SEC, d = Math.hypot(p.x - sx, p.y - sy), k = L + t.key; if (!best[k] || d < best[k].d) best[k] = { d, p } }
   }
-  for (const L in best) { const p = best[L].p; poiOut[secOf(p.x, p.y)].push([L, Math.round(p.x), Math.round(p.y), p.name]) }
+  const done = new Set(); for (const k in best) { const p = best[k].p, id = k[0] + p.name; if (done.has(id)) continue; done.add(id); poiOut[secOf(p.x, p.y)].push([k[0], Math.round(p.x), Math.round(p.y), p.name]) }
   console.log('landmarks', poiOut.flat().map(p => p.join(' ')).join(' | '));
 }
 
@@ -310,10 +312,23 @@ const poiOut = Array.from({ length: NX * NY }, () => []);
 const plOut = []; { const seen = new Set(), ok = new Set(['neighbourhood', 'suburb', 'quarter', 'hamlet', 'village', 'town', 'city', 'island']);
   for (const p of placeNames) { if (!ok.has(p.cls) || seen.has(p.name)) continue; const q = fr(p.x, p.y); if (q[0] < -600 || q[0] > FW + 600 || q[1] < -600 || q[1] > FH + 600) continue; seen.add(p.name); plOut.push([Math.round(q[0]), Math.round(q[1]), p.name]) }
   console.log('places', plOut.map(p => p[2]).join(', ')); }
+// ---------------------------------------------------------------- window metrics (3 x 3 sectors) to compare candidate starts
+if (process.env.METRICS) {
+  const deg = new Array(nodeList.length).fill(0); for (const e of edgeOut) { deg[e.a]++; deg[e.b]++ }
+  const rows = [];
+  for (let r0 = 0; r0 + 2 < NY; r0++)for (let c0 = 0; c0 + 2 < NX; c0++) {
+    let junc = 0, mway = 0, br = 0, hom = 0, job = 0, arter = 0, nodes = 0, wat = 0, park = 0, edgesN = 0; const secs = []; for (let r = r0; r < r0 + 3; r++)for (let c = c0; c < c0 + 3; c++)secs.push(r * NX + c);
+    for (const s of secs) { for (const b of bOut[s]) { if (b[6] === 2) job++; else hom++ } for (const p of polys.w[s]) wat += Math.abs(area(p.reduce((a, v, i) => i === 0 ? [[v]] : a, [[0]]) && [[0, 0]])) ; park += polys.p[s].length }
+    const S = new Set(secs); edgeOut.forEach(e => { if (!S.has(e.s)) return; edgesN++; nodes += e.p.length + 1; if (e.c === 0) mway++; if (e.br) br++; if (e.c === 1) arter++ });
+    nodeList.forEach((n, i) => { if (deg[i] >= 3 && S.has(secOf(n.x, n.y))) junc++ });
+    rows.push({ c0, r0, cen: [c0 + 1, r0 + 1], junc, nodes, mway, br, arter, hom, job, park });
+  }
+  fs.writeFileSync(path.join(outDir, '_metrics.json'), JSON.stringify(rows));
+}
 // ---------------------------------------------------------------- pack
 const rel = poly => { const o = [poly[0][0], poly[0][1]]; for (let i = 1; i < poly.length; i++)o.push(poly[i][0] - poly[i - 1][0], poly[i][1] - poly[i - 1][1]); return o };
 const data = {
-  v: 1, o: [LAT0, LON0], sec: SEC, nx: NX, ny: NY, st: [START.c, START.r], ext: [X0, Y1],
+  v: 1, o: [LAT0, LON0], sec: SEC, nx: NX, ny: NY, st: STARTS.map(t => [t.key, t.c, t.r]), ext: [X0, Y1],
   src: 'OpenFreeMap planet tiles (OpenStreetMap contributors, ODbL), zoom 14, baked ' + new Date().toISOString().slice(0, 10),
   names: nameTab,
   pl: plOut,
