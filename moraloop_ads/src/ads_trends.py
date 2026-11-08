@@ -389,4 +389,20 @@ ADS = [
         S("This year you overhear them saying they’d prefer something from a store.", ["elder", "partner", "you"],
           "tell", ["🛍️", "🎁", "😬"], "shock", others="neutral", set="home"),
     ], close="Do you keep making them, or buy store gifts?"),
+
+    # Trend: viral AITA post about declining a friend's bridesmaid request (r/AITApod, resurfacing Nov 2026)
+    dict(id="t049_the_bridesmaid", title="The Bridesmaid", made_on="2026-11-08", beats=[
+        S("Your close friend asks you to be a bridesmaid. You’re honored.", ["friend2", "you"], "say",
+          ["💍", "👗", "🥂"], "happy", set="cafe"),
+        S("Then you see the cost: the dress, the trip, the parties. About two thousand dollars.", ["you"], "see",
+          ["📱", "💸", "✈️"], "shock", set="home"),
+    ], close="Do you say yes, or decline?"),
+
+    # Trend: Reddit story about a husband who trusted his friend over his wife, and the friend staying in their home (TwistedSifter, Nov 8 2026)
+    dict(id="t050_the_houseguest", title="The Houseguest", made_on="2026-11-08", beats=[
+        S("Your partner’s best friend is staying with you for a few months.", ["friend", "partner", "you"],
+          "react", ["🛋️", "🧳", "🏠"], "worried", others="happy", set="home"),
+        S("Every time you two disagree, the friend takes your partner’s side.", ["friend", "partner", "you"], "say",
+          ["💬", "⚖️", "😤"], "worried", set="home"),
+    ], close="Do you ask the friend to leave, or wait it out?"),
 ]

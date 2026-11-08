@@ -125,6 +125,8 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 118 | 2026-12-08 | 12:00 PM | short | The Callback | `moraloop_ads/trends/t046_the_callback.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t046_the_callback.mp4) |
 | 119 | 2026-12-09 | 12:00 PM | short | The Honest Survey | `moraloop_ads/trends/t047_the_honest_survey.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t047_the_honest_survey.mp4) |
 | 120 | 2026-12-10 | 12:00 PM | short | The Handmade Gifts | `moraloop_ads/trends/t048_the_handmade_gifts.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t048_the_handmade_gifts.mp4) |
+| 121 | 2026-12-11 | 12:00 PM | short | The Bridesmaid | `moraloop_ads/trends/t049_the_bridesmaid.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t049_the_bridesmaid.mp4) |
+| 122 | 2026-12-12 | 12:00 PM | short | The Houseguest | `moraloop_ads/trends/t050_the_houseguest.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t050_the_houseguest.mp4) |
 
 ## Captions
 
@@ -1206,5 +1208,23 @@ Video: `moraloop_ads/trends/t048_the_handmade_gifts.mp4`
 You spend weeks making handmade gifts, then overhear your family would prefer store-bought. Keep making them, or buy? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #gifts #holidays
+```
+
+### 121. 2026-12-11 12:00 PM: The Bridesmaid (short)
+Video: `moraloop_ads/trends/t049_the_bridesmaid.mp4`
+
+```
+Your close friend asks you to be a bridesmaid. It would cost about $2,000. Do you say yes, or decline? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #wedding #bridesmaid #friendship
+```
+
+### 122. 2026-12-12 12:00 PM: The Houseguest (short)
+Video: `moraloop_ads/trends/t050_the_houseguest.mp4`
+
+```
+Your partner’s best friend is staying for months and always takes your partner’s side. Ask them to leave, or wait it out? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #couples #houseguests
 ```
 
