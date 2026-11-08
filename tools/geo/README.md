@@ -96,3 +96,8 @@ Adding a town, a state or later the globe means adding data: a town entry, its d
 * OpenStreetMap data: (c) OpenStreetMap contributors, Open Database Licence 1.0. Credit **Map data (c) OpenStreetMap contributors** wherever it is used. The downloaded files
   in `geo_data/` are an ODbL database; if you publish the generated maps, keep the credit. https://www.openstreetmap.org/copyright
 * Outline: US Census Bureau cartographic boundary files (public domain) via the `us-atlas` package (ISC licence wrapper).
+
+
+## Real Bridgeport map that grows (REALMAP block)
+
+`world/bake_real.mjs` turns zoom-14 OpenFreeMap tiles into `real_bridgeport.b64` / `.json` (roads graph cut into 500 m sectors, buildings, water, parks, landmarks); `realmap.js` is the game-side module (inflate, graph replay, building conversion, growth, reveal animation, fog painting); `inject_real.py` puts both into `rush-hour-routes.html`. A real-map level is an `ff` district with `real:1` and `rm.steps` (the list of opened sectors); the graph is replayed from the baked data, so growth only appends and saves store just the sector list. See DATA_SOURCES.md section 6.

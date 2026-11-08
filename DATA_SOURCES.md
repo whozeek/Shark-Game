@@ -89,3 +89,14 @@ node mkglobe.mjs 0.12
 python3 bake_elev.py <dir> && node bake_sample.mjs <dir> 2
 node build.mjs          # bundles everything into rush-hour-routes.html
 ```
+
+
+---
+
+## 6. Baked real map: Bridgeport downtown (campaign level "Bridgeport · Downtown (real map)")
+
+* **What is shipped:** one extract of OpenStreetMap data (via the OpenFreeMap zoom-14 vector tiles, planet build `20261101_080013_pt`, read 2026-11-07): a 3.5 km square around 41.1771, -73.1924 (Lafayette Boulevard / State Street / Fairfield Avenue, downtown Bridgeport; the frame reaches 1.75 km west and east, 2.25 km north, 1.25 km south). About **53 KB base64** (108 KB JSON, 40 KB deflated), embedded in `rush-hour-routes.html` between `REALMAP:BEGIN` and `REALMAP:END` as `RM_B64`. It works fully offline.
+* **Licence and credit:** this is a derived database of OpenStreetMap, so it is under the ODbL 1.0 and must keep the notice "© OpenStreetMap contributors (ODbL)", plus "OpenFreeMap © OpenMapTiles". The Connecticut campaign screen and the Guide show both. The baked file is also available as `tools/geo/real_bridgeport.json` (readable copy) for anyone who wants it under the same licence.
+* **Contents (real vs reduced):** roads: motorway/trunk, primary/secondary, tertiary/minor, geometry and names from the tiles, tunnels and service roads dropped, dual carriageways (I-95) collapsed to one line, thinned to about 890 game nodes for the whole 7 x 7 grid of 500 m sectors (about 320 nodes in the opening 3 x 3); buildings: oriented rectangles (plus simplified polygons for 255 large footprints) for 2,514 of 39,033 footprints (the rest are left out), heights from `render_height` where mapped, otherwise estimated; water, parks, grass and woods as polygons clipped per sector; one landmark per kind (clinic, college, arena, school) and neighbourhood names for naming sectors. Nothing is generated except a few estimated heights and the game's enlargement of building sizes.
+* **Rebuild:** `cd tools/geo/world && npm install pbf @mapbox/vector-tile && node bake_real.mjs <dir of v_<x>_<y>.pbf tiles x 4859-4862, y 6130-6134>` then `python3 tools/geo/inject_real.py`. Network etiquette: 20 tile requests once, by hand, never at run time. The game does not fetch anything for this level.
+* **Growth beyond the baked square:** not implemented. The map can grow only inside the baked 3.5 km square (49 sectors).
