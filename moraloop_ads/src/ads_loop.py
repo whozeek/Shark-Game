@@ -800,4 +800,42 @@ ADS = [
                ["📱", "💼", "⏰"], "worried", set="office"),
              M("Did you read the whole thread?"),
          ], close="Do you reply faster, or tell them you can’t?"),
+
+    # Trend: Reddit story about a family whose new fence a neighbor is trying to stop (TwistedSifter, Nov 8 2026)
+    dict(id="l043_the_new_fence", title="The New Fence", made_on="2026-11-08",
+         hook="what did your neighbor text?",
+         thread=dict(contact="Neighbor", stamp="Mon 9:20 AM", msgs=[
+             "saw the fence stakes 👀",
+             "it’ll block my garden’s sun",
+             "it IS your yard though",
+             "could it be shorter?",
+             "just asking 🙏",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You’re finally building a tall fence for privacy. You’ve saved for months.", ["you"], "laugh",
+               ["🏡", "🪵", "🔨"], "happy", set="yard"),
+             S("Your neighbor says it will shade their vegetable garden.", ["stranger", "you"], "say",
+               ["🌱", "☀️", "🤔"], "worried", others="worried", set="yard"),
+             M("Did you read the whole thread?"),
+         ], close="Do you build it tall, or make it shorter?"),
+
+    # Trend: Reddit story about a customer demanding service at the post office before opening (TwistedSifter, Nov 8 2026)
+    dict(id="l044_the_early_customer", title="The Early Customer", made_on="2026-11-08",
+         hook="what did your coworker text?",
+         thread=dict(contact="Coworker", stamp="Wed 8:41 AM", msgs=[
+             "someone’s knocking already 😬",
+             "says it’s urgent",
+             "we open at 9 tho",
+             "boss isn’t in yet",
+             "your call",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You’re setting up the shop before opening. A customer knocks on the glass.", ["stranger", "you"], "see",
+               ["🏪", "🚪", "⏰"], "worried", others="worried", set="store"),
+             S("It’s twenty minutes early. They say they really need help now.", ["stranger", "you"], "say",
+               ["⏰", "🙏", "🤔"], "worried", others="sad", set="store"),
+             M("Did you read the whole thread?"),
+         ], close="Do you let them in early, or wait until opening?"),
 ]
