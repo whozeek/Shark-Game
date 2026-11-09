@@ -405,4 +405,20 @@ ADS = [
         S("Every time you two disagree, the friend takes your partner’s side.", ["friend", "partner", "you"], "say",
           ["💬", "⚖️", "😤"], "worried", set="home"),
     ], close="Do you ask the friend to leave, or wait it out?"),
+
+    # Trend: Reddit story about a cousin who threw out grandparents' things, then wanted the original photos (TwistedSifter, Nov 9 2026)
+    dict(id="t051_the_family_photos", title="The Family Photos", made_on="2026-11-09", beats=[
+        S("When your grandparents’ house was cleared out, you saved their old photos. Your cousin tossed the rest.",
+          ["you"], "think", ["🖼️", "📦", "👴"], "sad", set="home"),
+        S("Now your cousin wants the original photos for her own home.", ["friend2", "you"], "say",
+          ["🖼️", "🙏", "🏠"], "worried", set="home"),
+    ], close="Do you give them the originals, or send copies?"),
+
+    # Trend: Reddit story about a friend staying over who wanted free professional advice (TwistedSifter, Nov 9 2026)
+    dict(id="t052_the_free_advice", title="The Free Advice", made_on="2026-11-09", beats=[
+        S("Your friend is staying with you while they look for a place.", ["friend", "you"], "react",
+          ["🛋️", "🧳", "🏠"], "happy", others="happy", set="home"),
+        S("Now they ask for work advice you normally charge clients for.", ["friend", "you"], "say",
+          ["💼", "📋", "💵"], "worried", set="home"),
+    ], close="Do you give the advice for free, or say no?"),
 ]

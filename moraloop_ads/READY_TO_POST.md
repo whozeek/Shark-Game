@@ -129,6 +129,8 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 122 | 2026-12-10 | 12:00 PM | short | The Handmade Gifts | `moraloop_ads/trends/t048_the_handmade_gifts.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t048_the_handmade_gifts.mp4) |
 | 123 | 2026-12-11 | 12:00 PM | short | The Bridesmaid | `moraloop_ads/trends/t049_the_bridesmaid.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t049_the_bridesmaid.mp4) |
 | 124 | 2026-12-12 | 12:00 PM | short | The Houseguest | `moraloop_ads/trends/t050_the_houseguest.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t050_the_houseguest.mp4) |
+| 125 | 2026-12-13 | 12:00 PM | short | The Family Photos | `moraloop_ads/trends/t051_the_family_photos.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t051_the_family_photos.mp4) |
+| 126 | 2026-12-14 | 12:00 PM | short | The Free Advice | `moraloop_ads/trends/t052_the_free_advice.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t052_the_free_advice.mp4) |
 
 ## Captions
 
@@ -1246,5 +1248,23 @@ Video: `moraloop_ads/trends/t050_the_houseguest.mp4`
 Your partner’s best friend is staying for months and always takes your partner’s side. Ask them to leave, or wait it out? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #couples #houseguests
+```
+
+### 125. 2026-12-13 12:00 PM: The Family Photos (short)
+Video: `moraloop_ads/trends/t051_the_family_photos.mp4`
+
+```
+You saved your grandparents’ old photos. Your cousin, who tossed the rest, now wants the originals. Give them, or send copies? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #cousins #memories
+```
+
+### 126. 2026-12-14 12:00 PM: The Free Advice (short)
+Video: `moraloop_ads/trends/t052_the_free_advice.mp4`
+
+```
+A friend staying with you asks for work advice you normally charge clients for. Do you give it for free, or say no? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #work #boundaries
 ```
 
