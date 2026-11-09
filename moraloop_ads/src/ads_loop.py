@@ -838,4 +838,42 @@ ADS = [
                ["⏰", "🙏", "🤔"], "worried", others="sad", set="store"),
              M("Did you read the whole thread?"),
          ], close="Do you let them in early, or wait until opening?"),
+
+    # Trend: Reddit story about a regular who keeps skipping ahead in the coffee line (TwistedSifter, Nov 9 2026)
+    dict(id="l045_the_line_skipper", title="The Line Skipper", made_on="2026-11-09",
+         hook="what did your friend text?",
+         thread=dict(contact="Sam", stamp="Thu 8:12 AM", msgs=[
+             "the line guy is back 🙄",
+             "he “just has a question” again",
+             "he did look super late",
+             "staff never says anything",
+             "u gonna?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Every morning, the same man walks past the coffee line to ask a quick question.", ["stranger", "you"],
+               "see", ["☕", "🚶", "⏩"], "worried", others="neutral", set="cafe"),
+             S("Then he orders. Today he’s right in front of you.", ["stranger", "you"], "say", ["☕", "🧾", "🤔"],
+               "worried", others="happy", set="cafe"),
+             M("Did you read the whole thread?"),
+         ], close="Do you say something, or let it go?"),
+
+    # Trend: Reddit story about a worker denied time off who found a work trip at the same time (TwistedSifter, Nov 9 2026)
+    dict(id="l046_the_work_trip", title="The Work Trip", made_on="2026-11-09",
+         hook="what did your boss text?",
+         thread=dict(contact="Boss", stamp="Tue 4:10 PM", msgs=[
+             "sorry, can’t approve the PTO",
+             "we’re too short that week",
+             "but the client trip is open",
+             "same city, actually 😅",
+             "interested?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your vacation request for your best friend’s wedding gets denied.", ["boss", "you"], "say",
+               ["🏖️", "❌", "💼"], "sad", others="neutral", set="office"),
+             S("Then a work trip opens up, in the same city, the same week. You take it.", ["you"], "think", ["✈️", "💼", "💍"],
+               "worried", set="office"),
+             M("Did you read the whole thread?"),
+         ], close="Do you tell your boss about the wedding, or just go?"),
 ]
