@@ -876,4 +876,42 @@ ADS = [
                "worried", set="office"),
              M("Did you read the whole thread?"),
          ], close="Do you tell your boss about the wedding, or just go?"),
+
+    # Trend: Reddit story about a man whose seasonal national-park jobs keep upsetting his mom (TwistedSifter, Nov 10 2026)
+    dict(id="l047_the_next_season", title="The Next Season", made_on="2026-11-10",
+         hook="what did your mom text?",
+         thread=dict(contact="Mom", stamp="Sun 7:14 PM", msgs=[
+             "so proud of you, really",
+             "but you just got home 😔",
+             "dad’s knee surgery is in May",
+             "your cousin can help tho",
+             "call me?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You work seasonal jobs at national parks. You love it.", ["you"], "laugh", ["🏞️", "🎒", "🌲"], "happy",
+               set="park"),
+             S("A great new job just opened, far away. Your mom hoped you’d stay this time.", ["elder", "you"], "say",
+               ["✉️", "🏠", "🤔"], "worried", others="sad", set="home"),
+             M("Did you read the whole thread?"),
+         ], close="Do you take the job, or stay closer to home?"),
+
+    # Trend: Reddit story about a travel policy change that let employees keep hotel reward points (TwistedSifter, Nov 10 2026)
+    dict(id="l048_the_hotel_points", title="The Hotel Points", made_on="2026-11-10",
+         hook="what did your coworker text?",
+         thread=dict(contact="Coworker", stamp="Wed 11:02 AM", msgs=[
+             "new rule: we pay, they repay",
+             "so the points are OURS 👀",
+             "I booked the pricier hotel",
+             "it’s technically allowed",
+             "u doing it?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your company now has you pay for work hotels, then pays you back.", ["boss", "you"], "say",
+               ["🏨", "💳", "💼"], "neutral", others="neutral", set="office"),
+             S("You get to keep the reward points. Pricier hotels earn more.", ["you"], "think", ["🏨", "⭐", "🤔"],
+               "worried", set="office"),
+             M("Did you read the whole thread?"),
+         ], close="Do you book pricier hotels, or stick to the cheapest?"),
 ]

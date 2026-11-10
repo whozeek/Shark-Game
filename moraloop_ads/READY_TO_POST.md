@@ -128,13 +128,15 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 121 | 2026-12-08 | 12:00 PM | short | The Callback | `moraloop_ads/trends/t046_the_callback.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t046_the_callback.mp4) |
 | 122 | 2026-12-08 | 12:30 PM | loop short | The Work Trip | `moraloop_ads/loops/l046_the_work_trip.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l046_the_work_trip.mp4) |
 | 123 | 2026-12-09 | 12:00 PM | short | The Honest Survey | `moraloop_ads/trends/t047_the_honest_survey.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t047_the_honest_survey.mp4) |
-| 124 | 2026-12-10 | 12:00 PM | short | The Handmade Gifts | `moraloop_ads/trends/t048_the_handmade_gifts.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t048_the_handmade_gifts.mp4) |
-| 125 | 2026-12-11 | 12:00 PM | short | The Bridesmaid | `moraloop_ads/trends/t049_the_bridesmaid.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t049_the_bridesmaid.mp4) |
-| 126 | 2026-12-12 | 12:00 PM | short | The Houseguest | `moraloop_ads/trends/t050_the_houseguest.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t050_the_houseguest.mp4) |
-| 127 | 2026-12-13 | 12:00 PM | short | The Family Photos | `moraloop_ads/trends/t051_the_family_photos.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t051_the_family_photos.mp4) |
-| 128 | 2026-12-14 | 12:00 PM | short | The Free Advice | `moraloop_ads/trends/t052_the_free_advice.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t052_the_free_advice.mp4) |
-| 129 | 2026-12-15 | 12:00 PM | short | The Old Laptop | `moraloop_ads/trends/t053_the_old_laptop.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t053_the_old_laptop.mp4) |
-| 130 | 2026-12-16 | 12:00 PM | short | The Appliances | `moraloop_ads/trends/t054_the_appliances.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t054_the_appliances.mp4) |
+| 124 | 2026-12-09 | 12:30 PM | loop short | The Next Season | `moraloop_ads/loops/l047_the_next_season.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l047_the_next_season.mp4) |
+| 125 | 2026-12-10 | 12:00 PM | short | The Handmade Gifts | `moraloop_ads/trends/t048_the_handmade_gifts.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t048_the_handmade_gifts.mp4) |
+| 126 | 2026-12-10 | 12:30 PM | loop short | The Hotel Points | `moraloop_ads/loops/l048_the_hotel_points.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l048_the_hotel_points.mp4) |
+| 127 | 2026-12-11 | 12:00 PM | short | The Bridesmaid | `moraloop_ads/trends/t049_the_bridesmaid.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t049_the_bridesmaid.mp4) |
+| 128 | 2026-12-12 | 12:00 PM | short | The Houseguest | `moraloop_ads/trends/t050_the_houseguest.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t050_the_houseguest.mp4) |
+| 129 | 2026-12-13 | 12:00 PM | short | The Family Photos | `moraloop_ads/trends/t051_the_family_photos.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t051_the_family_photos.mp4) |
+| 130 | 2026-12-14 | 12:00 PM | short | The Free Advice | `moraloop_ads/trends/t052_the_free_advice.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t052_the_free_advice.mp4) |
+| 131 | 2026-12-15 | 12:00 PM | short | The Old Laptop | `moraloop_ads/trends/t053_the_old_laptop.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t053_the_old_laptop.mp4) |
+| 132 | 2026-12-16 | 12:00 PM | short | The Appliances | `moraloop_ads/trends/t054_the_appliances.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t054_the_appliances.mp4) |
 
 ## Captions
 
@@ -1245,7 +1247,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #work #worklife #office
 ```
 
-### 124. 2026-12-10 12:00 PM: The Handmade Gifts (short)
+### 124. 2026-12-09 12:30 PM: The Next Season (loop short)
+Video: `moraloop_ads/loops/l047_the_next_season.mp4`
+
+```
+A great new park job opens far away, and your mom hoped you’d stay this time. Do you take the job, or stay closer to home? Did you read the whole thread? 👀 Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #career #parents
+```
+
+### 125. 2026-12-10 12:00 PM: The Handmade Gifts (short)
 Video: `moraloop_ads/trends/t048_the_handmade_gifts.mp4`
 
 ```
@@ -1254,7 +1265,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #gifts #holidays
 ```
 
-### 125. 2026-12-11 12:00 PM: The Bridesmaid (short)
+### 126. 2026-12-10 12:30 PM: The Hotel Points (loop short)
+Video: `moraloop_ads/loops/l048_the_hotel_points.mp4`
+
+```
+Your company repays work hotels, and you keep the reward points. Do you book pricier hotels, or stick to the cheapest? Did you read the whole thread? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #work #travel #worklife
+```
+
+### 127. 2026-12-11 12:00 PM: The Bridesmaid (short)
 Video: `moraloop_ads/trends/t049_the_bridesmaid.mp4`
 
 ```
@@ -1263,7 +1283,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #wedding #bridesmaid #friendship
 ```
 
-### 126. 2026-12-12 12:00 PM: The Houseguest (short)
+### 128. 2026-12-12 12:00 PM: The Houseguest (short)
 Video: `moraloop_ads/trends/t050_the_houseguest.mp4`
 
 ```
@@ -1272,7 +1292,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #couples #houseguests
 ```
 
-### 127. 2026-12-13 12:00 PM: The Family Photos (short)
+### 129. 2026-12-13 12:00 PM: The Family Photos (short)
 Video: `moraloop_ads/trends/t051_the_family_photos.mp4`
 
 ```
@@ -1281,7 +1301,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #cousins #memories
 ```
 
-### 128. 2026-12-14 12:00 PM: The Free Advice (short)
+### 130. 2026-12-14 12:00 PM: The Free Advice (short)
 Video: `moraloop_ads/trends/t052_the_free_advice.mp4`
 
 ```
@@ -1290,7 +1310,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #work #boundaries
 ```
 
-### 129. 2026-12-15 12:00 PM: The Old Laptop (short)
+### 131. 2026-12-15 12:00 PM: The Old Laptop (short)
 Video: `moraloop_ads/trends/t053_the_old_laptop.mp4`
 
 ```
@@ -1299,7 +1319,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #friendship #promises
 ```
 
-### 130. 2026-12-16 12:00 PM: The Appliances (short)
+### 132. 2026-12-16 12:00 PM: The Appliances (short)
 Video: `moraloop_ads/trends/t054_the_appliances.mp4`
 
 ```
