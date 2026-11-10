@@ -421,4 +421,20 @@ ADS = [
         S("Now they ask for work advice you normally charge clients for.", ["friend", "you"], "say",
           ["💼", "📋", "💵"], "worried", set="home"),
     ], close="Do you give the advice for free, or say no?"),
+
+    # Trend: Reddit story about promising an old laptop to a struggling student, then parents wanting it for a sister (TwistedSifter, Nov 10 2026)
+    dict(id="t053_the_old_laptop", title="The Old Laptop", made_on="2026-11-10", beats=[
+        S("You promised your old laptop to a friend starting college. They can’t afford one.",
+          ["friend", "you"], "give", ["💻", "🎓", "🙏"], "happy", set="home"),
+        S("Then your mom says your little sister needs it for school.", ["elder", "kid", "you"], "say",
+          ["💻", "👧", "📚"], "worried", others="worried", set="home"),
+    ], close="Do you keep your promise, or give it to your sister?"),
+
+    # Trend: Reddit story about a father-in-law who moved out and took appliances the couple paid for (TwistedSifter, Nov 10 2026)
+    dict(id="t054_the_appliances", title="The Appliances", made_on="2026-11-10", beats=[
+        S("Your father-in-law lived with you for a year. Now he’s moving out.", ["stranger", "partner", "you"],
+          "react", ["🧳", "🏠", "👋"], "worried", others="neutral", set="home"),
+        S("He takes the washer and fridge you paid for. He’s starting over, and money’s tight.",
+          ["stranger", "partner", "you"], "say", ["🧺", "🧊", "💸"], "worried", others="worried", set="home"),
+    ], close="Do you ask him to pay you back, or let it go?"),
 ]

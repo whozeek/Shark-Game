@@ -133,6 +133,8 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 126 | 2026-12-12 | 12:00 PM | short | The Houseguest | `moraloop_ads/trends/t050_the_houseguest.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t050_the_houseguest.mp4) |
 | 127 | 2026-12-13 | 12:00 PM | short | The Family Photos | `moraloop_ads/trends/t051_the_family_photos.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t051_the_family_photos.mp4) |
 | 128 | 2026-12-14 | 12:00 PM | short | The Free Advice | `moraloop_ads/trends/t052_the_free_advice.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t052_the_free_advice.mp4) |
+| 129 | 2026-12-15 | 12:00 PM | short | The Old Laptop | `moraloop_ads/trends/t053_the_old_laptop.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t053_the_old_laptop.mp4) |
+| 130 | 2026-12-16 | 12:00 PM | short | The Appliances | `moraloop_ads/trends/t054_the_appliances.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t054_the_appliances.mp4) |
 
 ## Captions
 
@@ -1286,5 +1288,23 @@ Video: `moraloop_ads/trends/t052_the_free_advice.mp4`
 A friend staying with you asks for work advice you normally charge clients for. Do you give it for free, or say no? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #work #boundaries
+```
+
+### 129. 2026-12-15 12:00 PM: The Old Laptop (short)
+Video: `moraloop_ads/trends/t053_the_old_laptop.mp4`
+
+```
+You promised your old laptop to a friend starting college. Now your mom says your little sister needs it. Keep your promise, or give it to your sister? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #friendship #promises
+```
+
+### 130. 2026-12-16 12:00 PM: The Appliances (short)
+Video: `moraloop_ads/trends/t054_the_appliances.mp4`
+
+```
+Your father-in-law moves out and takes the washer and fridge you paid for. He’s starting over. Ask him to pay you back, or let it go? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #inlaws #money
 ```
 
