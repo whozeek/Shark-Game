@@ -38,7 +38,7 @@ gain=np.ones(N)
 pre=(t>ps+0.3)&(t<tp); gain[pre]=np.clip(1-(t[pre]-ps-0.3)/1.0,0.15,1)
 # ducking under voice
 venv=np.abs(np.concatenate([voice,np.zeros(N-len(voice))]))
-k=int(SR*0.25); venv=np.convolve(venv,np.ones(k)/k,'same')
+k=int(SR*0.25); cs=np.cumsum(np.concatenate([np.zeros(k//2),venv,np.zeros(k-k//2)])); venv=(cs[k:]-cs[:-k])/k
 duck=1-0.45*np.clip(venv/0.03,0,1)
 fade=np.clip(t/2,0,1)*np.clip((T-t)/3,0,1)
 mix+=music*gain*duck*fade*1.6
