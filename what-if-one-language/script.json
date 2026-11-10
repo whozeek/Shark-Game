@@ -1,0 +1,11 @@
+[
+ {"id":"title","pre":1.0,"post":0.6,"lines":[["What if everyone on Earth suddenly spoke the same language?",0]]},
+ {"id":"morning","pre":0.3,"post":0.4,"lines":[["Today, humans speak around seven thousand languages.",0],["Most of us can only talk to a small slice of the world.",0.25]]},
+ {"id":"poof","pre":0.3,"post":0.7,"lines":[["Then, in a single instant...",0],["Snap.",0.9],["Everyone speaks the same one.",0.8]]},
+ {"id":"react","pre":0.3,"post":0.4,"lines":[["A lost tourist asks for directions, and understands every word.",0],["Strangers on a train start chatting.",0.25],["And kids from anywhere can share the same joke.",0.25]]},
+ {"id":"good","pre":0.3,"post":0.4,"lines":[["The good news: travel gets easy.",0],["Scientists and doctors share discoveries instantly.",0.25]]},
+ {"id":"bad","pre":0.3,"post":0.4,"lines":[["The bad news: translators and language teachers lose their jobs overnight.",0],["And thousands of languages fall silent, taking their songs, poems, and jokes with them.",0.25]]},
+ {"id":"argue","pre":0.3,"post":0.4,"lines":[["And people still argue.",0],["Sharing words doesn't mean sharing opinions.",0.25]]},
+ {"id":"later","pre":0.3,"post":0.5,"lines":[["Give it a few generations, and new slang and accents would start pulling us apart again.",0]]},
+ {"id":"end","pre":0.4,"post":3.2,"lines":[["So, would one language unite the world, or just make it less colorful?",0],["What do you think?",0.6]]}
+]
