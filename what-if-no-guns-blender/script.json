@@ -1,0 +1,115 @@
+[
+ {
+  "id": "intro",
+  "pre": 1.0,
+  "post": 0.6,
+  "lines": [
+   [
+    "What if, one morning, every gun in the world just vanished?",
+    0
+   ]
+  ]
+ },
+ {
+  "id": "poof",
+  "pre": 0.5,
+  "post": 0.5,
+  "lines": [
+   [
+    "It's an ordinary Tuesday morning.",
+    0
+   ],
+   [
+    "Then... poof.",
+    0.9
+   ],
+   [
+    "Over a billion guns, gone in an instant.",
+    1.0
+   ]
+  ]
+ },
+ {
+  "id": "react",
+  "pre": 0.2,
+  "post": 0.5,
+  "lines": [
+   [
+    "A police officer grabs an empty holster.",
+    0
+   ],
+   [
+    "Soldiers stare at empty hands.",
+    0.3
+   ],
+   [
+    "And the news explodes.",
+    0.3
+   ]
+  ]
+ },
+ {
+  "id": "mood",
+  "pre": 0.2,
+  "post": 0.5,
+  "lines": [
+   [
+    "Some people celebrate in the streets.",
+    0
+   ],
+   [
+    "Others feel unsafe, and stores sell out of bats and locks.",
+    0.4
+   ]
+  ]
+ },
+ {
+  "id": "good",
+  "pre": 0.2,
+  "post": 0.5,
+  "lines": [
+   [
+    "The good news: gun deaths, about a quarter million a year, drop toward zero.",
+    0
+   ],
+   [
+    "Mass shootings stop.",
+    0.3
+   ]
+  ]
+ },
+ {
+  "id": "bad",
+  "pre": 0.2,
+  "post": 0.5,
+  "lines": [
+   [
+    "The bad news: crime continues, with knives.",
+    0
+   ],
+   [
+    "Armies still have missiles.",
+    0.3
+   ],
+   [
+    "And factories could build guns again.",
+    0.3
+   ]
+  ]
+ },
+ {
+  "id": "end",
+  "pre": 0.3,
+  "post": 4.1,
+  "lines": [
+   [
+    "So, would the world rebuild them, or stay gun free?",
+    0
+   ],
+   [
+    "What do you think?",
+    0.3
+   ]
+  ]
+ }
+]
