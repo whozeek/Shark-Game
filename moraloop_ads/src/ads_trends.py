@@ -437,4 +437,20 @@ ADS = [
         S("He takes the washer and fridge you paid for. He’s starting over, and money’s tight.",
           ["stranger", "partner", "you"], "say", ["🧺", "🧊", "💸"], "worried", others="worried", set="home"),
     ], close="Do you ask him to pay you back, or let it go?"),
+
+    # Trend: r/AmIOverreacting post about a boyfriend choosing a guys-only holiday party (Daily Dot, Nov 10 2026)
+    dict(id="t055_the_holiday_party", title="The Holiday Party", made_on="2026-11-11", beats=[
+        S("Your partner’s friends throw a holiday party. Partners aren’t invited.", ["partner", "you"], "say",
+          ["🎄", "🍻", "🚫"], "worried", set="home"),
+        S("It’s the same night as a party you could both go to.", ["you"], "think", ["🎉", "🌙", "💑"],
+          "worried", set="home"),
+    ], close="Do you ask them to skip it, or let them go?"),
+
+    # Trend: Reddit story about a host who stopped a stranger from coming in to use the bathroom (TwistedSifter, Nov 11 2026)
+    dict(id="t056_the_bathroom", title="The Bathroom", made_on="2026-11-11", beats=[
+        S("You’re hosting a party. A stranger knocks and asks to use your bathroom.", ["stranger", "you"], "say",
+          ["🚪", "🚻", "🙏"], "shock", set="home_night"),
+        S("They seem desperate. But you don’t know them, and your house is full.", ["you"], "think",
+          ["🏠", "👥", "🤔"], "worried", set="home_night"),
+    ], close="Do you let them in, or say no?"),
 ]

@@ -137,6 +137,8 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 130 | 2026-12-14 | 12:00 PM | short | The Free Advice | `moraloop_ads/trends/t052_the_free_advice.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t052_the_free_advice.mp4) |
 | 131 | 2026-12-15 | 12:00 PM | short | The Old Laptop | `moraloop_ads/trends/t053_the_old_laptop.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t053_the_old_laptop.mp4) |
 | 132 | 2026-12-16 | 12:00 PM | short | The Appliances | `moraloop_ads/trends/t054_the_appliances.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t054_the_appliances.mp4) |
+| 133 | 2026-12-17 | 12:00 PM | short | The Holiday Party | `moraloop_ads/trends/t055_the_holiday_party.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t055_the_holiday_party.mp4) |
+| 134 | 2026-12-18 | 12:00 PM | short | The Bathroom | `moraloop_ads/trends/t056_the_bathroom.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t056_the_bathroom.mp4) |
 
 ## Captions
 
@@ -1326,5 +1328,23 @@ Video: `moraloop_ads/trends/t054_the_appliances.mp4`
 Your father-in-law moves out and takes the washer and fridge you paid for. He’s starting over. Ask him to pay you back, or let it go? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #inlaws #money
+```
+
+### 133. 2026-12-17 12:00 PM: The Holiday Party (short)
+Video: `moraloop_ads/trends/t055_the_holiday_party.mp4`
+
+```
+Your partner’s friends throw a no-partners holiday party, the same night as one you could both attend. Ask them to skip it, or let them go? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #holidays #couples
+```
+
+### 134. 2026-12-18 12:00 PM: The Bathroom (short)
+Video: `moraloop_ads/trends/t056_the_bathroom.mp4`
+
+```
+A stranger knocks during your party and asks to use your bathroom. Do you let them in, or say no? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #party #hosting #etiquette
 ```
 
