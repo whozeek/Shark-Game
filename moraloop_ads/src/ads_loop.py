@@ -914,4 +914,42 @@ ADS = [
                "worried", set="office"),
              M("Did you read the whole thread?"),
          ], close="Do you book pricier hotels, or stick to the cheapest?"),
+
+    # Trend: Reddit story about a hiker who spotted someone using what looked like her missing poles (TwistedSifter, Nov 11 2026)
+    dict(id="l049_the_hiking_poles", title="The Hiking Poles", made_on="2026-11-11",
+         hook="what did your friend text?",
+         thread=dict(contact="Jo", stamp="Sat 3:47 PM", msgs=[
+             "wait, those look like yours",
+             "same color, same tape 👀",
+             "but that brand is everywhere",
+             "you did leave them by the sign",
+             "go ask?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You leave your hiking poles at the trail sign and climb to the top.", ["you"], "laugh",
+               ["🥾", "⛰️", "🌲"], "happy", set="park"),
+             S("They’re gone when you come back. Then a hiker walks by using a pair just like them.", ["stranger", "you"],
+               "see", ["🥾", "👀", "🤔"], "shock", others="neutral", set="park"),
+             M("Did you read the whole thread?"),
+         ], close="Do you ask him about the poles, or let it go?"),
+
+    # Trend: Reddit story about a dad who sold his teen's old game console (TwistedSifter, Nov 11 2026)
+    dict(id="l050_the_old_console", title="The Old Console", made_on="2026-11-11",
+         hook="what did your mom text?",
+         thread=dict(contact="Mom", stamp="Fri 6:22 PM", msgs=[
+             "sold that old console today",
+             "you haven’t touched it in years",
+             "got $120 for it",
+             "half is yours if you want",
+             "we good?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You come home and your old game console is gone.", ["you"], "see", ["🎮", "📦", "❓"], "shock",
+               set="home"),
+             S("Your mom sold it. You hadn’t played it in years, but it was yours.", ["elder", "you"], "say",
+               ["🎮", "💵", "🤔"], "worried", others="neutral", set="home"),
+             M("Did you read the whole thread?"),
+         ], close="Do you let it go, or ask her to get it back?"),
 ]
