@@ -136,11 +136,13 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 129 | 2026-12-12 | 12:00 PM | short | The Houseguest | `moraloop_ads/trends/t050_the_houseguest.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t050_the_houseguest.mp4) |
 | 130 | 2026-12-12 | 12:30 PM | loop short | The Old Console | `moraloop_ads/loops/l050_the_old_console.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l050_the_old_console.mp4) |
 | 131 | 2026-12-13 | 12:00 PM | short | The Family Photos | `moraloop_ads/trends/t051_the_family_photos.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t051_the_family_photos.mp4) |
-| 132 | 2026-12-14 | 12:00 PM | short | The Free Advice | `moraloop_ads/trends/t052_the_free_advice.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t052_the_free_advice.mp4) |
-| 133 | 2026-12-15 | 12:00 PM | short | The Old Laptop | `moraloop_ads/trends/t053_the_old_laptop.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t053_the_old_laptop.mp4) |
-| 134 | 2026-12-16 | 12:00 PM | short | The Appliances | `moraloop_ads/trends/t054_the_appliances.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t054_the_appliances.mp4) |
-| 135 | 2026-12-17 | 12:00 PM | short | The Holiday Party | `moraloop_ads/trends/t055_the_holiday_party.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t055_the_holiday_party.mp4) |
-| 136 | 2026-12-18 | 12:00 PM | short | The Bathroom | `moraloop_ads/trends/t056_the_bathroom.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t056_the_bathroom.mp4) |
+| 132 | 2026-12-13 | 12:30 PM | loop short | The Arranged Job | `moraloop_ads/loops/l051_the_arranged_job.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l051_the_arranged_job.mp4) |
+| 133 | 2026-12-14 | 12:00 PM | short | The Free Advice | `moraloop_ads/trends/t052_the_free_advice.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t052_the_free_advice.mp4) |
+| 134 | 2026-12-14 | 12:30 PM | loop short | The New Brother | `moraloop_ads/loops/l052_the_new_brother.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l052_the_new_brother.mp4) |
+| 135 | 2026-12-15 | 12:00 PM | short | The Old Laptop | `moraloop_ads/trends/t053_the_old_laptop.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t053_the_old_laptop.mp4) |
+| 136 | 2026-12-16 | 12:00 PM | short | The Appliances | `moraloop_ads/trends/t054_the_appliances.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t054_the_appliances.mp4) |
+| 137 | 2026-12-17 | 12:00 PM | short | The Holiday Party | `moraloop_ads/trends/t055_the_holiday_party.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t055_the_holiday_party.mp4) |
+| 138 | 2026-12-18 | 12:00 PM | short | The Bathroom | `moraloop_ads/trends/t056_the_bathroom.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t056_the_bathroom.mp4) |
 
 ## Captions
 
@@ -1323,7 +1325,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #cousins #memories
 ```
 
-### 132. 2026-12-14 12:00 PM: The Free Advice (short)
+### 132. 2026-12-13 12:30 PM: The Arranged Job (loop short)
+Video: `moraloop_ads/loops/l051_the_arranged_job.mp4`
+
+```
+After months of job hunting, your mom finds you a job, but part of your pay would go toward her debt. Do you take the job, or keep looking? Did you read the whole thread? 👀 Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #jobs #money
+```
+
+### 133. 2026-12-14 12:00 PM: The Free Advice (short)
 Video: `moraloop_ads/trends/t052_the_free_advice.mp4`
 
 ```
@@ -1332,7 +1343,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #work #boundaries
 ```
 
-### 133. 2026-12-15 12:00 PM: The Old Laptop (short)
+### 134. 2026-12-14 12:30 PM: The New Brother (loop short)
+Video: `moraloop_ads/loops/l052_the_new_brother.mp4`
+
+```
+You’re finally getting to know your half-brother, and he jokes you only showed up now that things are good. Do you call it out, or let it slide for now? Did you read the whole thread? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #siblings #reconnecting
+```
+
+### 135. 2026-12-15 12:00 PM: The Old Laptop (short)
 Video: `moraloop_ads/trends/t053_the_old_laptop.mp4`
 
 ```
@@ -1341,7 +1361,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #friendship #promises
 ```
 
-### 134. 2026-12-16 12:00 PM: The Appliances (short)
+### 136. 2026-12-16 12:00 PM: The Appliances (short)
 Video: `moraloop_ads/trends/t054_the_appliances.mp4`
 
 ```
@@ -1350,7 +1370,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #inlaws #money
 ```
 
-### 135. 2026-12-17 12:00 PM: The Holiday Party (short)
+### 137. 2026-12-17 12:00 PM: The Holiday Party (short)
 Video: `moraloop_ads/trends/t055_the_holiday_party.mp4`
 
 ```
@@ -1359,7 +1379,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #holidays #couples
 ```
 
-### 136. 2026-12-18 12:00 PM: The Bathroom (short)
+### 138. 2026-12-18 12:00 PM: The Bathroom (short)
 Video: `moraloop_ads/trends/t056_the_bathroom.mp4`
 
 ```

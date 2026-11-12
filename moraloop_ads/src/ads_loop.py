@@ -952,4 +952,42 @@ ADS = [
                ["🎮", "💵", "🤔"], "worried", others="neutral", set="home"),
              M("Did you read the whole thread?"),
          ], close="Do you let it go, or ask her to get it back?"),
+
+    # Trend: Reddit story about a job a parent arranged, with part of the pay going to their debt (TwistedSifter, Nov 12 2026)
+    dict(id="l051_the_arranged_job", title="The Arranged Job", made_on="2026-11-12",
+         hook="what did your mom text?",
+         thread=dict(contact="Mom", stamp="Mon 8:30 PM", msgs=[
+             "the store said yes!! 🎉",
+             "you start Monday",
+             "part goes to my loan, ok?",
+             "just till spring, promise",
+             "love you",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You’ve been job hunting for months. Your mom finds you a job at a local store.", ["elder", "you"], "say",
+               ["🏪", "💼", "🎉"], "happy", others="happy", set="home"),
+             S("Then you learn part of your pay would go toward her debt.", ["you"], "think", ["💵", "🧾", "🤔"],
+               "worried", set="home"),
+             M("Did you read the whole thread?"),
+         ], close="Do you take the job, or keep looking?"),
+
+    # Trend: Reddit story about reconnecting with family and a younger brother's harsh comment (TwistedSifter, Nov 12 2026)
+    dict(id="l052_the_new_brother", title="The New Brother", made_on="2026-11-12",
+         hook="what did your aunt text?",
+         thread=dict(contact="Aunt", stamp="Sun 10:05 PM", msgs=[
+             "so glad you came today ❤️",
+             "he’s just protective of mom",
+             "he didn’t mean it like that",
+             "or maybe he did, idk",
+             "give it time?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You’re finally getting to know the half-brother you barely met growing up.", ["sibling", "you"], "laugh",
+               ["👋", "🍽️", "😊"], "happy", others="happy", set="dinner"),
+             S("Then he jokes that you only showed up now that things are good.", ["sibling", "you"], "say",
+               ["💬", "😶", "💔"], "shock", others="laugh", set="dinner"),
+             M("Did you read the whole thread?"),
+         ], close="Do you call it out, or let it slide for now?"),
 ]
