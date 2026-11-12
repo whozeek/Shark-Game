@@ -143,6 +143,8 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 136 | 2026-12-16 | 12:00 PM | short | The Appliances | `moraloop_ads/trends/t054_the_appliances.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t054_the_appliances.mp4) |
 | 137 | 2026-12-17 | 12:00 PM | short | The Holiday Party | `moraloop_ads/trends/t055_the_holiday_party.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t055_the_holiday_party.mp4) |
 | 138 | 2026-12-18 | 12:00 PM | short | The Bathroom | `moraloop_ads/trends/t056_the_bathroom.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t056_the_bathroom.mp4) |
+| 139 | 2026-12-19 | 12:00 PM | short | The Private Room | `moraloop_ads/trends/t057_the_private_room.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t057_the_private_room.mp4) |
+| 140 | 2026-12-20 | 12:00 PM | short | The Honeymoon | `moraloop_ads/trends/t058_the_honeymoon.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t058_the_honeymoon.mp4) |
 
 ## Captions
 
@@ -1386,5 +1388,23 @@ Video: `moraloop_ads/trends/t056_the_bathroom.mp4`
 A stranger knocks during your party and asks to use your bathroom. Do you let them in, or say no? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #party #hosting #etiquette
+```
+
+### 139. 2026-12-19 12:00 PM: The Private Room (short)
+Video: `moraloop_ads/trends/t057_the_private_room.mp4`
+
+```
+Your roommate’s partner moved in, and she asks to swap for your private bedroom. She’ll pay a bit more rent. Swap, or keep yours? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #roommates #apartmentlife #boundaries
+```
+
+### 140. 2026-12-20 12:00 PM: The Honeymoon (short)
+Video: `moraloop_ads/trends/t058_the_honeymoon.mp4`
+
+```
+Your nonrefundable honeymoon is booked. Your sister-in-law sets her wedding for the same week. Move your honeymoon, or miss her wedding? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #wedding #family #inlaws
 ```
 

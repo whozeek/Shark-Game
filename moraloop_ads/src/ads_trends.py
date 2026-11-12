@@ -453,4 +453,20 @@ ADS = [
         S("They seem desperate. But you don’t know them, and your house is full.", ["you"], "think",
           ["🏠", "👥", "🤔"], "worried", set="home_night"),
     ], close="Do you let them in, or say no?"),
+
+    # Trend: Reddit story about a roommate asking someone to give up her private bedroom for a couple (TwistedSifter, Nov 12 2026)
+    dict(id="t057_the_private_room", title="The Private Room", made_on="2026-11-12", beats=[
+        S("You have the only private bedroom. Your roommate just moved her partner in.", ["friend2", "you"], "say",
+          ["🛏️", "🚪", "💑"], "worried", set="home"),
+        S("She asks to swap rooms so they can have privacy. She offers to pay a little more rent.",
+          ["friend2", "you"], "say", ["🔁", "💵", "🙏"], "worried", set="home"),
+    ], close="Do you swap rooms, or keep yours?"),
+
+    # Trend: story about a sister-in-law planning her wedding during someone's honeymoon (Daily Dot, Nov 11 2026)
+    dict(id="t058_the_honeymoon", title="The Honeymoon", made_on="2026-11-12", beats=[
+        S("Your honeymoon was booked months ago. Nonrefundable.", ["partner", "you"], "react", ["✈️", "🏝️", "💍"],
+          "happy", others="happy", set="home"),
+        S("Then your sister-in-law sets her wedding for the same week. She says it’s the only date.",
+          ["friend2", "partner", "you"], "say", ["💒", "👰", "😬"], "shock", others="worried", set="home"),
+    ], close="Do you move your honeymoon, or miss her wedding?"),
 ]
