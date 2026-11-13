@@ -469,4 +469,20 @@ ADS = [
         S("Then your sister-in-law sets her wedding for the same week. She says it’s the only date.",
           ["friend2", "partner", "you"], "say", ["💒", "👰", "😬"], "shock", others="worried", set="home"),
     ], close="Do you move your honeymoon, or miss her wedding?"),
+
+    # Trend: Reddit story about a client who skipped an appointment and was charged a no-show fee (TwistedSifter, Nov 13 2026)
+    dict(id="t059_the_no_show_fee", title="The No-Show Fee", made_on="2026-11-13", beats=[
+        S("You run a small salon. A regular misses her appointment without calling.", ["you"], "think",
+          ["💇", "⏰", "🪑"], "worried", set="store"),
+        S("Your policy says charge a fee. She says she forgot, and she’s been loyal for years.",
+          ["friend2", "you"], "say", ["💵", "📋", "🙏"], "worried", set="store"),
+    ], close="Do you charge the fee, or let it go?"),
+
+    # Trend: Reddit post about a husband who quit his job but won't cut back expenses (Daily Dot, Nov 12 2026)
+    dict(id="t060_the_cutback", title="The Cutback", made_on="2026-11-13", beats=[
+        S("Your partner quit a job that was wearing them down. Money is tighter now.", ["partner", "you"], "say",
+          ["💼", "👋", "📉"], "worried", set="home"),
+        S("You ask to cut back. They want to keep a few things that keep them sane.", ["partner", "you"], "say",
+          ["✂️", "💳", "🧘"], "worried", others="worried", set="home"),
+    ], close="Do you insist on cutting back, or let them keep a few things?"),
 ]

@@ -145,6 +145,8 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 138 | 2026-12-18 | 12:00 PM | short | The Bathroom | `moraloop_ads/trends/t056_the_bathroom.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t056_the_bathroom.mp4) |
 | 139 | 2026-12-19 | 12:00 PM | short | The Private Room | `moraloop_ads/trends/t057_the_private_room.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t057_the_private_room.mp4) |
 | 140 | 2026-12-20 | 12:00 PM | short | The Honeymoon | `moraloop_ads/trends/t058_the_honeymoon.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t058_the_honeymoon.mp4) |
+| 141 | 2026-12-21 | 12:00 PM | short | The No-Show Fee | `moraloop_ads/trends/t059_the_no_show_fee.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t059_the_no_show_fee.mp4) |
+| 142 | 2026-12-22 | 12:00 PM | short | The Cutback | `moraloop_ads/trends/t060_the_cutback.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t060_the_cutback.mp4) |
 
 ## Captions
 
@@ -1406,5 +1408,23 @@ Video: `moraloop_ads/trends/t058_the_honeymoon.mp4`
 Your nonrefundable honeymoon is booked. Your sister-in-law sets her wedding for the same week. Move your honeymoon, or miss her wedding? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #wedding #family #inlaws
+```
+
+### 141. 2026-12-21 12:00 PM: The No-Show Fee (short)
+Video: `moraloop_ads/trends/t059_the_no_show_fee.mp4`
+
+```
+A loyal regular misses her salon appointment and says she forgot. Your policy says charge a fee. Charge it, or let it go? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #smallbusiness #salon #customerservice
+```
+
+### 142. 2026-12-22 12:00 PM: The Cutback (short)
+Video: `moraloop_ads/trends/t060_the_cutback.mp4`
+
+```
+Your partner quit a job that was wearing them down. Money is tight. Insist on cutting back, or let them keep a few things? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #money #couples
 ```
 
