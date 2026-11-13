@@ -18,7 +18,7 @@ for (const sc of scenes) {
   const errs = []; p.on('pageerror', (e) => errs.push(e.message));
   await p.addInitScript((s) => localStorage.setItem('rainfall-avenue:settings:v1', JSON.stringify({ umbrella: true, ...s })), sc.set);
   await p.goto('http://127.0.0.1:5173/?quality=balanced&frames=2&autostart=quiet&city=nyc');
-  await p.waitForFunction(() => window.__done, null, { timeout: 300000 });
+  await p.waitForFunction(() => window.__done, null, { timeout: 600000 });
   await p.evaluate(async (go) => {
     const a = window.__rainfall, cb = a.cb, P = a.player;
     document.querySelectorAll('.toast-wrap').forEach((e) => e.remove());
@@ -39,15 +39,15 @@ for (const sc of scenes) {
     } else if (go === 'rooftop' || go === 'subway') {
       const portal = cb.portals.find((q) => !q.level && q.to.level === go);
       P.teleport(portal.to);
-      if (go === 'rooftop') { P.yaw = 0.2; P.pitch = 0.02; const lv = cb.levels.rooftop; P.x = (lv.col.bounds.minX + lv.col.bounds.maxX) / 2; P.z = lv.col.bounds.maxZ - 0.6; }
+      if (go === 'rooftop') { const lv = cb.levels.rooftop; const seat = lv.seats[1]; P.sit(seat); P.pitch = -0.08; }
       if (go === 'subway') { const st = cb.levels.subway.train; st.phase = 'arriving'; st.t = 0; P.yaw = -Math.PI / 2 - 0.5; P.pitch = 0.0; P.x += 10; }
     } else if (go === 'park') { P.x = 20; P.z = 52; P.yaw = 0.6; P.pitch = 0.05; }
-    for (let i = 0; i < (go === 'subway' ? 420 : 30); i++) a.update(1 / 30);
+    for (let i = 0; i < (go === 'subway' ? 200 : 30); i++) a.update(1 / 30);
     // let the app's own loop draw a few frames so the screenshot captures a live canvas
     window.__done = false; a.maxFrames = a.frameCount + 3; a.last = performance.now();
     requestAnimationFrame((t) => a.frame(t));
   }, sc.go);
-  await p.waitForFunction(() => window.__done, null, { timeout: 300000 });
+  await p.waitForFunction(() => window.__done, null, { timeout: 600000 });
   await p.screenshot({ path: `${out}/tour-${sc.id}.png` });
   if (errs.length) console.log(sc.id, errs);
   await p.close();

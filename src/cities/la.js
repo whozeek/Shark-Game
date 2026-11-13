@@ -24,7 +24,7 @@ const SHOPS = [
   { name: 'Traction Coffee Roasters', type: 'cafe', hue: 30, color: '#2a2a2a' }, { name: 'Gallery 3rd & Light', type: 'shop', hue: 40, color: '#e0ddd5', sign: '#222' },
   { name: 'Warehouse Brewing Co.', type: 'bar', hue: 28, color: '#3a2a20' }, { name: 'Taco Luz', type: 'restaurant', hue: 18, color: '#7a2a1a', sign: '#ffe08a' },
   { name: 'Rewind Vinyl', type: 'records', hue: 300, color: '#1a1a2a' }, { name: 'Sunset Print Shop', type: 'shop', hue: 35, color: '#2a3a3a' },
-  { name: 'Mateo Bakehouse', type: 'cafe', hue: 36, color: '#4a3a2a' }, { name: 'Concrete Jungle Plants', type: 'flowers', hue: 90, color: '#2a3a2a' },
+  { name: 'Mateo Bakehouse', type: 'cafe', hue: 36, color: '#4a3a2a' }, { name: 'Greenhouse Seven Plants', type: 'flowers', hue: 90, color: '#2a3a2a' },
   { name: 'Ramen Yard', type: 'restaurant', hue: 12, color: '#2a1a1a' }, { name: 'Canvas & Co.', type: 'shop', hue: 42, color: '#3a3530' },
   { name: 'Late Bloom Bar', type: 'bar', hue: 320, color: '#2a1a2a', sign: '#ffb3e1' }, { name: 'Arts District Market', type: 'grocery', hue: 45, color: '#1f2a1f' },
 ];

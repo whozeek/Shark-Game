@@ -19,7 +19,7 @@ export const miami = {
   build,
 };
 
-const HOTELS = ['The Coral', 'Seabreeze', 'Palm Court', 'Starlite', 'Moonglow', 'Pelican Bay', 'Azure', 'Sea Glass', 'Flamingo', 'Lagoon'];
+const HOTELS = ['Tidewater', 'Sea Glass', 'Moonglow', 'Coral Breeze', 'Azure Shore', 'Driftwood', 'Sunray', 'Marisol', 'Bluewave', 'Palmetto Court'];
 const NEON_COLORS = ['#ff4fd8', '#3ff2ff', '#b06bff', '#ff9f4a', '#7affb0', '#ff5a7a'];
 const SHOPS = [
   { name: 'Coral Café', type: 'cafe', hue: 30, color: '#f0d8c8', sign: '#2a6a8a' }, { name: 'Sea Glass Bar', type: 'bar', hue: 300, color: '#2a3a5a' },

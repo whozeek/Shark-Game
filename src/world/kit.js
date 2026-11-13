@@ -126,6 +126,7 @@ export function building(cb, b, o) {
   if (req) {
     req.used = true; b.walkIn = req;
     o = { ...o, ground: 'shop', gfH: o.gfH ?? 4.2, awning: null, walkIn: req, collide: false };
+    if (req.rooftop) o.h = Math.max(o.h, 4.2 + 8 * 3.2); // tall enough to see over the neighbours
   }
   const gfH = o.ground === 'shop' || o.ground === 'lobby' ? (o.gfH ?? 4.2) : 0;
   const sideFac = o.side || fac;
@@ -143,7 +144,7 @@ export function building(cb, b, o) {
     cb.batch.addGeometry(g, F.mat);
     if (isFront && gfH > 0 && o.walkIn) {
       const w = walkInShop(cb, b, side, H, { ...o.walkIn, base: y0, gfH, doorLeft: cb.rng.chance(0.5) });
-      if (o.walkIn.rooftop) rooftop(cb, b, H, w.stairs);
+      if (o.walkIn.rooftop) rooftop(cb, b, H, w.stairs, 'rooftop', side);
     } else if (isFront && gfH > 0) {
       if (o.ground === 'shop' && o.shop) {
         const s = o.shop; const a = s.atlas;

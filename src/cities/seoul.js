@@ -18,7 +18,7 @@ export const seoul = {
 };
 
 const SHOPS = [
-  { name: 'CU 24 편의점', type: 'grocery', hue: 200, color: '#e8eef4', sign: '#5a2a8a' }, { name: '호프 Beer Hall', type: 'bar', hue: 30, color: '#2a1a1a', sign: '#ffd38a' },
+  { name: '24시 편의점 Corner Mart', type: 'grocery', hue: 200, color: '#e8eef4', sign: '#5a2a8a' }, { name: '호프 Beer Hall', type: 'bar', hue: 30, color: '#2a1a1a', sign: '#ffd38a' },
   { name: '치킨 Fried Chicken', type: 'restaurant', hue: 30, color: '#d8a020', sign: '#2a1a0a' }, { name: '분식 Snack Bar', type: 'restaurant', hue: 18, color: '#c82a2a', sign: '#fff2c8' },
   { name: '노래방 Karaoke', type: 'bar', hue: 300, color: '#1a1a2a', sign: '#ff7ae0' }, { name: '커피 Coffee Lab', type: 'cafe', hue: 32, color: '#1e2a2a', sign: '#e8f0ec' },
   { name: '약국 Pharmacy', type: 'shop', hue: 140, color: '#e8f4ee', sign: '#1a6a3a' }, { name: '국수 Noodles', type: 'restaurant', hue: 24, color: '#3a2418', sign: '#ffd38a' },

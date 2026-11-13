@@ -22,7 +22,7 @@ const SHOPS = [
   { name: 'Pressed Coffee House', type: 'cafe', hue: 32, color: '#2a2420' }, { name: 'The Fox & Fiddle', type: 'bar', hue: 22, color: '#4a1a1e', sign: '#f2d48a' },
   { name: 'Hartley Cheesemonger', type: 'deli', hue: 44, color: '#2a3a4a' }, { name: 'Wren Florist', type: 'flowers', hue: 30, color: '#3a4a3a' },
   { name: 'Beaumont Tailors', type: 'shop', hue: 40, color: '#1e1e22' }, { name: 'Cavendish Bakery', type: 'cafe', hue: 38, color: '#4a3a2a' },
-  { name: 'Moon Under Water', type: 'bar', hue: 26, color: '#2a1e3a', sign: '#f2d48a' }, { name: 'Gallery Twelve', type: 'shop', hue: 40, color: '#e8e4dc', sign: '#222' },
+  { name: 'The Wet Umbrella', type: 'bar', hue: 26, color: '#2a1e3a', sign: '#f2d48a' }, { name: 'Gallery Twelve', type: 'shop', hue: 40, color: '#e8e4dc', sign: '#222' },
   { name: 'Corner News & Wine', type: 'grocery', hue: 46, color: '#1e2a3a' }, { name: 'Little Teapot', type: 'tea', hue: 34, color: '#3a2a2a' },
 ];
 const NEON = [{ text: 'Pub', color: '#ffb347' }, { text: 'Coffee', color: '#ff9a5a' }, { text: 'Books', color: '#9ad7ff' }, { text: 'Open', color: '#ff4a6a' }];

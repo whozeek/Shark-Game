@@ -24,9 +24,9 @@ export const nyc = {
 const SHOPS = [
   { name: 'Hudson & Ivy Café', type: 'cafe', hue: 32, color: '#2b3a32' },
   { name: 'Corner Deli & Grocery', type: 'deli', hue: 48, color: '#1f2a3a', sign: '#ffe08a' },
-  { name: 'Paper Moon Books', type: 'books', hue: 36, color: '#3b2a2a' },
+  { name: 'Paper Lantern Books', type: 'books', hue: 36, color: '#3b2a2a' },
   { name: 'Little Fern Florist', type: 'flowers', hue: 30, color: '#2f4a3a' },
-  { name: 'Night Owl Pizza', type: 'restaurant', hue: 22, color: '#5a1f24', sign: '#ffd38a' },
+  { name: 'Rainy Slice Pizza', type: 'restaurant', hue: 22, color: '#5a1f24', sign: '#ffd38a' },
   { name: 'Spin Cycle Laundromat', type: 'laundry', hue: 200, color: '#1f2f3a', sign: '#bde6ff' },
   { name: 'Bluebird Records', type: 'records', hue: 285, color: '#222' },
   { name: 'Wren Wine Bar', type: 'bar', hue: 16, color: '#3a1f2a' },

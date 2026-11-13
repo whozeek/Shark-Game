@@ -62,7 +62,7 @@ export function walkInShop(cb, b, side, H, o) {
   const t = 0.25; // wall thickness
   const inner = { u0: -len / 2 + t, u1: len / 2 - t, w0: t, w1: dep - t };
   const palette = {
-    cafe: { wall: 0xb88a62, floor: 0x9a6a44, accent: 0x2f4a3a, light: 0xffc98a, trim: 0x3a2618 },
+    cafe: { wall: 0x9c8a78, floor: 0x9a6a44, accent: 0x2f4a3a, light: 0xffd4a0, trim: 0x3a2618 },
     laundry: { wall: 0xdfe6ea, floor: 0xd0d0cc, accent: 0x2a6aa8, light: 0xe8f2ff, trim: 0x6a7a88 },
     tea: { wall: 0xd8c9a8, floor: 0xb89a6a, accent: 0x5a1e1e, light: 0xffc070, trim: 0x2a1a10 },
   }[kind];
@@ -70,12 +70,22 @@ export function walkInShop(cb, b, side, H, o) {
   const fl = new THREE.PlaneGeometry(len - 2 * t, dep - 2 * t); fl.rotateX(-Math.PI / 2);
   const [cxF, czF] = P(0, dep / 2); fl.translate(cxF, y0 + 0.012, czF);
   const fuv = fl.attributes.uv; for (let i = 0; i < fuv.count; i++) fuv.setXY(i, fuv.getX(i) * len / 3, fuv.getY(i) * dep / 3);
-  cb.batch.addGeometry(fl, kind === 'laundry' ? IM.tile : IM.wood, kind === 'laundry' ? 0xffffff : palette.floor | 0x303030);
+  cb.batch.addGeometry(fl, kind === 'laundry' ? IM.tile : IM.wood, kind === 'laundry' ? 0xffffff : kind === 'tea' ? 0xd8c0a0 : 0xb89878);
   box(M.paint, 0, y0 + gfH - 0.05, dep / 2, len - 0.1, 0.1, dep - 0.1, kind === 'laundry' ? 0xf2f2f0 : 0x3a2a20);
   box(M.paint, inner.u0 - t / 2, y0 + gfH / 2, dep / 2, t, gfH, dep, palette.wall);
   box(M.paint, inner.u1 + t / 2, y0 + gfH / 2, dep / 2, t, gfH, dep, palette.wall);
   box(M.paint, 0, y0 + gfH / 2, inner.w1 + t / 2, len, gfH, t, palette.wall);
-  if (kind === 'cafe') box(M.paint, 0, y0 + 1.6, inner.w1 - 0.02, len * 0.98, 3.2, 0.04, 0x8a4a32); // brick-red feature wall
+  if (kind === 'cafe') box(M.paint, 0, y0 + 1.6, inner.w1 - 0.02, len * 0.98, 3.2, 0.04, 0x7a4434); // brick-red feature wall
+  if (kind !== 'laundry') {
+    // wood panelling on the lower walls, and a few framed pictures
+    for (const u of [inner.u0 + 0.03, inner.u1 - 0.03]) box(M.paint, u, y0 + 0.55, dep / 2, 0.05, 1.1, dep - 0.6, kind === 'tea' ? 0x4a3020 : 0x4a2e1e);
+    for (const u of [inner.u0 + 0.05, inner.u1 - 0.05]) box(M.paint, u, y0 + 1.12, dep / 2, 0.08, 0.05, dep - 0.6, 0x2e1c12);
+    for (let k = 0; k < 3; k++) {
+      const w = 2.4 + k * (dep - 4.2) / 2;
+      box(M.paint, inner.u0 + 0.04, y0 + 2.05, w, 0.04, 0.75, 0.6, 0x1a1410);
+      box(M.bulbSoft, inner.u0 + 0.065, y0 + 2.05, w, 0.02, 0.62, 0.48, rng.pick([0x6a8a9a, 0xb88a5a, 0x7a9a6a, 0xa86a6a]));
+    }
+  }
   // street front: kick plate, glass, door gap, transom and sign
   const doorU = o.doorLeft ? inner.u0 + 1.2 : inner.u1 - 1.2, doorW = 1.5;
   const segs = [[inner.u0 - t, doorU - doorW / 2], [doorU + doorW / 2, inner.u1 + t]];
@@ -127,8 +137,10 @@ export function walkInShop(cb, b, side, H, o) {
       for (const u of [inner.u0 + 0.45, inner.u0 + 0.45]) {
         box(M.paint, u, y0 + 0.5, w, 0.8, 1.0, 0.8, 0xf4f4f2);
         const [dx, dz] = P(u + 0.41, w);
-        cb.batch.prim('cyl', M.glass, dx, y0 + 0.55, dz, 0.5, 0.04, 0.5, 0xffffff);
-        cb.batch.prim('cyl', M.bulbSoft, dx + ux * 0.0, y0 + 0.55, dz, 0.56, 0.02, 0.56, 0x9ad0ff);
+        // round doors facing into the room (cylinder axis along the façade direction)
+        const rx = uz !== 0 ? Math.PI / 2 : 0, rz = ux !== 0 ? Math.PI / 2 : 0;
+        cb.batch.prim('cyl', M.bulbSoft, dx, y0 + 0.55, dz, 0.56, 0.03, 0.56, 0x9ad0ff, 0, rx, rz);
+        cb.batch.prim('cyl', M.glass, dx + ux * 0.02, y0 + 0.55, dz + uz * 0.02, 0.46, 0.03, 0.46, 0xffffff, 0, rx, rz);
       }
       box(M.paint, inner.u0 + 0.45, y0 + 1.5, w, 0.8, 0.9, 0.8, 0xe8e8e6); // dryers stacked
     }
@@ -205,7 +217,7 @@ function chair(cb, P, box, u, y0, w, yaw, col, label, side) {
 }
 
 // ------------------------------------------------------------------ rooftop terrace
-export function rooftop(cb, b, H, doorStreet, name = 'rooftop') {
+export function rooftop(cb, b, H, doorStreet, name = 'rooftop', side = 's') {
   const M = cb.mats, IM = mats(cb);
   const top = 0.15 + H;
   const r = { x0: b.x0 + 0.5, z0: b.z0 + 0.5, x1: b.x1 - 0.5, z1: b.z1 - 0.5 };
@@ -232,21 +244,26 @@ export function rooftop(cb, b, H, doorStreet, name = 'rooftop') {
   }
   for (const [px, pz] of [[r.x0 + 0.2, r.z0 + 0.2], [r.x1 - 0.2, r.z0 + 0.2], [r.x0 + 0.2, r.z1 - 0.2], [r.x1 - 0.2, r.z1 - 0.2]]) cb.batch.box(M.metal, px, top + 1.6, pz, 0.08, 3.2, 0.08, 0x222222);
   cb.light(cx, top + 2.6, cz, 0xffd08a, 9, 12, 'porch');
-  // lounge chairs facing the skyline (north) and potted plants
+  // lounge chairs along the street edge, looking out over the avenue
+  const S = SIDES[side]; const horiz = side === 'n' || side === 's';
+  const edgeX = side === 'e' ? r.x1 - 1.6 : side === 'w' ? r.x0 + 1.6 : cx, edgeZ = side === 's' ? r.z1 - 1.6 : side === 'n' ? r.z0 + 1.6 : cz;
+  const camYaw = Math.atan2(-S.nx, -S.nz); // camera yaw that faces the street
   for (let k = 0; k < 3; k++) {
-    const x = cx - 2 + k * 2, z = r.z1 - 2.2;
-    cb.batch.box(M.paint, x, top + 0.35, z, 0.7, 0.12, 1.0, 0x2a5a6a);
-    cb.batch.box(M.paint, x, top + 0.7, z + 0.45, 0.7, 0.7, 0.1, 0x2a5a6a);
-    lv.seats.push({ x, z: z - 0.1, yaw: 0, label: 'deck chair with a view', y: top });
-    lv.col.addBox(x, z, 0.4, 0.55);
+    const a = (k - 1) * 2;
+    const x = horiz ? cx + a : edgeX, z = horiz ? edgeZ : cz + a;
+    cb.batch.box(M.paint, x, top + 0.35, z, horiz ? 0.7 : 1.0, 0.12, horiz ? 1.0 : 0.7, 0x2a5a6a);
+    cb.batch.box(M.paint, x - S.nx * 0.45, top + 0.7, z - S.nz * 0.45, horiz ? 0.7 : 0.1, 0.7, horiz ? 0.1 : 0.7, 0x2a5a6a);
+    lv.seats.push({ x: x + S.nx * 0.1, z: z + S.nz * 0.1, yaw: camYaw, label: 'deck chair with a view', y: top });
+    lv.col.addBox(x, z, horiz ? 0.4 : 0.55, horiz ? 0.55 : 0.4);
   }
+  lv.viewYaw = camYaw;
   for (const [px, pz] of [[r.x1 - 0.8, r.z0 + 0.8], [r.x1 - 0.8, cz], [cx, r.z0 + 0.8]]) {
     cb.batch.prim('cyl', M.paint, px, top + 0.4, pz, 0.8, 0.7, 0.8, 0x8a5a3a);
     cb.batch.prim('sphere', M.leaf, px, top + 1.2, pz, 1.2, 1.2, 1.2, 0x4a7a3a);
     lv.col.addCircle(px, pz, 0.45);
   }
   portal(cb, name, bx + 1.9, bz, 'Take the stairs back down', { level: null, x: doorStreet[0], z: doorStreet[1] });
-  portal(cb, null, doorStreet[0], doorStreet[1], 'Take the stairs up to the rooftop', { level: name, x: bx + 2.2, z: bz, yaw: Math.PI });
+  portal(cb, null, doorStreet[0], doorStreet[1], 'Take the stairs up to the rooftop', { level: name, x: bx + 2.2, z: bz, yaw: camYaw });
   lv.spawn = { x: bx + 2.2, z: bz };
   return lv;
 }
