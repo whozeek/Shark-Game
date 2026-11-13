@@ -990,4 +990,42 @@ ADS = [
                ["💬", "😶", "💔"], "shock", others="laugh", set="dinner"),
              M("Did you read the whole thread?"),
          ], close="Do you call it out, or let it slide for now?"),
+
+    # Trend: Reddit story about a neighbor's cookout invite and her habit of commenting on appearances (TwistedSifter, Nov 13 2026)
+    dict(id="l053_the_cookout", title="The Cookout", made_on="2026-11-13",
+         hook="what did your neighbor text?",
+         thread=dict(contact="Neighbor", stamp="Thu 5:40 PM", msgs=[
+             "cookout Saturday!! 🍔",
+             "you HAVE to come this time",
+             "you looked so tired last week",
+             "I just worry about you 💕",
+             "see you there?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your neighbor invites you to every cookout. She’s friendly and generous.", ["stranger", "you"], "say",
+               ["🍔", "🎉", "🏡"], "happy", others="happy", set="yard"),
+             S("But she always comments on how you look. Your weight, your clothes, your skin.", ["you"], "think",
+               ["🍔", "💬", "😕"], "worried", set="yard"),
+             M("Did you read the whole thread?"),
+         ], close="Do you go and say something, or skip it?"),
+
+    # Trend: Reddit story about gifting a partner a rare game item, then being asked why not sooner (TwistedSifter, Nov 13 2026)
+    dict(id="l054_the_rare_find", title="The Rare Find", made_on="2026-11-13",
+         hook="what did your partner text?",
+         thread=dict(contact="Partner", stamp="Wed 11:12 PM", msgs=[
+             "omg you got the rare one?? 😍",
+             "I’ve been hunting it for months",
+             "you knew I wanted it…",
+             "no pressure, it’s yours",
+             "just saying 🥺",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("After two years of playing, you finally find the rarest item in your favorite game.", ["you"], "laugh",
+               ["🎮", "✨", "🏆"], "happy", set="home_night"),
+             S("Your partner has wanted that exact item for months.", ["partner", "you"], "say", ["🎮", "💕", "🤔"],
+               "worried", others="sad", set="home_night"),
+             M("Did you read the whole thread?"),
+         ], close="Do you give it to them, or keep it?"),
 ]
