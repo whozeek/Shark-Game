@@ -6,6 +6,7 @@ import { makeAsphalt, makePaving, makeStripes, makeFacade, makeShopAtlas, makeNe
 import { worldUVBox, PRIM, compose } from './batcher.js';
 import { vehicleParts, CAR_COLORS } from './vehicleGeo.js';
 import { walkInShop, rooftop } from './interiors.js';
+import { addParked, addLeaf } from './staticInstances.js';
 
 const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
 
@@ -13,10 +14,10 @@ export function createMaterials(cb, q, opt = {}) {
   const T = (t) => cb.track(t);
   const M = {};
   const taps = q.reflTaps;
-  M.asphalt = cb.track(patchGround(new THREE.MeshStandardMaterial({ map: T(makeAsphalt(3, opt.asphalt || '#2c2d31')), roughness: 0.92, vertexColors: true }), { puddleScale: 1, taps }));
-  M.sidewalk = cb.track(patchGround(new THREE.MeshStandardMaterial({ map: T(makePaving(4, { base: opt.sidewalk || '#8e8c87', kind: opt.sidewalkKind })), roughness: 0.9, vertexColors: true }), { puddleScale: 0.55, taps }));
+  M.asphalt = cb.track(patchGround(new THREE.MeshStandardMaterial({ map: T(makeAsphalt(3, opt.asphalt || '#2c2d31')), roughness: 0.92, vertexColors: true }), { puddleScale: 1, taps, pools: q.pools ?? 40 }));
+  M.sidewalk = cb.track(patchGround(new THREE.MeshStandardMaterial({ map: T(makePaving(4, { base: opt.sidewalk || '#8e8c87', kind: opt.sidewalkKind })), roughness: 0.9, vertexColors: true }), { puddleScale: 0.55, taps, pools: q.pools ?? 40 }));
   M.ground = cb.track(new THREE.MeshStandardMaterial({ color: 0x3a3936, roughness: 1 }));
-  M.marking = cb.track(patchGround(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, vertexColors: true }), { puddleScale: 0.8, taps }));
+  M.marking = cb.track(patchGround(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, vertexColors: true }), { puddleScale: 0.8, taps, pools: q.pools ?? 40 }));
   M.curb = cb.track(patchWash(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8, vertexColors: true })));
   M.paint = cb.track(patchWash(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.75, vertexColors: true })));
   M.stone = M.paint;
@@ -33,16 +34,23 @@ export function createMaterials(cb, q, opt = {}) {
   M.carPaint = cb.track(patchGlossy(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35, metalness: 0.4, vertexColors: true }), { strengthUniform: 'uReflCar', base: 0.08, rainbowAmt: 0.25 }));
   M.carGlass = cb.track(patchGlossy(new THREE.MeshStandardMaterial({ color: 0x0b0f15, roughness: 0.05, metalness: 0.5 }), { strengthUniform: 'uReflCar', base: 0.3, rainbowAmt: 0.45 }));
   M.rubber = cb.track(new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 0.9, vertexColors: true }));
-  M.water = cb.track(patchGround(new THREE.MeshStandardMaterial({ color: opt.water || 0x1b2a33, roughness: 0.1, vertexColors: true }), { puddleScale: 4, taps }));
+  M.water = cb.track(patchGround(new THREE.MeshStandardMaterial({ color: opt.water || 0x1b2a33, roughness: 0.1, vertexColors: true }), { puddleScale: 4, taps, pools: q.pools ?? 40 }));
   // Traffic signal lamps per axis & colour; brightness is animated each frame.
-  M.sig = {};
-  for (const axis of ['x', 'z']) {
-    M.sig[axis] = {};
-    for (const [k, col] of [['r', 0xff2a1a], ['y', 0xffb21a], ['g', 0x2affa0]]) {
-      M.sig[axis][k] = cb.track(new THREE.MeshBasicMaterial({ color: col }));
-      M.sig[axis][k].userData.base = new THREE.Color(col);
-    }
-  }
+  // all traffic-signal lamps share one material (one draw per chunk instead of six);
+  // the vertex colour encodes which lamp it is, a uniform says which lamp of each axis is lit
+  const sigU = { uSigX: { value: 2 }, uSigZ: { value: 0 } };
+  M.sigLamp = cb.track(new THREE.MeshBasicMaterial({ color: 0xffffff, vertexColors: true }));
+  M.sigLamp.userData.sig = sigU;
+  M.sigLamp.onBeforeCompile = (sh) => {
+    Object.assign(sh.uniforms, sigU);
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uSigX, uSigZ;')
+      .replace('#include <color_fragment>', `
+        float lampIdx = floor(vColor.r * 2.0 + 0.5); float lampAxis = step(0.5, vColor.g);
+        float lit = 1.0 - step(0.5, abs(lampIdx - mix(uSigX, uSigZ, lampAxis)));
+        vec3 base = lampIdx < 0.5 ? vec3(1.0, 0.16, 0.1) : lampIdx < 1.5 ? vec3(1.0, 0.7, 0.1) : vec3(0.16, 1.0, 0.62);
+        diffuseColor.rgb = base * mix(0.05, 5.0, lit);`);
+  };
+  M.sigLamp.customProgramCacheKey = () => 'ra-siglamp';
   return M;
 }
 
@@ -51,7 +59,7 @@ export function createMaterials(cb, q, opt = {}) {
 export function grassMaterial(cb, tint = 0x5a7a48) {
   const tex = cb.track(makePaving(31, { kind: 'grass', base: '#3e5a32' }));
   tex.repeat.set(1, 1);
-  return cb.track(patchGround(new THREE.MeshStandardMaterial({ map: tex, color: tint, roughness: 0.95, vertexColors: true }), { puddleScale: 0.25, taps: cb.q.reflTaps }));
+  return cb.track(patchGround(new THREE.MeshStandardMaterial({ map: tex, color: tint, roughness: 0.95, vertexColors: true }), { puddleScale: 0.25, taps: cb.q.reflTaps, pools: cb.q.pools ?? 40 }));
 }
 
 export function facadeMaterials(cb, specs) {
@@ -265,15 +273,15 @@ export function fireEscape(cb, side, b, yStart, yEnd, color) {
     cb.batch.beam(M.metal, P(a0, d, y + 0.45), P(a1, d, y + 0.45), 0.025, color);
     cb.batch.beam(M.metal, P(a0, 0, top), P(a0, d, top), 0.04, color);
     cb.batch.beam(M.metal, P(a1, 0, top), P(a1, d, top), 0.04, color);
-    for (let t = 0; t <= 6; t++) { const a = a0 + (a1 - a0) * t / 6; cb.batch.beam(M.metal, P(a, d, y), P(a, d, top), 0.025, color); }
+    for (let t = 0; t <= 4; t++) { const a = a0 + (a1 - a0) * t / 4; cb.batch.beam(M.metal, P(a, d, y), P(a, d, top), 0.025, color); }
     // ladder to next floor
     if (k < floors.length - 1) {
       const dir = k % 2 ? 1 : -1;
       const la = along + dir * (w / 2 - 0.9), lb = along - dir * (w / 2 - 0.9);
       cb.batch.beam(M.metal, P(la, d * 0.25, y), P(lb, d * 0.25, y + 3.2), 0.05, color);
       cb.batch.beam(M.metal, P(la, d * 0.75, y), P(lb, d * 0.75, y + 3.2), 0.05, color);
-      for (let t = 1; t < 8; t++) {
-        const a = la + (lb - la) * t / 8, yy = y + 3.2 * t / 8;
+      for (let t = 1; t < 5; t++) {
+        const a = la + (lb - la) * t / 5, yy = y + 3.2 * t / 5;
         cb.batch.beam(M.metal, P(a, d * 0.25, yy), P(a, d * 0.75, yy), 0.03, color);
       }
     }
@@ -461,9 +469,7 @@ export function tree(cb, x, z, o = {}) {
     const ang = rng.f() * Math.PI * 2, rad = Math.sqrt(rng.f()) * 1.7 * s;
     const bx = x + Math.cos(ang) * rad, bz = z + Math.sin(ang) * rad, by = trunkH + (0.6 + (1 - rad / (1.8 * s)) * 1.8 + rng.range(0, 0.6)) * s;
     const c = new THREE.Color(baseCol).offsetHSL(rng.range(-0.03, 0.03), rng.range(-0.05, 0.05), rng.range(-0.08, 0.08) + (by > trunkH + 2 * s ? 0.05 : -0.03));
-    const g = blobGeo(rng.int(0, 2));
-    g.applyMatrix4(compose(bx, by, bz, r, r * 0.85, r, 0, rng.f() * 6, 0));
-    cb.batch.addGeometry(g, M.leaf, c);
+    addLeaf(cb, compose(bx, by, bz, r, r * 0.85, r, 0, rng.f() * 6, 0), c, rng.int(0, 2));
     // branch to blob
     cb.batch.beam(M.bark, v3(x, trunkH * 0.85, z), v3(bx, by - r * 0.5, bz), 0.1 * s, 0x4a3a2c);
   }
@@ -633,7 +639,7 @@ export function trafficSignal(cb, x, z, armDir, armLen, axis, o = {}) {
       cb.batch.box(M.metal, px, h - 0.95, pz, axis === 'x' ? 0.3 : 0.38, 1.1, axis === 'x' ? 0.38 : 0.3, 0x1b1d1f);
       const lamps = [['r', h - 0.6], ['y', h - 0.95], ['g', h - 1.3]];
       for (const [k, ly] of lamps) {
-        cb.batch.prim('sphere', M.sig[axis][k], px + fx * 0.17, ly, pz + fz * 0.17, 0.22, 0.22, 0.08 + (axis === 'x' ? 0.14 : 0), 0xffffff);
+        cb.batch.prim('sphere', M.sigLamp, px + fx * 0.17, ly, pz + fz * 0.17, 0.22, 0.22, 0.08 + (axis === 'x' ? 0.14 : 0), new THREE.Color({ r: 0, y: 0.5, g: 1 }[k], axis === 'z' ? 1 : 0, 0));
       }
     }
   }
@@ -643,17 +649,8 @@ export function trafficSignal(cb, x, z, armDir, armLen, axis, o = {}) {
 /** Static parked car built from the shared vehicle parts. */
 export function parkedCar(cb, x, z, yaw, type = 'sedan', color = null) {
   const parts = vehicleParts(type);
-  const M = cb.mats;
-  const m = compose(x, 0, z, 1, 1, 1, 0, -yaw, 0);
   const col = color ?? cb.rng.pick(CAR_COLORS);
-  cb.batch.addGeometry(parts.body.clone().applyMatrix4(m), M.carPaint, col);
-  cb.batch.addGeometry(parts.glass.clone().applyMatrix4(m), M.carGlass, 0xffffff);
-  cb.batch.addGeometry(parts.wheels.clone().applyMatrix4(m), M.rubber, 0x151515);
-  cb.batch.addGeometry(parts.rear.clone().applyMatrix4(m), M.paint, 0x5a0e0e);
-  cb.batch.addGeometry(parts.front.clone().applyMatrix4(m), M.paint, 0xbfc4c9);
-  if (parts.extra) cb.batch.addGeometry(parts.extra.clone().applyMatrix4(m), M.paint, 0xf2e6b0);
-  if (parts.trim) cb.batch.addGeometry(parts.trim.clone().applyMatrix4(m), M.metal, 0xc8ccd2);
-  if (parts.bumpers) cb.batch.addGeometry(parts.bumpers.clone().applyMatrix4(m), M.rubber, 0x222326);
+  addParked(cb, x, z, yaw, type, col); // drawn with instancing (see staticInstances.js)
   cb.col.addBox(x, z, parts.length / 2, parts.width / 2, yaw);
   cb.parked.push({ x, z, yaw });
 }

@@ -15,6 +15,7 @@ import { setAnisotropy } from './textures.js';
 import { CityBuilder, LAYER_NO_REFLECT } from '../world/cityBase.js';
 import { Crowd } from '../world/pedestrians.js';
 import { Traffic } from '../world/traffic.js';
+import { finishStatic } from '../world/staticInstances.js';
 
 const GradeShader = {
   uniforms: {
@@ -146,7 +147,13 @@ export class Engine {
     await def.build(cb, step);
     await step(0.85, 'Merging geometry');
     // ground-plane surfaces sample the reflection, so they are left out of it
-    cb.batch.build(cb.group, { castLayers: (m) => { if (m.material.userData.noReflect) m.layers.set(LAYER_NO_REFLECT); }, name: 'city' });
+    finishStatic(cb, this.quality);
+    cb.batch.build(cb.group, { castLayers: (m) => {
+      if (m.material.userData.noReflect) m.layers.set(LAYER_NO_REFLECT);
+      if (m.material === cb.mats.metal) m.userData.detail = true; // railings, fire escapes, poles: only needed up close
+    }, name: 'city' });
+    // meshes that take part in distance culling (merged chunks; ground stays always on)
+    cb.cullable = cb.group.children.filter((m) => m.isMesh && !m.isInstancedMesh && m.name === 'city' && m.geometry.boundingSphere && !m.material.userData.noReflect);
     if (old) this.unloadCity(old);
     this.scene.add(cb.group);
     this.city = cb;
@@ -179,8 +186,28 @@ export class Engine {
       this.traffic.setCity(this.city, this.city.def);
     }
   }
+  /** Skip city chunks the fog hides anyway, and fine metal detail beyond close range. */
+  cullCity(reflection = false) {
+    const cb = this.city; if (!cb?.cullable) return;
+    const q = this.quality, c = this.camera.position;
+    // puddles only reflect what's fairly close, and never the fine metalwork
+    const far = reflection ? (q.reflDist ?? 90) : q.viewDist + 45, near = reflection ? -1 : (q.detailDist ?? 70);
+    for (const m of cb.cullable) {
+      const bs = m.geometry.boundingSphere;
+      const d = Math.hypot(bs.center.x - c.x, bs.center.z - c.z) - bs.radius;
+      m.visible = d < (m.userData.detail ? near : far);
+    }
+    const parkedFar = reflection ? Math.min(far, q.parkedDist ?? 90) : (q.parkedDist ?? 90);
+    for (const m of cb.cullInst || []) {
+      const bs = m.boundingSphere; if (!bs) continue;
+      const d = Math.hypot(bs.center.x - c.x, bs.center.z - c.z) - bs.radius;
+      m.visible = d < (m.userData.cull === 'parked' ? parkedFar : far);
+    }
+  }
   render() {
+    this.cullCity(true);
     this.reflector.update(this.scene, this.camera, 0);
+    this.cullCity(false);
     this.composer.render();
   }
 }

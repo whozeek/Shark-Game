@@ -310,6 +310,7 @@ export function subwayStation(cb, entrance, o = {}) {
   for (const s of [-0.9, 0.9]) { const h = new THREE.Mesh(headG, headM); h.position.set(-7.6, -0.6, s); train.add(h); }
   train.position.set(cx - 400, Y - 0.1, cz + pw / 2 + 2.35);
   cb.group.add(train);
+  lv.trainMesh = train;
   const st = { phase: 'away', t: 18 };
   lv.train = st;
   cb.animated.push({ update: (dt) => {

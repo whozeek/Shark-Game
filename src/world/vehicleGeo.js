@@ -5,7 +5,7 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 
 function extrudeProfile(points, width, bevel = 0.04) {
   const shape = new THREE.Shape(points.map(([x, y]) => new THREE.Vector2(x, y)));
-  const g = new THREE.ExtrudeGeometry(shape, { depth: width - bevel * 2, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2, curveSegments: 4 });
+  const g = new THREE.ExtrudeGeometry(shape, { depth: width - bevel * 2, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 1, curveSegments: 2 });
   g.translate(0, 0, -(width - bevel * 2) / 2);
   g.computeVertexNormals();
   return g;
@@ -13,7 +13,7 @@ function extrudeProfile(points, width, bevel = 0.04) {
 
 function wheelSet(positions, r = 0.34, w = 0.24) {
   const parts = positions.map(([x, z]) => {
-    const g = new THREE.CylinderGeometry(r, r, w, 14);
+    const g = new THREE.CylinderGeometry(r, r, w, 10);
     g.rotateX(Math.PI / 2);
     g.translate(x, r, z);
     return g;
@@ -99,7 +99,7 @@ export function vehicleParts(type) {
     const hubs = [];
     const wx = type === 'bus' ? [3.8, -3.4] : type === 'decker' ? [3.6, -3.2] : type === 'van' ? [1.6, -1.6] : [L * 0.33, -L * 0.31];
     const wz = big ? 1.1 : type === 'van' ? 0.85 : W / 2 - 0.12;
-    for (const x of wx) for (const sz of [1, -1]) { const g = new THREE.CylinderGeometry(wr * 0.55, wr * 0.55, 0.04, 10); g.rotateX(Math.PI / 2); g.translate(x, wr, sz * (wz + (big ? 0.16 : 0.13))); hubs.push(g.toNonIndexed()); }
+    for (const x of wx) for (const sz of [1, -1]) { const g = new THREE.CylinderGeometry(wr * 0.55, wr * 0.55, 0.04, 8); g.rotateX(Math.PI / 2); g.translate(x, wr, sz * (wz + (big ? 0.16 : 0.13))); hubs.push(g.toNonIndexed()); }
     if (!big) for (const sz of [1, -1]) hubs.push(boxAt(L * 0.16, (out.height + 0.85) / 2 - 0.05, sz * (W / 2 + 0.08), 0.12, 0.1, 0.12));
     hubs.push(boxAt(-L / 2 - 0.06, bump + 0.16, 0, 0.02, 0.12, 0.34), boxAt(L / 2 + 0.06, bump - 0.02, 0, 0.02, 0.1, 0.3)); // plates
     out.trim = mergeGeometries(hubs);

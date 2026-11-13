@@ -152,7 +152,7 @@ function oceanfront(cb, layout) {
   const grass = grassMaterial(cb, 0x6a9a58);
   cb.addGround(grass, parkX0, z0, parkX1, z1, 0.14, 4);
   const sandTex = cb.track(makePaving(8, { kind: 'sand', base: '#cbb796' }));
-  const sand = cb.track(patchGround(new THREE.MeshStandardMaterial({ map: sandTex, roughness: 0.95, vertexColors: true }), { puddleScale: 0.4, taps: cb.q.reflTaps }));
+  const sand = cb.track(patchGround(new THREE.MeshStandardMaterial({ map: sandTex, roughness: 0.95, vertexColors: true }), { puddleScale: 0.4, taps: cb.q.reflTaps, pools: cb.q.pools ?? 40 }));
   cb.addGround(sand, parkX1, z0, beachX1 + 2, z1, 0.08, 6);
   // the sea
   const sea = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000).rotateX(-Math.PI / 2), M.water);

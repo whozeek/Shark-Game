@@ -86,7 +86,7 @@ export class CityBuilder {
     this.q = quality;
     this.group = new THREE.Group();
     this.group.name = 'city-' + def.id;
-    this.batch = new Batcher(70);
+    this.batch = new Batcher(quality?.chunk ?? 70);
     this.col = new CollisionWorld(8);
     this.graph = new WalkGraph();
     this.signals = new Signals(def.signalCycle || 44);

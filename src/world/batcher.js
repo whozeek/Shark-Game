@@ -13,10 +13,10 @@ const _p = new THREE.Vector3();
 // Shared unit primitives (cloned + transformed when added)
 export const PRIM = {
   box: new THREE.BoxGeometry(1, 1, 1),
-  cyl: new THREE.CylinderGeometry(0.5, 0.5, 1, 10, 1),
+  cyl: new THREE.CylinderGeometry(0.5, 0.5, 1, 8, 1),
   cyl6: new THREE.CylinderGeometry(0.5, 0.5, 1, 6, 1),
-  cone: new THREE.ConeGeometry(0.5, 1, 10, 1),
-  sphere: new THREE.SphereGeometry(0.5, 10, 8),
+  cone: new THREE.ConeGeometry(0.5, 1, 8, 1),
+  sphere: new THREE.SphereGeometry(0.5, 8, 6),
   plane: new THREE.PlaneGeometry(1, 1),
 };
 

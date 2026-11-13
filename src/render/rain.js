@@ -155,6 +155,8 @@ export class Rain {
     this.splash = splashLayer(Math.floor(900 * m));
     this.layers = [this.near, this.mid, this.far, this.splash];
     for (const l of this.layers) this.group.add(l);
+    if (this.mist && this.mistCount !== quality.mist) { this.scene.remove(this.mist); this.mist = null; }
+    this.mistCount = quality.mist ?? 26;
     if (!this.mist) this.buildMist();
     if (!this.bolt) this.buildBolt();
   }
@@ -163,7 +165,7 @@ export class Rain {
     const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0.25, color: 0xffffff, fog: true });
     this.mist = new THREE.Group();
     this.mistSprites = [];
-    for (let i = 0; i < 26; i++) {
+    for (let i = 0; i < this.mistCount; i++) {
       const s = new THREE.Sprite(mat);
       const a = Math.random() * Math.PI * 2, r = 12 + Math.random() * 70;
       s.userData = { a, r, y: 0.5 + Math.random() * 4, sz: 14 + Math.random() * 22, drift: (Math.random() - 0.5) * 0.02 };

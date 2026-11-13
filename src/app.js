@@ -379,6 +379,7 @@ export class App {
     if (crowd) crowd.update(frozen ? 0 : dt, t, { beat, cam: camPos, player: playerPos, rain: s.rainIntensity, frozen, hidePeople: photo && P.hidePeople, viewDist: eng.quality.viewDist });
     if (traffic) traffic.update(frozen ? 0 : dt, t, { settings: s, cam: camPos, obstacles: onRoad && !photo ? [playerPos] : [], peds: crowd ? crowd.crossing() : [], trafficMul: this.rhythm('traffic'), hour: s.timeOfDay, rhythmOn: s.cityRhythm, night: atm.night, haze: Math.min(1, s.fog * 0.6 + s.rainIntensity * 0.6), frozen, hideCars: photo && P.hideCars });
     for (const a of cb.animated) a.update(dt, t);
+    for (const lv of Object.values(cb.levels || {})) if (lv.trainMesh) lv.trainMesh.visible = this.player.level === lv.name;
     // ---- daily rhythm: open hours, bedtime windows and how busy the streets are
     U.uHour.value = ((s.timeOfDay % 24) + 24) % 24;
     U.uWinFrac.value = s.cityRhythm ? windowRhythm(s.timeOfDay) : 1;
@@ -467,11 +468,8 @@ export class App {
     for (const m of cb.shopMats) m.emissiveIntensity = s.storefronts * (0.45 + 0.8 * night) * 1.25;
     for (const m of cb.neonMats) m.color.setScalar(m.userData.base * s.neon * (0.35 + 0.65 * night) * (0.6 + 0.4 * s.reflNeon));
     // traffic signals
-    for (const axis of ['x', 'z']) {
-      const state = cb.signals.state(axis);
-      const on = { r: state === 'red', y: state === 'yellow', g: state === 'green' };
-      for (const k of ['r', 'y', 'g']) { const m = cb.mats.sig[axis][k]; m.color.copy(m.userData.base).multiplyScalar(on[k] ? 5 : 0.05); }
-    }
+    const sigIdx = (axis) => ({ red: 0, yellow: 1, green: 2 })[cb.signals.state(axis)];
+    if (cb.mats.sigLamp) { const u = cb.mats.sigLamp.userData.sig; u.uSigX.value = sigIdx('x'); u.uSigZ.value = sigIdx('z'); }
     // post
     const P = settings.photo;
     eng.bloom.strength = st.bloom * s.bloom * 0.55;

@@ -94,13 +94,18 @@ export function addSkyline(cb, o) {
     const bm = cb.track(new THREE.MeshBasicMaterial({ color: new THREE.Color(4, 0.3, 0.2), fog: false }));
     const bg = cb.track(new THREE.SphereGeometry(1.4, 6, 4));
     const tall = geos.filter((g) => { g.computeBoundingBox(); return g.boundingBox.max.y > o.hMax * 0.8; }).slice(0, 14);
-    for (const g of tall) {
-      const b = g.boundingBox;
-      const m = new THREE.Mesh(bg, bm);
-      m.position.set((b.min.x + b.max.x) / 2, b.max.y + 1.5, (b.min.z + b.max.z) / 2);
-      m.layers.set(LAYER_NO_REFLECT);
-      cb.group.add(m);
-      cb.animated.push({ update: (dt, t) => { m.visible = Math.sin(t * 2.2 + m.position.x) > -0.2; } });
+    if (tall.length) {
+      const im = new THREE.InstancedMesh(bg, bm, tall.length);
+      const pos = tall.map((g) => { const b = g.boundingBox; return new THREE.Vector3((b.min.x + b.max.x) / 2, b.max.y + 1.5, (b.min.z + b.max.z) / 2); });
+      const mtx = new THREE.Matrix4(), zero = new THREE.Matrix4().makeScale(0, 0, 0);
+      im.layers.set(LAYER_NO_REFLECT); im.frustumCulled = false;
+      cb.group.add(im);
+      let acc = 0;
+      cb.animated.push({ update: (dt, t) => {
+        acc += dt; if (acc < 0.1) return; acc = 0;
+        pos.forEach((p, i) => im.setMatrixAt(i, Math.sin(t * 2.2 + p.x) > -0.2 ? mtx.makeTranslation(p.x, p.y, p.z) : zero));
+        im.instanceMatrix.needsUpdate = true;
+      } });
     }
   }
   return mesh;

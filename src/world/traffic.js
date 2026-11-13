@@ -455,10 +455,17 @@ export class Traffic {
     }
     pools.sort((a, b) => a.d - b.d);
     this.dynPools = pools.slice(0, 10);
+    const usedBy = {};
+    for (const v of this.vehicles) usedBy[v.type] = Math.max(usedBy[v.type] || 0, v.idx + 1);
     for (const t2 of TYPES) {
       const M = this.meshes[t2];
-      for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra', 'trim', 'bumpers']) if (M[k]) { M[k].instanceMatrix.needsUpdate = true; if (M[k].instanceColor) M[k].instanceColor.needsUpdate = true; }
+      for (const k of ['body', 'glass', 'wheels', 'front', 'rear', 'extra', 'trim', 'bumpers']) if (M[k]) { M[k].count = usedBy[t2] || 0; M[k].instanceMatrix.needsUpdate = true; if (M[k].instanceColor) M[k].instanceColor.needsUpdate = true; }
     }
+    const bikes = usedBy.bike || 0;
+    for (const k of ['frame', 'rider', 'helmet', 'lamp', 'box']) this.bike[k].count = bikes;
+    this.bike.leg.count = bikes * 2;
+    let beamsUsed = 0; for (const v of this.vehicles) if (v.beam >= 0) beamsUsed = Math.max(beamsUsed, v.beam + 1);
+    this.beams.count = beamsUsed * 2;
     for (const k of ['frame', 'rider', 'helmet', 'leg', 'lamp', 'box']) this.bike[k].instanceMatrix.needsUpdate = true;
     this.beams.instanceMatrix.needsUpdate = true;
   }

@@ -27,7 +27,7 @@ const SHOPS = [
 async function build(cb, step) {
   const M = createMaterials(cb, cb.q, { sidewalk: '#7a756c', sidewalkKind: 'cobble', water: 0x1a2a26 });
   // stone-paved lanes instead of asphalt
-  M.asphalt = cb.track(patchGround(new THREE.MeshStandardMaterial({ map: cb.track(makePaving(12, { kind: 'cobble', base: '#5e5a54' })), roughness: 0.85, vertexColors: true }), { puddleScale: 1.1, taps: cb.q.reflTaps }));
+  M.asphalt = cb.track(patchGround(new THREE.MeshStandardMaterial({ map: cb.track(makePaving(12, { kind: 'cobble', base: '#5e5a54' })), roughness: 0.85, vertexColors: true }), { puddleScale: 1.1, taps: cb.q.reflTaps, pools: cb.q.pools ?? 40 }));
   cb.mats = M;
   cb.walkIns.push({ x: -28, z: 30, kind: 'tea', name: 'Willow Tea House' });
   const F = facadeMaterials(cb, [

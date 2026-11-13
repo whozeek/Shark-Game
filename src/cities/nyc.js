@@ -215,7 +215,7 @@ function pocketPark(cb, blk) {
   cb.col.addCircle(cx, cz, 2.7);
   // iron fence with entrances on each path
   const fence = (ax, az, bx, bz) => {
-    const len = Math.hypot(bx - ax, bz - az); const n = Math.floor(len / 0.25);
+    const len = Math.hypot(bx - ax, bz - az); const n = Math.floor(len / 0.4);
     cb.batch.beam(M.metal, new THREE.Vector3(ax, 1.05, az), new THREE.Vector3(bx, 1.05, bz), 0.04, 0x141714);
     cb.batch.beam(M.metal, new THREE.Vector3(ax, 0.3, az), new THREE.Vector3(bx, 0.3, bz), 0.03, 0x141714);
     for (let k = 0; k <= n; k++) { const f = k / n; const x = ax + (bx - ax) * f, z = az + (bz - az) * f; cb.batch.box(M.metal, x, 0.7, z, 0.025, 1.1, 0.025, 0x141714); }

@@ -105,7 +105,7 @@ uniform vec3 uPoolC[40];
 uniform float uPoolGain;
 vec3 raPools(vec3 wp){
   vec3 acc = vec3(0.0);
-  for (int i = 0; i < 40; i++) {
+  for (int i = 0; i < RA_POOLS; i++) {
     vec4 a = uPoolA[i];
     if (a.w <= 0.0) continue;
     vec2 d = wp.xz - a.xy;
@@ -162,7 +162,7 @@ function addUniforms(shader, extra = {}) {
  * Wet ground: darkens with moisture, gathers puddles, ripples with rain and samples the shared
  * planar reflection with blur/streak controls.
  */
-export function patchGround(mat, { puddleScale = 1, taps = 5 } = {}) {
+export function patchGround(mat, { puddleScale = 1, taps = 5, pools = 40 } = {}) {
   const extra = { uPuddleScale: { value: puddleScale } };
   mat.userData.raExtra = extra;
   mat.userData.noReflect = true;
@@ -227,9 +227,9 @@ export function patchGround(mat, { puddleScale = 1, taps = 5 } = {}) {
         }
         gl_FragColor.rgb += raRainbowCol(vRaWPos) * uRainbow * 0.025 * uWetness;
       `);
-    shader.fragmentShader = shader.fragmentShader.replace('#include <common>', `#define RA_TAPS ${taps}\n#include <common>`);
+    shader.fragmentShader = shader.fragmentShader.replace('#include <common>', `#define RA_TAPS ${taps}\n#define RA_POOLS ${pools}\n#include <common>`);
   };
-  mat.customProgramCacheKey = () => `ra-ground-${taps}`;
+  mat.customProgramCacheKey = () => `ra-ground-${taps}-${pools}`;
   return mat;
 }
 

@@ -247,9 +247,37 @@ export class Crowd {
     a.base = r.range(1.05, 1.5);
     a.latPref = r.range(0.15, 0.95);
     a.lat = this.latFor(a, a.latPref);
+    // never start inside a lamp post, tree pit, stoop or table
+    for (let tries = 0; tries < 8; tries++) {
+      const [lo, hi] = this.band(a);
+      const l = this.freeLat(a, a.lat, lo, hi);
+      if (l !== null) { a.lat = l; break; }
+      a.s = r.f() * e.len;
+    }
+    a.avoidT = 0;
     a.dog = false;
     // some people simply stand around (waiting, chatting, sheltering)
-    if (!atExit && r.chance(0.12) && e.kind === 'walk' && e.browse) { a.mode = 'stand'; a.timer = r.range(20, 90); a.latPref = 1.0; }
+    if (!atExit && r.chance(0.12) && e.kind === 'walk' && e.browse) {
+      const [lo, hi] = this.band(a);
+      const l = this.freeLat(a, this.towardBld(a) > 0 ? hi : lo, lo, hi, a.s, 0.35);
+      if (l !== null) { a.mode = 'stand'; a.timer = r.range(20, 90); a.latPref = 1.0; a.standLat = l; }
+    }
+  }
+  /** World position for a lateral offset at the agent's current spot on its edge. */
+  posAt(a, lat, s = a.s) {
+    const A = this.graph.nodes[a.from], B = this.graph.nodes[a.to], e = a.edge;
+    const dx = (B.x - A.x) / e.len, dz = (B.z - A.z) / e.len;
+    return [A.x + dx * s - dz * lat, A.z + dz * s + dx * lat];
+  }
+  /** Nearest lateral offset to `want` (within lo..hi, slightly widened) where nothing solid is in the way. */
+  freeLat(a, want, lo, hi, s = a.s, r = 0.3) {
+    if (!this.col) return want;
+    const ok = (l) => { const [x, z] = this.posAt(a, l, s); return !this.col.blocked(x, z, r); };
+    if (ok(want)) return want;
+    for (let d = 0.2; d <= 2.6; d += 0.2) {
+      for (const l of [want + d, want - d]) if (l >= lo - 0.7 && l <= hi + 0.7 && ok(l)) return l;
+    }
+    return null;
   }
   /** Map a 0..1 preference (0 = left edge of band, 1 = right/building edge) to a lateral offset. */
   band(a) {
@@ -346,7 +374,11 @@ export class Crowd {
             let best = null;
             for (const d of [0.5, -0.5, 1.0, -1.0, 1.5, -1.5, 2.0, -2.0]) { const l = a.lat + d; if (l >= lo - 0.6 && l <= hi + 0.6 && !probe(l)) { best = l; break; } }
             a.avoid = best ?? a.lat; a.avoidT = 1.6;
+            if (best === null) want = Math.min(want, 0.3);
           }
+          // already brushing something? slide straight to the nearest free spot
+          const here = this.freeLat(a, a.lat, lo, hi, a.s, 0.26);
+          if (here !== null && Math.abs(here - a.lat) > 0.01) { a.lat = here; a.avoid = here; a.avoidT = Math.max(a.avoidT, 0.8); }
         }
         if (a.avoidT > 0) { a.avoidT -= dt; latPush += a.avoid - this.latFor(a, a.latPref); }
         const target = Math.max(lo - 0.6, Math.min(hi + 0.6, this.latFor(a, a.latPref) + latPush));
@@ -354,7 +386,10 @@ export class Crowd {
         a.speed += (want - a.speed) * Math.min(1, dt * 2);
         a.s += a.speed * dt;
         // browse shop windows
-        if (e.browse && a.s > 2 && a.s < e.len - 3 && !a.followers.length && this.rng.f() < dt * 0.025) { a.mode = 'browse'; a.timer = this.rng.range(3, 9); }
+        if (e.browse && a.s > 2 && a.s < e.len - 3 && !a.followers.length && this.rng.f() < dt * 0.025) {
+          const l = this.freeLat(a, this.towardBld(a) > 0 ? hi : lo, lo, hi, a.s + 0.6, 0.35);
+          if (l !== null) { a.mode = 'browse'; a.timer = this.rng.range(3, 9); a.standLat = l; }
+        }
         if (a.s >= e.len) {
           const nxt = this.nextEdge(a);
           if (nxt === 'exit') {
@@ -382,7 +417,7 @@ export class Crowd {
         a.speed = Math.max(0, a.speed - dt * 3);
         a.s += a.speed * dt;
         const [lo, hi] = this.band(a);
-        const bSide = this.towardBld(a) > 0 ? hi : lo;
+        const bSide = a.standLat ?? (this.towardBld(a) > 0 ? hi : lo);
         a.lat += (bSide - a.lat) * Math.min(1, dt * 1.2);
         a.timer -= dt;
         if (a.timer <= 0) a.mode = 'walk';
@@ -394,12 +429,25 @@ export class Crowd {
         f.edge = a.edge; f.from = a.from; f.to = a.to; f.mode = a.mode === 'browse' ? 'browse' : a.mode;
         f.s = Math.max(0, a.s - 0.15 * (k + 1));
         const [lo, hi] = this.band(f);
-        f.lat = Math.max(lo, Math.min(hi, a.lat + f.gOff));
+        const wantF = Math.max(lo, Math.min(hi, a.lat + f.gOff));
+        const freeF = (frame + f.i) % 3 === 0 || f.lastFree === undefined ? this.freeLat(f, wantF, lo, hi, f.s, 0.26) : f.lastFree;
+        f.lastFree = freeF;
+        const tgtF = freeF ?? a.lat;
+        f.lat = f.lat === undefined || Math.abs(f.lat - tgtF) > 2.5 ? tgtF : f.lat + (tgtF - f.lat) * Math.min(1, (dt || 0.016) * 4);
         f.speed = a.speed;
         this.pose(f, dt, t, ctx, rainy, frame, a);
       }
     }
-    for (const k in this.M) this.M[k].instanceMatrix.needsUpdate = true;
+    // only draw the instance slots in use (hidden spare slots still cost vertex work otherwise)
+    let used = 0, twoDogs = false;
+    for (const a of this.agents) if (a.alive) { used = Math.max(used, a.i + 1); if (a.dog && a.dogs === 2) twoDogs = true; }
+    const N = this.max;
+    for (const k in this.M) {
+      const im = this.M[k]; const cap = im.instanceMatrix.count; const mult = cap / N;
+      const isDog = k.startsWith('dog');
+      im.count = isDog ? (twoDogs ? cap : Math.min(cap, used * mult / 2)) : Math.min(cap, used * mult);
+      im.instanceMatrix.needsUpdate = true;
+    }
     this.leashGeo.attributes.position.needsUpdate = true;
   }
   towardBld(a) {
