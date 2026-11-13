@@ -43,8 +43,11 @@ for (const sc of scenes) {
       if (go === 'subway') { const st = cb.levels.subway.train; st.phase = 'arriving'; st.t = 0; P.yaw = -Math.PI / 2 - 0.5; P.pitch = 0.0; P.x += 10; }
     } else if (go === 'park') { P.x = 20; P.z = 52; P.yaw = 0.6; P.pitch = 0.05; }
     for (let i = 0; i < (go === 'subway' ? 420 : 30); i++) a.update(1 / 30);
-    a.renderFrame();
+    // let the app's own loop draw a few frames so the screenshot captures a live canvas
+    window.__done = false; a.maxFrames = a.frameCount + 3; a.last = performance.now();
+    requestAnimationFrame((t) => a.frame(t));
   }, sc.go);
+  await p.waitForFunction(() => window.__done, null, { timeout: 300000 });
   await p.screenshot({ path: `${out}/tour-${sc.id}.png` });
   if (errs.length) console.log(sc.id, errs);
   await p.close();
