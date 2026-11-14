@@ -1028,4 +1028,42 @@ ADS = [
                "worried", others="sad", set="home_night"),
              M("Did you read the whole thread?"),
          ], close="Do you give it to them, or keep it?"),
+
+    # Trend: Reddit story about overtime making a team miss the last bus home (TwistedSifter, Nov 14 2026)
+    dict(id="l055_the_last_bus", title="The Last Bus", made_on="2026-11-14",
+         hook="what did your manager text?",
+         thread=dict(contact="Manager", stamp="Tue 9:15 PM", msgs=[
+             "need the order out tonight",
+             "client is threatening to leave",
+             "I know the bus is at 10",
+             "can they grab a ride share?",
+             "your call",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You run the night shift. Your manager wants everyone to stay late.", ["coworker", "you"], "say",
+               ["🏭", "⏰", "📦"], "worried", others="worried", set="office"),
+             S("If they stay, half your team misses the last bus home.", ["you"], "think", ["🚌", "🌙", "🤔"],
+               "worried", set="office"),
+             M("Did you read the whole thread?"),
+         ], close="Do you keep the team late, or send them home?"),
+
+    # Trend: Reddit story about a neighbor asked to sign off on next-door construction plans (TwistedSifter, Nov 14 2026)
+    dict(id="l056_the_sign_off", title="The Sign-Off", made_on="2026-11-14",
+         hook="what does the note say?",
+         note=dict(title="Hi neighbor!", lines=[
+             "Building a patio this spring",
+             "City needs your signature",
+             "It’ll be close to your trees",
+             "We’ll be careful, promise!",
+             "Thanks! 🌿",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Your new neighbors are friendly. They want to build a patio.", ["stranger", "you"], "say",
+               ["🏡", "🔨", "😊"], "happy", others="happy", set="yard"),
+             S("The city needs your signature. The plan comes close to your old trees.", ["you"], "think",
+               ["📝", "🌳", "🤔"], "worried", set="yard"),
+             M("Did you catch the whole note?"),
+         ], close="Do you sign it, or ask them to change the plan?"),
 ]

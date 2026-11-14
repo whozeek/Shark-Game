@@ -144,13 +144,15 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 137 | 2026-12-16 | 12:00 PM | short | The Appliances | `moraloop_ads/trends/t054_the_appliances.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t054_the_appliances.mp4) |
 | 138 | 2026-12-16 | 12:30 PM | loop short | The Rare Find | `moraloop_ads/loops/l054_the_rare_find.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l054_the_rare_find.mp4) |
 | 139 | 2026-12-17 | 12:00 PM | short | The Holiday Party | `moraloop_ads/trends/t055_the_holiday_party.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t055_the_holiday_party.mp4) |
-| 140 | 2026-12-18 | 12:00 PM | short | The Bathroom | `moraloop_ads/trends/t056_the_bathroom.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t056_the_bathroom.mp4) |
-| 141 | 2026-12-19 | 12:00 PM | short | The Private Room | `moraloop_ads/trends/t057_the_private_room.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t057_the_private_room.mp4) |
-| 142 | 2026-12-20 | 12:00 PM | short | The Honeymoon | `moraloop_ads/trends/t058_the_honeymoon.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t058_the_honeymoon.mp4) |
-| 143 | 2026-12-21 | 12:00 PM | short | The No-Show Fee | `moraloop_ads/trends/t059_the_no_show_fee.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t059_the_no_show_fee.mp4) |
-| 144 | 2026-12-22 | 12:00 PM | short | The Cutback | `moraloop_ads/trends/t060_the_cutback.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t060_the_cutback.mp4) |
-| 145 | 2026-12-23 | 12:00 PM | short | Raise or Promotion | `moraloop_ads/trends/t061_raise_or_promotion.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t061_raise_or_promotion.mp4) |
-| 146 | 2026-12-24 | 12:00 PM | short | The Wrong Gift | `moraloop_ads/trends/t062_the_wrong_gift.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t062_the_wrong_gift.mp4) |
+| 140 | 2026-12-17 | 12:30 PM | loop short | The Last Bus | `moraloop_ads/loops/l055_the_last_bus.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l055_the_last_bus.mp4) |
+| 141 | 2026-12-18 | 12:00 PM | short | The Bathroom | `moraloop_ads/trends/t056_the_bathroom.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t056_the_bathroom.mp4) |
+| 142 | 2026-12-18 | 12:30 PM | loop short | The Sign-Off | `moraloop_ads/loops/l056_the_sign_off.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/loops/l056_the_sign_off.mp4) |
+| 143 | 2026-12-19 | 12:00 PM | short | The Private Room | `moraloop_ads/trends/t057_the_private_room.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t057_the_private_room.mp4) |
+| 144 | 2026-12-20 | 12:00 PM | short | The Honeymoon | `moraloop_ads/trends/t058_the_honeymoon.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t058_the_honeymoon.mp4) |
+| 145 | 2026-12-21 | 12:00 PM | short | The No-Show Fee | `moraloop_ads/trends/t059_the_no_show_fee.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t059_the_no_show_fee.mp4) |
+| 146 | 2026-12-22 | 12:00 PM | short | The Cutback | `moraloop_ads/trends/t060_the_cutback.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t060_the_cutback.mp4) |
+| 147 | 2026-12-23 | 12:00 PM | short | Raise or Promotion | `moraloop_ads/trends/t061_raise_or_promotion.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t061_raise_or_promotion.mp4) |
+| 148 | 2026-12-24 | 12:00 PM | short | The Wrong Gift | `moraloop_ads/trends/t062_the_wrong_gift.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t062_the_wrong_gift.mp4) |
 
 ## Captions
 
@@ -1405,7 +1407,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #holidays #couples
 ```
 
-### 140. 2026-12-18 12:00 PM: The Bathroom (short)
+### 140. 2026-12-17 12:30 PM: The Last Bus (loop short)
+Video: `moraloop_ads/loops/l055_the_last_bus.mp4`
+
+```
+Your manager wants the night shift to stay late, but half your team would miss the last bus. Do you keep the team late, or send them home? Did you read the whole thread? 👀 Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #work #manager #nightshift
+```
+
+### 141. 2026-12-18 12:00 PM: The Bathroom (short)
 Video: `moraloop_ads/trends/t056_the_bathroom.mp4`
 
 ```
@@ -1414,7 +1425,16 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #party #hosting #etiquette
 ```
 
-### 141. 2026-12-19 12:00 PM: The Private Room (short)
+### 142. 2026-12-18 12:30 PM: The Sign-Off (loop short)
+Video: `moraloop_ads/loops/l056_the_sign_off.mp4`
+
+```
+Your friendly new neighbors need your signature for a patio that comes close to your old trees. Do you sign it, or ask them to change the plan? Did you catch the whole note? 👀 What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #neighbors #homeowner #trees
+```
+
+### 143. 2026-12-19 12:00 PM: The Private Room (short)
 Video: `moraloop_ads/trends/t057_the_private_room.mp4`
 
 ```
@@ -1423,7 +1443,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #roommates #apartmentlife #boundaries
 ```
 
-### 142. 2026-12-20 12:00 PM: The Honeymoon (short)
+### 144. 2026-12-20 12:00 PM: The Honeymoon (short)
 Video: `moraloop_ads/trends/t058_the_honeymoon.mp4`
 
 ```
@@ -1432,7 +1452,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #wedding #family #inlaws
 ```
 
-### 143. 2026-12-21 12:00 PM: The No-Show Fee (short)
+### 145. 2026-12-21 12:00 PM: The No-Show Fee (short)
 Video: `moraloop_ads/trends/t059_the_no_show_fee.mp4`
 
 ```
@@ -1441,7 +1461,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #smallbusiness #salon #customerservice
 ```
 
-### 144. 2026-12-22 12:00 PM: The Cutback (short)
+### 146. 2026-12-22 12:00 PM: The Cutback (short)
 Video: `moraloop_ads/trends/t060_the_cutback.mp4`
 
 ```
@@ -1450,7 +1470,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #money #couples
 ```
 
-### 145. 2026-12-23 12:00 PM: Raise or Promotion (short)
+### 147. 2026-12-23 12:00 PM: Raise or Promotion (short)
 Video: `moraloop_ads/trends/t061_raise_or_promotion.mp4`
 
 ```
@@ -1459,7 +1479,7 @@ More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #career #work #money
 ```
 
-### 146. 2026-12-24 12:00 PM: The Wrong Gift (short)
+### 148. 2026-12-24 12:00 PM: The Wrong Gift (short)
 Video: `moraloop_ads/trends/t062_the_wrong_gift.mp4`
 
 ```
