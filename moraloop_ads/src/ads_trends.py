@@ -485,4 +485,20 @@ ADS = [
         S("You ask to cut back. They want to keep a few things that keep them sane.", ["partner", "you"], "say",
           ["✂️", "💳", "🧘"], "worried", others="worried", set="home"),
     ], close="Do you insist on cutting back, or let them keep a few things?"),
+
+    # Trend: Reddit post about being offered a big raise to stay in a role instead of taking a promotion (Daily Dot, Nov 13 2026)
+    dict(id="t061_raise_or_promotion", title="Raise or Promotion", made_on="2026-11-14", beats=[
+        S("You’re up for a promotion. A bigger title and a new team.", ["boss", "you"], "say", ["📈", "🏆", "👥"],
+          "happy", set="office"),
+        S("Then your boss offers a big raise instead, if you stay in your role two more years.", ["boss", "you"],
+          "say", ["💵", "⏳", "🪑"], "shock", set="office"),
+    ], close="Do you take the raise, or the promotion?"),
+
+    # Trend: Reddit story about a mom who bought the exact birthday handbag her daughter said she disliked (TwistedSifter, Nov 14 2026)
+    dict(id="t062_the_wrong_gift", title="The Wrong Gift", made_on="2026-11-14", beats=[
+        S("Your mom buys you an expensive bag for your birthday. It’s the one you said you didn’t like.",
+          ["elder", "you"], "give", ["👜", "🎁", "😬"], "worried", set="home"),
+        S("She’s so proud of it. It still has the receipt.", ["elder", "you"], "say", ["😊", "🧾", "👜"],
+          "worried", set="home"),
+    ], close="Do you return it, or keep it?"),
 ]

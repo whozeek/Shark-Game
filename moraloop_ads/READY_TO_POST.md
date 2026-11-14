@@ -149,6 +149,8 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 142 | 2026-12-20 | 12:00 PM | short | The Honeymoon | `moraloop_ads/trends/t058_the_honeymoon.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t058_the_honeymoon.mp4) |
 | 143 | 2026-12-21 | 12:00 PM | short | The No-Show Fee | `moraloop_ads/trends/t059_the_no_show_fee.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t059_the_no_show_fee.mp4) |
 | 144 | 2026-12-22 | 12:00 PM | short | The Cutback | `moraloop_ads/trends/t060_the_cutback.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t060_the_cutback.mp4) |
+| 145 | 2026-12-23 | 12:00 PM | short | Raise or Promotion | `moraloop_ads/trends/t061_raise_or_promotion.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t061_raise_or_promotion.mp4) |
+| 146 | 2026-12-24 | 12:00 PM | short | The Wrong Gift | `moraloop_ads/trends/t062_the_wrong_gift.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t062_the_wrong_gift.mp4) |
 
 ## Captions
 
@@ -1446,5 +1448,23 @@ Video: `moraloop_ads/trends/t060_the_cutback.mp4`
 Your partner quit a job that was wearing them down. Money is tight. Insist on cutting back, or let them keep a few things? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #relationships #money #couples
+```
+
+### 145. 2026-12-23 12:00 PM: Raise or Promotion (short)
+Video: `moraloop_ads/trends/t061_raise_or_promotion.mp4`
+
+```
+You’re up for a promotion. Then your boss offers a big raise if you stay in your role two more years. Raise, or promotion? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #career #work #money
+```
+
+### 146. 2026-12-24 12:00 PM: The Wrong Gift (short)
+Video: `moraloop_ads/trends/t062_the_wrong_gift.mp4`
+
+```
+Your mom proudly gives you an expensive bag you said you didn’t like. It still has the receipt. Return it, or keep it? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #family #gifts #birthday
 ```
 
