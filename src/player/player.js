@@ -35,7 +35,10 @@ export class Player {
     this.vx = this.vz = 0; this.seat = null; this.level = null;
     this.ground = this.cb.groundAt ? this.cb.groundAt(this.x, this.z) : 0.15;
   }
-  sit(seat) {
+  /** Remember where the camera is so the next move eases over instead of jumping. */
+  beginGlide(dur = 1.4) { this.glide = { x: this.camera.position.x, y: this.camera.position.y, z: this.camera.position.z, t: 0, dur }; }
+  sit(seat, glide = false) {
+    if (glide) this.beginGlide();
     this.seat = seat; this.vx = this.vz = 0;
     this.preSeat = { x: this.x, z: this.z };
     this.yaw = seat.yaw; this.pitch = -0.02;
@@ -65,7 +68,7 @@ export class Player {
     if (this.seat) {
       const s = this.seat;
       this.x = s.x; this.z = s.z; this.ground = s.y;
-      if (c.moving()) { const m = c.readMove(); if (Math.abs(m.z) > 0.3 || Math.abs(m.x) > 0.3) this.stand(); }
+      if (!c.walkLocked && c.moving()) { const m = c.readMove(); if (Math.abs(m.z) > 0.3 || Math.abs(m.x) > 0.3) this.stand(); }
     } else {
       const m = c.readMove();
       const base = 1.45 * settings.walkSpeed * (m.run ? 1.9 : 1);
@@ -104,6 +107,12 @@ export class Player {
     const eye = this.seat ? 1.14 : this.eye;
     const rx = Math.cos(this.yaw), rz = -Math.sin(this.yaw);
     this.camera.position.set(this.x + rx * bx, this.ground + eye + by, this.z + rz * bx);
+    if (this.glide) {
+      const g = this.glide; g.t += dt;
+      const k = Math.min(1, g.t / g.dur), e = k * k * (3 - 2 * k);
+      this.camera.position.set(g.x + (this.camera.position.x - g.x) * e, g.y + (this.camera.position.y - g.y) * e, g.z + (this.camera.position.z - g.z) * e);
+      if (k >= 1) this.glide = null;
+    }
     this.camera.rotation.set(this.pitch + this.lookPitchOff, this.yaw + this.lookYawOff, bobOn ? Math.cos(this.bob) * 0.004 * amp : 0, 'YXZ');
   }
 }

@@ -143,8 +143,16 @@ export function building(cb, b, o) {
     for (let i = 0; i < uv.count; i++) uv.setXY(i, offU + uv.getX(i) * u1, offV + (isFront ? 0 : 0.0) + uv.getY(i) * vh);
     cb.batch.addGeometry(g, F.mat);
     if (isFront && gfH > 0 && o.walkIn) {
+      const nSeats = cb.seats.length;
       const w = walkInShop(cb, b, side, H, { ...o.walkIn, base: y0, gfH, doorLeft: cb.rng.chance(0.5) });
-      if (o.walkIn.rooftop) rooftop(cb, b, H, w.stairs, 'rooftop', side);
+      const inSeat = cb.seats.slice(nSeats).find((q) => /window seat|chair|cushion|table/.test(q.label));
+      const ps = cb.placeStops || (cb.placeStops = []);
+      if (inSeat) ps.push({ x: w.door[0], z: w.door[1], label: `Step into ${o.walkIn.name}`, target: { level: null, seat: inSeat }, indoor: true });
+      if (o.walkIn.rooftop) {
+        const lv = rooftop(cb, b, H, w.stairs, 'rooftop', side);
+        const along = (side === 'n' || side === 's') ? [3.2, 0] : [0, 3.2];
+        ps.push({ x: w.door[0] + along[0], z: w.door[1] + along[1], label: 'Go up to the rooftop terrace', target: { level: 'rooftop', seat: lv.seats[1] } });
+      }
     } else if (isFront && gfH > 0) {
       if (o.ground === 'shop' && o.shop) {
         const s = o.shop; const a = s.atlas;

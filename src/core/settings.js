@@ -35,11 +35,12 @@ export const DEFAULTS = {
   // City & movement
   city: 'nyc',
   mode: 'walk',
+  route: '',
   reducedMotion: false,
   headBob: true,
   lookSensitivity: 1,
   invertY: false,
-  walkSpeed: 1,
+  walkSpeed: 0.9,
   umbrella: true,
   showMinimap: true,
   // Weather

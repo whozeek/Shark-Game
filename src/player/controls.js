@@ -45,7 +45,7 @@ export class Controls {
     if (e.pointerType === 'touch') {
       const w = window.innerWidth, h = window.innerHeight;
       // left-bottom area: virtual stick
-      if (e.clientX < w * 0.42 && e.clientY > h * 0.45 && !this.stick) {
+      if ((!this.walkLocked || this.photoActive) && e.clientX < w * 0.42 && e.clientY > h * 0.45 && !this.stick) {
         this.stick = { id: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY };
         this.ui?.showStick?.(this.stick);
       } else {
@@ -117,6 +117,7 @@ export class Controls {
     if (this.touchMove.x || this.touchMove.z) { x += this.touchMove.x; z -= this.touchMove.z; }
     if (this.padMove) { x += this.padMove.x; z -= this.padMove.z; }
     if (this.uiMove) { x += this.uiMove.x; z += this.uiMove.z; }
+    if (this.walkLocked && !this.flyMode && !this.photoActive) { x = 0; z = 0; }
     const len = Math.hypot(x, z);
     if (len > 1) { x /= len; z /= len; }
     return { x, z, run: k.has('Shift') || !!this.padRun };

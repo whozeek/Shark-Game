@@ -53,7 +53,7 @@ async function build(cb, step) {
   // walk-in places: a café (with a rooftop terrace upstairs) and a laundromat
   cb.walkIns.push({ x: -4, z: 0, kind: 'cafe', name: 'Hudson & Ivy Café', rooftop: true });
   cb.walkIns.push({ x: -36, z: -5, kind: 'laundry', name: 'Spin Cycle Laundromat' });
-  cb.keepClear = [[-1.8, 46.5, 3.5]];
+  cb.keepClear = [[-1.2, 62.4, 4]];
   const F = facadeMaterials(cb, [
     { wall: 'stone', color: '#6b4636', trim: '#5a3a2c', lintel: '#7d5644', frame: '#e6dccb', windowStyle: 'tall', bays: 3, bayW: 2.3, floorH: 3.3, litRatio: 0.5, seed: 11 },
     { wall: 'brick', color: '#8a3b2a', mortar: '#9b9184', trim: '#ece4d4', windowStyle: 'sash', bays: 4, bayW: 2.5, bands: false, litRatio: 0.45, seed: 23, flowerBoxes: true },
@@ -169,7 +169,7 @@ async function build(cb, step) {
   cb.keepClear.push([-10.6, 18, 5.5]);
   furnishStreets(cb, layout, grid);
   cartOnKerb(cb, -11.0, -6, -Math.PI / 2, 'hotdog');
-  subwayStation(cb, [-1.8, 46.5], { name: 'Perry St' });
+  subwayStation(cb, [-1.2, 62.4], { name: 'Perry St' });
   cartOnKerb(cb, 142, 60, -Math.PI / 2, 'coffee');
   await step(0.72, 'Planting trees and lamps');
 
@@ -185,8 +185,14 @@ async function build(cb, step) {
     { x: -20 + 8 + 2.6, z: 32 - 4 - 2.1, look: [-20, 4, -600], label: 'Skyline up Hudson St' },
     { x: 20, z: 60, look: [20, 2, 80], label: 'Pocket park' },
   ];
-  cb.routeHint = [
-    [38, 38.1], [-9.4, 38.1], [-9.4, 95.9], [56, 95.9], [56, 38.1],
+  cb.routeHint = [[-9.4, 18], [-9.4, -31.1], [55.35, -31.1], [55.35, 25.6], [-9.4, 25.6]];
+  // guided walks (sidewalk centre lines; the route follows sidewalks and crosswalks between these)
+  cb.routes = [
+    { id: 'cafe', name: 'Café Corner Loop', desc: 'Up Hudson St past the café, round the block by W 11th and Perry', hint: cb.routeHint },
+    { id: 'park', name: 'Pocket Park & Subway', desc: 'Through the little park and its fountain, past the subway, back along Charles St',
+      hint: [[-9.4, 38.4], [-9.4, 66.75], [10.9, 66.75], [23.1, 54.55], [35.3, 66.75], [55.35, 66.75], [55.35, 95.1], [-9.4, 95.1]] },
+    { id: 'village', name: 'Long Village Walk', desc: 'Up Hudson past the laundromat, along leafy Bank St, back by Greenwich Ave and Charles St',
+      hint: [[-30.6, 25.6], [-30.6, -101.7], [126.7, -101.7], [126.7, 95.1], [-30.6, 95.1]] },
   ];
   await step(0.8, 'Lighting windows');
 }
@@ -264,7 +270,10 @@ function pocketPark(cb, blk) {
     for (const m of G.nodes) { if (m.id === id) continue; const d = Math.hypot(m.x - nd.x, m.z - nd.z); if (d < bd && d < 12 && m.y !== 0.19) { bd = d; best = m; } }
     // project onto the nearest sidewalk: add a node on the sidewalk straight out from the gate
     const out = { [north]: [0, -1], [south]: [0, 1], [west]: [-1, 0], [east]: [1, 0] }[id];
-    const sw = G.node(nd.x + out[0] * 2.1, nd.z + out[1] * 2.1);
+    // land exactly on the sidewalk's centre line so the gate path joins the sidewalk network
+    const st = { [north]: blk.streets.n, [south]: blk.streets.s, [west]: blk.streets.w, [east]: blk.streets.e }[id];
+    const half = (st?.walk ?? 4.2) / 2;
+    const sw = G.node(nd.x + out[0] * half, nd.z + out[1] * half);
     e(id, sw);
     // split the sidewalk edge that passes through `sw`
     splitEdgeAt(G, sw);

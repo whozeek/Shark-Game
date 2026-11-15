@@ -345,6 +345,7 @@ export function subwayStation(cb, entrance, o = {}) {
       if (train.position.x > cx + L / 2 + 140) { st.phase = 'away'; st.t = 45 + Math.random() * 30; train.position.x = cx - 400; }
     }
   } });
+  (cb.placeStops || (cb.placeStops = [])).push({ x: entrance[0] + (o.exitDx ?? 0), z: entrance[1] + (o.exitDz ?? 2.6), label: `Go down to the ${o.name || ''} platform`.replace('  ', ' '), target: { level: 'subway', seat: lv.seats[2] || lv.seats[0] } });
   // entrance kiosk on the street: railings, lamp globes, stairs going down
   const [ex, ez] = entrance;
   const ey = 0.15;
@@ -392,6 +393,7 @@ export function elevatedPlatform(cb, S, x0, x1, y, stairsAt, o = {}) {
   cb.batch.beam(M.metal, v3(sx - 1.5, 1.1, sz - 0.85), v3(sx + 3, 7.6, sz - 0.85), 0.05, 0x2a2d30);
   cb.batch.beam(M.metal, v3(sx - 1.5, 1.1, sz + 0.85), v3(sx + 3, 7.6, sz + 0.85), 0.05, 0x2a2d30);
   cb.col.addRect(sx - 0.8, sz - 0.9, sx + 3.2, sz + 0.9);
+  (cb.placeStops || (cb.placeStops = [])).push({ x: sx - 2.2, z: sz, label: 'Climb up to the elevated platform', target: { level: 'lplatform', seat: lv.seats[1] || lv.seats[0] } });
   portal(cb, null, sx - 2.2, sz, 'Climb up to the elevated platform', { level: 'lplatform', x: x0 + 2.5, z: (z0 + z1) / 2, yaw: -Math.PI / 2 });
   portal(cb, 'lplatform', x0 + 1.4, (z0 + z1) / 2, 'Take the stairs back down', { level: null, x: sx - 2.6, z: sz });
   return lv;

@@ -9,9 +9,14 @@ export class Stroll {
   }
   setCity(cb, crowd, traffic) {
     this.cb = cb; this.crowd = crowd; this.traffic = traffic;
-    const G = cb.graph;
-    const hint = cb.routeHint || autoHint(cb);
-    const ids = hint.map(([x, z]) => G.nearestNode(x, z, (n) => n.edges.length > 0)?.id).filter((v) => v !== undefined);
+    const defs = cb.routes?.length ? cb.routes : [{ id: 'loop', name: 'Neighbourhood loop', desc: 'A gentle loop around the blocks', hint: cb.routeHint || autoHint(cb) }];
+    this.routes = defs.map((d) => this.buildRoute(d)).filter((r) => r.pts.length > 1);
+    this.select(this.routes[0]?.id);
+  }
+  /** Turn a list of hint points into a loop that follows sidewalks and crosswalks. */
+  buildRoute(def) {
+    const cb = this.cb, G = cb.graph;
+    const ids = def.hint.map(([x, z]) => G.nearestNode(x, z, (n) => n.edges.length > 0)?.id).filter((v) => v !== undefined);
     const route = [];
     for (let i = 0; i < ids.length; i++) {
       const a = ids[i], b = ids[(i + 1) % ids.length];
@@ -21,16 +26,60 @@ export class Stroll {
       route.push(...p);
     }
     if (route.length > 1 && route[route.length - 1] === route[0]) route.pop();
-    this.route = route;
-    // precompute cumulative lengths
-    this.pts = route.map((id) => G.nodes[id]);
-    this.cum = [0];
-    for (let i = 0; i < this.pts.length; i++) {
-      const a = this.pts[i], b = this.pts[(i + 1) % this.pts.length];
-      this.cum.push(this.cum[i] + Math.hypot(b.x - a.x, b.z - a.z));
+    const pts = route.map((id) => G.nodes[id]);
+    const cum = [0];
+    for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; cum.push(cum[i] + Math.hypot(b.x - a.x, b.z - a.z)); }
+    const r = { ...def, route, pts, cum, total: cum[cum.length - 1] || 1 };
+    // stops along the way: benches and stoops beside the route, and special places (café, rooftop, subway)
+    const near = (x, z, lim) => { const sv = this.nearestOn(r, x, z); return sv.d < lim ? sv.s : null; };
+    r.stops = [];
+    for (const seat of cb.seats) {
+      if ((cb.indoors || []).some((q) => seat.x > q.x0 && seat.x < q.x1 && seat.z > q.z0 && seat.z < q.z1)) continue;
+      const sv = near(seat.x, seat.z, 3.4);
+      if (sv !== null) r.stops.push({ s: sv, kind: 'seat', seat, label: `Sit on the ${seat.label}` });
     }
-    this.total = this.cum[this.cum.length - 1] || 1;
-    this.viewpoints = (cb.viewpoints || []).map((v) => ({ ...v, s: this.nearestS(v.x, v.z) }));
+    for (const pl of cb.placeStops || []) {
+      const sv = near(pl.x, pl.z, 4.5);
+      if (sv !== null) r.stops.push({ s: sv, kind: 'place', place: pl, label: pl.label });
+    }
+    r.stops.sort((a, b) => a.s - b.s);
+    r.viewpoints = (cb.viewpoints || []).map((v) => ({ ...v, s: this.nearestOn(r, v.x, v.z).s })).filter((v) => this.nearestOn(r, v.x, v.z).d < 8);
+    return r;
+  }
+  nearestOn(r, x, z) {
+    let best = 0, bd = Infinity;
+    for (let i = 0; i < r.pts.length; i++) {
+      const a = r.pts[i], b = r.pts[(i + 1) % r.pts.length];
+      const dx = b.x - a.x, dz = b.z - a.z, L = Math.hypot(dx, dz) || 1;
+      const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / (L * L)));
+      const d = (a.x + dx * t - x) ** 2 + (a.z + dz * t - z) ** 2;
+      if (d < bd) { bd = d; best = r.cum[i] + t * L; }
+    }
+    return { s: best, d: Math.sqrt(bd) };
+  }
+  select(id) {
+    const r = this.routes.find((x) => x.id === id) || this.routes[0];
+    if (!r) return null;
+    this.current = r;
+    this.route = r.route; this.pts = r.pts; this.cum = r.cum; this.total = r.total; this.viewpoints = r.viewpoints;
+    this.stops = r.stops;
+    this.s = 0;
+    return r;
+  }
+  /** Where the route starts, and which way it heads. */
+  startPose() {
+    const a = this.at(0), b = this.at(2);
+    return { x: a.x, z: a.z, yaw: Math.atan2(-(b.x - a.x), -(b.z - a.z)) };
+  }
+  /** The stop you're passing right now, if any. */
+  stopHere() {
+    if (!this.stops?.length) return null;
+    let best = null, bd = 3.2;
+    for (const st of this.stops) {
+      let d = Math.abs(st.s - this.s); d = Math.min(d, this.total - d);
+      if (d < bd) { bd = d; best = st; }
+    }
+    return best;
   }
   nearestS(x, z) {
     let best = 0, bd = Infinity;
@@ -57,17 +106,16 @@ export class Stroll {
     const a = this.route[i], b = this.route[(i + 1) % this.route.length];
     return this.cb.graph.edgeBetween(a, b);
   }
-  start() {
+  start(keepPlace = false) {
     if (!this.pts.length) return false;
     const p = this.player;
-    if (p.seat) p.stand();
-    this.s = this.nearestS(p.x, p.z);
+    if (!keepPlace) this.s = this.nearestS(p.x, p.z);
     this.active = true;
     this.speed = 0; this.wait = 0; this.pause = 0; this.lookOff = 0; this.lookPitch = 0; this.lookTimer = 4;
     this.heading = p.yaw; this.userYaw = 0; this.userPitch = 0;
     this.visited = new Set();
     this.nextBrowse = 40 + Math.random() * 40;
-    this.status = 'Strolling';
+    this.status = 'Walking';
     return true;
   }
   stop() {
@@ -90,9 +138,9 @@ export class Stroll {
     if (this.userT <= 0) { this.userYaw *= 1 - Math.min(1, dt * 0.6); this.userPitch *= 1 - Math.min(1, dt * 0.6); }
     this.userPitch = Math.max(-1.1, Math.min(1.1, this.userPitch));
 
-    const target = 1.12 * settings.walkSpeed;
+    const target = 0.95 * settings.walkSpeed;
     let want = target;
-    this.status = 'Strolling';
+    this.status = 'Walking';
     const cur = this.at(this.s);
     // pause points
     if (this.pause > 0) {
@@ -120,16 +168,17 @@ export class Stroll {
       const A = ahead.a, B = ahead.b;
       const ok = this.cb.signals.canWalk(eNext.axis, Math.min(eNext.len / 1.1 + 2, 8));
       const x0 = Math.min(A.x, B.x) - 1.5, x1 = Math.max(A.x, B.x) + 1.5, z0 = Math.min(A.z, B.z) - 1.5, z1 = Math.max(A.z, B.z) + 1.5;
-      const busy = this.traffic && this.traffic.occupied(x0, z0, x1, z1, 3, eNext.axis);
+      const busy = !this.paused && this.traffic && this.traffic.occupied(x0, z0, x1, z1, 3, eNext.axis);
       if (!ok || busy) { want = 0; this.status = ok ? 'Waiting for traffic' : 'Waiting to cross'; this.waitLook = eNext; }
       else this.waitLook = null;
     } else this.waitLook = null;
     // people in the way
     const dirx = ahead.x - cur.x, dirz = ahead.z - cur.z, dl = Math.hypot(dirx, dirz) || 1;
     if (this.crowd && this.crowd.blockedAhead(p.x, p.z, dirx / dl, dirz / dl, 1.5)) { want = Math.min(want, 0.25); this.status = 'Making way'; }
-    this.speed += (want - this.speed) * Math.min(1, dt * (want < this.speed ? 3 : 1.2));
+    if (this.paused) { want = 0; this.status = 'Paused'; }
+    this.speed += (want - this.speed) * Math.min(1, dt * (want < this.speed ? 1.8 : 0.9));
     // move a "carrot" along the route; the walker eases toward it (rounds corners naturally)
-    const carrot = this.at(this.s + 1.4);
+    const carrot = this.at(this.s + 1.8);
     const dx = carrot.x - p.x, dz = carrot.z - p.z, d = Math.hypot(dx, dz);
     if (d < 2.4) this.s += this.speed * dt;
     if (this.s > this.total) this.s -= this.total;
@@ -156,7 +205,7 @@ export class Stroll {
     // heading & look-around
     if (d > 0.3) {
       const hd = Math.atan2(-dx, -dz);
-      this.heading = lerpAngle(this.heading, hd, Math.min(1, dt * (reduced ? 0.9 : 1.6)));
+      this.heading = lerpAngle(this.heading, hd, Math.min(1, dt * (reduced ? 0.7 : 1.1)));
     }
     let lookYaw = 0, lookPitch = 0;
     if (this.pause > 0 && this.pauseLook) {

@@ -70,13 +70,13 @@ export class UI {
     s.innerHTML = `
       <div class="start-card glass">
         <h1 class="brand">Rainfall <em>Avenue</em></h1>
-        <p class="tagline">Wander rainy city streets at your own pace, or sit back while a scenic stroll walks for you — with original lo-fi music and the sound of rain.</p>
+        <p class="tagline">Take a slow walk through rainy streets along a route of your choosing. Look wherever you like, and sit down along the way — with original lo-fi music and the sound of rain.</p>
         <div class="progress" aria-hidden="true"><i></i></div>
         <div class="load-label" role="status" aria-live="polite">Preparing the city…</div>
         <div class="row-btns" hidden>
-          <button class="btn primary" data-go="sound">Step outside ♪</button>
-          <button class="btn" data-go="stroll">Start scenic stroll</button>
-          <button class="linkish" data-go="quiet">Enter without sound</button>
+          <button class="btn primary" data-go="sound">▶ Start walking ♪</button>
+          <button class="btn" data-go="look">Look around first</button>
+          <button class="linkish" data-go="quiet">Walk without sound</button>
         </div>
         <div class="err" hidden></div>
         <p class="note" style="margin-top:14px">Simulated weather. City layouts, façades and skylines are artistic interpretations — not exact maps.</p>
@@ -123,14 +123,15 @@ export class UI {
     this.place = el('div', { class: 'hud-top-left glass', 'aria-live': 'polite' });
     hud.appendChild(this.place);
     const tr = el('div', { class: 'hud-top-right', role: 'toolbar', 'aria-label': 'Quick controls' });
-    this.modeBtn = el('button', { class: 'mode-pill', 'aria-label': 'Switch between free walk and scenic stroll (T)', onclick: () => this.app.toggleMode() });
+    this.modeBtn = el('button', { class: 'mode-pill', 'aria-label': 'Start or pause the walk (Space)', onclick: () => this.app.toggleWalk() });
+    this.routeBtn = el('button', { class: 'mode-pill route-pill', 'aria-label': 'Choose a route', 'aria-haspopup': 'listbox', onclick: () => this.toggleRoutes() });
     this.umbBtn = this.iconBtn(I.umb, 'Umbrella (U)', () => this.app.toggleUmbrella());
     this.photoBtn = this.iconBtn(I.cam, 'Photo mode (P)', () => this.app.togglePhoto());
     this.hideBtn = this.iconBtn(I.eyeOff, 'Hide interface (H)', () => this.setHidden(true));
     this.fsBtn = this.iconBtn(I.full, 'Full screen (F)', () => this.app.toggleFullscreen());
     this.menuBtn = this.iconBtn(I.menu, 'Settings (M)', () => this.togglePanel());
     this.menuBtn.setAttribute('aria-haspopup', 'dialog');
-    tr.append(this.modeBtn, this.umbBtn, this.photoBtn, this.hideBtn, this.fsBtn, this.menuBtn);
+    tr.append(this.routeBtn, this.modeBtn, this.umbBtn, this.photoBtn, this.hideBtn, this.fsBtn, this.menuBtn);
     hud.appendChild(tr);
     // now playing
     const np = el('div', { class: 'now-playing glass', role: 'group', 'aria-label': 'Music player' });
@@ -153,7 +154,7 @@ export class UI {
     hud.appendChild(this.prompt);
     // touch stick hint + vertical move buttons for photo mode
     const touch = el('div', { class: 'touch-ui' });
-    this.stickHint = el('div', { class: 'stick-hint', 'aria-hidden': 'true' }, 'Drag here<br>to walk');
+    this.stickHint = el('div', { class: 'stick-hint', 'aria-hidden': 'true', hidden: true }, 'Drag here<br>to fly');
     this.stickEl = el('div', { class: 'stick', hidden: true }, '<i></i>');
     touch.append(this.stickHint, this.stickEl);
     this.touchUI = touch;
@@ -186,11 +187,33 @@ export class UI {
     const s = settings.values;
     this.place.innerHTML = `<div class="place">${def.name}<small>${def.neighborhood}</small></div><div class="status-line">${fmtTime(s.timeOfDay)} · ${rainLabel(s)}${extra ? ' · ' + extra : ''}</div>`;
   }
-  updateMode() {
-    const stroll = settings.get('mode') === 'stroll';
-    this.modeBtn.className = 'mode-pill' + (stroll ? ' stroll' : '');
-    this.modeBtn.innerHTML = `<span class="dot" aria-hidden="true"></span>${stroll ? 'Scenic stroll' : 'Free walk'}<span class="lbl-long" style="color:var(--muted);font-weight:400"> · T</span>`;
-    this.modeBtn.setAttribute('aria-pressed', stroll ? 'true' : 'false');
+  updateMode() { this.updateWalk(); }
+  /** The walk button shows Start / Pause / Get up; the route chip shows the chosen route. */
+  updateWalk() {
+    const app = this.app; if (!app.stroll) return;
+    const seated = app.player?.seat || app.resume;
+    const walking = !seated && app.stroll.paused === false;
+    this.modeBtn.className = 'mode-pill walk-pill' + (walking ? ' stroll' : '');
+    this.modeBtn.innerHTML = seated ? '<span aria-hidden="true">↥</span> Get up' : walking ? '<span aria-hidden="true">❚❚</span> Pause' : '<span aria-hidden="true">▶</span> Start walk';
+    this.modeBtn.setAttribute('aria-pressed', walking ? 'true' : 'false');
+    const r = app.stroll.current;
+    if (r) this.routeBtn.innerHTML = `<span class="dot" aria-hidden="true"></span><span class="lbl-long">${r.name}</span><span class="lbl-short">Route</span> ▾`;
+  }
+  toggleRoutes() {
+    if (this.routePop) { this.routePop.remove(); this.routePop = null; return; }
+    const app = this.app; const pop = el('div', { class: 'route-pop glass', role: 'listbox', 'aria-label': 'Routes' });
+    pop.addEventListener('pointerdown', (e) => e.stopPropagation());
+    for (const r of app.stroll.routes || []) {
+      const sel = r.id === app.stroll.current?.id;
+      const mins = Math.max(1, Math.round(r.total / 0.95 / 60 + r.stops.length * 0.1));
+      const b = el('button', { class: 'route-item', role: 'option', 'aria-selected': sel ? 'true' : 'false', onclick: () => { settings.set('route', r.id); this.toggleRoutes(); } },
+        `<b>${r.name}</b><span>${r.desc || ''}</span><small>${Math.round(r.total)} m · about ${mins} min · ${r.stops.length} places to sit</small>`);
+      pop.appendChild(b);
+    }
+    this.root.appendChild(pop);
+    this.routePop = pop;
+    pop.querySelector('[aria-selected="true"]')?.focus();
+    pop.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); this.toggleRoutes(); this.routeBtn.focus(); } });
   }
   updateUmbrella() {
     const on = settings.get('umbrella');
@@ -372,7 +395,7 @@ export class UI {
   refreshBindings() { for (const [, sync] of this.bindings) sync(); }
   onSetting(k) {
     for (const [key, sync] of this.bindings) if (key === k) sync();
-    if (k === 'mode') this.updateMode();
+    if (k === 'mode' || k === 'route') this.updateMode();
     if (k === 'umbrella') this.updateUmbrella();
     if (k === 'showMinimap') this.mmWrap.hidden = !settings.get('showMinimap');
     if (k === 'showFps') this.fps.hidden = !settings.get('showFps');
@@ -434,8 +457,16 @@ export class UI {
           }
           d.appendChild(g);
         } },
-        { type: 'h', label: 'Way of walking' },
-        { type: 'seg', key: 'mode', label: 'Mode', options: [['walk', 'Free walk'], ['stroll', 'Scenic stroll']] },
+        { type: 'h', label: 'Routes' },
+        { type: 'custom', render: (d) => {
+          const g = el('div', { class: 'cards' });
+          for (const r of app.stroll.routes || []) {
+            g.appendChild(el('button', { class: 'card', style: 'grid-template-columns:1fr', 'aria-pressed': r.id === app.stroll.current?.id ? 'true' : 'false', onclick: () => { settings.set('route', r.id); this.renderTab(); } },
+              `<div><b>${r.name}</b><span>${r.desc || ''} · ${Math.round(r.total)} m · ${r.stops.length} places to sit</span></div>`));
+          }
+          d.appendChild(g);
+        } },
+        { type: 'buttons', items: [{ label: '▶ Start / pause walk', primary: true, action: () => app.toggleWalk() }, { label: 'Back to the start of the route', action: () => app.returnToStart() }] },
         { type: 'slider', key: 'walkSpeed', label: 'Walking pace', min: 0.6, max: 1.6, step: 0.05, fmt: fmtX },
         { type: 'slider', key: 'lookSensitivity', label: 'Look sensitivity', min: 0.3, max: 2.5, step: 0.05, fmt: fmtX },
         { type: 'toggle', key: 'invertY', label: 'Invert vertical look' },
@@ -443,7 +474,7 @@ export class UI {
         { type: 'toggle', key: 'headBob', label: 'Gentle head bob' },
         { type: 'toggle', key: 'umbrella', label: 'My umbrella open' },
         { type: 'toggle', key: 'showMinimap', label: 'Show neighbourhood map' },
-        { type: 'buttons', items: [{ label: 'Return to starting view', action: () => { app.returnToStart(); } }, { label: 'Reset section', action: () => settings.reset('city') }] },
+        { type: 'buttons', items: [{ label: 'Reset section', action: () => settings.reset('city') }] },
       ],
       weather: [
         { type: 'note', text: 'Simulated weather — it does not follow a live forecast.' },
@@ -627,19 +658,17 @@ export class UI {
         { type: 'h', label: 'Controls' },
         { type: 'custom', render: (d) => {
           d.innerHTML = `<div class="keys">
-            <kbd>W A S D</kbd><span>Walk (arrow keys: walk forward/back and turn)</span>
-            <kbd>Drag</kbd><span>Look around (mouse, touch or trackpad)</span>
-            <kbd>Shift</kbd><span>Walk faster</span>
-            <kbd>T</kbd><span>Switch free walk ↔ scenic stroll</span>
-            <kbd>E</kbd><span>Sit / stand, take stairs and doors, pause at a viewpoint</span>
+            <kbd>Space</kbd><span>Start or pause the walk (also T)</span>
+            <kbd>Drag</kbd><span>Look around (mouse, touch or trackpad) · arrow keys turn your head</span>
+            <kbd>E</kbd><span>Sit down at a stop along the route / get up and keep walking</span>
             <kbd>U</kbd><span>Open or close umbrella</span>
             <kbd>P</kbd><span>Photo mode (Enter captures)</span>
             <kbd>M</kbd><span>Open settings · <kbd>Esc</kbd> closes</span>
             <kbd>H</kbd><span>Hide / show the interface</span>
             <kbd>F</kbd><span>Full screen</span>
-            <kbd>R</kbd><span>Return to the starting view</span>
+            <kbd>R</kbd><span>Back to the start of the route</span>
             <kbd>K</kbd><span>Play / pause music · <kbd>N</kbd> next track</span>
-            <kbd>Gamepad</kbd><span>Left stick walk, right stick look, A sit, Y stroll</span>
+            <kbd>Gamepad</kbd><span>Right stick look, A sit / get up, Y start or pause</span>
           </div>`;
         } },
         { type: 'h', label: 'About' },

@@ -32,7 +32,7 @@ export class PhotoMode {
     this.yaw -= l.dx * 0.0028 * zoomDamp; this.pitch -= l.dy * 0.0025 * zoomDamp;
     this.yaw += ctl.readTurn() * dt * 1.2 * zoomDamp;
     this.pitch = Math.max(-1.5, Math.min(1.5, this.pitch));
-    const m = ctl.readMove();
+    ctl.flyMode = true; const m = ctl.readMove(); ctl.flyMode = false;
     const sp = (m.run ? 6 : 2.2) * dt;
     const fx = -Math.sin(this.yaw) * Math.cos(this.pitch), fy = Math.sin(this.pitch), fz = -Math.cos(this.yaw) * Math.cos(this.pitch);
     const rx = Math.cos(this.yaw), rz = -Math.sin(this.yaw);

@@ -180,3 +180,11 @@ details summary { cursor: pointer; color: var(--muted); padding: 6px 0; font-siz
   .brand { font-size: 2em; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+.route-pill .lbl-short { display: none; }
+.route-pop { position: absolute; top: calc(72px + var(--safe-t)); right: calc(16px + var(--safe-r)); width: min(360px, calc(100vw - 24px)); padding: 8px; display: flex; flex-direction: column; gap: 6px; z-index: 22; background: var(--panel); }
+.route-item { text-align: left; border: 1px solid var(--line); background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px 12px; cursor: pointer; min-height: 56px; }
+.route-item[aria-selected="true"] { border-color: var(--accent); background: rgba(255,184,107,0.14); }
+.route-item b { display: block; } .route-item span { display: block; color: var(--muted); font-size: .85em; } .route-item small { color: var(--muted); font-size: .75em; }
+.walk-pill { min-width: 7.5em; justify-content: center; }
+@media (max-width: 640px) { .route-pill .lbl-long { display: none; } .route-pill .lbl-short { display: inline; } }

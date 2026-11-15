@@ -49,6 +49,7 @@ export class App {
     }
     const eng = this.engine;
     this.controls = new Controls(eng.renderer.domElement, this.ui);
+    this.controls.walkLocked = true; // guided walks only: you choose where to look, the route chooses where to go
     this.player = new Player(eng.camera, this.controls);
     this.stroll = new Stroll(this.player);
     this.seasonFx = new SeasonFx(eng.scene);
@@ -90,7 +91,7 @@ export class App {
       this.stroll.setCity(cb, this.engine.crowd, this.engine.traffic);
       this.engine.crowd.setPopulation(this.popTarget(), settings.values);
       if (this.audioReady) this.amb.setCity(def.id);
-      if (settings.get('mode') === 'stroll' && !first) this.stroll.start();
+      this.placeOnRoute(settings.get('route'), !first && this.walking);
       this.ui.updatePlace(def);
       if (!first) { this.ui.hideLoading(); this.ui.toast(`${def.name} — ${def.neighborhood}`); }
     } catch (e) {
@@ -122,13 +123,12 @@ export class App {
     this.ui.hideStart();
     this.ui.showHUD();
     this.started = true;
-    if (kind === 'stroll') settings.set('mode', 'stroll');
-    if (settings.get('mode') === 'stroll') this.stroll.start();
+    if (kind !== 'look') { this.stroll.paused = false; this.walking = true; }
+    this.ui.updateWalk?.();
     if (kind !== 'quiet') await this.enableAudio(true);
     this.engine.renderer.domElement.focus();
     if (this.sharedName) this.ui.toast(`Opened ${this.sharedName}`, 'info', 4000);
-    if (!this.isTouch) this.ui.toast('Drag to look · WASD to walk · M for settings · H hides the interface', 'info', 5000);
-    else this.ui.toast('Drag to look · use the left stick to walk', 'info', 4500);
+    this.ui.toast(this.isTouch ? 'Drag to look around · tap a stop to sit down' : 'Drag to look around · Space pauses · E sits at a stop · M for settings', 'info', 5000);
   }
   async enableAudio(playMusic) {
     try {
@@ -175,9 +175,8 @@ export class App {
   }
 
   onSetting(k, v) {
-    if (k === 'mode') {
-      if (v === 'stroll' && !this.stroll.active) { if (!this.stroll.start()) { settings.set('mode', 'walk'); return; } this.ui.toast('Scenic stroll — sit back, or move to take over'); }
-      if (v === 'walk' && this.stroll.active) { this.stroll.stop(); this.ui.toast('Free walk'); }
+    if (k === 'route' && this.cb && v !== this.stroll.current?.id) {
+      this.ui.fade(() => { this.placeOnRoute(v, false); this.ui.toast(`${this.stroll.current.name} — press Start to walk`); });
     }
     if (k === 'city' && this.def && v !== this.def.id && !this.switching) this.switchCity(v);
     if (k === 'quality') this.changeQuality(v);
@@ -206,21 +205,71 @@ export class App {
     this.ui.toast(`Graphics: ${q.label}${q.auto ? ' (auto)' : ''}`);
   }
 
-  toggleMode() {
-    if (this.player.level && settings.get('mode') !== 'stroll') { this.ui.toast('Head back down to the street to start the scenic stroll'); return; }
-    settings.set('mode', settings.get('mode') === 'stroll' ? 'walk' : 'stroll');
+  /** Stand at the start of a route (or keep going on it), facing the way it heads. */
+  placeOnRoute(id, keepWalking = false) {
+    const r = this.stroll.select(id);
+    if (!r) return;
+    const P = this.player;
+    P.seat = null; P.level = null;
+    const st = this.stroll.startPose();
+    P.x = st.x; P.z = st.z; P.yaw = st.yaw; P.pitch = -0.03; P.lookYawOff = 0; P.lookPitchOff = 0;
+    P.ground = P.groundHere();
+    this.stroll.start(true);
+    this.stroll.s = 0; this.stroll.heading = st.yaw;
+    this.stroll.paused = !keepWalking;
+    this.resume = null;
+    this.ui.updateWalk?.();
   }
+  /** The one button: start or pause walking along the chosen route (or get up and carry on). */
+  toggleWalk() {
+    if (this.photo.active) return;
+    if (this.player.seat || this.resume) { this.resumeRoute(); return; }
+    this.stroll.paused = !this.stroll.paused;
+    this.walking = !this.stroll.paused;
+    this.ui.toast(this.stroll.paused ? 'Paused — look around, or press Start to carry on' : `Walking: ${this.stroll.current.name}`);
+    this.ui.updateWalk?.();
+  }
+  /** Sit at a stop beside the route: a bench, a stoop, the café window, the rooftop, the platform. */
+  sitAtStop(stop) {
+    const P = this.player;
+    this.resume = { s: this.stroll.s, x: P.x, z: P.z, yaw: P.yaw, wasWalking: !this.stroll.paused };
+    this.stroll.paused = true;
+    const go = () => {
+      const seat = stop.kind === 'seat' ? stop.seat : stop.place.target.seat;
+      if (stop.kind === 'place' && stop.place.target.level) { P.teleport({ level: stop.place.target.level, x: seat.x, z: seat.z }); this.hookLevel(stop.place.target.level); }
+      P.sit(seat, stop.kind === 'seat');
+      this.ui.toast(stop.kind === 'seat' ? `${stop.label.replace('Sit on', 'Sitting on')} — press Start or tap “Get up” to carry on` : `${stop.label.replace(/^(Step into|Go up to|Go down to|Climb up to) the /, '').replace(/^Step into /, '')}`, 'info', 4000);
+      this.ui.updateWalk?.();
+    };
+    if (stop.kind === 'place') this.ui.fade(go); else go();
+  }
+  resumeRoute() {
+    const P = this.player, r = this.resume;
+    const back = () => {
+      if (P.seat) P.seat = null;
+      if (r) { P.level = null; P.x = r.x; P.z = r.z; P.ground = P.groundHere(); this.stroll.s = r.s; }
+      this.stroll.heading = P.yaw + P.lookYawOff; P.lookYawOff = 0;
+      this.stroll.paused = false; this.walking = true;
+      this.resume = null;
+      this.ui.updateWalk?.();
+    };
+    if (P.level || this.interact.indoor) this.ui.fade(back); else { if (r) P.beginGlide(); back(); }
+  }
+  hookLevel(name) {
+    const lv = this.cb.levels[name];
+    if (lv && !lv.hooked) { lv.hooked = true; lv.onTrain = (ev) => { if (this.audioReady && this.player.level === lv.name) this.amb.trainPass(ev === 'arrive' ? 1.6 : 1.2); }; }
+  }
+  toggleMode() { this.toggleWalk(); }
   toggleUmbrella() { settings.set('umbrella', !settings.get('umbrella')); }
   returnToStart() {
-    if (this.stroll.active) settings.set('mode', 'walk');
     if (this.photo.active) this.togglePhoto();
-    this.player.toSpawn();
-    this.player.lookYawOff = 0; this.player.lookPitchOff = 0;
-    this.ui.toast('Back at the start');
+    this.ui.fade(() => { this.placeOnRoute(this.stroll.current?.id, false); this.ui.toast('Back at the start of the route'); });
   }
   interactNow() {
     const p = this.interact.current;
     if (!p) return;
+    if (p.type === 'stop') { this.sitAtStop(p.stop); return; }
+    if (p.type === 'resume') { this.resumeRoute(); return; }
     if (p.type === 'seat') {
       if (this.stroll.active) settings.set('mode', 'walk');
       this.player.sit(p.seat); this.ui.toast(`Sitting on the ${p.seat.label}. Move to stand up.`);
@@ -242,8 +291,8 @@ export class App {
   }
   interact() { this.interactNow(); }
   togglePhoto() {
-    if (this.photo.active) { this.photo.exit(this.player); this.ui.showPhotoBar(false); }
-    else { this.photo.enter(this.player); this.ui.showPhotoBar(true); }
+    if (this.photo.active) { this.photo.exit(this.player); this.ui.showPhotoBar(false); this.controls.photoActive = false; }
+    else { this.photo.enter(this.player); this.ui.showPhotoBar(true); this.controls.photoActive = true; }
   }
   async capturePhoto() {
     if (!this.photo.active) return;
@@ -292,7 +341,7 @@ export class App {
         case 'm': this.ui.togglePanel(); break;
         case 'h': this.ui.setHidden(!this.ui.hidden); break;
         case 'f': this.toggleFullscreen(); break;
-        case 't': if (!this.photo.active) this.toggleMode(); break;
+        case 't': case ' ': if (!this.photo.active) this.toggleWalk(); break;
         case 'u': this.toggleUmbrella(); break;
         case 'p': this.togglePhoto(); break;
         case 'e': if (!this.photo.active) this.interactNow(); break;
@@ -355,9 +404,8 @@ export class App {
     // ---- movement
     if (photo) this.photo.update(dt);
     else if (!this.started) { this.player.applyCamera(dt, s, 0); this.controls.consumeLook(); }
-    else if (this.stroll.active) {
-      if (this.controls.readMove().x || this.controls.readMove().z) { settings.set('mode', 'walk'); }
-      else this.stroll.update(dt, s, {});
+    else if (this.stroll.active && !this.player.seat && !this.player.level) {
+      this.stroll.update(dt, s, {});
     } else {
       this.player.update(dt, s);
       if (this.lookTween) {
@@ -419,7 +467,11 @@ export class App {
     // ---- umbrella & interactions
     this.umbrella.setOpen(s.umbrella && !(this.interact.indoor && !this.interact.indoor.open));
     this.umbrella.update(dt, t, { hidden: photo || !this.started, speed: this.player.speed, bob: this.player.bob, rain: s.rainIntensity, wind: s.wind, reducedMotion: s.reducedMotion });
-    const prompt = this.started && !photo ? this.interact.update(this.player) : null;
+    let prompt = this.started && !photo ? this.interact.update(this.player) : null;
+    if (this.started && !photo) {
+      if (this.player.seat || this.resume) prompt = { type: 'resume', label: 'Get up and keep walking' };
+      else { const st = this.stroll.stopHere(); prompt = st ? { type: 'stop', stop: st, label: st.label } : null; }
+    }
     this.ui.setPrompt(prompt);
     // ---- audio
     if (this.audioReady && this.amb) {
@@ -435,12 +487,12 @@ export class App {
       this.uiTimer = 0.12;
       const yaw = eng.camera.rotation.y;
       this.ui.minimap.draw(cb, this.player, yaw, this.stroll);
-      const status = this.stroll.active ? this.stroll.status : this.player.seat ? 'Sitting' : this.interact.sheltered ? 'Sheltered' : '';
+      const status = this.player.seat ? 'Sitting' : this.player.level ? '' : this.stroll.status;
       if (status !== this.lastStatus) { this.lastStatus = status; this.ui.updatePlace(this.def, status); }
     }
     // fade the HUD while the stroll plays like a screensaver
     const idle = performance.now() - this.controls.lastInput;
-    this.ui.hud.classList.toggle('fade', this.stroll.active && idle > 12000 && !this.ui.panelOpen);
+    this.ui.hud.classList.toggle('fade', !this.stroll.paused && idle > 12000 && !this.ui.panelOpen);
   }
   applyLook(s, atm, dt, photo) {
     const eng = this.engine, cb = this.cb;
