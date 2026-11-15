@@ -1,3 +1,4 @@
+import { routeNodes } from '../world/cityBase.js';
 // Automatic scenic stroll: follows a designed loop of sidewalks and crosswalks, waits for the
 // walk signal and clear roads, pauses at viewpoints and glances around gently.
 export class Stroll {
@@ -16,16 +17,7 @@ export class Stroll {
   /** Turn a list of hint points into a loop that follows sidewalks and crosswalks. */
   buildRoute(def) {
     const cb = this.cb, G = cb.graph;
-    const ids = def.hint.map(([x, z]) => G.nearestNode(x, z, (n) => n.edges.length > 0)?.id).filter((v) => v !== undefined);
-    const route = [];
-    for (let i = 0; i < ids.length; i++) {
-      const a = ids[i], b = ids[(i + 1) % ids.length];
-      const p = G.path(a, b);
-      if (!p) continue;
-      if (route.length) p.shift();
-      route.push(...p);
-    }
-    if (route.length > 1 && route[route.length - 1] === route[0]) route.pop();
+    const route = routeNodes(G, def.hint);
     const pts = route.map((id) => G.nodes[id]);
     const cum = [0];
     for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; cum.push(cum[i] + Math.hypot(b.x - a.x, b.z - a.z)); }

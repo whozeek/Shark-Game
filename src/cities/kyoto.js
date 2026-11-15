@@ -95,6 +95,11 @@ async function build(cb, step) {
     { x: 15, z: 25, look: [15, 1, 35], label: 'Garden pond' },
   ];
   cb.routeHint = [[-60, -9.85], [-13.5, -9.85], [-13.5, 66.5], [48, 66.5], [48, -9.85]];
+  cb.routes = [
+    { id: 'canal', name: 'Canal Walk', desc: 'Beside the willows on the canal bank', hint: cb.routeHint },
+    { id: 'tea', name: 'Lanterns & Tea', desc: 'Along the canal, round by Sakura-dōri and down Chōchin-dōri past the tea house', hint: [[-15.5, -9.85], [51.1, -9.85], [51.1, 68.1], [-24.5, 68.1], [-24.5, -2.15]] },
+    { id: 'market', name: 'Covered Market Loop', desc: 'Through the lanes to the covered market on Yanagi-koji', hint: [[-24.5, -26.15], [-24.5, -106.1], [-86.1, -106.1], [-86.1, -26.15]] },
+  ];
 }
 
 function machiya(cb, lot, fac, rng, o) {
@@ -187,10 +192,13 @@ function canal(cb, blk) {
   // bridge sides (stone)
   cb.batch.box(M.paint, x0 - 0.2, -0.45, mid, 0.4, 1.1, half * 2, 0x6a665e);
   cb.batch.box(M.paint, x1 + 0.2, -0.45, mid, 0.4, 1.1, half * 2, 0x6a665e);
-  // willows and cherries along the banks
+  // willows and cherries along the banks, with a wooden bench facing the water now and then
+  let nb = x0 + 6, sb = x0 + 14;
   for (let x = x0 + 3; x < x1 - 2; x += rng.range(7, 10)) {
     tree(cb, x, mid - half - 1.4 + rng.range(-0.3, 0.3), { kind: rng.chance(0.6) ? 'willow' : 'cherry', pit: false, scale: rng.range(0.9, 1.15) });
     tree(cb, x + 4, mid + half + 1.4 + rng.range(-0.3, 0.3), { kind: rng.chance(0.6) ? 'willow' : 'cherry', pit: false, scale: rng.range(0.9, 1.15) });
+    if (x + 2 > nb && x + 3.6 < x1 - 2) { bench(cb, x + 2, z0 + 1.15, Math.PI, { back: false, color: 0x5a3e28, length: 1.6, label: 'bench by the canal' }); nb = x + 26; }
+    if (x + 6 > sb && x + 7.6 < x1 - 2) { bench(cb, x + 6, z1 - 1.15, 0, { back: false, color: 0x5a3e28, length: 1.6, label: 'bench by the canal' }); sb = x + 26; }
   }
   // low railings at the water's edge
   for (const sgn of [-1, 1]) {

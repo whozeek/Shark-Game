@@ -99,6 +99,11 @@ async function build(cb, step) {
   cb.spawn = { x: -11.5, z: 30, yaw: 0.05 };
   cb.viewpoints = [{ x: 11.5, z: -10 - 8.5 - 3.5, look: [-200, 8, -10], label: 'Down the boulevard' }];
   cb.routeHint = [[-11.5, 30], [-11.5, -27.5], [78, -27.5], [78, 7.5], [-11.5, 7.5]];
+  cb.routes = [
+    { id: 'metro', name: 'Café & Métro', desc: 'Boulevard Saint-Germain, the café terrace and the Métro steps', hint: cb.routeHint },
+    { id: 'seine', name: 'Rue de Seine Loop', desc: 'Narrow streets west of the boulevard', hint: [[-12, 2], [-85, 2], [-85, 80], [-12, 80]] },
+    { id: 'long', name: 'Long Left Bank Walk', desc: 'Rue de Buci to Rue Saint-Sulpice and back past the café', hint: [[12, -22], [12, -90], [90, -90], [90, 80], [12, 80]] },
+  ];
 }
 
 function balconies(cb, lot, levels) {

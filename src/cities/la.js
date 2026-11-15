@@ -124,6 +124,11 @@ async function build(cb, step) {
     { x: 60, z: -6 - 8.5 - 2.4, look: [60, 6, -40], label: 'Murals on Traction Ave' },
   ];
   cb.routeHint = [[5.5, 4.8], [79, 4.8], [79, 79], [5.5, 79]];
+  cb.routes = [
+    { id: 'warehouse', name: 'Warehouse Block', desc: 'Round the brick warehouses south of Traction Ave', hint: cb.routeHint },
+    { id: 'murals', name: 'Traction Ave Murals', desc: 'Past Hewitt House Coffee and the painted walls', hint: [[5.5, -16.8], [5.5, -88.7], [81.2, -88.7], [81.2, -16.8]] },
+    { id: 'long', name: 'Long Arts District Walk', desc: 'A wide loop from Mateo St to Hewitt St', hint: [[5.5, -16.8], [-88.7, -16.8], [-88.7, 81.2], [81.2, 81.2], [81.2, -88.7], [5.5, -88.7]] },
+  ];
 }
 
 function rollupDoor(cb, lot, rng) {

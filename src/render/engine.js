@@ -16,6 +16,7 @@ import { CityBuilder, LAYER_NO_REFLECT } from '../world/cityBase.js';
 import { Crowd } from '../world/pedestrians.js';
 import { Traffic } from '../world/traffic.js';
 import { finishStatic } from '../world/staticInstances.js';
+import { addRouteBenches } from '../world/routeBenches.js';
 
 const GradeShader = {
   uniforms: {
@@ -145,6 +146,7 @@ export class Engine {
     const old = this.city;
     const cb = new CityBuilder(def, this.quality, null);
     await def.build(cb, step);
+    addRouteBenches(cb);
     await step(0.85, 'Merging geometry');
     // ground-plane surfaces sample the reflection, so they are left out of it
     finishStatic(cb, this.quality);

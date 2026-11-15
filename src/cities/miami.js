@@ -96,6 +96,11 @@ async function build(cb, step) {
     { x: 30, z: -60, look: [-20, 8, -60], label: 'Neon on Ocean Drive' },
   ];
   cb.routeHint = [[9.25, 20], [9.25, -80], [30, -80], [30, 80], [9.25, 80]];
+  cb.routes = [
+    { id: 'beach', name: 'Beachfront Promenade', desc: 'Under the palms between Ocean Drive and the sand', hint: cb.routeHint },
+    { id: 'collins', name: 'Collins & Ocean Loop', desc: 'Neon hotels on Ocean Drive, then Coral Café on Collins', hint: [[-9.25, -33], [-85.7, -33], [-85.7, 33], [-9.25, 33]] },
+    { id: 'long', name: 'Long South Beach Walk', desc: 'From 9th to 12th along the beach and back up Collins', hint: [[9.25, -113], [30, -113], [30, 113], [9.25, 113], [-9.25, 113], [-85.7, 113], [-85.7, -113], [-9.25, -113]] },
+  ];
 }
 
 function decoDetails(cb, r, side, h, color, rng, hotel, hotelIdx) {

@@ -108,6 +108,11 @@ async function build(cb, step) {
   cb.spawn = { x: -6.2, z: 30, yaw: 0.1 };
   cb.viewpoints = [{ x: -6.2, z: 56, look: [30, 3, 85], label: 'The garden square' }, { x: 122, z: -10, look: [130, 4, -120], label: 'Along the high street' }];
   cb.routeHint = [[-6.2, 30], [-6.2, -20], [62, -20], [62, 45], [-6.2, 45]];
+  cb.routes = [
+    { id: 'mews', name: 'Baker Row & the Mews', desc: 'Past the coffee house and round by the mews', hint: cb.routeHint },
+    { id: 'square', name: 'Garden Square Loop', desc: 'Terraces around the railed garden square', hint: [[-6.9, 56.4], [-6.9, 113], [66.6, 113], [66.6, 56.4]] },
+    { id: 'high', name: 'High Street Walk', desc: 'A long loop taking in Marylebone High St', hint: [[-6.9, -18], [122.3, -18], [122.3, 113], [-6.9, 113]] },
+  ];
 }
 
 function georgianFront(cb, lot, stucco) {

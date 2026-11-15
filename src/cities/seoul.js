@@ -91,6 +91,11 @@ async function build(cb, step) {
   cb.spawn = { x: -30, z: 50, yaw: 0.0 };
   cb.viewpoints = [{ x: 40 - 2.5 - 0.6, z: -60, look: [40, 6, -120], label: 'Signs down the alley' }];
   cb.routeHint = [[-30, 50], [-30, -24], [36.9, -24], [36.9, 24.5], [-30, 24.5]];
+  cb.routes = [
+    { id: 'neon', name: 'Neon Alleys', desc: 'Signs and steam in the alleys off Euljiro-ro', hint: cb.routeHint },
+    { id: 'samil', name: 'Samil-daero at Night', desc: 'North across the big avenue and round the block', hint: [[-10, 39], [-10, 91.9], [36.9, 91.9], [36.9, 39]] },
+    { id: 'back', name: 'Back Alleys & Coffee', desc: 'Quiet lanes to the west, ending at Coffee Lab', hint: [[-30, -26.9], [-76.9, -26.9], [-76.9, 21], [-30, 21]] },
+  ];
 }
 
 function signStack(cb, lot, h, rng) {

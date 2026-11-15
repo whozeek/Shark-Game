@@ -82,7 +82,12 @@ async function build(cb, step) {
     extra: [{ x: -300, z: -520, w: 14, d: 14, h: 85 }, { x: -300, z: -520, w: 4, d: 4, h: 110 }] });
   cb.spawn = { x: -40, z: -74 + 2.75 + 1.3, yaw: -Math.PI / 2 + 0.55 };
   cb.viewpoints = [{ x: 0, z: -87, look: [200, 2, -87], label: 'Bridge over the Keizersgracht' }, { x: 85, z: 65, look: [-200, 2, 65], label: 'Prinsengracht at night' }];
-  cb.routeHint = [[-40, -69.95], [-4.4, -69.95], [-4.4, 47.6], [80.6, 47.6], [80.6, -69.95]];
+  cb.routeHint = [[-40, -69.95], [-4.4, -69.95], [-4.4, 56.05], [80.6, 56.05], [80.6, -69.95]];
+  cb.routes = [
+    { id: 'ring', name: 'Canal Ring Walk', desc: 'Bridges and gabled houses along the canals', hint: cb.routeHint },
+    { id: 'koffie', name: 'Koffie & the Canal', desc: 'Coffee and cake, then along the Keizersgracht', hint: [[-4.5, -16.2], [-80.8, -16.2], [-80.8, -78.05], [-4.5, -78.05]] },
+    { id: 'quays', name: 'Keizersgracht Quays', desc: 'Both sides of the canal, with benches by the water', hint: [[-80.8, -95.95], [80.8, -95.95], [80.8, -78.05], [-80.8, -78.05]] },
+  ];
 }
 
 function canal(cb, blk, layout) {
@@ -131,6 +136,12 @@ function canal(cb, blk, layout) {
     tree(cb, x + 5, z1 + 0.9, { scale: rng.range(1.2, 1.5), pit: true });
   }
   for (let x = x0 + 10; x < x1 - 6; x += 26) bench(cb, x, z0 - 0.75, Math.PI, { label: 'canal-side bench' });
+  // and on the other quay, facing the water from the south
+  for (let x = x0 + 23; x < x1 - 8; x += 26) {
+    const free = (bx) => [-1.0, 0, 1.0].every((k) => !cb.col.blocked(bx + k, z1 + 0.75, 0.3));
+    const dx = [0, 2, -2, 4, -4, 6, -6].find((d) => free(x + d));
+    if (dx !== undefined) bench(cb, x + dx, z1 + 0.75, 0, { label: 'canal-side bench' });
+  }
 }
 
 function gable(cb, lot, h, f, rng, simple) {

@@ -56,6 +56,20 @@ export class WalkGraph {
   }
 }
 
+/** Turn a list of hint points into a closed loop of walk-graph node ids (shared by the stroll and bench placement). */
+export function routeNodes(G, hint) {
+  const ids = hint.map(([x, z]) => G.nearestNode(x, z, (n) => n.edges.length > 0)?.id).filter((v) => v !== undefined);
+  const route = [];
+  for (let i = 0; i < ids.length; i++) {
+    const p = G.path(ids[i], ids[(i + 1) % ids.length]);
+    if (!p) continue;
+    if (route.length) p.shift();
+    route.push(...p);
+  }
+  if (route.length > 1 && route[route.length - 1] === route[0]) route.pop();
+  return route;
+}
+
 /** Global traffic signal timing shared by cars, pedestrians and the stroll. */
 export class Signals {
   constructor(cycle = 44) { this.cycle = cycle; this.t = 0; this.disabled = false; }

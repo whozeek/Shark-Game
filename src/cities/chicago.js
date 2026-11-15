@@ -129,6 +129,11 @@ async function build(cb, step) {
     { x: -70, z: -122 + 7 + 2.5, look: [60, 7, -122], label: 'Under the elevated tracks' },
   ];
   cb.routeHint = [[-21.5, -6], [-21.5, -60], [41, -60], [41, 60], [-21.5, 60]];
+  cb.routes = [
+    { id: 'river', name: 'River & Bridges', desc: 'Over the bridge on Dearborn and back along the river', hint: cb.routeHint },
+    { id: 'coffee', name: 'Coffee & the L', desc: 'Riverbend Coffee on Wacker, then up to Lake St under the tracks', hint: [[-39.5, -61], [-100.5, -61], [-100.5, -112.5], [40.5, -112.5], [40.5, -39], [-20.5, -39]] },
+    { id: 'loop', name: 'Long Loop Walk', desc: 'A big loop: LaSalle, Randolph, State and back over the river', hint: [[-100.5, -39], [-100.5, 113], [118, 113], [118, -39]] },
+  ];
 }
 
 function river(cb, blk) {
