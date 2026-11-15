@@ -119,6 +119,10 @@
       climber: freshClimber(), result: null,
       ids: Array.from({ length: ROWS }, () => Array(COLS).fill(0)), serial: 1, parts: [],
       crk: Array.from({ length: ROWS }, () => Array(COLS).fill(0)),
+      // world extras: special block per cell, crumble timers, jelly wobble, smoke and dust, mode rules
+      fx: Array.from({ length: ROWS }, () => Array(COLS).fill(0)),
+      crm: Array.from({ length: ROWS }, () => Array(COLS).fill(0)),
+      jelly: {}, smoke: [], puff: [], thump: 0, run: null, haz: null, wind: null, final: 0,
     };
   }
   let best = 0;
@@ -167,7 +171,7 @@
     while (S.queue.length < 5) {
       if (!S.bag.length) {
         S.bag = TYPES.split('');
-        for (let i = S.bag.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [S.bag[i], S.bag[j]] = [S.bag[j], S.bag[i]]; }
+        for (let i = S.bag.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [S.bag[i], S.bag[j]] = [S.bag[j], S.bag[i]]; }
       }
       S.queue.push(S.bag.pop());
     }
@@ -199,6 +203,7 @@
   function spawn(t) {
     refill();
     S.cur = makePiece(t || S.queue.shift());
+    S.cur.fx = specialFor();
     refill();
     S.dropT = 0; S.lockT = 0; S.lockResets = 0;
     if (collide(S.cur.m, S.cur.x, S.cur.y)) return gameOver('topout');
@@ -267,6 +272,7 @@
       if (y + r < 0) { over = true; continue; }
       S.board[y + r][x + c] = t;
       S.ids[y + r][x + c] = S.serial;
+      S.fx[y + r][x + c] = S.cur.fx || 0; S.crm[y + r][x + c] = 0;
       cells.push([y + r, x + c]);
     }
     // whatever he was holding on the piece is now part of the stack
@@ -279,6 +285,8 @@
       for (const r of cleared) {
         S.board.splice(r, 1); S.board.unshift(Array(COLS).fill(0));
         S.ids.splice(r, 1); S.ids.unshift(Array(COLS).fill(0));
+        S.fx.splice(r, 1); S.fx.unshift(Array(COLS).fill(0));
+        S.crm.splice(r, 1); S.crm.unshift(Array(COLS).fill(0));
         S.crk.splice(r, 1); S.crk.unshift(Array(COLS).fill(0));
       }
       if (C.state !== 'win' && C.state !== 'intro') {
@@ -293,6 +301,8 @@
         }
       }
       S.flash = 0.18;
+      for (const r of cleared) for (let c = 0; c < COLS; c++) addParts(colX(c), r * CELL + CELL / 2, T.p[TYPES[(r + c) % 7]], 2, 120);
+      if (C.state === 'ground' && !C.pp && !C.alert && Math.random() < 0.6) { startPP('pp_jumpScare'); grunt('yelp'); }
     }
     const n = cleared.length;
     S.score += LINE_SCORE[n] * S.level;
@@ -301,6 +311,8 @@
 
     S.shake = Math.min(12, S.shake + 1.5 + (hard ? dist * 0.3 : 0) + n * 3);
     knock(cells, hard, dist, n, riding);
+    lockDust(cells, hard);
+    S.thump = Math.min(1.4, S.thump + (hard ? 0.7 + dist * 0.03 : 0.4));
     sfx(n ? 'clear' + n : (hard ? 'slam' : 'lock'));
 
     S.canHold = true;
@@ -317,7 +329,7 @@
   }
   function toAir() {
     const C = S.climber;
-    C.alert = null;
+    C.alert = null; C.pp = null;
     if (C.state !== 'air') { C.fallFrom = C.y; C.airT = 0; }
     C.state = 'air'; C.anchor = null;
   }
@@ -534,6 +546,8 @@
       }
     } else { C.trapT = 0; C.digging = false; }
     C.drilling = false;
+    // boxed in with nothing to drill: he gets madder the longer it lasts
+    if (C.boxedIn && Math.random() < 0.4 && tantrumStep(C)) { C.intent = { type: 'idle', x: C.x }; return; }
     // nowhere higher to go right now: pace, look around, hop in frustration
     C.idleT = (C.idleT || 0) + 0.2;
     if (C.idleT > 3 && Math.random() < 0.12) {
@@ -648,8 +662,8 @@
   }
   function breakBlock(r, c) {
     addParts(colX(c), r * CELL + CELL / 2, T.p[S.board[r][c]] || T.ink, 14, 160);
-    S.board[r][c] = 0; S.ids[r][c] = 0; S.crk[r][c] = 0;
-    S.climber.stuckClock = 0;
+    S.board[r][c] = 0; S.ids[r][c] = 0; S.crk[r][c] = 0; S.fx[r][c] = 0; S.crm[r][c] = 0;
+    S.climber.stuckClock = 0; STATS.broken++;
     S.shake = Math.min(12, S.shake + 4); sfx('crumble'); say(pick(SAY.smash), 1.5);
     // if another block still has him boxed in, he goes straight on to it
     const C = S.climber;
@@ -806,7 +820,11 @@
   }
   function land() {
     const C = S.climber;
+    if (bounceOff()) return;
     const fall = C.y - C.fallFrom;
+    // squishy landing, and an "oof" from a real drop
+    animSquash(Math.min(0.38, 0.06 + Math.max(0, fall) / 260));
+    if (fall > 2 * CELL && !C.tumble) grunt('oof');
     C.vy = 0; C.rot = 0; C.wantGrab = false; C.steer = 0;
     if (C.tumble || fall > 3.6 * CELL) {
       C.state = 'dazed'; C.dazedT = C.tumble ? 1.3 : 1.0; C.vx = 0;
@@ -839,6 +857,7 @@
       case 'ground': {
         if (C.arriveT > 0) C.arriveT = Math.max(0, C.arriveT - dt);
         if (!supportUnder(C.x, C.y)) { toAir(); C.wantGrab = Math.random() < 0.5; break; }
+        if (C.pp && ppTick(dt)) break;
         if (C.topAnim && topGroundAnim(dt)) break;
         C.wobble = Math.max(0, C.wobble - dt * 0.7);
         if (C.shove && sideShoveTick(dt)) break;
@@ -866,7 +885,7 @@
         }
         if (C.crouchT > 0) {
           C.crouchT -= dt; C.vx *= 0.8;
-          if (C.crouchT <= 0) { toAir(); C.vy = -C.jumpV; C.vx = C.jumpVx; C.wantGrab = true; sfx('jump'); }
+          if (C.crouchT <= 0) { toAir(); C.vy = -C.jumpV; C.vx = C.jumpVx; C.wantGrab = true; sfx('jump'); animSquash(-0.3); if (Math.random() < 0.7) grunt('hup'); }
           break;
         }
         if (C.landT > 0) C.landT -= dt;
@@ -883,7 +902,7 @@
         const gap = it.x - C.x;
         const speed = it.type === 'dodge' ? (it.spd || DODGE) : Math.abs(gap) > 50 ? RUN : WALK;
         const want = Math.abs(gap) < 1.5 ? 0 : Math.sign(gap) * Math.min(speed, Math.abs(gap) * 7);
-        C.vx += (want - C.vx) * Math.min(1, dt * (it.type === 'dodge' ? 30 : 9));
+        C.vx += (want - C.vx) * Math.min(1, dt * (it.type === 'dodge' ? 30 : 9) * iceGrip());
         if (Math.abs(C.vx) > 4) C.f = Math.sign(C.vx);
         const bumped = moveX(C.vx * dt);
         if (!supportUnder(C.x, C.y)) { toAir(); break; }
@@ -952,7 +971,7 @@
           C.anchor = null;
           C.x = A.gx + A.f * 8; C.y = A.gy;
           if (A.top) { C.state = 'win'; C.winT = 0; C.escape = false; say('I MADE IT!', 3); sfx('win'); break; }
-          C.state = 'ground'; C.landT = 0.06; C.vx = 0;
+          C.state = 'ground'; C.landT = 0.06; C.vx = 0; grunt('hup');
           if (!boxFree(C.x, C.y)) expel();
         }
         break;
@@ -962,7 +981,7 @@
         const faceX = f > 0 ? cf * CELL : (cf + 1) * CELL;
         C.x = faceX - f * 7;
         C.grit = Math.min(10, C.grit + dt * 0.5);
-        const ny = C.y - (26 + 3 * (S.level - 1) + C.grit) * dt;
+        const ny = C.y - (26 + 3 * (S.level - 1) + C.grit) * climbGrip() * dt;
         if (!boxFree(C.x, ny)) {
           const bc = C.digging && blockingCell(C.x, ny);
           if (bc) { drillFrom(bc[0], bc[1], dt); break; }
@@ -2623,6 +2642,7 @@
   // the threat is gone and he ran: skid to a stop and turn to watch it come down
   function nearSafe() {
     const C = S.climber, A = C.alert;
+    STATS.dodges++;
     const piece = A && A.piece === S.cur ? S.cur : null;
     if (C.react && !NEAR_SOFT.includes(C.react.kind)) { if (!C.react.next && piece) C.react.next = 'watch'; return; }
     if (!piece) { if (Math.random() < 0.5) say(pick(SAY.missed), 1.4); return; }
@@ -2902,15 +2922,530 @@
     }
   }
 
+  // ---------- modes, worlds, climbers & scores ----------
+  // Saved per player in this browser: chosen mode/world/climber, sound settings, stats that
+  // unlock climbers, and local high scores. A shared board (everyone's bests) lights up when
+  // the page runs where the claude.ai db capability is available.
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('stack-stumble-' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('stack-stumble-' + k, JSON.stringify(v)); } catch (e) {} },
+  };
+  const WORLDS = {
+    garden: { name: 'Garden', blurb: 'Plain blocks, the classic climb.', special: null, rate: 0, hazard: 'lava' },
+    ice: { name: 'Ice Caves', blurb: 'Icy blocks are slippery. He slides, slips and struggles to climb them.', special: 'ice', rate: 0.45, hazard: 'water' },
+    wind: { name: 'Windy Peak', blurb: 'Gusts shove him around and nudge your falling piece.', special: null, rate: 0, wind: true, hazard: 'lava' },
+    jelly: { name: 'Jelly Jungle', blurb: 'Jelly blocks are bouncy. Land on one and he springs up.', special: 'bouncy', rate: 0.4, hazard: 'water' },
+    ruins: { name: 'Crumbling Ruins', blurb: 'Cracked blocks crumble a moment after he stands on them.', special: 'crumble', rate: 0.4, hazard: 'lava' },
+  };
+  const WORLD_IDS = Object.keys(WORLDS);
+  const MODES = {
+    classic: { name: 'Classic', hint: 'Keep him from reaching the top. Score points the Tetris way.' },
+    escape: { name: 'Escape', hint: 'It is rising from below! Build him a way up and get him out the top before it catches him.' },
+    daily: { name: 'Daily', hint: 'Today’s escape: the same world and the same pieces for everyone. New climb every day.' },
+  };
+  const CLIMBERS = [
+    { id: 'stick', name: 'Stick', how: 'Ready from the start.', ok: () => true },
+    { id: 'party', name: 'Party Animal', how: 'Play 5 games.', ok: s => s.games >= 5 },
+    { id: 'hardhat', name: 'Hard Hat', how: 'Drill out 10 blocks.', ok: s => s.broken >= 10 },
+    { id: 'ninja', name: 'Ninja', how: 'Dodge 20 falling pieces.', ok: s => s.dodges >= 20 },
+    { id: 'diver', name: 'Diver', how: 'Escape the rising water once.', ok: s => s.waterEscapes >= 1 },
+    { id: 'fire', name: 'Firefighter', how: 'Escape the lava 3 times.', ok: s => s.lavaEscapes >= 3 },
+    { id: 'crown', name: 'King', how: 'Score 3,000 in Classic.', ok: s => s.classicBest >= 3000 },
+    { id: 'astro', name: 'Astronaut', how: 'Play the Daily Challenge on 3 different days.', ok: s => (s.dailyDays || []).length >= 3 },
+  ];
+  const PREF = Object.assign({ mode: 'classic', world: 'garden', climber: 'stick', vol: 0.7, muted: false, music: true }, store.get('prefs', {}));
+  const STATS = Object.assign({ games: 0, broken: 0, dodges: 0, waterEscapes: 0, lavaEscapes: 0, deaths: 0, classicBest: 0, dailyDays: [] }, store.get('stats', {}));
+  const savePrefs = () => store.set('prefs', PREF);
+  const unlockedIds = () => store.get('unlocked', ['stick']);
+  if (!unlockedIds().includes(PREF.climber)) PREF.climber = 'stick';
+
+  const dayKey = () => new Date().toISOString().slice(0, 10);
+  function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function mulberry(a) {
+    return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  }
+  // pieces and special blocks come from rng (seeded for the daily, so everyone gets the same climb)
+  let rng = Math.random;
+  function runRules() {
+    if (PREF.mode === 'daily') {
+      const d = dayKey();
+      return { mode: 'daily', world: WORLD_IDS[hashStr('world' + d) % WORLD_IDS.length], hazard: true, seed: hashStr('daily' + d), day: d };
+    }
+    return { mode: PREF.mode, world: PREF.world, hazard: PREF.mode === 'escape' };
+  }
+  const wld = () => WORLDS[(S.run && S.run.world) || 'garden'];
+  const specialFor = () => { const w = wld(); return w.special && rng() < w.rate ? w.special : 0; };
+
+  // ----- special blocks -----
+  const CRUMBLE_T = 1.5;
+  const fxAt = (r, c) => r >= 0 && r < ROWS && c >= 0 && c < COLS ? (S.board[r][c] ? S.fx[r][c] : pieceHas(r, c) ? S.cur.fx || 0 : 0) : 0;
+  // the block cells directly under his feet (empty when he is not standing)
+  function feetCells() {
+    const C = S.climber;
+    if (!['ground', 'dazed', 'button'].includes(C.state) || Math.abs(C.y - Math.round(C.y / CELL) * CELL) > 0.6) return [];
+    const r = Math.round(C.y / CELL), out = [];
+    for (let c = Math.floor((C.x - HW) / CELL); c <= Math.floor((C.x + HW - 0.001) / CELL); c++) if (r < ROWS && solid(r, c) && c >= 0 && c < COLS) out.push([r, c]);
+    return out;
+  }
+  const onFx = kind => feetCells().some(([r, c]) => fxAt(r, c) === kind);
+  const iceGrip = () => (wld().special === 'ice' && onFx('ice') ? 0.16 : 1);
+  function climbGrip() {
+    const C = S.climber;
+    if (wld().special !== 'ice' || C.state !== 'climb') return 1;
+    return fxAt(Math.floor((C.y - 1) / CELL), C.climbCol) === 'ice' ? 0.55 : 1;
+  }
+  function crumbleCell(r, c) {
+    addParts(colX(c), r * CELL + CELL / 2, T.p[S.board[r][c]] || T.ink, 12, 120);
+    addParts(colX(c), r * CELL + CELL / 2, T.muted, 6, 80);
+    S.board[r][c] = 0; S.ids[r][c] = 0; S.crk[r][c] = 0; S.fx[r][c] = 0; S.crm[r][c] = 0;
+    S.shake = Math.min(12, S.shake + 2.5); sfx('crumble');
+    const C = S.climber; if (C.sayT <= 0 && Math.random() < 0.6) say(pick(['Whoa, it’s crumbling!', 'Not these blocks…', 'Ruins. Great.']), 1.3);
+  }
+  // land on a jelly block from a height and he springs back up
+  function bounceOff() {
+    const C = S.climber, fall = C.y - C.fallFrom;
+    if (wld().special !== 'bouncy' || fall < 10 || C.state === 'dead') return false;
+    const cells = feetCells().filter(([r, c]) => fxAt(r, c) === 'bouncy');
+    if (!cells.length) return false;
+    const v = Math.sqrt(2 * G * fall);
+    for (const [r, c] of cells) S.jelly[r * COLS + c] = 0.6;
+    C.state = 'air'; C.fallFrom = C.y; C.airT = 0; C.tumble = false; C.rot = 0; C.wantGrab = true;
+    C.vy = -Math.min(JV * 1.18, v * 0.85 + 240); C.vx *= 0.8; C.bounceT = 0.75;
+    animSquash(0.35); sfx('boing');
+    if (C.sayT <= 0 && Math.random() < 0.5) say(pick(['Boing!', 'Wheee!', 'Jelly!']), 1);
+    return true;
+  }
+
+  // ----- wind -----
+  function windTick(dt) {
+    const Wd = S.wind, C = S.climber;
+    if (!Wd.on) {
+      Wd.next -= dt;
+      if (Wd.next <= 0) { Wd.on = true; Wd.t = 2.6; Wd.dir = rng() < 0.5 ? -1 : 1; Wd.nudge = 0.25; sfx('whoosh'); if (C.sayT <= 0) say(pick(['Hold on to your hat!', 'Windy!', 'Whoa, gust!']), 1.3); }
+      return;
+    }
+    Wd.t -= dt; Wd.phase = (Wd.phase || 0) + dt;
+    if (C.state === 'air' && !C.tumble) C.vx += Wd.dir * 170 * dt;
+    else if (C.state === 'ground' && !C.alert) {
+      moveX(Wd.dir * 15 * dt); C.windT = 0.3;
+      if (!supportUnder(C.x, C.y)) toAir();
+    }
+    Wd.nudge -= dt;
+    if (Wd.nudge <= 0) { Wd.nudge = 0.9; if (S.cur && !S.slam) move(Wd.dir); }
+    if (Wd.t <= 0) { Wd.on = false; Wd.next = 6 + rng() * 5; }
+  }
+
+  // ----- the rising lava / water -----
+  const HAZ_SAY = { lava: ['Hot hot HOT!', 'The floor is lava! Literally!', 'Build faster!', 'My shoes are melting!'],
+                    water: ['I can’t swim!', 'Water’s rising!', 'Glub—', 'Up! Up! Up!'] };
+  const DEATH_SAY = { lava: ['YEOUCH!', 'HOT HOT HOT—'], water: ['Glub glub…', 'Should’ve learned to swim…'], swoon: ['Oh no…', 'My tower…'] };
+  function hazTick(dt) {
+    const h = S.haz, C = S.climber;
+    if (h.delay > 0) h.delay -= dt;
+    else h.y = Math.max(-60, h.y - Math.min(6, 1.4 + S.time * 0.012) * dt);   // slow at first, then it speeds up
+    h.phase = (h.phase || 0) + dt;
+    if (!['dead', 'win'].includes(C.state) && C.y > h.y + 8) die(h.kind);
+    else if (C.y > h.y - 2 * CELL && C.sayT <= -1 && Math.random() < dt * 0.6) say(pick(HAZ_SAY[h.kind]), 1.4);
+  }
+  function die(kind) {
+    const C = S.climber;
+    if (C.state === 'dead' || C.state === 'win') return;
+    Object.assign(C, { state: 'dead', deathKind: kind, deathAt: C.t, vx: 0, vy: 0, anchor: null, alert: null, intent: null,
+                       tumble: false, rot: 0, pp: null, rec: null });
+    STATS.deaths++;
+    sfx(kind === 'water' ? 'splash' : kind === 'lava' ? 'sizzle' : 'faint');
+    grunt(kind === 'swoon' ? 'aww' : 'yelp');
+    say(pick(DEATH_SAY[kind]), 2);
+  }
+  function deadTick(dt) {
+    const C = S.climber, T0 = C.t - C.deathAt;
+    if (C.deathKind === 'water') C.y += 13 * dt;
+    if (C.deathKind === 'lava' && T0 > 0.3 && Math.random() < dt * 14) S.smoke.push({ x: C.x + (Math.random() - 0.5) * 10, y: C.y - 20, r: 3, life: 1.2 });
+    if (T0 > 2.5 && S.mode === 'play') gameOver('dead');
+  }
+
+  // ----- personality: one-shot moves he plays on the ground (C.pp) -----
+  const PP_DUR = { pp_scratch: 1.6, pp_stretch: 1.9, pp_slip: 0.9, pp_jumpScare: 0.6, pp_pant: 1.6, pp_fistPump: 0.8, pp_trip: 0.8,
+                   pp_kipUp: 1.0, pp_stomp: 0.9, pp_rubHead: 1.2, pp_huff: 1.6, pp_kickBlock: 1.8, pp_flail: 1.3, pp_tantrum: 2.2 };
+  function startPP(name, o = {}) {
+    const C = S.climber;
+    C.pp = { name, t0: C.t, until: C.t + (o.dur || PP_DUR[name] || 1), slide: !!o.slide, then: o.then || null };
+  }
+  // runs in the ground state; true while the move holds him in place
+  function ppTick(dt) {
+    const C = S.climber, p = C.pp;
+    if (!p) return false;
+    if (C.alert || C.t >= p.until) {
+      C.pp = null;
+      if (!C.alert && p.then === 'kipUp') { startPP('pp_kipUp'); grunt('hup'); return true; }
+      return false;
+    }
+    if (p.slide) { moveX(C.vx * dt); C.vx *= Math.pow(0.3, dt); if (!supportUnder(C.x, C.y)) { C.pp = null; toAir(); } }
+    else C.vx *= Math.pow(0.02, dt);
+    return true;
+  }
+  const idleOnGround = C => C.state === 'ground' && !C.pp && !C.alert && !C.rec && !C.shove && Math.abs(C.vx) < 6 && C.crouchT <= 0 &&
+                            (!C.intent || C.intent.type === 'idle' || C.intent.type === 'wait');
+  function pickMood(C) {
+    const m = ['idle', 'idle', 'lookUp', 'pp_whistle', 'wave'];
+    if (S.cur && Math.abs(colX(S.cur.x + 1) - C.x) < 3 * CELL) m.push('pp_pointUp', 'pp_pointUp');
+    if ((C.idleT || 0) > 5) m.push('pp_tapFoot', 'pp_sit', 'pp_sit');
+    if (idleOnGround(C) && Math.random() < 0.35) startPP(pick(['pp_scratch', 'pp_stretch', 'pp_scratch']));
+    return pick(m);
+  }
+  // a drop right beside his feet: -1 / 1, or 0
+  function edgeDir() {
+    const C = S.climber, r = Math.round(C.y / CELL);
+    if (r >= ROWS) return 0;
+    if (!solid(r, Math.floor((C.x + HW + 3) / CELL)) && Math.floor((C.x + HW + 3) / CELL) < COLS) return 1;
+    if (!solid(r, Math.floor((C.x - HW - 3) / CELL)) && Math.floor((C.x - HW - 3) / CELL) >= 0) return -1;
+    return 0;
+  }
+  // the anger ladder while boxed in: annoyed huff, kicking the blocks, flailing, a full tantrum
+  const MAD_SAY = [['Hmph.', 'Seriously?', 'Ugh.'], ['Let. Me. OUT!', 'Stupid blocks!', 'Move!'],
+                   ['ARGH!', 'This is SO unfair!', 'GRRR!'], ['WAAAAH!', 'I hate this game!', 'Not fair not fair not fair!']];
+  function madTier(C) { const s = C.stuckClock || 0; return s < 3 ? -1 : s < 8 ? 0 : s < 13 ? 1 : s < 18 ? 2 : 3; }
+  function tantrumStep(C) {
+    const tier = madTier(C);
+    if (tier < 0 || C.pp) return false;
+    const name = ['pp_huff', 'pp_kickBlock', 'pp_flail', 'pp_tantrum'][tier];
+    if (name === 'pp_kickBlock') {
+      // face the nearest block to kick
+      const r = Math.round(C.y / CELL), c = Math.floor(C.x / CELL);
+      C.f = solidB(r - 1, c + 1) ? 1 : solidB(r - 1, c - 1) ? -1 : C.f;
+    }
+    startPP(name);
+    grunt(tier >= 2 ? 'rage' : 'grr');
+    if (C.sayT <= 0 || tier >= 2) say(pick(MAD_SAY[tier]), 1.4);
+    return true;
+  }
+  // after a hit: once he is back on his feet, sometimes stomp or rub his head
+  function angerAfterHit(C) {
+    if (!C.angry || !idleOnGround(C)) return;
+    const kind = C.angry; C.angry = null;
+    if (Math.random() < 0.65) {
+      startPP(kind === 'squash' ? pick(['pp_rubHead', 'pp_stomp']) : pick(['pp_stomp', 'pp_stomp', 'pp_rubHead']));
+      grunt('grr');
+      if (C.sayT <= 0) say(pick(['HEY!', 'Ow! Watch it!', 'That’s it, I’m mad.', 'Do you MIND?!']), 1.3);
+    }
+  }
+
+  // ----- per-frame world rules and personality, called in play after updateClimber -----
+  function worldTick(dt) {
+    const C = S.climber, w = wld();
+    if (w.special === 'crumble') {
+      for (const [r, c] of feetCells()) {
+        if (S.board[r][c] && S.fx[r][c] === 'crumble') {
+          if (S.crm[r][c] === 0) sfx('creak');
+          S.crm[r][c] += dt;
+          if (S.crm[r][c] >= CRUMBLE_T) crumbleCell(r, c);
+        }
+      }
+    }
+    if (w.wind) windTick(dt);
+    if (S.haz) hazTick(dt);
+    if (C.state === 'dead') { deadTick(dt); return; }
+    for (const k in S.jelly) { S.jelly[k] -= dt; if (S.jelly[k] <= 0) delete S.jelly[k]; }
+    if (C.bounceT > 0) C.bounceT -= dt;
+    if (C.windT > 0) C.windT -= dt;
+    // slipping on ice while walking
+    if (w.special === 'ice' && C.state === 'ground' && !C.pp && !C.alert && Math.abs(C.vx) > 28 && onFx('ice') && Math.random() < dt * 0.7) {
+      startPP('pp_slip', { slide: true, then: Math.random() < 0.5 ? 'kipUp' : null });
+      grunt('yelp'); if (C.sayT <= 0) say(pick(['Whoa—!', 'Slippery!', 'Ice. Why ice.']), 1.1);
+    }
+    // ice faces: his hands slip now and then
+    if (C.state === 'climb' && climbGrip() < 1 && Math.random() < dt * 0.35 && boxFree(C.x, C.y + 10)) { C.y += 10; grunt('yelp'); }
+    // effort: climbing and sprinting tire him out; once he stops he catches his breath
+    if (C.state === 'climb') C.exert = (C.exert || 0) + 26 * dt;
+    else if (C.state === 'ground' && Math.abs(C.vx) > 80) C.exert = (C.exert || 0) + 22 * dt;
+    else C.exert = Math.max(0, (C.exert || 0) - 6 * dt);
+    if (C.exert > 70 && idleOnGround(C)) { C.exert = 0; startPP('pp_pant'); grunt('pant'); }
+    // a little celebration every 20 m he climbs
+    const tier = Math.floor(C.peak / 20);
+    if (tier > (C.cheered || 0) && idleOnGround(C)) { C.cheered = tier; startPP('pp_fistPump'); grunt('woo'); if (C.sayT <= 0) say(pick(['Woo!', `${tier * 20} m!`, 'Getting there!']), 1.2); }
+    // the odd trip while walking
+    if (C.state === 'ground' && !C.pp && !C.alert && Math.abs(C.vx) > 40 && Math.random() < dt * 0.05) { startPP('pp_trip', { slide: true }); grunt('oof'); }
+    // a hit makes him angry once he is back up
+    if (['squash', 'dazed'].includes(C.state)) C.angry = C.state;
+    angerAfterHit(C);
+    // climbing grunts
+    if (C.state === 'climb') { C.gruntT = (C.gruntT || 0) - dt; if (C.gruntT <= 0) { C.gruntT = 0.8 + Math.random() * 0.6; if (Math.random() < 0.5) grunt('hnn'); } }
+  }
+
+  // ----- climbers (cosmetic outfits) -----
+  function checkUnlocks() {
+    const have = unlockedIds(), fresh = [];
+    for (const k of CLIMBERS) if (!have.includes(k.id) && k.ok(STATS)) { have.push(k.id); fresh.push(k.name); }
+    if (fresh.length) store.set('unlocked', have);
+    return fresh;
+  }
+  function drawOutfit(P, f) {
+    const id = PREF.climber;
+    if (id === 'stick') return;
+    const [hx, hy] = P.head, nx = P.neck[0], ny = P.neck[1];
+    // head axis: from neck to head, so hats tilt with him
+    let ux = hx - nx, uy = hy - ny; const L = Math.hypot(ux, uy) || 1; ux /= L; uy /= L;
+    const px = -uy * f, py = ux * f;                         // sideways, toward his face
+    const top = [hx + ux * 6.5, hy + uy * 6.5];
+    ctx.save(); ctx.lineWidth = 1.4; ctx.strokeStyle = T.ink; ctx.lineJoin = 'round';
+    const poly = (pts, fill) => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); ctx.stroke(); };
+    const at = (a, s) => [hx + ux * a + px * s, hy + uy * a + py * s];
+    if (id === 'party') {
+      poly([at(5, -4.5), at(5, 4.5), at(17, 1.5)], '#e94b8a');
+      ctx.strokeStyle = '#ffd34d'; ctx.beginPath(); ctx.moveTo(...at(9, -3.2)); ctx.lineTo(...at(9, 3.8)); ctx.moveTo(...at(13, -1.8)); ctx.lineTo(...at(13, 2.8)); ctx.stroke();
+      ctx.fillStyle = '#ffd34d'; ctx.beginPath(); ctx.arc(...at(18, 1.6), 2.2, 0, 7); ctx.fill();
+    } else if (id === 'hardhat') {
+      poly([at(3, -8.5), at(3, 9.5), at(5, 7), at(9.5, 4), at(10, -2), at(7, -6.5), at(5, -7)], '#f2c230');
+    } else if (id === 'ninja') {
+      ctx.strokeStyle = '#d8323c'; ctx.lineWidth = 2.6;
+      ctx.beginPath(); ctx.moveTo(...at(2.5, -6.6)); ctx.lineTo(...at(2.5, 6.6)); ctx.stroke();
+      const wv = Math.sin(S.climber.t * 9);
+      ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(...at(2.5, -6.5)); ctx.quadraticCurveTo(...at(4 + wv * 2, -12), ...at(1 + wv * 3, -17)); ctx.moveTo(...at(2, -6.5)); ctx.quadraticCurveTo(...at(-1 - wv, -11), ...at(-3 - wv * 2, -15)); ctx.stroke();
+    } else if (id === 'diver') {
+      ctx.fillStyle = 'rgba(120,200,240,0.55)';
+      ctx.beginPath(); ctx.arc(...at(1.2, 3.6), 3, 0, 7); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(...at(1.2, 0.6)); ctx.lineTo(...at(1.2, -6.5)); ctx.stroke();
+      ctx.strokeStyle = '#f2852f'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(...at(-3, 5)); ctx.lineTo(...at(-3, 8)); ctx.lineTo(...at(9, 8)); ctx.stroke();
+    } else if (id === 'fire') {
+      poly([at(2, -11), at(3, 7.5), at(6.5, 6), at(10.5, 1), at(9.5, -5), at(5, -8.5)], '#d8323c');
+      ctx.fillStyle = '#ffd34d'; ctx.beginPath(); ctx.arc(...at(7, 3.5), 1.8, 0, 7); ctx.fill();
+    } else if (id === 'crown') {
+      poly([at(5, -5.5), at(5, 5.5), at(11.5, 6), at(8.5, 3), at(11.5, 0), at(8.5, -3), at(11.5, -6)], '#f2c230');
+    } else if (id === 'astro') {
+      ctx.fillStyle = 'rgba(150,210,255,0.22)';
+      ctx.beginPath(); ctx.arc(hx, hy, 10.5, 0, 7); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.beginPath(); ctx.arc(hx + px * 3, hy + py * 3 - 3, 5.5, -2.4, -1.3); ctx.stroke();
+      ctx.strokeStyle = T.ink; ctx.beginPath(); ctx.moveTo(...at(10.5, -3)); ctx.lineTo(...at(15, -5)); ctx.stroke();
+      ctx.fillStyle = T.accent; ctx.beginPath(); ctx.arc(...at(15.5, -5.2), 1.6, 0, 7); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // ----- drawing the world extras -----
+  function drawFx(x, y, kind, seed, r, c) {
+    ctx.save();
+    if (kind === 'ice') {
+      ctx.globalAlpha = 0.5; ctx.fillStyle = '#e8f6ff'; ctx.fillRect(x + 2, y + 2, CELL - 4, CELL - 4);
+      ctx.globalAlpha = 0.9; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(x + 6, y + 9); ctx.lineTo(x + 11, y + 5); ctx.moveTo(x + 9, y + 15); ctx.lineTo(x + 18, y + 7); ctx.stroke();
+      ctx.fillStyle = '#ffffff'; for (let i = 0; i < 3; i++) ctx.fillRect(x + 4 + hash(seed + i) * 18, y + 2, 2, 2);
+    } else if (kind === 'bouncy') {
+      const j = S.jelly[r * COLS + c] || 0, k = j > 0 ? Math.sin(j * 30) * j * 0.25 : 0;
+      ctx.translate(x + CELL / 2, y + CELL); ctx.scale(1 + k, 1 - k); ctx.translate(-x - CELL / 2, -y - CELL);
+      ctx.globalAlpha = 0.45; ctx.fillStyle = '#ff8fd0';
+      ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x + 2, y + 2, CELL - 4, CELL - 4, 8); else ctx.rect(x + 2, y + 2, CELL - 4, CELL - 4); ctx.fill();
+      ctx.globalAlpha = 0.85; ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.ellipse(x + 9, y + 8, 4, 2.4, -0.5, 0, 7); ctx.fill();
+    } else if (kind === 'crumble') {
+      const p = S.crm[r] ? S.crm[r][c] || 0 : 0;
+      ctx.globalAlpha = 0.35; ctx.fillStyle = T.ink;
+      for (let i = 0; i < 5; i++) ctx.fillRect(x + 3 + hash(seed * 3 + i) * 20, y + 3 + hash(seed * 7 + i) * 20, 2, 2);
+      ctx.globalAlpha = 1;
+      drawCracks(x + (p ? (Math.random() - 0.5) * p * 2 : 0), y, 0.15 + Math.min(1, p / CRUMBLE_T) * 0.85, seed);
+    }
+    ctx.restore();
+  }
+  function drawHazard(t) {
+    const h = S.haz;
+    if (!h || h.y > BH + 4) return;
+    const lava = h.kind === 'lava';
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(0, BH + 30);
+    for (let x = 0; x <= BW; x += 7) ctx.lineTo(x, h.y + Math.sin(x * 0.07 + t * (lava ? 2.2 : 3.4)) * (lava ? 2 : 3));
+    ctx.lineTo(BW, BH + 30); ctx.closePath();
+    const g = ctx.createLinearGradient(0, h.y, 0, h.y + 120);
+    if (lava) { g.addColorStop(0, 'rgba(255,170,40,0.95)'); g.addColorStop(0.25, 'rgba(232,72,26,0.92)'); g.addColorStop(1, 'rgba(150,20,10,0.95)'); }
+    else { g.addColorStop(0, 'rgba(120,200,240,0.62)'); g.addColorStop(1, 'rgba(30,90,170,0.82)'); }
+    ctx.fillStyle = g; ctx.fill();
+    ctx.strokeStyle = lava ? '#ffe08a' : 'rgba(255,255,255,0.9)'; ctx.lineWidth = 2; ctx.stroke();
+    // bubbles
+    ctx.fillStyle = lava ? 'rgba(255,220,120,0.9)' : 'rgba(255,255,255,0.7)';
+    for (let i = 0; i < 7; i++) {
+      const bx = (hash(i * 13) * BW + t * 9 * (i % 2 ? 1 : -1) + BW) % BW, ph = (t * 0.6 + hash(i * 5)) % 1;
+      const by = h.y + 40 - ph * 40;
+      if (by > h.y + 2) { ctx.beginPath(); ctx.arc(bx, by, 1.5 + hash(i) * 2, 0, 7); ctx.fill(); }
+    }
+    ctx.restore();
+    // warning arrow on the ruler is drawn by drawRuler
+  }
+  function drawWind(t) {
+    const Wd = S.wind;
+    if (!Wd || !Wd.on) return;
+    ctx.save(); ctx.strokeStyle = T.muted; ctx.globalAlpha = 0.7; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+    for (let i = 0; i < 22; i++) {
+      const y = hash(i * 9) * BH, len = 18 + hash(i * 3) * 26, sp = 260 + hash(i * 7) * 160;
+      let x = ((t * sp + hash(i) * 800) % (BW + 120)) - 60;
+      if (Wd.dir < 0) x = BW - x;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x - Wd.dir * len / 2, y - 3, x - Wd.dir * len, y); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawSmoke(dt) {
+    if (!S.smoke.length) return;
+    ctx.save(); ctx.fillStyle = T.muted;
+    for (const q of S.smoke) { q.y -= 22 * dt; q.r += 6 * dt; q.life -= dt; ctx.globalAlpha = Math.max(0, q.life * 0.4); ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, 7); ctx.fill(); }
+    S.smoke = S.smoke.filter(q => q.life > 0);
+    ctx.restore();
+  }
+  // landing dust under freshly locked cells, and a sparkle burst along cleared rows
+  function lockDust(cells, hard) {
+    for (const [r, c] of cells) {
+      if (r + 1 < ROWS && S.board[r + 1][c] && !cells.some(([rr, cc]) => rr === r + 1 && cc === c) || r + 1 === ROWS) {
+        for (const s of [-1, 1]) S.puff.push({ x: colX(c) + s * 10, y: (r + 1) * CELL, vx: s * (20 + Math.random() * 30) * (hard ? 1.6 : 1), r: 2.5, life: 0.45 });
+      }
+    }
+  }
+  function drawPuffs(dt) {
+    if (!S.puff.length) return;
+    ctx.save(); ctx.fillStyle = T.wallInk;
+    for (const q of S.puff) { q.x += q.vx * dt; q.vx *= Math.pow(0.05, dt); q.y -= 6 * dt; q.r += 9 * dt; q.life -= dt; ctx.globalAlpha = Math.max(0, q.life * 1.3); ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, 7); ctx.fill(); }
+    S.puff = S.puff.filter(q => q.life > 0);
+    ctx.restore();
+  }
+
+  // ----- high scores: this browser, plus everyone's bests when the shared board is available -----
+  const scoreKey = run => run.mode === 'daily' ? 'daily:' + run.day : run.mode;
+  function localScores(key) { return (store.get('scores', {})[key] || []); }
+  function recordScore(run, score) {
+    const all = store.get('scores', {}), key = scoreKey(run);
+    const row = { s: score, w: run.world, c: PREF.climber, d: Date.now() };
+    const list = (all[key] || []).concat([row]).sort((a, b) => b.s - a.s).slice(0, 10);
+    all[key] = list; store.set('scores', all);
+    return list.indexOf(row) + 1;
+  }
+  const shared = { db: null, user: null, me: null, tried: false };
+  async function sharedInit() {
+    if (shared.tried) return shared.db;
+    shared.tried = true;
+    try {
+      if (!window.claude || !window.claude.use) return null;
+      shared.db = await window.claude.use('db');
+      shared.user = await window.claude.use('user');
+      shared.me = shared.user ? await shared.user.id() : null;
+    } catch (e) { shared.db = null; }
+    return shared.db;
+  }
+  async function submitShared(run, score) {
+    try {
+      if (!(await sharedInit()) || !shared.me) return;
+      const ref = shared.db.doc('scores/' + shared.me);
+      const snap = await ref.get();
+      const cur = snap.exists ? JSON.parse(JSON.stringify(snap.data() || {})) : {};
+      const k = run.mode, prev = cur[k];
+      const better = !prev || score > prev.s || (k === 'daily' && prev.day !== run.day);
+      if (!better) return;
+      cur[k] = { s: score, w: run.world, c: PREF.climber, at: Date.now() };
+      if (k === 'daily') cur[k].day = run.day;
+      await ref.set(cur);
+    } catch (e) { /* the shared board is optional */ }
+  }
+  async function loadShared(mode) {
+    if (!(await sharedInit())) return { note: 'The shared board appears when this game is opened on claude.ai.' };
+    try {
+      const snap = await Promise.race([shared.db.collection('scores').limit(500).get(), new Promise((_, no) => setTimeout(() => no(new Error('slow')), 10000))]);
+      const today = dayKey();
+      const rows = snap.docs.map(d => ({ id: d.id, e: (d.data() || {})[mode] })).filter(x => x.e && typeof x.e.s === 'number' && (mode !== 'daily' || x.e.day === today))
+        .sort((a, b) => b.e.s - a.e.s).slice(0, 10);
+      let names = {};
+      if (shared.user && rows.length) { try { names = await shared.user.profiles(rows.map(r => r.id)); } catch (e) { names = {}; } }
+      return { rows: rows.map(r => ({ s: r.e.s, w: r.e.w, c: r.e.c, who: r.id === shared.me ? 'You' : ((names[r.id] && names[r.id].name) || 'Someone') })) };
+    } catch (e) { return { note: 'Couldn’t reach the shared board right now.' }; }
+  }
+
+  // ----- menu, result and score panels -----
+  const panels = { menu: $('menu'), result: $('result'), scores: $('scores') };
+  function showPanel(name) {
+    for (const k in panels) panels[k].hidden = k !== name;
+    overlay.hidden = false;
+    const focus = { menu: $('playBtn'), result: ovBtn, scores: $('scoresBack') }[name];
+    try { focus.focus({ preventScroll: true }); } catch (e) {}
+  }
+  function chip(label, pressed, onClick, cls) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = label; b.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+    if (cls) b.className = cls;
+    b.addEventListener('click', onClick);
+    return b;
+  }
+  function renderMenu() {
+    const segs = $('modeSeg'); segs.replaceChildren();
+    for (const m in MODES) segs.append(chip(MODES[m].name, PREF.mode === m, () => { PREF.mode = m; savePrefs(); renderMenu(); }));
+    $('modeHint').textContent = MODES[PREF.mode].hint;
+    const wc = $('worldChips'); wc.replaceChildren();
+    if (PREF.mode === 'daily') {
+      const d = runRules();
+      wc.append(chip('Today: ' + WORLDS[d.world].name, true, () => {}));
+      $('worldHint').textContent = WORLDS[d.world].blurb;
+    } else {
+      for (const w of WORLD_IDS) wc.append(chip(WORLDS[w].name, PREF.world === w, () => { PREF.world = w; savePrefs(); renderMenu(); }));
+      $('worldHint').textContent = WORLDS[PREF.world].blurb;
+    }
+    const cc = $('climberChips'); cc.replaceChildren();
+    const have = unlockedIds();
+    for (const k of CLIMBERS) {
+      const open = have.includes(k.id);
+      cc.append(chip(k.name, PREF.climber === k.id, () => {
+        if (open) { PREF.climber = k.id; savePrefs(); renderMenu(); }
+        else $('climberHint').textContent = `${k.name} is locked. ${k.how}`;
+      }, open ? '' : 'locked'));
+    }
+    $('climberHint').textContent = `${have.length} of ${CLIMBERS.length} climbers unlocked.`;
+    best = (localScores(scoreKey(runRules()))[0] || { s: 0 }).s;
+  }
+  function showMenu() {
+    S = newState();
+    S.climber.sayText = 'Hey! Down there!'; S.climber.sayT = 999;
+    rng = Math.random;
+    renderMenu(); showPanel('menu'); drawMinis();
+  }
+  async function showScores(mode) {
+    showPanel('scores');
+    const seg = $('scoreSeg'); seg.replaceChildren();
+    for (const m of ['classic', 'escape', 'daily']) seg.append(chip(m === 'daily' ? 'Today’s daily' : MODES[m].name, m === mode, () => showScores(m)));
+    const fill = (ol, rows, empty) => {
+      ol.replaceChildren();
+      if (!rows.length) { const li = document.createElement('li'); li.className = 'empty'; li.textContent = empty; ol.append(li); return; }
+      for (const r of rows) {
+        const li = document.createElement('li');
+        const who = r.who ? r.who + ' · ' : '';
+        li.textContent = `${r.s.toLocaleString()} — ${who}${(WORLDS[r.w] || {}).name || ''}`;
+        ol.append(li);
+      }
+    };
+    const key = mode === 'daily' ? 'daily:' + dayKey() : mode;
+    fill($('scoreMine'), localScores(key).slice(0, 5), 'No scores yet. Go play!');
+    $('scoreAllNote').textContent = 'Loading…';
+    $('scoreAll').replaceChildren();
+    const res = await loadShared(mode);
+    if (panels.scores.hidden) return;
+    $('scoreAllNote').textContent = res.note || (res.rows.length ? '' : 'Nobody on the board yet. Be the first!');
+    if (res.rows) fill($('scoreAll'), res.rows, 'Nobody on the board yet.');
+  }
+  $('playBtn').addEventListener('click', () => startGame());
+  $('scoresBtn').addEventListener('click', () => showScores(PREF.mode));
+  $('menuBtn').addEventListener('click', () => { setMusicFor(); showMenu(); });
+  $('scoresBtn2').addEventListener('click', () => showScores((S.run && S.run.mode) || PREF.mode));
+  $('scoresBack').addEventListener('click', () => (S.mode === 'over' ? showPanel('result') : showMenu()));
+
   // ---------- game flow ----------
   function startGame() {
     S = newState();
+    S.run = runRules();
+    rng = S.run.seed != null ? mulberry(S.run.seed) : Math.random;
     S.mode = 'play';
     S.climber.state = 'ground';
+    if (S.run.hazard) S.haz = { kind: wld().hazard, y: BH + 20, delay: 10 };
+    if (wld().wind) S.wind = { on: false, next: 4 + rng() * 3, t: 0, dir: 1, nudge: 0 };
+    STATS.games++;
+    if (S.run.mode === 'daily' && !STATS.dailyDays.includes(S.run.day)) STATS.dailyDays = STATS.dailyDays.concat([S.run.day]).slice(-60);
+    store.set('stats', STATS);
+    best = (localScores(scoreKey(S.run))[0] || { s: 0 }).s;
     refill(); spawn();
-    say(pick(SAY.start), 1.8);
+    say(S.run.hazard ? pick(['Get me out of here!', 'Build me some stairs!', 'Is it getting warm in here?']) : pick(SAY.start), 1.8);
     overlay.hidden = true;
-    initAudio();
+    for (const k in panels) panels[k].hidden = true;
+    $('pauseBtn').textContent = 'Pause';
+    initAudio(); setMusicFor();
   }
   function setPaused(p) {
     if (S.mode === 'intro' || S.mode === 'over') return;
@@ -2922,23 +3457,53 @@
   function gameOver(kind) {
     if (S.mode === 'over') return;
     S.mode = 'over'; S.result = kind;
-    if (S.score > best) { best = S.score; try { localStorage.setItem('stack-stumble-best', best); } catch (e) {} }
-    const mins = Math.floor(S.time / 60), secs = String(Math.floor(S.time % 60)).padStart(2, '0');
-    if (kind === 'win') {
-      showCard('You lose.', `He made it to the top in ${mins}:${secs} and he is dancing about it. Your score: ${S.score.toLocaleString()}. Keep the stack low, and move or spin the falling piece to shake him off.`, 'Try again', false);
-    } else {
-      sfx('over');
-      const peak = S.climber.peak;
-      const how = peak < 5 ? 'He never got off the floor' : `He never got out (his best was ${peak} m)`;
-      showCard('Your stack hit the ceiling.', `${how}, but your tower toppled anyway. Score: ${S.score.toLocaleString()}.`, 'Try again', false);
+    const C = S.climber, run = S.run || runRules(), esc = run.hazard;
+    if (kind === 'topout' && C.state !== 'win' && C.state !== 'dead') {
+      Object.assign(C, { state: 'dead', deathKind: 'swoon', deathAt: C.t, anchor: null, alert: null, pp: null, rec: null, react: null, tumble: false, rot: 0 });
+      grunt('aww');
     }
+    const escaped = kind === 'win';
+    const bonus = esc && escaped ? 1000 + Math.max(0, 4000 - Math.round(S.time) * 20) : 0;
+    const final = S.score + (esc ? C.peak * 10 : 0) + bonus;
+    S.final = final;
+    if (esc && escaped) STATS[wld().hazard === 'water' ? 'waterEscapes' : 'lavaEscapes']++;
+    if (run.mode === 'classic') STATS.classicBest = Math.max(STATS.classicBest, final);
+    store.set('stats', STATS);
+    const fresh = checkUnlocks();
+    const rank = recordScore(run, final);
+    submitShared(run, final);
+    best = Math.max(best, final);
+    const when = `${Math.floor(S.time / 60)}:${String(Math.floor(S.time % 60)).padStart(2, '0')}`;
+    const tag = run.mode === 'daily' ? `Daily ${run.day}, ${wld().name}. ` : '';
+    const rankTxt = rank === 1 ? ' New best!' : rank && rank <= 5 ? ` That’s #${rank} on your board.` : '';
+    const pts = final.toLocaleString();
+    let title, text;
+    if (!esc) {
+      if (escaped) { title = 'You lose.'; text = `He made it to the top in ${when} and he is dancing about it. Score: ${pts}.${rankTxt}`; }
+      else {
+        sfx('over'); title = 'Your stack hit the ceiling.';
+        text = `${C.peak < 5 ? 'He never got off the floor' : `He never got out (his best was ${C.peak} m)`}, but your tower toppled anyway. Score: ${pts}.${rankTxt}`;
+      }
+    } else if (escaped) {
+      title = 'He escaped! You win.';
+      text = `${tag}You got him out in ${when}. Score: ${pts}, with a ${bonus.toLocaleString()} escape bonus.${rankTxt}`;
+    } else if (kind === 'dead') {
+      sfx('over');
+      title = S.haz && S.haz.kind === 'water' ? 'The water got him.' : 'The lava got him.';
+      text = `${tag}He made it to ${C.peak} m. Score: ${pts}.${rankTxt} Build him stairs faster, and don’t knock him into it!`;
+    } else {
+      sfx('over'); title = 'Your stack hit the ceiling.';
+      text = `${tag}He was at ${C.peak} m. Score: ${pts}.${rankTxt}`;
+    }
+    showCard(title, text, 'Play again', false);
+    const ul = $('ovUnlock');
+    if (fresh.length) { ul.textContent = `New climber unlocked: ${fresh.join(', ')}! Pick it in the menu.`; ul.hidden = false; setTimeout(() => sfx('unlock'), 700); }
     $('pauseBtn').textContent = 'Pause';
   }
-  function showCard(title, text, btn, keys) {
+  function showCard(title, text, btn) {
     ovTitle.textContent = title; ovText.textContent = text; ovBtn.textContent = btn;
-    ovKeys.hidden = !keys;
-    overlay.hidden = false;
-    try { ovBtn.focus({ preventScroll: true }); } catch (e) {}
+    $('ovUnlock').hidden = true;
+    showPanel('result');
   }
   ovBtn.addEventListener('click', () => {
     if (S.mode === 'paused') setPaused(false);
@@ -2992,45 +3557,154 @@
   }
 
   // ---------- sound ----------
-  let ac = null, muted = false;
-  try { muted = localStorage.getItem('stack-stumble-muted') === '1'; } catch (e) {}
-  const muteBtn = $('muteBtn');
-  const syncMute = () => { muteBtn.textContent = muted ? 'Sound on' : 'Sound off'; };
-  syncMute();
-  muteBtn.addEventListener('click', e => {
-    muted = !muted; syncMute(); initAudio(); e.currentTarget.blur();
-    try { localStorage.setItem('stack-stumble-muted', muted ? '1' : '0'); } catch (err) {}
-  });
-  function initAudio() {
-    if (ac || muted) return;
-    try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ac = null; }
+  // Everything is synthesized with Web Audio: sound effects, his voice (a buzzy source through
+  // two vowel formant filters, so grunts read as "hup", "oof", "grr"), and a chiptune soundtrack
+  // scheduled a little ahead of time. Master volume, mute and music are saved per player.
+  let ac = null, master = null, sfxBus = null, musicBus = null, noiseBuf = null;
+  const muteBtn = $('muteBtn'), musicBtn = $('musicBtn'), volIn = $('vol');
+  function syncSoundUI() {
+    muteBtn.textContent = PREF.muted ? 'Unmute' : 'Mute';
+    muteBtn.setAttribute('aria-pressed', PREF.muted ? 'true' : 'false');
+    musicBtn.textContent = PREF.music ? 'Music on' : 'Music off';
+    musicBtn.setAttribute('aria-pressed', PREF.music ? 'true' : 'false');
+    volIn.value = Math.round(PREF.vol * 100);
+    if (master) master.gain.setTargetAtTime(PREF.muted ? 0 : PREF.vol * PREF.vol, ac.currentTime, 0.05);
+    if (musicBus) musicBus.gain.setTargetAtTime(PREF.music ? 0.32 : 0, ac.currentTime, 0.1);
   }
-  function tone(f0, f1, dur, type = 'square', vol = 0.06, delay = 0) {
-    if (!ac || muted) return;
+  muteBtn.addEventListener('click', e => { PREF.muted = !PREF.muted; savePrefs(); initAudio(); syncSoundUI(); e.currentTarget.blur(); });
+  musicBtn.addEventListener('click', e => { PREF.music = !PREF.music; savePrefs(); initAudio(); syncSoundUI(); e.currentTarget.blur(); });
+  volIn.addEventListener('input', () => { PREF.vol = volIn.value / 100; PREF.muted = false; initAudio(); syncSoundUI(); });
+  volIn.addEventListener('change', () => { savePrefs(); volIn.blur(); });
+  function initAudio() {
+    if (!ac) {
+      try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ac = null; return; }
+      master = ac.createGain(); master.connect(ac.destination);
+      sfxBus = ac.createGain(); sfxBus.gain.value = 1; sfxBus.connect(master);
+      musicBus = ac.createGain(); musicBus.gain.value = 0; musicBus.connect(master);
+      noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+      const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      syncSoundUI();
+      setInterval(musicTick, 25);
+    }
+    if (ac.state === 'suspended') ac.resume().catch(() => {});
+  }
+  syncSoundUI();
+  const live = () => ac && !PREF.muted;
+  function tone(f0, f1, dur, type = 'square', vol = 0.06, delay = 0, bus = sfxBus) {
+    if (!live()) return;
     const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
     o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
     g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur + 0.02);
+    o.connect(g).connect(bus); o.start(t); o.stop(t + dur + 0.02);
+  }
+  function noise(dur, freq, q, vol = 0.1, delay = 0, type = 'bandpass', bus = sfxBus) {
+    if (!live()) return;
+    const t = ac.currentTime + delay, s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+    s.buffer = noiseBuf; f.type = type; f.frequency.value = freq; f.Q.value = q;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f).connect(g).connect(bus); s.start(t, Math.random() * 0.5); s.stop(t + dur + 0.02);
+  }
+  // his voice: a sawtooth with vibrato through two vowel formants
+  const VOWEL = { u: [320, 800], o: [520, 900], a: [760, 1150], e: [500, 1750], i: [300, 2250] };
+  function voice(f0, f1, dur, vowel = 'u', vol = 0.12, delay = 0, wobble = 0) {
+    if (!live()) return;
+    const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(Math.max(40, f1), t + dur);
+    if (wobble) { const l = ac.createOscillator(), lg = ac.createGain(); l.frequency.value = 28; lg.gain.value = wobble; l.connect(lg).connect(o.frequency); l.start(t); l.stop(t + dur + 0.02); }
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g);
+    for (const [fq, gain] of [[VOWEL[vowel][0], 1], [VOWEL[vowel][1], 0.5]]) {
+      const f = ac.createBiquadFilter(), fg = ac.createGain();
+      f.type = 'bandpass'; f.frequency.value = fq; f.Q.value = 7; fg.gain.value = gain * 2.2;
+      g.connect(f).connect(fg).connect(sfxBus);
+    }
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+  // little sounds he makes
+  function grunt(kind) {
+    if (!live()) return;
+    const p = 1 + (Math.random() - 0.5) * 0.12;   // never quite the same twice
+    switch (kind) {
+      case 'hup': voice(190 * p, 260 * p, 0.12, 'u', 0.11); break;
+      case 'hnn': voice(150 * p, 165 * p, 0.17, 'u', 0.07); break;
+      case 'oof': voice(240 * p, 140 * p, 0.15, 'o', 0.12); break;
+      case 'yelp': voice(520 * p, 980 * p, 0.17, 'i', 0.1); break;
+      case 'ow': voice(420 * p, 230 * p, 0.22, 'a', 0.11); break;
+      case 'grr': voice(115 * p, 100 * p, 0.38, 'o', 0.12, 0, 9); break;
+      case 'hmph': voice(210 * p, 150 * p, 0.2, 'u', 0.1); noise(0.12, 900, 0.8, 0.05, 0.12); break;
+      case 'rage': voice(150 * p, 120 * p, 0.32, 'a', 0.13, 0, 14); voice(180 * p, 110 * p, 0.3, 'a', 0.12, 0.34, 14); break;
+      case 'pant': for (let i = 0; i < 3; i++) noise(0.11, 1400, 0.7, 0.07, i * 0.24, 'bandpass'); break;
+      case 'woo': voice(330 * p, 620 * p, 0.25, 'u', 0.1); break;
+      case 'aww': voice(330 * p, 160 * p, 0.6, 'a', 0.1, 0, 4); break;
+    }
   }
   function sfx(name) {
-    if (!ac || muted) return;
+    if (!live()) return;
     switch (name) {
       case 'rot': tone(520, 600, 0.04, 'square', 0.025); break;
-      case 'lock': tone(140, 70, 0.08, 'triangle', 0.12); break;
-      case 'slam': tone(110, 40, 0.16, 'triangle', 0.2); tone(80, 30, 0.12, 'sawtooth', 0.04); break;
+      // a satisfying thunk: a low thump plus a short knock of filtered noise
+      case 'lock': tone(150, 52, 0.14, 'sine', 0.32); noise(0.06, 500, 1.2, 0.18); tone(900, 700, 0.03, 'triangle', 0.03); break;
+      case 'slam': tone(130, 38, 0.22, 'sine', 0.42); noise(0.12, 300, 0.9, 0.28); tone(80, 30, 0.14, 'sawtooth', 0.05); break;
       case 'clear1': case 'clear2': case 'clear3':
         [523, 659, 784].slice(0, +name.slice(-1) + 1).forEach((f, i) => tone(f, f, 0.1, 'square', 0.05, i * 0.06)); break;
       case 'clear4': [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.14, 'square', 0.06, i * 0.07)); break;
-      case 'jump': tone(300, 700, 0.12, 'square', 0.03); break;
+      case 'jump': tone(300, 700, 0.12, 'square', 0.025); break;
       case 'rattle': tone(95 + Math.random() * 30, 60, 0.05, 'square', 0.03); if (Math.random() < 0.3) tone(1400, 900, 0.03, 'square', 0.012); break;
       case 'beep': tone(880, 880, 0.07, 'square', 0.05); tone(1320, 1320, 0.09, 'square', 0.05, 0.08); break;
       case 'zap': tone(180, 2200, 0.35, 'sawtooth', 0.035); tone(2400, 300, 0.3, 'sine', 0.03, 0.1); break;
-      case 'crumble': tone(220, 50, 0.45, 'sawtooth', 0.07); tone(120, 40, 0.35, 'triangle', 0.15); break;
+      case 'crumble': tone(220, 50, 0.45, 'sawtooth', 0.06); noise(0.4, 400, 0.7, 0.18); break;
+      case 'creak': tone(160, 120, 0.3, 'sawtooth', 0.025); break;
       case 'fall': tone(1200, 180, 0.7, 'sine', 0.06); break;
       case 'bonk': tone(700, 160, 0.18, 'square', 0.07); tone(90, 40, 0.15, 'triangle', 0.15); break;
-      case 'thud': tone(90, 40, 0.2, 'triangle', 0.18); break;
+      case 'thud': tone(90, 40, 0.2, 'triangle', 0.18); noise(0.08, 300, 1, 0.08); break;
+      case 'boing': tone(180, 520, 0.28, 'sine', 0.12); tone(260, 700, 0.2, 'triangle', 0.04, 0.05); break;
+      case 'whoosh': noise(1.2, 700, 0.6, 0.12, 0, 'bandpass'); break;
+      case 'splash': noise(0.5, 1200, 0.5, 0.22); tone(500, 120, 0.3, 'sine', 0.06); break;
+      case 'sizzle': noise(1.2, 4000, 0.4, 0.14, 0, 'highpass'); tone(300, 90, 0.4, 'sawtooth', 0.04); break;
+      case 'faint': tone(500, 140, 0.9, 'triangle', 0.07); break;
+      case 'unlock': [659, 784, 988, 1319].forEach((f, i) => tone(f, f, 0.16, 'triangle', 0.08, i * 0.09)); break;
       case 'win': [392, 523, 659, 784].forEach((f, i) => tone(f, f, 0.18, 'triangle', 0.08, i * 0.12)); break;
       case 'over': [330, 262, 196].forEach((f, i) => tone(f, f * 0.98, 0.22, 'triangle', 0.08, i * 0.16)); break;
+    }
+  }
+
+  // --- soundtrack: 8 bars in C (C G Am F / F G Am G), drums, bass and a lead; faster and busier
+  // in the escape modes, and busier still when the lava is close. Each world shifts the key a little.
+  const MEL = [
+    [76, 0, 79, 0, 84, 0, 79, 0, 81, 0, 79, 0, 76, 0, 74, 0], [74, 0, 79, 0, 83, 0, 79, 0, 81, 0, 79, 0, 74, 0, 0, 0],
+    [72, 0, 76, 0, 81, 0, 76, 0, 79, 0, 76, 0, 72, 0, 74, 0], [72, 0, 77, 0, 81, 0, 77, 0, 79, 0, 81, 0, 79, 0, 0, 0],
+    [81, 0, 0, 0, 79, 0, 77, 0, 76, 0, 0, 0, 74, 0, 72, 0], [74, 0, 0, 0, 76, 0, 79, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [76, 0, 0, 0, 74, 0, 72, 0, 69, 0, 0, 0, 72, 0, 74, 0], [71, 0, 0, 0, 74, 0, 79, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+  const ROOT = [48, 43, 45, 41, 41, 43, 45, 43];
+  const KEY = { garden: 0, ice: 2, wind: -3, jelly: 5, ruins: -5 };
+  const LEAD = { garden: 'square', ice: 'triangle', wind: 'sawtooth', jelly: 'square', ruins: 'triangle' };
+  const mus = { next: 0, step: 0 };
+  const hz = n => 440 * Math.pow(2, (n - 69) / 12);
+  function setMusicFor() { mus.step = 0; }
+  function musicTick() {
+    if (!ac || PREF.muted || !PREF.music || document.hidden) { if (ac) mus.next = ac.currentTime + 0.05; return; }
+    const run = S && S.run, intense = run && run.hazard && S.mode === 'play';
+    const danger = intense && S.haz && S.climber.y > S.haz.y - 3 * CELL;
+    const bpm = S && S.mode === 'play' ? (intense ? 132 : 112) : 96;
+    const st = 60 / bpm / 4, world = (run && run.world) || 'garden', k = KEY[world] || 0;
+    if (mus.next < ac.currentTime) mus.next = ac.currentTime + 0.05;
+    while (mus.next < ac.currentTime + 0.12) {
+      const t = mus.next - ac.currentTime, s = mus.step % 16, bar = Math.floor(mus.step / 16) % 8;
+      const calm = !S || S.mode !== 'play';
+      // drums
+      if (!calm) {
+        if (s === 0 || s === 8 || (intense && s === 10)) tone(120, 45, 0.12, 'sine', 0.5, t, musicBus);
+        if (s === 4 || s === 12) noise(0.09, 1800, 0.8, 0.18, t, 'bandpass', musicBus);
+        if (s % 2 === 0 || danger) noise(0.03, 7000, 1, s % 4 === 2 ? 0.07 : 0.04, t, 'highpass', musicBus);
+      }
+      // bass on the beat, octave bounce on the off-beats
+      if (s % 4 === 0) tone(hz(ROOT[bar] + k), hz(ROOT[bar] + k), st * 3, 'triangle', calm ? 0.16 : 0.22, t, musicBus);
+      if (s % 4 === 2 && !calm) tone(hz(ROOT[bar] + 12 + k), hz(ROOT[bar] + 12 + k), st * 1.5, 'triangle', 0.12, t, musicBus);
+      // lead
+      const n = MEL[bar][s];
+      if (n) tone(hz(n + k), hz(n + k) * 0.995, st * (calm ? 3 : 2.2), LEAD[world] || 'square', calm ? 0.035 : 0.05, t, musicBus);
+      mus.next += st; mus.step++;
     }
   }
 
@@ -3063,7 +3737,9 @@
     ctx.beginPath(); ctx.moveTo(fx, TOP - 34); ctx.quadraticCurveTo(fx - 10, TOP - 30 + wave, fx - 20, TOP - 28 + wave);
     ctx.lineTo(fx, TOP - 22); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.fillStyle = T.muted; ctx.font = `13px ${T.hand}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText('the top ↑ (he wants it)', 6, TOP - 16);
+    const run = S.run;
+    ctx.fillText(!run ? 'the top ↑ (he wants it)' : run.mode === 'classic' ? `the top ↑ keep him from it · ${wld().name}`
+      : `${run.mode === 'daily' ? 'daily · ' : ''}the way out ↑ help him up! · ${wld().name}`, 6, TOP - 16);
   }
 
   function drawRuler() {
@@ -3076,6 +3752,12 @@
       const y = TOP + BH * (1 - m / 100);
       ctx.beginPath(); ctx.moveTo(BW + 2, y); ctx.lineTo(BW + 7, y); ctx.stroke();
       if (m % 20 === 0 && m > 0 && m < 100) ctx.fillText(m + 'm', W - 3, y);
+    }
+    if (S.haz && S.haz.y < BH) {
+      // the hazard level on the ruler
+      const y = TOP + Math.max(0, S.haz.y);
+      ctx.fillStyle = S.haz.kind === 'lava' ? '#e8481a' : '#2d8fd0';
+      ctx.fillRect(BW + 2, y, RULER - 2, H - y);
     }
     if (S.mode !== 'intro') {
       const y = TOP + Math.max(0, Math.min(BH, S.climber.y));
@@ -3097,6 +3779,7 @@
       const prog = S.crk[y][x] || 0;
       const jig = prog > BREAK_AT - 2 ? (Math.random() - 0.5) * (prog - (BREAK_AT - 2)) : 0;
       drawCell(ctx, x * CELL + jig, y * CELL, CELL, T.p[v], y * 31 + x);
+      if (S.fx[y][x]) drawFx(x * CELL + jig, y * CELL, S.fx[y][x], y * 31 + x, y, x);
       if (prog >= CRACK_AT) drawCracks(x * CELL + jig, y * CELL, (prog - CRACK_AT) / (BREAK_AT - CRACK_AT), y * 31 + x);
     }
     if (S.cur && S.mode !== 'intro') {
@@ -3118,7 +3801,10 @@
         ctx.globalAlpha = 1;
       }
       for (let r = 0; r < m.length; r++) for (let c = 0; c < m.length; c++)
-        if (m[r][c] && S.cur.y + r >= 0) drawCell(ctx, (x + c) * CELL, (S.cur.y + r) * CELL, CELL, T.p[S.cur.t], r * 5 + c + 999);
+        if (m[r][c] && S.cur.y + r >= 0) {
+          drawCell(ctx, (x + c) * CELL, (S.cur.y + r) * CELL, CELL, T.p[S.cur.t], r * 5 + c + 999);
+          if (S.cur.fx) drawFx((x + c) * CELL, (S.cur.y + r) * CELL, S.cur.fx, r * 5 + c + 999, -1, -1);
+        }
     }
   }
 
@@ -3149,8 +3835,10 @@
     const C = S.climber;
     let name = 'idle', t = C.t, ox = C.x, oy = C.y, speed = 1;
     switch (C.state) {
-      case 'intro': name = 'wave'; break;
+      case 'intro': name = 'pp_waveBig'; break;
+      case 'dead': name = { lava: 'pp_deathBurn', water: 'pp_deathSink' }[C.deathKind] || 'pp_deathSwoon'; t = C.t - C.deathAt; break;
       case 'ground': {
+        if (C.pp && C.t < C.pp.until) { name = C.pp.name; t = C.t - C.pp.t0; break; }
         if (C.topAnim && C.t < C.topAnim.until) { name = C.topAnim.name; t = C.topAnim.t; break; }
         const v = Math.abs(C.vx);
         const riding = supportUnder(C.x, C.y) === 'piece';
@@ -3164,12 +3852,17 @@
         else if (v > 6) { name = 'walk'; speed = Math.max(0.5, v / 44); }
         else if (riding || C.wobble > 0.15) name = 'balance';
         else if (C.intent && C.intent.type === 'wait') name = 'lookUp';
-        else name = C.mood;
+        else if (C.windT > 0 && S.wind) { name = 'pp_windBrace'; C.f = -S.wind.dir; }
+        else {
+          const ed = C.mood === 'idle' ? edgeDir() : 0;
+          if (ed) { name = 'pp_edgePeer'; C.f = ed; } else name = C.mood;
+        }
         break;
       }
       case 'air': {
         const tm = topAirMotion();
         if (tm) { name = tm.name; t = tm.t; break; }
+        if (C.bounceT > 0 && !C.tumble) { name = 'pp_bounceSpread'; break; }
         if (C.tumble) name = 'tumble';
         else if (C.vy < 0) { name = 'jumpUp'; t = C.airT; }
         else name = 'fallDown';
@@ -3188,10 +3881,16 @@
       case 'squash':
         if (C.topHit) { ({ name, t } = topMotion()); break; }
         name = 'squashed'; t = 0.7 - C.squashT; break;
-      case 'win': name = 'celebrate'; oy = 0; t = C.winT; break;
+      case 'win': {
+        // a victory routine: hop, dance, flex, wave
+        const k = Math.floor(C.winT / 1.6) % 4;
+        name = ['celebrate', 'pp_dance', 'pp_flex', 'pp_waveBig'][k]; oy = 0; t = C.winT % 1.6;
+        break;
+      }
     }
-    const nm = nearMotion(C);
+    const nm = C.state === 'dead' ? null : nearMotion(C);
     if (nm) { name = nm.name; t = nm.t; speed = nm.speed || speed; }
+    if (C.state === 'dead' || (C.pp && C.state === 'ground')) return { name, t, ox, oy, speed };
     // riding poses first, then recoveries take priority over them
     return recoverMotion(sideMotion(rideMotion({ name, t, ox, oy, speed })));
   }
@@ -3295,7 +3994,8 @@
     }
     ctx.save();
     ctx.globalAlpha = Math.max(0.05, alpha);
-    ctx.strokeStyle = T.ink; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    const charred = C.state === 'dead' && C.deathKind === 'lava' && C.t - C.deathAt > 0.5;
+    ctx.strokeStyle = charred ? T.muted : T.ink; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     const sh = [P.neck[0], P.neck[1] + 3];
     ctx.beginPath();
     ctx.moveTo(P.neck[0], P.neck[1]); ctx.lineTo(P.hip[0], P.hip[1]);
@@ -3384,9 +4084,15 @@
         ctx.rect(hx - 1.4 * f - (f < 0 ? 5.2 : 0), hy + 1.2, 5.2, 2.6);
         ctx.moveTo(hx - 1.4 * f, hy + 2.5); ctx.lineTo(hx + 3.8 * f, hy + 2.5);
         for (const t of [0.3, 1.6, 2.9]) { ctx.moveTo(hx + t * f, hy + 1.2); ctx.lineTo(hx + t * f, hy + 3.8); }
+      } else if (face === 'angry') {
+        // slanted brows and a frown
+        ctx.moveTo(hx - 1.4 * f, hy - 4); ctx.lineTo(hx + 1.2 * f, hy - 2.6);
+        ctx.moveTo(hx + 2.2 * f, hy - 2.6); ctx.lineTo(hx + 4.6 * f, hy - 4);
+        ctx.moveTo(hx + 0.1 * f, hy + 3.4); ctx.quadraticCurveTo(hx + 1.7 * f, hy + 1.4, hx + 3.3 * f, hy + 3.4);
       }
       ctx.stroke();
     }
+    drawOutfit(P, f);
     drawStars(hx, hy);
     if (btn) {
       // a little box with a big red button
@@ -3462,10 +4168,14 @@
     if (S.shake > 0.2) ctx.translate((Math.random() - 0.5) * S.shake * 0.5, (Math.random() - 0.5) * S.shake * 0.35);
     drawRuler();
     ctx.save();
-    ctx.translate(0, TOP);
+    ctx.translate(0, TOP + S.thump * 2.5);
     ctx.beginPath(); ctx.rect(-20, -TOP, BW + 40, H + 20); ctx.clip();
     drawBoard();
+    drawPuffs(dt);
     const head = drawClimber(clock, dt);
+    drawSmoke(dt);
+    drawHazard(clock);
+    drawWind(clock);
     for (const q of S.parts) {
       ctx.globalAlpha = Math.max(0, Math.min(1, q.life * 2));
       ctx.fillStyle = q.color; ctx.fillRect(q.x - q.s / 2, q.y - q.s / 2, q.s, q.s);
@@ -3496,9 +4206,9 @@
       }
       // the mood he shows when he has nothing better to do
       C.moodT -= dt;
-      if (C.moodT <= 0) { C.moodT = 2.5 + Math.random() * 3; C.mood = pick(['idle', 'idle', 'idle', 'lookUp', 'wave']); }
+      if (C.moodT <= 0) { C.moodT = 2.5 + Math.random() * 3; C.mood = pickMood(C); }
       if (S.mode === 'play') {
-        try { updateClimber(dt); }
+        try { updateClimber(dt); if (S.mode === 'play') worldTick(dt); }
         catch (err) { console.error(err); rescueClimber(); }
       }
     } else {
@@ -3507,6 +4217,7 @@
       if (S.climber.sayT > 0 && S.mode !== 'intro') S.climber.sayT -= dt;
     }
     S.shake *= Math.exp(-dt * 9);
+    S.thump = Math.max(0, S.thump - dt * 7);
     if (S.parts.length) {
       for (const q of S.parts) { q.vy += 700 * dt; q.x += q.vx * dt; q.y += q.vy * dt; q.life -= dt; }
       S.parts = S.parts.filter(q => q.life > 0 && q.y < BH + 20);
@@ -3521,7 +4232,7 @@
   window.claude?.hot?.snapshot?.(() => S && S.mode !== 'intro' ? JSON.parse(JSON.stringify(S)) : {});
   function start(data) {
     S = newState();
-    if (data && data.board && data.climber && 'vx' in data.climber) {
+    if (data && data.board && data.climber && 'vx' in data.climber && data.run && data.fx) {
       S = Object.assign(newState(), data);
       if (!S.ids) S.ids = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
       if (!S.crk) S.crk = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
@@ -3530,7 +4241,7 @@
       else if (S.mode === 'over') overlay.hidden = false;
       $('pauseBtn').textContent = S.mode === 'paused' ? 'Resume' : 'Pause';
     } else {
-      S.climber.sayText = 'Hey! Down there!'; S.climber.sayT = 999;
+      showMenu();
     }
     fit();
     requestAnimationFrame(t => { prev = t; fit(); requestAnimationFrame(frame); });
