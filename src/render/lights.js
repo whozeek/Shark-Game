@@ -38,6 +38,16 @@ export class LightRig {
     if (cb.cones.length) this.cones = buildCones(cb.cones);
     if (this.cones) { this.cones.layers.set(LAYER_NO_REFLECT); this.scene.add(this.cones); }
   }
+  /** Per-source scale: street lamps each switch on at their own moment as dusk deepens. */
+  scaleOf(L) {
+    if (L.kind === 'street' || L.kind === 'porch') {
+      if (L.th === undefined) { const h = Math.sin(L.x * 12.9898 + L.z * 78.233) * 43758.5453; L.th = 0.26 + (h - Math.floor(h)) * 0.32; }
+      const k = Math.max(0, Math.min(1, (this.night - L.th) / 0.04));
+      const sc = L.kind === 'street' ? this.scales.street : this.scales.street * 0.8;
+      return sc * (0.12 + 0.88 * k);
+    }
+    return this.kindScale(L.kind);
+  }
   kindScale(kind) {
     const s = this.scales;
     if (kind === 'street') return s.street * this.streetOn;
@@ -59,7 +69,7 @@ export class LightRig {
         for (const L of cb.lights) {
           const d2 = (L.x - camPos.x) ** 2 + (L.z - camPos.z) ** 2;
           if (d2 > 70 * 70) continue;
-          const w = this.kindScale(L.kind) * L.intensity * (isOpen(L.hours, this.hour ?? 20) ? 1 : 0.04);
+          const w = this.scaleOf(L) * L.intensity * (isOpen(L.hours, this.hour ?? 20) ? 1 : 0.04);
           if (w < 0.05) continue;
           scored.push([d2 / (0.5 + Math.min(w, 30) / 30), L]);
         }
@@ -78,7 +88,7 @@ export class LightRig {
       for (const P of cb.pools) {
         const d2 = (P.x - camPos.x) ** 2 + (P.z - camPos.z) ** 2;
         if (d2 > 110 * 110) continue;
-        const s = this.kindScale(P.kind) * P.strength * (isOpen(P.hours, this.hour ?? 20) ? 1 : 0.05);
+        const s = this.scaleOf(P) * P.strength * (isOpen(P.hours, this.hour ?? 20) ? 1 : 0.05);
         if (s < 0.02) continue;
         pools.push([d2, P, s]);
       }
@@ -90,7 +100,7 @@ export class LightRig {
       const want = p.src && this.wanted?.has(p.src);
       p.f = Math.max(0, Math.min(1, p.f + (want ? dt * 2.5 : -dt * 2.5)));
       if (!want && p.f === 0) p.src = null;
-      p.light.intensity = p.src ? p.src.intensity * this.kindScale(p.src.kind) * p.f * (isOpen(p.src.hours, this.hour ?? 20) ? 1 : 0.04) : 0;
+      p.light.intensity = p.src ? p.src.intensity * this.scaleOf(p.src) * p.f * (isOpen(p.src.hours, this.hour ?? 20) ? 1 : 0.04) : 0;
     }
     // write pool uniforms: dynamic first (headlights), then static
     const A = U.uPoolA.value, C = U.uPoolC.value;

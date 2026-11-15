@@ -40,6 +40,7 @@ export class Player {
   sit(seat, glide = false) {
     if (glide) this.beginGlide();
     this.seat = seat; this.vx = this.vz = 0;
+    this.x = seat.x; this.z = seat.z; this.ground = seat.y ?? this.ground;
     this.preSeat = { x: this.x, z: this.z };
     this.yaw = seat.yaw; this.pitch = -0.02;
   }

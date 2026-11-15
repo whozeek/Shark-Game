@@ -118,6 +118,8 @@ export const DEFAULTS = {
   shuffle: false,
   musicOn: true,
   musicSource: 'builtin',
+  sleepMinutes: 30,
+  sleepOnSit: true,
   rainVol: 0.7,
   thunderVol: 0.7,
   trafficVol: 0.45,
@@ -152,6 +154,7 @@ export const PRESETS = [
   { id: 'snownight', name: 'Snowy Night', desc: 'Soft snowfall, quiet glowing streets', values: { season: 'winter', precip: 'snow', rainIntensity: 0.55, timeOfDay: 21.5, fog: 0.5, style: 'cozy', pedestrians: 0.3, traffic: 0.25, wind: 0.15, windowGlow: 1.2, storm: 0, rainbow: 0 } },
   { id: 'autumnleaves', name: 'Autumn Leaves', desc: 'Golden trees and blowing leaves', values: { season: 'autumn', precip: 'rain', rainIntensity: 0.3, timeOfDay: 17.4, wind: 0.45, style: 'golden', fog: 0.35, storm: 0, rainbow: 0 } },
   { id: 'blossom', name: 'Blossom Drizzle', desc: 'Spring petals in a light shower', values: { season: 'spring', precip: 'rain', rainIntensity: 0.25, timeOfDay: 10.5, style: 'pastel', fog: 0.4, storm: 0, rainbow: 0.15, palette: 'purplepink' } },
+  { id: 'dusk', name: 'Dusk to Night', desc: 'Evening falls slowly; the lamps come on one by one', values: { timeOfDay: 17.6, timeFlow: 'dusk', rainIntensity: 0.4, fog: 0.4, style: 'cozy', storm: 0, rainbow: 0, season: 'autumn' } },
   { id: 'dreamy', name: 'Dreamy NYC', desc: 'Pastel glow and gentle colour', values: { city: 'nyc', style: 'pastel', rainbow: 0.45, palette: 'purplepink', bloom: 1.2, timeOfDay: 19.4, fog: 0.55, rainIntensity: 0.45, storm: 0 } },
 ];
 
@@ -239,7 +242,7 @@ export const SCHEMA_KEYS = {
   weather: ['rainIntensity', 'rainSpeed', 'dropSize', 'rainColor', 'fog', 'mist', 'wind', 'windDir', 'puddles', 'wetness', 'clouds', 'cloudDarkness', 'cloudHeight', 'cloudSpeed', 'storm', 'thunder', 'lightning', 'timeOfDay', 'timeFlow', 'season', 'precip'],
   style: ['style', 'palette', 'custom1', 'custom2', 'custom3', 'rainbow', 'rainbowSpeed', 'rainbowSpread', 'rainbowDir', 'rainbowSat', 'rainbowMove', 'reflections', 'reflStreet', 'reflPuddle', 'reflWindow', 'reflCar', 'reflRain', 'reflNeon', 'reflBlur', 'reflLength', 'reflColor', 'reflMotion', 'streetlights', 'storefronts', 'windowGlow', 'headlights', 'neon', 'ambient', 'moonlight', 'bloom', 'exposure'],
   life: ['pedestrians', 'pedSpeed', 'umbrellaPct', 'groups', 'traffic', 'trafficSpeed', 'taxis', 'buses', 'headlightsOn', 'cyclists', 'dogs', 'citySounds', 'cityRhythm'],
-  audio: ['masterVol', 'musicVol', 'musicSource', 'musicStyle', 'shuffle', 'rainVol', 'thunderVol', 'trafficVol', 'peopleVol', 'windVol', 'ambienceVol', 'footstepsVol'],
+  audio: ['masterVol', 'musicVol', 'musicSource', 'sleepMinutes', 'sleepOnSit', 'musicStyle', 'shuffle', 'rainVol', 'thunderVol', 'trafficVol', 'peopleVol', 'windVol', 'ambienceVol', 'footstepsVol'],
   display: ['quality', 'fpsCap', 'resolutionScale', 'showFps'],
 };
 

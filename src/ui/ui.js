@@ -152,6 +152,10 @@ export class UI {
     // prompt
     this.prompt = el('button', { class: 'prompt glass', hidden: true, onclick: () => this.app.interact() });
     hud.appendChild(this.prompt);
+    this.promptAlt = el('button', { class: 'prompt prompt-alt glass', hidden: true });
+    hud.appendChild(this.promptAlt);
+    this.sleepChip = el('button', { class: 'sleep-chip glass', hidden: true, 'aria-label': 'Cancel the wind-down timer', onclick: () => { this.app.cancelSleep(); this.toast('Wind-down cancelled'); } });
+    hud.appendChild(this.sleepChip);
     // touch stick hint + vertical move buttons for photo mode
     const touch = el('div', { class: 'touch-ui' });
     this.stickHint = el('div', { class: 'stick-hint', 'aria-hidden': 'true', hidden: true }, 'Drag here<br>to fly');
@@ -235,12 +239,26 @@ export class UI {
     this.fsBtn.setAttribute('aria-label', fs ? 'Exit full screen (F)' : 'Full screen (F)');
   }
   setPrompt(p) {
-    if (!p || this.app.photo.active) { this.prompt.hidden = true; this.promptKey = null; return; }
-    const key = p.label;
+    if (!p || this.app.photo.active) { this.prompt.hidden = true; this.promptAlt.hidden = true; this.promptKey = null; return; }
+    const key = p.label + (p.alt ? '|' + p.alt.label : '');
     if (this.promptKey === key) return;
     this.promptKey = key;
     this.prompt.hidden = false;
     this.prompt.innerHTML = `<kbd>${this.touch ? 'Tap' : 'E'}</kbd> ${p.label}`;
+    this.promptAlt.hidden = !p.alt;
+    if (p.alt) { this.promptAlt.textContent = p.alt.label; this.promptAlt.onclick = () => { p.alt.action(); this.promptKey = null; }; }
+  }
+  /** Small moon chip while the wind-down timer runs; tap to cancel. */
+  updateSleep(sl) {
+    if (!sl) { this.sleepChip.hidden = true; return; }
+    const left = Math.max(0, Math.ceil((sl.dur - sl.t) / 60));
+    this.sleepChip.hidden = false;
+    this.sleepChip.innerHTML = `🌙 ${left} min`;
+  }
+  showGoodnight(on) {
+    if (!on) { this.goodnight?.remove(); this.goodnight = null; return; }
+    this.goodnight = el('button', { class: 'goodnight', 'aria-label': 'Good night. Tap to wake up', onclick: () => this.app.cancelSleep() }, '<span>Good night</span><small>Tap to wake up</small>');
+    this.root.appendChild(this.goodnight);
   }
   setHidden(h) {
     this.hidden = h;
@@ -339,7 +357,17 @@ export class UI {
     this.panelBody.innerHTML = '';
     this.bindings = [];
     const schema = this.schema()[this.tab];
-    for (const item of schema) this.panelBody.appendChild(this.renderItem(item));
+    // keep each tab short: essentials first, everything else tucked under "More options"
+    const adv = ADVANCED[this.tab];
+    const isAdv = (it) => adv && ((it.key && adv.has(it.key)) || it.adv);
+    for (const item of schema) if (!isAdv(item)) this.panelBody.appendChild(this.renderItem(item));
+    const rest = schema.filter(isAdv);
+    if (rest.length) {
+      const det = el('details', { class: 'more' });
+      det.appendChild(el('summary', {}, 'More options'));
+      for (const item of rest) det.appendChild(this.renderItem(item));
+      this.panelBody.appendChild(det);
+    }
     this.panelBody.scrollTop = 0;
     this.tabBtns[this.tab].scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
@@ -506,7 +534,7 @@ export class UI {
         { type: 'h', label: 'Time of day' },
         { type: 'slider', key: 'timeOfDay', label: 'Time', min: 0, max: 23.99, step: 0.05, fmt: fmtTime },
         { type: 'seg', key: 'timeOfDay', label: 'Quick pick', options: TIME_PRESETS.map(([l, v]) => [v, l]) },
-        { type: 'seg', key: 'timeFlow', label: 'Clock', options: [['still', 'Stay still'], ['slow', 'Slowly pass'], ['gentle', 'Pass faster']] },
+        { type: 'seg', key: 'timeFlow', label: 'Clock', options: [['still', 'Stay still'], ['dusk', 'Dusk to night'], ['slow', 'Slowly pass'], ['gentle', 'Pass faster']] },
         { type: 'buttons', items: [{ label: 'Reset weather', action: () => settings.reset('weather') }] },
       ],
       style: [
@@ -526,9 +554,9 @@ export class UI {
         { type: 'slider', key: 'rainbowSat', label: 'Saturation' },
         { type: 'h', label: 'Reflections' },
         { type: 'slider', key: 'reflections', label: 'Overall reflections' },
-        { type: 'custom', render: (d) => {
-          const det = el('details');
-          det.appendChild(el('summary', {}, 'Fine-tune each surface'));
+        { type: 'custom', adv: true, render: (d) => {
+          const det = el('details', { open: true });
+          det.appendChild(el('summary', {}, 'Each surface'));
           for (const it of [
             { type: 'slider', key: 'reflStreet', label: 'Streets' }, { type: 'slider', key: 'reflPuddle', label: 'Puddles' },
             { type: 'slider', key: 'reflWindow', label: 'Windows' }, { type: 'slider', key: 'reflCar', label: 'Cars' },
@@ -538,7 +566,7 @@ export class UI {
           ]) det.appendChild(this.renderItem(it));
           d.appendChild(det);
         } },
-        { type: 'h', label: 'City lights' },
+        { type: 'h', label: 'City lights', adv: true },
         { type: 'slider', key: 'streetlights', label: 'Streetlights', max: 1.5 },
         { type: 'slider', key: 'storefronts', label: 'Storefronts', max: 1.5 },
         { type: 'slider', key: 'windowGlow', label: 'Window glow', max: 1.5 },
@@ -613,6 +641,10 @@ export class UI {
         { type: 'toggle', key: 'shuffle', label: 'Shuffle' },
         { type: 'slider', key: 'musicVol', label: 'Music volume' },
         { type: 'note', text: 'All music is composed live in your browser — original, royalty-free, and different every track.' },
+        { type: 'h', label: 'Wind down (sleep timer)' },
+        { type: 'seg', key: 'sleepMinutes', label: 'Length', options: [[15, '15 min'], [30, '30 min'], [45, '45 min'], [60, '1 hour'], [90, '1½ hours']] },
+        { type: 'toggle', key: 'sleepOnSit', label: 'Offer a wind-down when I sit down' },
+        { type: 'buttons', items: [{ label: '🌙 Start wind-down now', primary: true, action: () => app.startSleep() }, { label: 'Cancel', action: () => app.cancelSleep() }] },
         { type: 'h', label: 'Ambience' },
         { type: 'slider', key: 'masterVol', label: 'Master volume' },
         { type: 'slider', key: 'rainVol', label: 'Rain' },
@@ -679,4 +711,13 @@ export class UI {
   }
 }
 export { fmtTime, DEFAULTS };
+// Settings shown only under "More options", so each tab stays simple.
+const ADVANCED = {
+  weather: new Set(['rainSpeed', 'dropSize', 'rainColor', 'puddles', 'wetness', 'mist', 'wind', 'windDir', 'clouds', 'cloudDarkness', 'cloudHeight', 'cloudSpeed', 'lightning', 'thunder']),
+  style: new Set(['palette', 'custom1', 'custom2', 'custom3', 'rainbowMove', 'rainbowSpeed', 'rainbowSpread', 'rainbowDir', 'rainbowSat', 'streetlights', 'storefronts', 'windowGlow', 'headlights', 'neon', 'ambient', 'moonlight', 'bloom']),
+  life: new Set(['pedSpeed', 'umbrellaPct', 'groups', 'dogs', 'trafficSpeed', 'taxis', 'buses', 'cyclists', 'headlightsOn']),
+  audio: new Set(['thunderVol', 'trafficVol', 'peopleVol', 'windVol', 'footstepsVol', 'shuffle']),
+  city: new Set(['lookSensitivity', 'invertY', 'headBob', 'showMinimap']),
+  display: new Set(['resolutionScale', 'showFps']),
+};
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }

@@ -59,6 +59,7 @@ export class AudioEngine {
     return s;
   }
   setBus(name, v, ramp = 0.3) {
+    if (!this.ctx) return;
     const b = this.buses[name]; if (!b) return;
     b.gain.setTargetAtTime(v, this.ctx.currentTime, ramp);
   }

@@ -176,7 +176,7 @@ export class Ambience {
     this.patLight.out.gain.setTargetAtTime(Math.min(1, r * 2) * 0.5, t, 0.4);
     this.patHeavy.out.gain.setTargetAtTime(Math.max(0, r - 0.35) * 0.9, t, 0.4);
     this.patUmb.out.gain.setTargetAtTime(underUmb ? Math.min(1, r * 1.5) * 0.55 : 0, t, 0.15);
-    this.patAwn.out.gain.setTargetAtTime(sheltered ? Math.min(1, r * 1.5) * 0.6 : 0, t, 0.2);
+    this.patAwn.out.gain.setTargetAtTime(sheltered ? Math.min(1, r * 1.6) * 1.0 : 0, t, 0.2);
     // wind gusts
     const gust = 0.6 + 0.4 * Math.sin(performance.now() / 3100) * Math.sin(performance.now() / 1700);
     this.windG.gain.setTargetAtTime((s.wind * 0.5 + s.storm * 0.25) * gust * (inside || under ? 0.1 : 1), t, 0.5);
@@ -201,7 +201,7 @@ export class Ambience {
       }
     });
     // people
-    this.murmur.gain.setTargetAtTime(s.citySounds ? (inside && ind.kind === 'cafe' || ind?.kind === 'tea' ? 0.3 : under ? 0.12 : Math.min(1, (st.people || 0) / 10) * 0.25) : 0, t, 0.8);
+    this.murmur.gain.setTargetAtTime(s.citySounds ? (inside && ind.kind === 'cafe' || ind?.kind === 'tea' ? 0.3 : under ? 0.12 : Math.max(Math.min(1, (st.people || 0) / 10) * 0.25, (st.chatter || 0) ** 2 * 0.42)) : 0, t, 0.6);
     // beds
     this.bed.gain.setTargetAtTime((this.bedBase || 0.05) * (s.citySounds ? 1 : 0.4), t, 1);
     this.distant.gain.setTargetAtTime(s.citySounds ? 0.25 : 0.05, t, 1);

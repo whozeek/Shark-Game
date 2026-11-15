@@ -174,6 +174,7 @@ export function building(cb, b, o) {
         cb.pools[cb.pools.length - 1].hours = hrs;
         cb.light(cx + S.nx * 1.2, 2.6, cz + S.nz * 1.2, col3, 14, 9, 'shop');
         cb.lights[cb.lights.length - 1].hours = hrs;
+        cb.lights[cb.lights.length - 1].shopType = shopName?.type;
         // sign cornice
         cornice(cb, side, b, y0 + gfH, 0.35, 0.25, o.signTrim ?? 0x222222);
         if (o.awning) awning(cb, side, b, y0 + gfH - 0.25, o.awning);

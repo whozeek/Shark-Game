@@ -19,6 +19,7 @@ import { readSharedMood } from './core/moods.js';
 import { UI } from './ui/ui.js';
 import { SeasonFx } from './render/seasonFx.js';
 import { peopleRhythm, trafficRhythm, windowRhythm } from './core/rhythm.js';
+import { isOpen } from './world/kit.js';
 
 export class App {
   constructor() {
@@ -157,15 +158,16 @@ export class App {
   applyVolumes() {
     if (!this.audioReady) return;
     const s = settings.values, a = this.audio;
+    const sm = this.sleepMix || { music: 1, amb: 1 };
     a.setMaster(s.masterVol);
-    a.setBus('music', s.musicVol * 0.8);
-    a.setBus('rain', s.rainVol);
-    a.setBus('thunder', s.thunderVol);
-    a.setBus('traffic', s.trafficVol);
-    a.setBus('people', s.peopleVol);
-    a.setBus('wind', s.windVol);
-    a.setBus('ambience', s.ambienceVol);
-    a.setBus('footsteps', s.footstepsVol);
+    a.setBus('music', s.musicVol * 0.8 * sm.music, 1.5);
+    a.setBus('rain', s.rainVol * sm.amb, 1.5);
+    a.setBus('thunder', s.thunderVol * sm.amb, 1.5);
+    a.setBus('traffic', s.trafficVol * sm.amb, 1.5);
+    a.setBus('people', s.peopleVol * sm.amb, 1.5);
+    a.setBus('wind', s.windVol * sm.amb, 1.5);
+    a.setBus('ambience', s.ambienceVol * sm.amb, 1.5);
+    a.setBus('footsteps', s.footstepsVol * sm.amb, 1.5);
   }
   async toggleMusic() {
     if (!this.audioReady) { await this.enableAudio(true); return; }
@@ -254,6 +256,32 @@ export class App {
       this.ui.updateWalk?.();
     };
     if (P.level || this.interact.indoor) this.ui.fade(back); else { if (r) P.beginGlide(); back(); }
+  }
+  /** Wind-down: over N minutes the music fades, the city quietens and the picture dims. */
+  startSleep(minutes = settings.get('sleepMinutes')) {
+    this.sleep = { t: 0, dur: minutes * 60 };
+    this.ui.toast(`Winding down over ${minutes} minutes — sleep well`, 'info', 4000);
+    this.ui.updateSleep?.(this.sleep);
+  }
+  cancelSleep() {
+    this.sleep = null; this.sleepMix = { music: 1, amb: 1 }; this.sleepDim = 0;
+    this.applyVolumes(); this.ui.updateSleep?.(null); this.ui.showGoodnight?.(false);
+  }
+  updateSleep(dt) {
+    const sl = this.sleep; if (!sl) return;
+    sl.t += dt;
+    const p = Math.min(1, sl.t / sl.dur);
+    const sm = (a, b, x) => { const k = Math.max(0, Math.min(1, (x - a) / (b - a))); return k * k * (3 - 2 * k); };
+    this.sleepMix = { music: 1 - sm(0.45, 1, p), amb: 1 - 0.6 * sm(0.3, 1, p) };
+    this.sleepDim = 0.55 * sm(0.55, 1, p);
+    this.sleepVolT = (this.sleepVolT || 0) - dt;
+    if (this.sleepVolT <= 0) { this.sleepVolT = 2; this.applyVolumes(); this.ui.updateSleep?.(sl); }
+    if (p >= 1 && !sl.done) {
+      sl.done = true;
+      if (this.music?.playing) this.music.pause();
+      this.stroll.paused = true; this.ui.updateWalk?.();
+      this.ui.showGoodnight?.(true);
+    }
   }
   hookLevel(name) {
     const lv = this.cb.levels[name];
@@ -395,8 +423,9 @@ export class App {
     this.controls.pollGamepad(dt);
     this.handleActions(this.controls.consumeActions());
     // time of day progression
-    if (s.timeFlow !== 'still' && !frozen) {
-      const rate = s.timeFlow === 'slow' ? 1 / 600 : 1 / 120;
+    if (s.timeFlow !== 'still' && !frozen && !(s.timeFlow === 'dusk' && s.timeOfDay >= 22 && s.timeOfDay < 23)) {
+      // 'dusk': one hour every six minutes from early evening, settling at 10 PM
+      const rate = s.timeFlow === 'slow' ? 1 / 600 : s.timeFlow === 'dusk' ? 1 / 360 : 1 / 120;
       settings.set('timeOfDay', (s.timeOfDay + dt * rate) % 24, true);
       this.placeTimer = (this.placeTimer || 0) - dt;
       if (this.placeTimer <= 0) { this.placeTimer = 5; this.ui.updatePlace(this.def); this.ui.refreshBindings(); }
@@ -469,14 +498,28 @@ export class App {
     this.umbrella.update(dt, t, { hidden: photo || !this.started, speed: this.player.speed, bob: this.player.bob, rain: s.rainIntensity, wind: s.wind, reducedMotion: s.reducedMotion });
     let prompt = this.started && !photo ? this.interact.update(this.player) : null;
     if (this.started && !photo) {
-      if (this.player.seat || this.resume) prompt = { type: 'resume', label: 'Get up and keep walking' };
+      if (this.player.seat || this.resume) prompt = { type: 'resume', label: 'Get up and keep walking', alt: s.sleepOnSit && !this.sleep ? { label: '🌙 Wind down here', action: () => this.startSleep() } : null };
       else { const st = this.stroll.stopHere(); prompt = st ? { type: 'stop', stop: st, label: st.label } : null; }
     }
     this.ui.setPrompt(prompt);
+    // ---- sleep timer: music fades, city quietens, the picture dims, then everything rests
+    this.updateSleep(dt);
+    // ---- sound that follows you: chatter from open cafés and bars you pass
+    this.chatTimer = (this.chatTimer || 0) - dt;
+    if (this.chatTimer <= 0) {
+      this.chatTimer = 0.4;
+      let near = 99;
+      if (!this.player.level) for (const L of cb.lights) {
+        if (L.kind !== 'shop' || !/cafe|bar|restaurant|tea/.test(L.shopType || '')) continue;
+        if (s.cityRhythm && L.hours && !isOpen(L.hours, s.timeOfDay)) continue;
+        const d = Math.hypot(L.x - this.player.x, L.z - this.player.z); if (d < near) near = d;
+      }
+      this.chatter = Math.max(0, 1 - near / 10);
+    }
     // ---- audio
     if (this.audioReady && this.amb) {
       this.amb.update(dt, s, {
-        snow: this.snowP || 0, indoor: this.interact.indoor, umbrellaOpen: s.umbrella && !this.interact.indoor, sheltered: this.interact.sheltered, hideRain: photo && P.hideRain,
+        snow: this.snowP || 0, chatter: this.chatter || 0, indoor: this.interact.indoor, umbrellaOpen: s.umbrella && !this.interact.indoor, sheltered: this.interact.sheltered, hideRain: photo && P.hideRain,
         cars: traffic ? traffic.nearest(camPos, 3) : [], cam: camPos, yawWorld: Math.atan2(-Math.sin(eng.camera.rotation.y), -Math.cos(eng.camera.rotation.y)),
         people: crowd ? crowd.countNear(camPos.x, camPos.z, 12) : 0,
       });
@@ -516,6 +559,7 @@ export class App {
     U.uPuddles.value = s.puddles; U.uRainAmt.value = s.rainIntensity * (1 - (this.snowP || 0));
     // emissive levels
     const night = atm.night;
+    if (cb.mats.bulb) cb.mats.bulb.color.setScalar(6 * (0.25 + 0.75 * eng.rig.streetOn));
     for (const m of cb.windowMats) m.emissiveIntensity = s.windowGlow * (0.12 + 0.95 * night) * 1.25;
     for (const m of cb.shopMats) m.emissiveIntensity = s.storefronts * (0.45 + 0.8 * night) * 1.25;
     for (const m of cb.neonMats) m.color.setScalar(m.userData.base * s.neon * (0.35 + 0.65 * night) * (0.6 + 0.4 * s.reflNeon));
@@ -527,7 +571,7 @@ export class App {
     eng.bloom.strength = st.bloom * s.bloom * 0.55;
     eng.bloom.threshold = 0.85;
     eng.bloom.radius = 0.5 + st.soft * 0.4;
-    eng.renderer.toneMappingExposure = s.exposure * (photo ? P.exposure : 1) * (1 + U.uFlash.value * 0.25);
+    eng.renderer.toneMappingExposure = s.exposure * (photo ? P.exposure : 1) * (1 + U.uFlash.value * 0.25) * (1 - (this.sleepDim || 0));
     const g = eng.grade.uniforms;
     g.uTime.value = this.time;
     g.uSat.value = st.sat; g.uContrast.value = st.contrast;
