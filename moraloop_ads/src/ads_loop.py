@@ -1066,4 +1066,42 @@ ADS = [
                ["📝", "🌳", "🤔"], "worried", set="yard"),
              M("Did you catch the whole note?"),
          ], close="Do you sign it, or ask them to change the plan?"),
+
+    # Trend: Reddit story about a manager adding a shift to someone's schedule without telling them (TwistedSifter, Nov 15 2026)
+    dict(id="l057_the_surprise_shift", title="The Surprise Shift", made_on="2026-11-15",
+         hook="what did your manager text?",
+         thread=dict(contact="Manager", stamp="Fri 9:48 PM", msgs=[
+             "added you to Sunday, sorry!",
+             "two people called out",
+             "should’ve asked first",
+             "you’d really save us",
+             "can you make it?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You check the schedule. Your manager added you to Sunday without asking.", ["you"], "see",
+               ["📋", "❗", "😮"], "shock", set="office"),
+             S("You had plans with friends you haven’t seen in months.", ["you"], "think", ["👯", "🍽️", "🤔"],
+               "worried", set="home"),
+             M("Did you read the whole thread?"),
+         ], close="Do you work the shift, or keep your plans?"),
+
+    # Trend: Reddit story about a dad upset that his teen read a book instead of swimming at the beach (TwistedSifter, Nov 15 2026)
+    dict(id="l058_the_beach_book", title="The Beach Book", made_on="2026-11-15",
+         hook="what did your partner text?",
+         thread=dict(contact="Partner", stamp="Sat 1:20 PM", msgs=[
+             "drove 3 hours for this beach 🌊",
+             "they haven’t touched the water",
+             "they do love that book tho",
+             "it’s their vacation too",
+             "back me up?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("Family beach day. Your teen sits under the umbrella reading all afternoon.", ["kid", "you"], "laugh",
+               ["🏖️", "📖", "☀️"], "happy", others="happy", set="park"),
+             S("Your partner wants them in the water with everyone.", ["partner", "you"], "say", ["🌊", "📖", "🤔"],
+               "worried", others="worried", set="park"),
+             M("Did you read the whole thread?"),
+         ], close="Do you back up your partner, or let them read?"),
 ]
