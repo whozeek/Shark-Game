@@ -16,8 +16,9 @@ export const nyc = {
   blurb: 'Brownstones, cafés and leafy one-way streets beneath a distant skyline.',
   seed: 4242,
   palette: { fog: '#1d2233', accent: '#ffb86b' },
-  vehicleMix: { car: 0.55, taxi: 0.3, suv: 0.1, van: 0.05 },
+  vehicleMix: { car: 0.45, taxi: 0.38, suv: 0.12, van: 0.05 },
   bus: true,
+  busy: 1.6, // more traffic: yellow cabs and cars stream down the avenues
   build,
 };
 

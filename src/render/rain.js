@@ -62,7 +62,19 @@ function rainLayer(count, box, len, width, alpha, near, far, seed) {
     fragmentShader: /* glsl */`
       ${GLSL_COMMON}
       uniform vec3 uRainCol, uCam; uniform float uAlpha, uNear, uFar, uRainLight, uRainGlint;
+      uniform vec4 uPoolA[40]; uniform vec3 uPoolC[40];
       varying float vA; varying vec2 vUv; varying vec3 vW; varying float vFlake;
+      vec3 rainLit(vec3 p){
+        vec3 acc = vec3(0.0);
+        for (int i = 0; i < 14; i++) {
+          vec4 a = uPoolA[i]; if (a.w <= 0.0) continue;
+          vec2 d = p.xz - a.xy; float r2 = dot(d, d) / (a.z * a.z * 0.8);
+          if (r2 > 1.0) continue;
+          float f = (1.0 - r2) * smoothstep(7.5, 1.0, p.y);
+          acc += uPoolC[i] * f * a.w;
+        }
+        return acc;
+      }
       void main(){
         float d = length(vW - uCam);
         float fade = smoothstep(uNear * 0.6, uNear, d) * (1.0 - smoothstep(uFar * 0.7, uFar, d));
@@ -71,6 +83,8 @@ function rainLayer(count, box, len, width, alpha, near, far, seed) {
         vec3 c = uRainCol * uRainLight;
         c = mix(c, raRainbowCol(vW) * 1.4 * uRainLight + uRainCol * 0.2, uRainbow * (0.4 + uRainGlint * 0.6));
         c += uFlash * vec3(0.8, 0.85, 1.0) * 2.0;
+        // drops falling through a lamp's or headlight's light catch it and sparkle
+        c += rainLit(vW) * (1.6 + uRainGlint * 1.6);
         float a = across * along * fade * vA * uAlpha;
         if (vFlake > 0.5) {
           float r = length(vUv - 0.5);

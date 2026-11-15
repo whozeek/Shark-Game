@@ -556,6 +556,7 @@ export class App {
     U.uReflWindow.value = s.reflWindow * R; U.uReflCar.value = s.reflCar * R;
     U.uReflBlur.value = s.reflBlur; U.uReflLen.value = s.reflLength; U.uReflColor.value = s.reflColor; U.uReflMotion.value = s.reflMotion;
     U.uWetness.value = s.wetness * Math.min(1, 0.55 + s.rainIntensity);
+    U.uWindAmt.value = s.wind + s.storm * 0.5;
     U.uPuddles.value = s.puddles; U.uRainAmt.value = s.rainIntensity * (1 - (this.snowP || 0));
     // emissive levels
     const night = atm.night;

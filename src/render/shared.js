@@ -43,6 +43,7 @@ export const U = {
   uSeasonLeaf: { value: 1 },
   uSnowCover: { value: 0 },
   uSnow: { value: 0 },
+  uWindAmt: { value: 0.25 },
   uWinFrac: { value: 1 },
 };
 export const POOL_COUNT = 40;
@@ -224,6 +225,10 @@ export function patchGround(mat, { puddleScale = 1, taps = 5, pools = 40 } = {})
         {
           vec3 raPl = raPools(vRaWPos);
           gl_FragColor.rgb += raPl * (diffuseColor.rgb * 1.6 + 0.05 + 0.12 * raPud * uWetness);
+          // glisten: specks of light twinkle on the wet surface inside lamp light
+          vec2 gc = floor(vRaWPos.xz * 38.0);
+          float tw = step(0.975, raHash12(gc + floor(uTime * 2.5 + raHash12(gc) * 9.0)));
+          gl_FragColor.rgb += raPl * tw * 1.8 * uWetness * (0.4 + 0.6 * raPud);
         }
         gl_FragColor.rgb += raRainbowCol(vRaWPos) * uRainbow * 0.025 * uWetness;
       `);
@@ -337,6 +342,21 @@ export function patchWash(mat, amt = 0.03, { leaf = false } = {}) {
   mat.onBeforeCompile = (shader) => {
     addUniforms(shader);
     injectVertex(shader);
+    if (leaf) {
+      shader.vertexShader = shader.vertexShader
+        .replace('#include <common>', '#include <common>\nuniform float uTime, uWindAmt;')
+        .replace('#include <begin_vertex>', `#include <begin_vertex>
+          {
+            vec3 base = vec3(0.0);
+            #ifdef USE_INSTANCING
+              base = (instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+            #endif
+            float sway = (0.25 + uWindAmt * 1.4) * (0.6 + 0.4 * sin(uTime * 0.37 + base.x * 0.05));
+            float ph = uTime * (1.1 + uWindAmt) + base.x * 0.31 + base.z * 0.23;
+            transformed.x += sin(ph) * 0.05 * sway * (transformed.y + 1.0);
+            transformed.z += cos(ph * 0.8) * 0.04 * sway * (transformed.y + 1.0);
+          }`);
+    }
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', '#include <common>\n' + VERT_PARS + GLSL_COMMON)
       .replace('#include <color_fragment>', `#include <color_fragment>

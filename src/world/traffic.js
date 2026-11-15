@@ -103,6 +103,7 @@ export class Traffic {
     this.busColor = def.busColor ?? 0x2a5aa8;
     this.taxiColor = def.taxiColor ?? TAXI_YELLOW;
     this.decker = !!def.decker;
+    this.busy = def.busy ?? 1;
     this.leftHand = !!cb.layout?.leftHand;
     this.allowBus = def.bus !== false;
     this.allowBikes = def.bikes !== false;
@@ -266,14 +267,14 @@ export class Traffic {
 
   update(dt, t, ctx) {
     const s = ctx.settings;
-    const target = Math.round(this.max * Math.min(1, s.traffic * (ctx.trafficMul ?? 1)));
+    const target = Math.round(this.max * Math.min(1, s.traffic * (ctx.trafficMul ?? 1) * (this.busy ?? 1)));
     if (!this.populated) { this.populate(target, s); this.populated = true; }
     // adjust population gradually
     if (this.vehicles.length > target) {
       // remove one far from the camera
       const v = this.vehicles.find((c) => this.dist(c, ctx.cam) > 60) || (target === 0 ? this.vehicles[0] : null);
       if (v) { this.release(v); this.vehicles = this.vehicles.filter((c) => c !== v); }
-    } else if (this.vehicles.length < target && this.rng.f() < dt * 2) {
+    } else if (this.vehicles.length < target && this.rng.f() < dt * 5) {
       const lane = this.rng.pick(this.lanes);
       if (lane) {
         const start = lane.dir > 0 ? lane.from : lane.to;
