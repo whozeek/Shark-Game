@@ -153,6 +153,8 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 146 | 2026-12-22 | 12:00 PM | short | The Cutback | `moraloop_ads/trends/t060_the_cutback.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t060_the_cutback.mp4) |
 | 147 | 2026-12-23 | 12:00 PM | short | Raise or Promotion | `moraloop_ads/trends/t061_raise_or_promotion.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t061_raise_or_promotion.mp4) |
 | 148 | 2026-12-24 | 12:00 PM | short | The Wrong Gift | `moraloop_ads/trends/t062_the_wrong_gift.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t062_the_wrong_gift.mp4) |
+| 149 | 2026-12-25 | 12:00 PM | short | The Gym Machines | `moraloop_ads/trends/t063_the_gym_machines.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t063_the_gym_machines.mp4) |
+| 150 | 2026-12-26 | 12:00 PM | short | The Moving Help | `moraloop_ads/trends/t064_the_moving_help.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t064_the_moving_help.mp4) |
 
 ## Captions
 
@@ -1486,5 +1488,23 @@ Video: `moraloop_ads/trends/t062_the_wrong_gift.mp4`
 Your mom proudly gives you an expensive bag you said you didn’t like. It still has the receipt. Return it, or keep it? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #family #gifts #birthday
+```
+
+### 149. 2026-12-25 12:00 PM: The Gym Machines (short)
+Video: `moraloop_ads/trends/t063_the_gym_machines.mp4`
+
+```
+Someone is using three gym machines at once, mid-circuit. You only have twenty minutes. Ask to use one, or wait your turn? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #gym #fitness #etiquette
+```
+
+### 150. 2026-12-26 12:00 PM: The Moving Help (short)
+Video: `moraloop_ads/trends/t064_the_moving_help.mp4`
+
+```
+You offered to help a friend move Saturday. They moved it to Sunday, when you have plans. Cancel your plans, or say no? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #moving #boundaries
 ```
 

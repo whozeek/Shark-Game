@@ -501,4 +501,20 @@ ADS = [
         S("She’s so proud of it. It still has the receipt.", ["elder", "you"], "say", ["😊", "🧾", "👜"],
           "worried", set="home"),
     ], close="Do you return it, or keep it?"),
+
+    # Trend: Reddit story about a gym-goer hogging several machines at once (TwistedSifter, Nov 15 2026)
+    dict(id="t063_the_gym_machines", title="The Gym Machines", made_on="2026-11-15", beats=[
+        S("At the outdoor gym, someone is using three machines at once. You’ve waited ten minutes.", ["stranger", "you"],
+          "react", ["🏋️", "⏳", "3️⃣"], "worried", set="field"),
+        S("They’re in the middle of a circuit. You only have twenty minutes left.", ["you"], "think",
+          ["🔁", "⏰", "🤔"], "worried", set="field"),
+    ], close="Do you ask to use one, or wait your turn?"),
+
+    # Trend: Reddit story about a friend who wanted moving help at the last minute (TwistedSifter, Nov 15 2026)
+    dict(id="t064_the_moving_help", title="The Moving Help", made_on="2026-11-15", beats=[
+        S("You told your friend you could help them move on Saturday.", ["friend", "you"], "say",
+          ["📦", "🚚", "🤝"], "happy", set="moving"),
+        S("They moved it to Sunday without asking. Now they need you, and you have plans.", ["friend", "you"],
+          "say", ["📦", "🙏", "🎟️"], "worried", set="moving"),
+    ], close="Do you cancel your plans to help, or say no?"),
 ]
