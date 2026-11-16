@@ -1104,4 +1104,42 @@ ADS = [
                "worried", others="worried", set="park"),
              M("Did you read the whole thread?"),
          ], close="Do you back up your partner, or let them read?"),
+
+    # Trend: Reddit story about an office worker's free candy dish and an event committee that wanted it to fundraise (TwistedSifter, Nov 16 2026)
+    dict(id="l059_the_candy_dish", title="The Candy Dish", made_on="2026-11-16",
+         hook="what did the committee text?",
+         thread=dict(contact="Event Committee", stamp="Tue 2:10 PM", msgs=[
+             "love your candy dish! 🍬",
+             "could it be $1 a piece?",
+             "it’d pay for the party",
+             "everyone stops by your desk",
+             "think about it?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("You keep a free candy dish on your desk. Everyone at work loves it.", ["coworker", "you"], "laugh",
+               ["🍬", "🍫", "💼"], "happy", others="happy", set="office"),
+             S("The party committee asks you to charge for it, to raise money.", ["coworker", "you"], "say",
+               ["🍬", "💵", "🎉"], "worried", others="happy", set="office"),
+             M("Did you read the whole thread?"),
+         ], close="Do you start charging, or keep it free?"),
+
+    # Trend: Reddit story about a grad student whose late nights keep waking a light-sleeping roommate (TwistedSifter, Nov 16 2026)
+    dict(id="l060_the_light_sleeper", title="The Light Sleeper", made_on="2026-11-16",
+         hook="what did your roommate text?",
+         thread=dict(contact="Roommate", stamp="Thu 2:14 AM", msgs=[
+             "you up again? 😩",
+             "maybe I need a fan lol",
+             "I have work at 7",
+             "I know finals are hard",
+             "please?",
+         ]),
+         cut_beat=1,
+         beats=[
+             S("It’s finals season. You study until two every night.", ["you"], "think", ["📚", "🌙", "☕"], "worried",
+               set="home_night"),
+             S("Your roommate is a light sleeper. Your footsteps keep waking them up.", ["friend", "you"], "say",
+               ["😴", "👣", "🤔"], "worried", others="sad", set="home_night"),
+             M("Did you read the whole thread?"),
+         ], close="Do you change your routine, or ask them to adjust?"),
 ]
