@@ -157,6 +157,8 @@ This file is rebuilt automatically by the content agents after every run, so the
 | 150 | 2026-12-24 | 12:00 PM | short | The Wrong Gift | `moraloop_ads/trends/t062_the_wrong_gift.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t062_the_wrong_gift.mp4) |
 | 151 | 2026-12-25 | 12:00 PM | short | The Gym Machines | `moraloop_ads/trends/t063_the_gym_machines.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t063_the_gym_machines.mp4) |
 | 152 | 2026-12-26 | 12:00 PM | short | The Moving Help | `moraloop_ads/trends/t064_the_moving_help.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t064_the_moving_help.mp4) |
+| 153 | 2026-12-27 | 12:00 PM | short | The Concert Ticket | `moraloop_ads/trends/t065_the_concert_ticket.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t065_the_concert_ticket.mp4) |
+| 154 | 2026-12-28 | 12:00 PM | short | The Long Commute | `moraloop_ads/trends/t066_the_long_commute.mp4` | [download](https://github.com/whozeek/shark-game/raw/claude/moral-loop-claymation/moraloop_ads/trends/t066_the_long_commute.mp4) |
 
 ## Captions
 
@@ -1526,5 +1528,23 @@ Video: `moraloop_ads/trends/t064_the_moving_help.mp4`
 You offered to help a friend move Saturday. They moved it to Sunday, when you have plans. Cancel your plans, or say no? What would you do? 👇
 More questions like this on Moraloop. Coming soon.
 #moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #moving #boundaries
+```
+
+### 153. 2026-12-27 12:00 PM: The Concert Ticket (short)
+Video: `moraloop_ads/trends/t065_the_concert_ticket.mp4`
+
+```
+You bought a concert ticket for your best friend, who’s bailed on your last three plans. Another friend would love to go. Keep it for your best friend, or give it away? Comment A or B 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #friendship #concert #plans
+```
+
+### 154. 2026-12-28 12:00 PM: The Long Commute (short)
+Video: `moraloop_ads/trends/t066_the_long_commute.mp4`
+
+```
+A new job pays a lot more, but it’s 45 minutes each way. Right now you walk to work. Higher pay, or the short commute? What would you do? 👇
+More questions like this on Moraloop. Coming soon.
+#moraloop #whatwouldyoudo #moraldilemma #claymation #career #commute #worklife
 ```
 

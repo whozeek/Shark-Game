@@ -517,4 +517,20 @@ ADS = [
         S("They moved it to Sunday without asking. Now they need you, and you have plans.", ["friend", "you"],
           "say", ["📦", "🙏", "🎟️"], "worried", set="moving"),
     ], close="Do you cancel your plans to help, or say no?"),
+
+    # Trend: Reddit story about giving a flaky friend's concert ticket to someone else (TwistedSifter, Nov 16 2026)
+    dict(id="t065_the_concert_ticket", title="The Concert Ticket", made_on="2026-11-16", beats=[
+        S("You bought two concert tickets for you and your best friend.", ["friend", "you"], "react",
+          ["🎟️", "🎟️", "🎤"], "happy", others="happy", set="home"),
+        S("They’ve bailed on your last three plans. Another friend would love to go.", ["you"], "think",
+          ["❌", "🔁", "🙋"], "worried", set="home"),
+    ], close="Do you keep the ticket for your best friend, or give it away?"),
+
+    # Trend: Reddit debate about whether a longer commute is worth a higher salary (Daily Dot, Nov 15 2026)
+    dict(id="t066_the_long_commute", title="The Long Commute", made_on="2026-11-16", beats=[
+        S("You get a job offer that pays a lot more.", ["boss", "you"], "say", ["💼", "💵", "📈"], "happy",
+          set="office"),
+        S("But it means 45 minutes each way. Right now you walk to work.", ["you"], "think", ["🚗", "⏰", "🚶"],
+          "worried", set="street"),
+    ], close="Do you take the higher pay, or keep the short commute?"),
 ]
